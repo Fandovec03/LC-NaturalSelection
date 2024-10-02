@@ -1,5 +1,5 @@
 # ExperimentalEnemyInteractions
- Experimental repos for my enemy interactions mod
+ Experimental repos for my future enemy interactions mod. Currently it only makes spider hit enemy on collision.
 
 Credits:
 =================================================

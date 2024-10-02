@@ -5,5 +5,4 @@ Credits:
 =================================================
 LethalCompany modding discord
 --------------------------------------------------
-Zesa, TKronix, Swaggies:
--help on figuring out collision detection
+Zesa, TKronix, Swaggies: helping me figure out collision detection

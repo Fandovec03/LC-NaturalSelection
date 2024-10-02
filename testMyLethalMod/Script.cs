@@ -3,16 +3,15 @@ using BepInEx.Logging;
 using HarmonyLib;
 using LobbyCompatibility.Attributes;
 using LobbyCompatibility.Enums;
-using testMyLethalMod.Patches;
 
-namespace testMyLethalMod
+namespace ExperimentalEnemyInteractions
 {
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
     [BepInDependency("BMX.LobbyCompatibility", BepInDependency.DependencyFlags.SoftDependency)]
     [LobbyCompatibility(CompatibilityLevel.ClientOnly, VersionStrictness.None)]
-    public class testMyLethalMod : BaseUnityPlugin
+    public class Script : BaseUnityPlugin
     {
-        public static testMyLethalMod Instance { get; private set; } = null!;
+        public static Script Instance { get; private set; } = null!;
         internal new static ManualLogSource Logger { get; private set; } = null!;
         internal static Harmony? Harmony { get; set; }
 

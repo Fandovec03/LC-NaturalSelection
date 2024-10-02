@@ -1,19 +1,17 @@
+using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using HarmonyLib.Tools;
 using JetBrains.Annotations;
-using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.Assertions.Must;
 
-namespace testMyLethalMod.Patches
+namespace ExperimentalEnemyInteractions.Patches
 {
     public class OnCollideWithUniversal
     {
         public static void DebugLog(Collider other, string text, EnemyAI? mainscript, EnemyAI? mainscript2)
         {
-            Debug.Log("Hit collider " + other.gameObject.name + " Of " + mainscript2 + ", Tag: " + text);
+            Script.Logger.LogInfo("Hit collider " + other.gameObject.name + " Of " + mainscript2 + ", Tag: " + text);
 
             if (mainscript is SandSpiderAI && mainscript2 is not SandSpiderAI && mainscript2 != null)
             {
@@ -26,20 +24,17 @@ namespace testMyLethalMod.Patches
                     mainscript2.HitEnemy(2, null, playHitSFX: true);
                 }
             }
-        }
-
-        
+        } 
     }
 
     [HarmonyPatch(typeof(EnemyAICollisionDetect), "OnTriggerStay")]
-
     class AICollisionDetectPatch
     {
         static bool Prefix(Collider other, EnemyAICollisionDetect __instance)
         {
             EnemyAICollisionDetect compoment2 = other.gameObject.GetComponent<EnemyAICollisionDetect>();
 
-            if (__instance != null)
+            if (__instance != null && other != null && compoment2 != null)
             {
                 if (other.CompareTag("Player") && __instance.mainScript.isEnemyDead == false)
                 {
@@ -57,7 +52,6 @@ namespace testMyLethalMod.Patches
             return true;
         }
     }
-
     public class IsEnemyImmortal
     {
         public static bool EnemyIsImmortal(EnemyAI instance)

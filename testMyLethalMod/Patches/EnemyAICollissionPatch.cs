@@ -32,7 +32,7 @@ namespace ExperimentalEnemyInteractions.Patches
     {
         static bool Prefix(Collider other, EnemyAICollisionDetect __instance)
         {
-            EnemyAICollisionDetect compoment2 = other.gameObject.GetComponent<EnemyAICollisionDetect>();
+            EnemyAI compoment2 = other.gameObject.GetComponent<EnemyAI>();
 
             if (__instance != null && other != null && compoment2 != null)
             {
@@ -40,12 +40,12 @@ namespace ExperimentalEnemyInteractions.Patches
                 {
                     OnCollideWithUniversal.DebugLog(other, "Player", null, null);
                 }
-                if (other.CompareTag("Enemy") && compoment2.mainScript != __instance.mainScript && compoment2.mainScript.isEnemyDead == false
-                      && IsEnemyImmortal.EnemyIsImmortal(compoment2.mainScript) == false)
+                if (other.CompareTag("Enemy") && compoment2 != __instance.GetComponent<EnemyAI>() && compoment2.isEnemyDead == false
+                      && IsEnemyImmortal.EnemyIsImmortal(compoment2) == false)
                 {
-                    if (other.TryGetComponent<EnemyAI> != null)
+                    if (compoment2 != null)
                     {
-                        OnCollideWithUniversal.DebugLog(other, "Enemy", __instance.mainScript, compoment2.mainScript);
+                        OnCollideWithUniversal.DebugLog(other, "Enemy", __instance.mainScript, compoment2);
                     }
                 }
             }

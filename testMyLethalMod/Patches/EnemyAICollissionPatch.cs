@@ -9,9 +9,16 @@ namespace ExperimentalEnemyInteractions.Patches
 {
     public class OnCollideWithUniversal
     {
+        public static float Logger1CD = 0;
+
         public static void DebugLog(Collider other, string text, EnemyAI? mainscript, EnemyAI? mainscript2)
         {
-            Script.Logger.LogInfo("Hit collider " + other.gameObject.name + " Of " + mainscript2 + ", Tag: " + text);
+            if (Logger1CD <= 0)
+            {
+                Script.Logger.LogInfo(mainscript + ", ID: " + mainscript?.GetInstanceID() + "hit collider " + other.gameObject.name + " Of " + mainscript2 + ", ID: " + mainscript2?.GetInstanceID() + ", Tag: " + text);
+                Logger1CD = (float)0.5;
+            }
+            Logger1CD -= Time.deltaTime;
 
             if (mainscript is SandSpiderAI && mainscript2 is not SandSpiderAI && mainscript2 != null)
             {
@@ -40,7 +47,7 @@ namespace ExperimentalEnemyInteractions.Patches
                 {
                     OnCollideWithUniversal.DebugLog(other, "Player", null, null);
                 }
-                if (other.CompareTag("Enemy") && compoment2 != __instance.GetComponent<EnemyAI>() && compoment2.isEnemyDead == false
+                if (other.CompareTag("Enemy") && __instance.mainScript != compoment2 && compoment2.isEnemyDead == false
                       && IsEnemyImmortal.EnemyIsImmortal(compoment2) == false)
                 {
                     if (compoment2 != null)
@@ -56,14 +63,29 @@ namespace ExperimentalEnemyInteractions.Patches
     {
         public static bool EnemyIsImmortal(EnemyAI instance)
         {
-            if (instance is NutcrackerEnemyAI)
-            {
-                if (instance.currentBehaviourStateIndex == 0)
+                if (instance is NutcrackerEnemyAI)
+                {
+                    if (instance.currentBehaviourStateIndex == 0)
+                    {
+                        return true;
+                    }
+                }
+                if (instance is JesterAI)
                 {
                     return true;
                 }
-        
-            }
+                if (instance is BlobAI)
+                    {
+                    return true;
+                }
+                if (instance is SpringManAI)
+                    {
+                    return true;
+                }
+                if (instance is SandWormAI)
+                    {
+                    return true;
+                }
             return false;
         }
     }

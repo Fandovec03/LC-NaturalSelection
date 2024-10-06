@@ -1,5 +1,9 @@
 # ExperimentalEnemyInteractions 
- Experimental repos for my future enemy interactions mod. Currently it only makes spider hit enemy on collision.
+ Experimental mod for my future enemy interactions mod aimed at making the game feel more alive.<br>
+<br>
+Currently supported entities:<br>
+- Bunker Spider<br>
+- Hygrodire (Blob)<br>
 
 Credits:
 --------------------------------------------------

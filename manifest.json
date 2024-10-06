@@ -1,7 +1,7 @@
 {
     "name": "ExperimentalEnemyInteractions",
-    "version_number": "0.1.4",
+    "version_number": "0.1.5",
     "website_url": "https://github.com/Fandovec03/ExperimentalEnemyInteractions",
-    "description": " *WIP* Experimental upload for my future enemy interactions mod.",
+    "description": " *WIP* Experimental. Aims to make the game feel more alive.",
     "dependencies": []
 }

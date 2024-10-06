@@ -3,7 +3,7 @@
 <br>
 Currently supported entities:<br>
 - Bunker Spider<br>
-- Hygrodire (Blob)<br>
+- Hygrodere (Blob)<br>
 
 Credits:
 --------------------------------------------------

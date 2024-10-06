@@ -3,6 +3,7 @@
 	- Hygrodere now eats almost everything alive!
 	- Spider deals 1 damage when Enemy has 2 or less health
 	- Added config file
+	- ~~Spider is now hunting Hoarding bugs~~ Disabled due to sync issues. Available as a toggle in config
 -0.1.4
 	- Fixed NullReferences, Functioning LOS check, added enemy list and base of assigning target (WIP) <br>
 -0.1.3

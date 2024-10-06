@@ -21,6 +21,7 @@ namespace ExperimentalEnemyInteractions.Patches
 
         static bool debugMode = Script.BoundingConfig.debugBool.Value;
         static bool enableSpider = Script.BoundingConfig.enableSpider.Value;
+        static bool spiderHuntHoardingbug = Script.BoundingConfig.spiderHuntHoardingbug.Value;
 
         [HarmonyPatch("Update")]
         [HarmonyPostfix]
@@ -88,7 +89,7 @@ namespace ExperimentalEnemyInteractions.Patches
                 }
             }
 
-            if (closestEnemy != null && __instance != null && Vector3.Distance(__instance.transform.position, closestEnemy.transform.position) < 100f && refreshCDtime <= 0)
+            if (spiderHuntHoardingbug && closestEnemy != null && __instance != null && Vector3.Distance(__instance.transform.position, closestEnemy.transform.position) < 80f && refreshCDtime <= 0)
             {
                     if (closestEnemy is HoarderBugAI)
                     {
@@ -103,9 +104,10 @@ namespace ExperimentalEnemyInteractions.Patches
                             __instance.CancelSpoolingBody();
                         }
 
-                    if (targetEnemy == null)
+                    if (targetEnemy == null || targetEnemy.isEnemyDead)
                         {
-                            __instance.StopChasing();
+                        __instance.movingTowardsTargetPlayer = false;
+                        __instance.StopChasing();
                         }
                     if (__instance.onWall)
                         {
@@ -132,7 +134,9 @@ namespace ExperimentalEnemyInteractions.Patches
         [HarmonyPostfix]
         static void DoAIIntervalPostfix(SandSpiderAI __instance)
         {
-            if (targetEnemy != null)
+            if (!spiderHuntHoardingbug) return;
+
+            if (targetEnemy != null || targetEnemy.isEnemyDead)
             {
                 if (__instance.patrolHomeBase.inProgress)
                 {
@@ -146,6 +150,5 @@ namespace ExperimentalEnemyInteractions.Patches
                 __instance.SetDestinationToPosition(targetEnemy.transform.position, true);
             }
         }
-        
     }
 }

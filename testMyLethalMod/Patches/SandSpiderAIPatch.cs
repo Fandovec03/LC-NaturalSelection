@@ -6,6 +6,7 @@ using UnityEngine;
 using BepInEx;
 using BepInEx.Logging;
 using System.Runtime.CompilerServices;
+using UnityEngine.Experimental.Rendering;
 
 namespace ExperimentalEnemyInteractions.Patches
 {
@@ -17,37 +18,37 @@ namespace ExperimentalEnemyInteractions.Patches
         static float refreshCDtime = (float)0.2;
         static EnemyAI? closestEnemy;
         static EnemyAI? targetEnemy;
+
+        static bool debugMode = Script.BoundingConfig.debugBool.Value;
+        static bool enableSpider = Script.BoundingConfig.enableSpider.Value;
+
         [HarmonyPatch("Update")]
         [HarmonyPostfix]
         static void UpdatePatch(SandSpiderAI __instance)
         {
+            if (!enableSpider) return;
+
             time += Time.deltaTime;
             refreshCDtime -= Time.deltaTime;
+            if (debugMode) Script.Logger.LogInfo("Start Time: " + time + ", refreshCDtime: " + refreshCDtime);
 
-            if (true && refreshCDtime <= 0)
+            if (refreshCDtime <= 0)
             {
                 foreach (EnemyAI enemy in RoundManager.Instance.SpawnedEnemies)
                 {
-                    if (enemyList.Contains(enemy) && enemy.isEnemyDead == false && refreshCDtime <= 0)
+                    if (enemyList.Contains(enemy) && enemy.isEnemyDead == false)
                     {
-                        Script.Logger.LogWarning("Found Duplicate " + enemy.gameObject.name + ", ID: " + enemy.GetInstanceID() + ". Returning. Time:" + time);
-                        refreshCDtime = (float)0.2;
-                        return;
+                        if (debugMode) Script.Logger.LogWarning("Found Duplicate " + enemy.gameObject.name + ", ID: " + enemy.GetInstanceID() + ". Returning.");
                     }
                     if (enemyList.Contains(enemy) && enemy.isEnemyDead == true)
                     {
                         enemyList.Remove(enemy);
-                        Script.Logger.LogInfo("Found and removed dead Enemy " + enemy.gameObject.name + ", ID:  " + enemy.GetInstanceID() + "on List.");
-                        return;
+                        Script.Logger.LogMessage("Found and removed dead Enemy " + enemy.gameObject.name + ", ID:  " + enemy.GetInstanceID() + "on List.");
                     }
                     if (!enemyList.Contains(enemy) && enemy.isEnemyDead == false && enemy.GetInstanceID() != __instance.GetInstanceID())
                     {
                         enemyList.Add(enemy);
                         Script.Logger.LogMessage("Added " + enemy.gameObject.name + " detected in List. Instance: " + enemy.GetInstanceID());
-                        return;
-                    }
-                    if (__instance != null)
-                    {
                     }
                 }
 
@@ -60,23 +61,19 @@ namespace ExperimentalEnemyInteractions.Patches
                         {
                             Script.Logger.LogError("Detected null enemy in the list. Removing...");
                             enemyList.RemoveAt(i);
-                            return;
                         }
-                        if (!Physics.Linecast(__instance.gameObject.transform.position, enemyList[i].gameObject.transform.position, out hit, StartOfRound.Instance.collidersRoomMaskDefaultAndPlayers, QueryTriggerInteraction.Ignore) && time >= 1)
+                        if (!Physics.Linecast(__instance.gameObject.transform.position, enemyList[i].gameObject.transform.position, out hit, StartOfRound.Instance.collidersRoomMaskDefaultAndPlayers, QueryTriggerInteraction.Ignore))
                         {
-                            Script.Logger.LogMessage("LOS check: " + __instance + "Has line of sight on " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID());
-                            return;
+                            if (debugMode) Script.Logger.LogMessage("LOS check: " + __instance + "Has line of sight on " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID());
                         }
                         if (closestEnemy == null)
                         {
                             Script.Logger.LogInfo("No enemy assigned. Assigning " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID() + " as new closestEnemy.");
                             closestEnemy = enemyList[i];
-                            return;
                         }
-                        if (closestEnemy == enemyList[i] && time >= 1)
+                        if (closestEnemy == enemyList[i])
                         {
-                            Script.Logger.LogWarning(enemyList[i] + ", ID: " + enemyList[i].GetInstanceID() + " is already assigned as closestEnemy");
-                            return;
+                            if (debugMode) Script.Logger.LogWarning(enemyList[i] + ", ID: " + enemyList[i].GetInstanceID() + " is already assigned as closestEnemy");
                         }
                         if (enemyList[i] != closestEnemy)
                         {
@@ -84,17 +81,14 @@ namespace ExperimentalEnemyInteractions.Patches
                             {
                                 closestEnemy = enemyList[i];
                                 Script.Logger.LogDebug(Vector3.Distance(__instance.transform.position, enemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, closestEnemy.transform.position));
-                                if (time >= 1) Script.Logger.LogInfo("Assigned " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID() + " as new closestEnemy. Distance: " + Vector3.Distance(__instance.transform.position, closestEnemy.transform.position));
+                                if (debugMode) Script.Logger.LogInfo("Assigned " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID() + " as new closestEnemy. Distance: " + Vector3.Distance(__instance.transform.position, closestEnemy.transform.position));
                             }
-                            return;
                         }
                     }
                 }
-                time = 0;
-                refreshCDtime = (float)0.2;
             }
-            
-            if (closestEnemy != null && __instance != null && Vector3.Distance(__instance.transform.position, closestEnemy.transform.position) < 100f)
+
+            if (closestEnemy != null && __instance != null && Vector3.Distance(__instance.transform.position, closestEnemy.transform.position) < 100f && refreshCDtime <= 0)
             {
                     if (closestEnemy is HoarderBugAI)
                     {
@@ -121,6 +115,16 @@ namespace ExperimentalEnemyInteractions.Patches
                         }
                     }
                 }
+
+            if (debugMode) Script.Logger.LogInfo("Stop Time: " + time + ", refreshCDtime: " + refreshCDtime);
+            if (refreshCDtime <= 0)
+            {
+                refreshCDtime = (float)0.2;
+            }
+            if (time > 1)
+            {
+                time = 0;
+            }
         }
 
         

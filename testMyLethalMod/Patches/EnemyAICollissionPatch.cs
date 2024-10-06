@@ -10,6 +10,9 @@ namespace ExperimentalEnemyInteractions.Patches
     public class OnCollideWithUniversal
     {
         static float HitCooldownTime = (float)0.1;
+        static bool debugMode = Script.BoundingConfig.debugBool.Value;
+        static bool enableSpider = Script.BoundingConfig.enableSpider.Value;
+        static bool enableSlime = Script.BoundingConfig.enableSlime.Value;
 
 
         public static void DebugLog(string text, EnemyAI? mainscript, EnemyAI? mainscript2)
@@ -18,13 +21,13 @@ namespace ExperimentalEnemyInteractions.Patches
 
             if (HitCooldownTime <= 0)
             {
-                Script.Logger.LogInfo(mainscript + ", ID: " + mainscript?.GetInstanceID() + "Hit collider of " + mainscript2 + ", ID: " + mainscript2?.GetInstanceID() + ", Tag: " + text);
+                if (debugMode) Script.Logger.LogInfo(mainscript + ", ID: " + mainscript?.GetInstanceID() + "Hit collider of " + mainscript2 + ", ID: " + mainscript2?.GetInstanceID() + ", Tag: " + text);
                 HitCooldownTime = (float)0.1;
             }
 
             if (mainscript != null && mainscript2 != null)
             {
-                if (mainscript is SandSpiderAI && mainscript2 is not SandSpiderAI && mainscript2 != null)
+                if (mainscript is SandSpiderAI && mainscript2 is not SandSpiderAI && mainscript2 != null && enableSpider)
                 {
                     SandSpiderAI? spiderAI = mainscript as SandSpiderAI;
 
@@ -32,11 +35,19 @@ namespace ExperimentalEnemyInteractions.Patches
                     {
                         spiderAI.timeSinceHittingPlayer = 0f;
                         spiderAI.creatureSFX.PlayOneShot(spiderAI.attackSFX);
-                        mainscript2.HitEnemy(2, null, playHitSFX: true);
+
+                        if (mainscript2.enemyHP > 2 )
+                        {
+                            mainscript2.HitEnemy(2, null, playHitSFX: true);
+                        }
+                        else
+                        {
+                            mainscript2.HitEnemy(1, null, playHitSFX: true);
+                        }
                     }
                 }
 
-                if (mainscript is BlobAI && mainscript2 is not BlobAI && mainscript2 != null)
+                if (mainscript is BlobAI && mainscript2 is not BlobAI && mainscript2 != null && enableSlime)
                 {
                     BlobAI? blobAI = mainscript as BlobAI;
 
@@ -67,6 +78,7 @@ namespace ExperimentalEnemyInteractions.Patches
     [HarmonyPatch(typeof(EnemyAICollisionDetect), "OnTriggerStay")]
     class AICollisionDetectPatch
     {
+
         //[HarmonyPrefix]
         static bool Prefix(Collider other, EnemyAICollisionDetect __instance)
         {

@@ -1,5 +1,6 @@
 using BepInEx;
 using BepInEx.Logging;
+using BepInEx.Configuration;
 using HarmonyLib;
 using LobbyCompatibility.Attributes;
 using LobbyCompatibility.Enums;
@@ -15,10 +16,14 @@ namespace ExperimentalEnemyInteractions
         internal new static ManualLogSource Logger { get; private set; } = null!;
         internal static Harmony? Harmony { get; set; }
 
+        internal static MyModConfig BoundingConfig { get; set; } = null!;
+
         private void Awake()
         {
             Logger = base.Logger;
             Instance = this;
+
+            BoundingConfig = new MyModConfig(base.Config);
 
             Patch();
 

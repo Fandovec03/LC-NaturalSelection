@@ -1,5 +1,5 @@
 - 0.1.6
-	- fixed typos in CHANGELOG and README
+	- fixed typos and formatting in CHANGELOG and README
 - 0.1.5
 	- Fixed collisions not working
 	- Much less logs spam

@@ -1,19 +1,19 @@
-- 0.1.6 <br>
+- 0.1.6
 	- fixed typos in CHANGELOG and README
-- 0.1.5 <br>
-	- Fixed collisions not working<br>
-	- Much less logs spam<br>
-	- Hygrodere now eats almost everything alive!<br>
-	- Spider deals 1 damage when Enemy has 2 or less health<br>
-	- Added config file<br>
-	- ~~Spider is now hunting Hoarding bugs~~ Disabled due to sync issues. Available as a toggle in config<br>
-- 0.1.4 <br>
-	- Fixed NullReferences, Functioning LOS check, added enemy list and base of assigning target (WIP) <br>
-- 0.1.3 <br>
-	- Attempt at custom behavior, fixed README/CHANGELOG, renamed namespaces ect. <br>
-- 0.1.2 <br>
-	- Reupload cause I forgot to edit CHANGELOG <br>
-- 0.1.1 <br>
-	- Updated description and added credits.<br>
-- 0.0.1 <br>
-	- Test upload <br>
+- 0.1.5
+	- Fixed collisions not working
+	- Much less logs spam
+	- Hygrodere now eats almost everything alive!
+	- Spider deals 1 damage when Enemy has 2 or less health
+	- Added config file
+	- ~~Spider is now hunting Hoarding bugs~~ Disabled due to sync issues. Available as a toggle in config
+- 0.1.4
+	- Fixed NullReferences, Functioning LOS check, added enemy list and base of assigning target (WIP)
+- 0.1.3
+	- Attempt at custom behavior, fixed README/CHANGELOG, renamed namespaces ect.
+- 0.1.2
+	- Reupload cause I forgot to edit CHANGELOG
+- 0.1.1
+	- Updated description and added credits.
+- 0.0.1
+	- Test upload.

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using HarmonyLib;
 using UnityEngine;
+using UnityEngine.AI;
 using BepInEx;
 using BepInEx.Logging;
 using System.Runtime.CompilerServices;
@@ -38,34 +39,34 @@ namespace ExperimentalEnemyInteractions.Patches
                 closestEnemy = EnemyAIPatch.findClosestEnemy(enemyList, closestEnemy, __instance);
             }
 
-            if (spiderHuntHoardingbug && closestEnemy != null && __instance != null && Vector3.Distance(__instance.transform.position, closestEnemy.transform.position) < 80f && refreshCDtimeSpider     <= 0)
+            if (spiderHuntHoardingbug && closestEnemy != null && __instance != null && Vector3.Distance(__instance.transform.position, closestEnemy.transform.position) < 80f && refreshCDtimeSpider <= 0)
             {
-                    if (closestEnemy is HoarderBugAI)
-                    {
-                    targetEnemy = closestEnemy;  
+                if (closestEnemy is HoarderBugAI)
+                {
+                    targetEnemy = closestEnemy;
                     __instance.setDestinationToHomeBase = false;
                     __instance.reachedWallPosition = false;
                     __instance.lookingForWallPosition = false;
                     __instance.waitOnWallTimer = 11f;
 
                     if (__instance.spoolingPlayerBody)
-                        {
-                            __instance.CancelSpoolingBody();
-                        }
+                    {
+                        __instance.CancelSpoolingBody();
+                    }
 
                     if (targetEnemy == null || targetEnemy.isEnemyDead)
-                        {
+                    {
                         __instance.movingTowardsTargetPlayer = false;
                         __instance.StopChasing();
-                        }
+                    }
                     if (__instance.onWall)
-                        {
-                            __instance.movingTowardsTargetPlayer = true;
-                            __instance.agent.speed = 4.25f;
-                            __instance.spiderSpeed = 4.25f;
-                        }
+                    {
+                        __instance.movingTowardsTargetPlayer = false;
+                        __instance.agent.speed = 4.25f;
+                        __instance.spiderSpeed = 4.25f;
                     }
                 }
+            }
 
             if (refreshCDtimeSpider <= 0)
             {
@@ -77,14 +78,14 @@ namespace ExperimentalEnemyInteractions.Patches
             }
         }
 
-        
+
         [HarmonyPatch("DoAIInterval")]
         [HarmonyPostfix]
         static void DoAIIntervalPostfix(SandSpiderAI __instance)
         {
             if (!spiderHuntHoardingbug) return;
 
-            if (targetEnemy != null || targetEnemy.isEnemyDead)
+            else if (targetEnemy != null || targetEnemy.isEnemyDead)
             {
                 if (__instance.patrolHomeBase.inProgress)
                 {

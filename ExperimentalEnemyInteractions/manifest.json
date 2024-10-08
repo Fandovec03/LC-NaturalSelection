@@ -1,7 +1,7 @@
 {
     "name": "ExperimentalEnemyInteractions",
-    "version_number": "0.1.6",
+    "version_number": "0.1.7",
     "website_url": "https://github.com/Fandovec03/ExperimentalEnemyInteractions",
-    "description": " *WIP* Experimental. Aims to make the game feel more alive.",
+    "description": " *WIP* Experimental. Aims to make the game, especially the fauna feel more alive.",
     "dependencies": []
 }

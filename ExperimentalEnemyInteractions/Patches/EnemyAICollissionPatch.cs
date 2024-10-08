@@ -9,7 +9,7 @@ namespace ExperimentalEnemyInteractions.Patches
 {
     public class OnCollideWithUniversal
     {
-        static float HitCooldownTime = (float)0.1;
+        static float HitCooldownTime = 0.2f;
         static bool debugMode = Script.BoundingConfig.debugBool.Value;
         static bool enableSpider = Script.BoundingConfig.enableSpider.Value;
         static bool enableSlime = Script.BoundingConfig.enableSlime.Value;
@@ -19,10 +19,10 @@ namespace ExperimentalEnemyInteractions.Patches
         {
             HitCooldownTime -= Time.deltaTime;
 
-            if (HitCooldownTime <= 0)
+            if (HitCooldownTime <= 0f)
             {
                 if (debugMode) Script.Logger.LogInfo(mainscript + ", ID: " + mainscript?.GetInstanceID() + "Hit collider of " + mainscript2 + ", ID: " + mainscript2?.GetInstanceID() + ", Tag: " + text);
-                HitCooldownTime = (float)0.1;
+                HitCooldownTime = 0.2f;
             }
 
             if (mainscript != null && mainscript2 != null)
@@ -56,12 +56,15 @@ namespace ExperimentalEnemyInteractions.Patches
                         if (mainscript2 is FlowermanAI)
                         {
                             FlowermanAI? flowermanAI = mainscript2 as FlowermanAI;
-
-                            float AngerbeforeHit = flowermanAI.angerMeter;
-                            blobAI.timeSinceHittingLocalPlayer = 0f;
-                            flowermanAI.HitEnemy(1, null, playHitSFX: true);
-                            flowermanAI.isInAngerMode = false;  
-                            flowermanAI.angerMeter = AngerbeforeHit;
+                            if (flowermanAI != null)
+                            {
+                                float AngerbeforeHit = flowermanAI.angerMeter;
+                                blobAI.timeSinceHittingLocalPlayer = 0f;
+                                flowermanAI.HitEnemy(1, null, playHitSFX: true);
+                                flowermanAI.isInAngerMode = false;
+                                flowermanAI.angerMeter = AngerbeforeHit;
+                            }
+                           
                         }
 
                         else
@@ -78,33 +81,43 @@ namespace ExperimentalEnemyInteractions.Patches
     [HarmonyPatch(typeof(EnemyAICollisionDetect), "OnTriggerStay")]
     class AICollisionDetectPatch
     {
-
+        static float HitDetectionNullCD = 0.5f;
+        static bool debugMode = Script.BoundingConfig.debugBool.Value;
         //[HarmonyPrefix]
         static bool Prefix(Collider other, EnemyAICollisionDetect __instance)
         {
             EnemyAICollisionDetect compoment2 = other.gameObject.GetComponent<EnemyAICollisionDetect>();
-
+            HitDetectionNullCD -= Time.deltaTime;
 
             if (__instance != null)
             {
+                if ((other == null || __instance.mainScript == null || compoment2 == null || compoment2.mainScript == null) && HitDetectionNullCD < 0f && debugMode)
+                {
+                    if (other == null)
+                    {
+                        Script.Logger.LogError("Collider is NULL");
+                    }
+                    if (__instance.mainScript == null)
+                    {
+                        Script.Logger.LogError("Instance.mainScript is NULL");
+                    }
+                    if (compoment2 == null)
+                    {
+                        Script.Logger.LogError("Compoment2 is NULL");
+                    }
+                    HitDetectionNullCD = 0.5f;
+                }
+
                 if (other.CompareTag("Player") && __instance.mainScript.isEnemyDead == false)
                 {
                     OnCollideWithUniversal.DebugLog("Player", null, null);
                     return true;
                 }
-                if (other.CompareTag("Enemy") && compoment2.mainScript != __instance.mainScript && compoment2.mainScript.isEnemyDead == false
+                if (other.CompareTag("Enemy") && compoment2 != null && compoment2.mainScript != __instance.mainScript && compoment2.mainScript.isEnemyDead == false
                       && IsEnemyImmortal.EnemyIsImmortal(compoment2.mainScript) == false)
                 {
-                    if (compoment2.mainScript != null)
-                    {
-                        OnCollideWithUniversal.DebugLog("Enemy", __instance.mainScript, compoment2.mainScript);
-                    }
+                    OnCollideWithUniversal.DebugLog("Enemy", __instance.mainScript, compoment2.mainScript);
                     return true;
-                }
-
-                if (other == null)
-                {
-                    Script.Logger.LogError("Collider is NULL");
                 }
             }
             //Script.Logger.LogError("EnemyAICollisionDetect triggered, Return stage");

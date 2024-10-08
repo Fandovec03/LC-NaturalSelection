@@ -10,6 +10,7 @@ namespace ExperimentalEnemyInteractions;
         public readonly ConfigEntry<bool> enableSpider;
         public readonly ConfigEntry<bool> spiderHuntHoardingbug;
         public readonly ConfigEntry<bool> enableSlime;
+        public readonly ConfigEntry<bool> enableLeviathan;
 
         public MyModConfig(ConfigFile cfg)
         {
@@ -22,16 +23,22 @@ namespace ExperimentalEnemyInteractions;
                 "Enables debug mode for more debug logs."
                 );
             enableSpider = cfg.Bind(
-                "Entity settings",
-                "Apply to spider",
-                true,
-                "Mod applies changes Bunker Spider"
+                "WIP/Experimental",
+                "Enable spider",
+                false,
+                "Mod applies changes Bunker Spider. Currently does not work as intended."
                 );
             enableSlime = cfg.Bind(
                 "Entity settings",
-                "Apply to slime",
+                "Enable slime",
                 true,
-                "Mod applies changes Hygrodere"
+                "Mod applies changes Hygrodere. Slime now damages every entity it passes by."
+                );
+            enableLeviathan = cfg.Bind(
+                "Entity settings",
+                "Enable leviathan",
+                true,
+                "Mod applies changes Earth leviathan. Leviathan now targets other creatures aswell."
                 );
             spiderHuntHoardingbug = cfg.Bind(
                 "WIP/Experimental",

@@ -8,7 +8,7 @@ using LobbyCompatibility.Enums;
 namespace ExperimentalEnemyInteractions
 {
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-    [LobbyCompatibility(CompatibilityLevel.Everyone, VersionStrictness.None)]
+    //[LobbyCompatibility(CompatibilityLevel.Everyone, VersionStrictness.None)]
     public class Script : BaseUnityPlugin
     {
         public static Script Instance { get; private set; } = null!;

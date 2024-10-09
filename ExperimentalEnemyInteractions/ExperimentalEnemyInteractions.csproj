@@ -5,7 +5,7 @@
         <AssemblyName>ExperimentalEnemyInteractions</AssemblyName>
         <Product>ExperimentalEnemyInteractions</Product>
         <!-- Change to whatever version you're currently on. -->
-        <Version>0.1.6</Version>
+        <Version>0.1.9</Version>
     </PropertyGroup>
 
     <!-- Project Properties -->

@@ -10,6 +10,9 @@ Currently supported entities:<br>
 - Earth Leviathan<br>
 	- Targets creatures that come near it.
 
+
+Report bugs on either github issues or the Lethal company modding discord.
+
 Credits:
 --------------------------------------------------
 Unofficial LethalCompany Discord: <br>

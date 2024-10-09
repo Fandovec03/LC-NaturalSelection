@@ -14,85 +14,88 @@ namespace ExperimentalEnemyInteractions.Patches
         static float refreshCDtime = 0.4f;
         static EnemyAI? closestEnemy = null;
         static EnemyAI? targetEnemy = null;
+        static bool targetingEntity = false;
 
         [HarmonyPatch("Update")]
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         static void SandWormUpdatePatch(SandWormAI __instance)
         {
             enemyList = EnemyAIPatch.GetOutsideEnemyList(__instance);
-            closestEnemy = EnemyAIPatch.findClosestEnemy(enemyList, closestEnemy, __instance);
 
             if (Script.BoundingConfig.enableLeviathan.Value != true) return;
 
-            if (closestEnemy is ForestGiantAI || closestEnemy is BaboonBirdAI || closestEnemy is MouthDogAI || closestEnemy is BaboonBirdAI && closestEnemy is RadMechAI)
+            //if (targetingEntity == false) return;
+
+            if (true)
             {
-                targetEnemy = closestEnemy;
-            }
-
-            if (targetEnemy != null)
-            {
-                if (__instance.roamMap.inProgress)
+                if (!__instance.creatureSFX.isPlaying && !__instance.inEmergingState && !__instance.emerged)
                 {
-                    __instance.StopSearch(__instance.roamMap);
+                    int num = UnityEngine.Random.Range(0, __instance.ambientRumbleSFX.Length);
+                    __instance.creatureSFX.clip = __instance.ambientRumbleSFX[num];
+                    __instance.creatureSFX.Play();
                 }
-                __instance.SetDestinationToPosition(targetEnemy.transform.position, checkForPath: true);
-                __instance.moveTowardsDestination = true;
-                __instance.movingTowardsTargetPlayer = false;
-
-                if (Vector3.Distance(targetEnemy.transform.position, __instance.transform.position) < 10f)
+                if (!__instance.IsOwner)
                 {
-                    __instance.StartEmergeAnimation();
+                    return;
                 }
-
-                if (__instance.emerged)
+                if (targetEnemy != null)
                 {
-                    __instance.moveTowardsDestination = false;
-                    __instance.movingTowardsTargetPlayer = false;
+                    if (Vector3.Distance(targetEnemy.transform.position, __instance.transform.position) > 22f)
+                    {
+                        __instance.chaseTimer += Time.deltaTime;
+                    }
+                    else
+                    {
+                        __instance.chaseTimer = 0f;
+                    }
+                }
+                if (__instance.chaseTimer > 6f)
+                {
+                    targetEnemy = null;
                 }
             }
         }
+
         [HarmonyPatch("DoAIInterval")]
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         static void SandWormDoAIIntervalPatch(SandWormAI __instance) 
         {
-            switch (__instance.currentBehaviourStateIndex)
+            if (Script.BoundingConfig.enableLeviathan.Value != true) return;
+
+            if (true)
             {
-                case 0:
-                    if (!__instance.emerged && !__instance.inEmergingState)
-                    {
-                        if (!__instance.roamMap.inProgress)
+                        if (!__instance.emerged && !__instance.inEmergingState)
                         {
-                            __instance.StartSearch(__instance.transform.position, __instance.roamMap);
+                            closestEnemy = EnemyAIPatch.findClosestEnemy(enemyList, closestEnemy, __instance);
+                            __instance.agent.speed = 4f;
+                            if (closestEnemy != null && Vector3.Distance(__instance.transform.position, closestEnemy.transform.position) < 15f)
+                            {
+                                __instance.SetDestinationToPosition(closestEnemy.transform.position);
+                                __instance.chaseTimer = 0;
+
+                                Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Emulating Switchstate 1");
+                                targetingEntity = true;
+
+                                targetEnemy = closestEnemy;
+                                Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Target: " + targetEnemy.name);
+
+                                if (Vector3.Distance(__instance.transform.position, targetEnemy.transform.position) > 19f)
+                                {
+                                    targetEnemy = null;
+                                }
+                                if (targetEnemy == null)
+                                {
+                                    Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Emulating SwitchState 0");
+                                    targetingEntity = false;
+                                }
+                                __instance.SetDestinationToPosition(targetEnemy.transform.position, checkForPath: true);
+                                if (__instance.chaseTimer < 1.5f && Vector3.Distance(__instance.transform.position, targetEnemy.transform.position) < 4f && !(Vector3.Distance(StartOfRound.Instance.shipInnerRoomBounds.ClosestPoint(__instance.transform.position), __instance.transform.position) < 9f) && UnityEngine.Random.Range(0, 100) < 17)
+                                {
+                                    Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Emerging!");
+                                    __instance.StartEmergeAnimation();
+                                }
+                            }
                         }
-                    __instance.agent.speed = 4f;
-                    if (closestEnemy != null && Vector3.Distance(__instance.transform.position, closestEnemy.transform.position) < 15f)
-                    {
-                        __instance.SwitchToBehaviourState(1);
-                        __instance.chaseTimer = 0;
-                    }
-                }
-                break;
-                case 1:
-                    if (__instance.roamMap.inProgress)
-                    {
-                        __instance.StopSearch(__instance.roamMap);
-                    }
-                    targetEnemy = closestEnemy;
-                    if (Vector3.Distance(__instance.gameObject.transform.position, targetEnemy.transform.position) > 19f)
-                    {
-                        targetEnemy = null;
-                    }
-                    if (targetEnemy == null)
-                    {
-                        __instance.SwitchToBehaviourState(0);
-                        break;
-                    }
-                    __instance.SetDestinationToPosition(targetEnemy.transform.position, checkForPath: true);
-                    if (__instance.chaseTimer < 1.5f && Vector3.Distance(__instance.transform.position,targetEnemy.transform.position) < 4f &&  !(Vector3.Distance(StartOfRound.Instance.shipInnerRoomBounds.ClosestPoint(__instance.transform.position), __instance.transform.position) < 9f && UnityEngine.Random.Range(0,100) < 17))
-                    {
-                        __instance.StartEmergeAnimation();
-                    }
-                    break;
             }
         }
     }

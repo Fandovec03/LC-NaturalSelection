@@ -11,7 +11,7 @@ namespace ExperimentalEnemyInteractions.Patches
     class SandWormAIPatch
     {
         static List<EnemyAI> enemyList = new List<EnemyAI>();
-        static float refreshCDtime = 0.4f;
+        static float refreshCDtime = 0.5f;
         static EnemyAI? closestEnemy = null;
         static EnemyAI? targetEnemy = null;
         static bool targetingEntity = false;
@@ -20,13 +20,17 @@ namespace ExperimentalEnemyInteractions.Patches
         [HarmonyPrefix]
         static void SandWormUpdatePatch(SandWormAI __instance)
         {
-            enemyList = EnemyAIPatch.GetOutsideEnemyList(__instance);
+           
+                enemyList = EnemyAIPatch.GetOutsideEnemyList(__instance);
 
             if (Script.BoundingConfig.enableLeviathan.Value != true) return;
 
             //if (targetingEntity == false) return;
-
-            if (true)
+            if (!targetingEntity)
+            {
+                __instance.creatureSFX.Stop();
+            }
+            if (targetingEntity)
             {
                 if (!__instance.creatureSFX.isPlaying && !__instance.inEmergingState && !__instance.emerged)
                 {
@@ -44,10 +48,11 @@ namespace ExperimentalEnemyInteractions.Patches
                     {
                         __instance.chaseTimer += Time.deltaTime;
                     }
-                    else
-                    {
-                        __instance.chaseTimer = 0f;
-                    }
+                    targetingEntity = false;
+                }
+                else
+                {
+                    __instance.chaseTimer = 0f;
                 }
                 if (__instance.chaseTimer > 6f)
                 {
@@ -58,44 +63,43 @@ namespace ExperimentalEnemyInteractions.Patches
 
         [HarmonyPatch("DoAIInterval")]
         [HarmonyPrefix]
-        static void SandWormDoAIIntervalPatch(SandWormAI __instance) 
+        static void SandWormDoAIIntervalPatch(SandWormAI __instance)
         {
             if (Script.BoundingConfig.enableLeviathan.Value != true) return;
 
-            if (true)
+            if (!targetingEntity)
             {
-                        if (!__instance.emerged && !__instance.inEmergingState)
-                        {
-                            closestEnemy = EnemyAIPatch.findClosestEnemy(enemyList, closestEnemy, __instance);
-                            __instance.agent.speed = 4f;
-                            if (closestEnemy != null && Vector3.Distance(__instance.transform.position, closestEnemy.transform.position) < 15f)
-                            {
-                                __instance.SetDestinationToPosition(closestEnemy.transform.position);
-                                __instance.chaseTimer = 0;
+                if (!__instance.emerged && !__instance.inEmergingState)
+                {
+                    closestEnemy = EnemyAIPatch.findClosestEnemy(enemyList, closestEnemy, __instance);
+                    __instance.agent.speed = 4f;
+                    if (closestEnemy != null && Vector3.Distance(__instance.transform.position, closestEnemy.transform.position) < 15f)
+                    {
+                        __instance.SetDestinationToPosition(closestEnemy.transform.position);
+                        targetingEntity = true;
+                        __instance.chaseTimer = 0;
+                    }
+                }
+            }
+            if (targetingEntity)
+            {
+                targetEnemy = closestEnemy;
 
-                                Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Emulating Switchstate 1");
-                                targetingEntity = true;
-
-                                targetEnemy = closestEnemy;
-                                Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Target: " + targetEnemy.name);
-
-                                if (Vector3.Distance(__instance.transform.position, targetEnemy.transform.position) > 19f)
-                                {
-                                    targetEnemy = null;
-                                }
-                                if (targetEnemy == null)
-                                {
-                                    Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Emulating SwitchState 0");
-                                    targetingEntity = false;
-                                }
-                                __instance.SetDestinationToPosition(targetEnemy.transform.position, checkForPath: true);
-                                if (__instance.chaseTimer < 1.5f && Vector3.Distance(__instance.transform.position, targetEnemy.transform.position) < 4f && !(Vector3.Distance(StartOfRound.Instance.shipInnerRoomBounds.ClosestPoint(__instance.transform.position), __instance.transform.position) < 9f) && UnityEngine.Random.Range(0, 100) < 17)
-                                {
-                                    Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Emerging!");
-                                    __instance.StartEmergeAnimation();
-                                }
-                            }
-                        }
+                if (Vector3.Distance(__instance.transform.position, targetEnemy.transform.position) > 19f)
+                {
+                    targetEnemy = null;
+                }
+                if (targetEnemy == null)
+                {
+                    Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Emulating SwitchState 0");
+                    targetingEntity = false;
+                }
+                __instance.SetDestinationToPosition(targetEnemy.transform.position, checkForPath: true);
+                if (__instance.chaseTimer < 1.5f && Vector3.Distance(__instance.transform.position, targetEnemy.transform.position) < 4f && !(Vector3.Distance(StartOfRound.Instance.shipInnerRoomBounds.ClosestPoint(__instance.transform.position), __instance.transform.position) < 9f) && UnityEngine.Random.Range(0, 100) < 17)
+                {
+                    Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Emerging!");
+                    __instance.StartEmergeAnimation();
+                }
             }
         }
     }

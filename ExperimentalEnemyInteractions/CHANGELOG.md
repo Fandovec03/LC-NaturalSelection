@@ -1,3 +1,5 @@
+- 0.1.9 - Fixed critical error causing hard crash on load caused by leftover Lobby Compatibility code
+- 0.1.8 - Regenerated DLL - forgot to regenerate after changing versions
 - 0.1.7
 	- Moved functions and methods of enemyList to EnemyAI. This makes development much faster and gives a potencial for a memory as a side effect, though that has to be implemented first in each enemyAI type.
 	- Resolved NullException error messages in the Collision patch

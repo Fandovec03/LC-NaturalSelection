@@ -18,7 +18,7 @@ namespace ExperimentalEnemyInteractions.Patches
 
         [HarmonyPatch("Update")]
         [HarmonyPostfix]
-        static void UpdatePatch(EnemyAI __instance)
+        static void UpdatePostfixPatch(EnemyAI __instance)
         {
             time += Time.deltaTime;
             refreshCDtime -= Time.deltaTime;
@@ -26,6 +26,7 @@ namespace ExperimentalEnemyInteractions.Patches
             
             if (refreshCDtime <= 0)
             {
+
                 foreach (EnemyAI enemy in RoundManager.Instance.SpawnedEnemies)
                 {
                     if (enemyList.Contains(enemy) && enemy.isEnemyDead == false)
@@ -51,12 +52,15 @@ namespace ExperimentalEnemyInteractions.Patches
                         RaycastHit hit = new RaycastHit();
                         if (enemyList[i] == null)
                         {
-                            Script.Logger.LogError(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Detected null enemy in the list. Removing...");
+                            Script.Logger.LogWarning(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Detected null enemy in the list. Removing...");
                             enemyList.RemoveAt(i);
                         }
-                        if (!Physics.Linecast(__instance.gameObject.transform.position, enemyList[i].gameObject.transform.position, out hit, StartOfRound.Instance.collidersRoomMaskDefaultAndPlayers, QueryTriggerInteraction.Ignore))
+                        if (enemyList[i] != null)
                         {
-                            if (debugMode) Script.Logger.LogMessage(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "LOS check: Have LOS on " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID());
+                            if (!Physics.Linecast(__instance.gameObject.transform.position, enemyList[i].gameObject.transform.position, out hit, StartOfRound.Instance.collidersRoomMaskDefaultAndPlayers, QueryTriggerInteraction.Ignore))
+                            {
+                                if (debugMode) Script.Logger.LogMessage(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "LOS check: Have LOS on " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID());
+                            }
                         }
                     }
                 }
@@ -125,6 +129,24 @@ namespace ExperimentalEnemyInteractions.Patches
                 }
             }
             return closestEnemy;
+        }
+        public static List<EnemyAI> filterEnemyList(List<EnemyAI> enemyList, List<Type> targetTypes, EnemyAI __instance)
+        {
+            List<EnemyAI> filteredList = new List<EnemyAI>();
+
+            for (int i = 0; i < enemyList.Count; i++)
+                {
+                    if (targetTypes.Contains(enemyList[i].GetType()))
+                    {
+                        if (debugMode) Script.Logger.LogMessage(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Enemy of type " + enemyList[i].GetType() + " passed the filter.");
+                        filteredList.Add(enemyList[i]);
+                    }
+                    else if (debugMode)
+                    {
+                        Script.Logger.LogMessage(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Caught and filtered out Enemy of type " + enemyList[i].GetType());
+                    }
+                }
+                return filteredList;
         }
     }
 }

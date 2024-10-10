@@ -85,7 +85,8 @@ namespace ExperimentalEnemyInteractions.Patches
         {
             if (!spiderHuntHoardingbug) return;
 
-            else if (targetEnemy != null || targetEnemy.isEnemyDead)
+#pragma warning disable CS8602 // Přístup přes ukazatel k možnému odkazu s hodnotou null
+            if (targetEnemy != null || targetEnemy.isEnemyDead)
             {
                 if (__instance.patrolHomeBase.inProgress)
                 {
@@ -98,6 +99,7 @@ namespace ExperimentalEnemyInteractions.Patches
                 }
                 __instance.SetDestinationToPosition(targetEnemy.transform.position, true);
             }
+#pragma warning restore CS8602 // Přístup přes ukazatel k možnému odkazu s hodnotou null
         }
     }
 }

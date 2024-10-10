@@ -108,17 +108,21 @@ namespace ExperimentalEnemyInteractions.Patches
                     HitDetectionNullCD = 0.5f;
                 }
 
+#pragma warning disable CS8602 // Pøístup pøes ukazatel k možnému odkazu s hodnotou null
                 if (other.CompareTag("Player") && __instance.mainScript.isEnemyDead == false)
                 {
                     OnCollideWithUniversal.DebugLog("Player", null, null);
                     return true;
                 }
+#pragma warning restore CS8602 // Pøístup pøes ukazatel k možnému odkazu s hodnotou null
+#pragma warning disable CS8602 // Pøístup pøes ukazatel k možnému odkazu s hodnotou null
                 if (other.CompareTag("Enemy") && compoment2 != null && compoment2.mainScript != __instance.mainScript && compoment2.mainScript.isEnemyDead == false
                       && IsEnemyImmortal.EnemyIsImmortal(compoment2.mainScript) == false)
                 {
                     OnCollideWithUniversal.DebugLog("Enemy", __instance.mainScript, compoment2.mainScript);
                     return true;
                 }
+#pragma warning restore CS8602 // Pøístup pøes ukazatel k možnému odkazu s hodnotou null
             }
             //Script.Logger.LogError("EnemyAICollisionDetect triggered, Return stage");
             return true;

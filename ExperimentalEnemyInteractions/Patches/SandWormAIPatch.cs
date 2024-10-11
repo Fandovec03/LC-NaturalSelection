@@ -19,7 +19,6 @@ namespace ExperimentalEnemyInteractions.Patches
         static EnemyAI? targetEnemy = null;
         static bool targetingEntity = false;
         static bool debugMode = Script.BoundingConfig.debugBool.Value;
-        static bool OverrideSounds = false;
 
         [HarmonyPatch("Start")]
         [HarmonyPrefix]
@@ -31,7 +30,7 @@ namespace ExperimentalEnemyInteractions.Patches
             targetedTypes.Add(typeof(BushWolfEnemy));
             targetedTypes.Add(typeof(RadMechAI));
         }
-        [HarmonyPatch("Update")]
+        /*[HarmonyPatch("Update")]
         [HarmonyTranspiler]
 
         static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
@@ -44,12 +43,10 @@ namespace ExperimentalEnemyInteractions.Patches
             for (int i = 0; i < codes.Count; i++)
             {
             }
-        }
-
-
+        }*/
         [HarmonyPatch("Update")]
-        [HarmonyPostfix]
-        static void SandWormUpdatePatch(SandWormAI __instance)
+        [HarmonyPrefix]
+        static bool SandWormPrefixUpdatePatch(SandWormAI __instance)
         {
             if (refreshCDtime <= 0)
             {
@@ -58,11 +55,24 @@ namespace ExperimentalEnemyInteractions.Patches
             }
             if (refreshCDtime > 0)
             {
-                refreshCDtime-= Time.deltaTime;
+                refreshCDtime -= Time.deltaTime;
             }
+            //if (Script.BoundingConfig.enableLeviathan.Value != true) return;
+            if (targetingEntity)
+            {
+                Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Prefix/1/ targetingEntity: " + targetingEntity + ", target: " + targetEnemy);
+                return false;
+            }
+            Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Prefix/2/ targetingEntity: " + targetingEntity + ", target: " + targetEnemy);
+            return true;
+        }
+        [HarmonyPatch("Update")]
+        [HarmonyPostfix]
+        static void SandWormPostfixUpdatePatch(SandWormAI __instance)
+        {
             if (Script.BoundingConfig.enableLeviathan.Value != true) return;
-
-            //if (targetingEntity == false) return;
+            Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Postfix targetingEntity: " + targetingEntity);
+            if (targetingEntity == false) return;
             if (!targetingEntity && !__instance.movingTowardsTargetPlayer)
             {
                 if (__instance.creatureSFX.isPlaying)
@@ -73,6 +83,19 @@ namespace ExperimentalEnemyInteractions.Patches
             }
             if (targetingEntity)
             {
+                if (__instance != null)
+                {
+                    if (__instance.updateDestinationInterval >= 0f)
+                    {
+                        __instance.updateDestinationInterval -= Time.deltaTime;
+                    }
+                    else
+                    {
+                        Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": calling DoAIInterval");
+                        __instance.DoAIInterval();
+                        __instance.updateDestinationInterval = __instance.AIIntervalTime + UnityEngine.Random.Range(-0.015f, 0.015f);
+                    }
+                }
                 if (!__instance.creatureSFX.isPlaying && !__instance.inEmergingState && !__instance.emerged)
                 {
                     int num = UnityEngine.Random.Range(0, __instance.ambientRumbleSFX.Length);
@@ -81,14 +104,11 @@ namespace ExperimentalEnemyInteractions.Patches
                     Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Started playing sounds");
                     
                 }
-                if (__instance.inEmergingState)
-                {
-                    
-                }
                 if (targetEnemy == null)
                 {
                     Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": TargetEnemy is null! TargetingEntity set to false /Trigger 1/");
                     targetingEntity = false;
+                    return;
                 }
                 if (Vector3.Distance(targetEnemy.transform.position, __instance.transform.position) > 22f)
                 {
@@ -98,7 +118,7 @@ namespace ExperimentalEnemyInteractions.Patches
                 else
                 {
                     __instance.chaseTimer = 0f;
-                    //Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Reset chasetimer");
+                    Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Reset chasetimer");
                 }
                 if (__instance.chaseTimer > 6f)
                 {
@@ -108,12 +128,12 @@ namespace ExperimentalEnemyInteractions.Patches
             }
         }
         [HarmonyPatch("DoAIInterval")]
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         static void SandWormDoAIIntervalPatch(SandWormAI __instance)
         {
-            if (Script.BoundingConfig.enableLeviathan.Value != true) return;
+            //if (Script.BoundingConfig.enableLeviathan.Value != true) return true;
 
-            Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": checking chaseTimer: " + __instance.chaseTimer);
+            Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + "DoAIInterval: checking chaseTimer: " + __instance.chaseTimer);
 
             if (!targetingEntity)
             {
@@ -121,38 +141,42 @@ namespace ExperimentalEnemyInteractions.Patches
                 {
                     closestEnemy = EnemyAIPatch.findClosestEnemy(enemyList, closestEnemy, __instance);
                     __instance.agent.speed = 4f;
-                    Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": assigned " + closestEnemy + " as closestEnemy");
+                    Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + "DoAIInterval: assigned " + closestEnemy + " as closestEnemy");
 
                     if (closestEnemy != null && Vector3.Distance(__instance.transform.position, closestEnemy.transform.position) < 15f)
                     {
                         __instance.SetDestinationToPosition(closestEnemy.transform.position);
                         targetingEntity = true;
+                        targetEnemy = closestEnemy;
                         __instance.chaseTimer = 0;
-                        Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Set targetingEntity to " + targetingEntity + " and reset chaseTimer: " + __instance.chaseTimer);
+                        Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + "DoAIInterval: Set targetingEntity to " + targetingEntity + " and reset chaseTimer: " + __instance.chaseTimer);
+                        return;
                     }
                 }
             }
             if (targetingEntity)
             {
-                targetEnemy = closestEnemy;
-                 Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Set " + targetEnemy + " as targetEnemy");
-
-                if (Vector3.Distance(__instance.transform.position, targetEnemy.transform.position) > 19f)
-                {
-                    targetEnemy = null;
-                    Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": TargetEnemy too far! set to null");
-                }
                 if (targetEnemy == null)
                 {
                     Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": targetEnemy is at null. Setting targetingEntity to false /Trigger 2/");
                     targetingEntity = false;
+                    return;
+                }
+                targetEnemy = closestEnemy;
+                Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + "DoAIInterval: Set " + targetEnemy + " as targetEnemy");
+
+                if (Vector3.Distance(__instance.transform.position, targetEnemy.transform.position) > 19f)
+                {
+                    targetEnemy = null;
+                    Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + "DoAIInterval: TargetEnemy too far! set to null");
+                    return;
                 }
                 __instance.SetDestinationToPosition(targetEnemy.transform.position, checkForPath: true);
-                Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Set destitantion to " + targetEnemy);
+                Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + "DoAIInterval: Set destitantion to " + targetEnemy);
 
                 if (__instance.chaseTimer < 1.5f && Vector3.Distance(__instance.transform.position, targetEnemy.transform.position) < 4f && !(Vector3.Distance(StartOfRound.Instance.shipInnerRoomBounds.ClosestPoint(__instance.transform.position), __instance.transform.position) < 9f) && UnityEngine.Random.Range(0, 100) < 17)
                 {
-                    Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Emerging!");
+                    Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + "DoAIInterval: Emerging!");
                     __instance.StartEmergeAnimation();
                 }
             }

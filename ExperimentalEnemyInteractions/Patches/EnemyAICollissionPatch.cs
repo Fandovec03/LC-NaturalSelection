@@ -15,7 +15,7 @@ namespace ExperimentalEnemyInteractions.Patches
         static bool enableSlime = Script.BoundingConfig.enableSlime.Value;
 
 
-        public static void DebugLog(string text, EnemyAI? mainscript, EnemyAI? mainscript2)
+        public static void Collide(string text, EnemyAI? mainscript, EnemyAI? mainscript2)
         {
             HitCooldownTime -= Time.deltaTime;
 
@@ -49,9 +49,10 @@ namespace ExperimentalEnemyInteractions.Patches
 
                 if (mainscript is BlobAI && mainscript2 is not BlobAI && mainscript2 != null && enableSlime)
                 {
+                    /*
                     BlobAI? blobAI = mainscript as BlobAI;
 
-                    if (blobAI?.timeSinceHittingLocalPlayer > 1.5f && mainscript2 is not NutcrackerEnemyAI && mainscript2 is not CaveDwellerAI)
+                     (blobAI?.timeSinceHittingLocalPlayer > 1.5f && mainscript2 is not NutcrackerEnemyAI && mainscript2 is not CaveDwellerAI)
                     {
                         if (mainscript2 is FlowermanAI)
                         {
@@ -72,6 +73,16 @@ namespace ExperimentalEnemyInteractions.Patches
                             blobAI.timeSinceHittingLocalPlayer = 0f;
                             mainscript2.HitEnemy(1, null, playHitSFX: true);
                         }
+                    }*/
+                   BlobAIPatch.OnCustomEnemyCollision((BlobAI)mainscript, mainscript2);
+                }
+
+                if (mainscript is PufferAI && mainscript2 is not PufferAI && mainscript2 != null)
+                {
+                    PufferAI? pufferAI = mainscript as PufferAI;
+                    if (pufferAI != null)
+                    {
+                    PufferAIPatch.CustomOnHit(1, mainscript, true, pufferAI);
                     }
                 }
             }
@@ -79,7 +90,7 @@ namespace ExperimentalEnemyInteractions.Patches
     }
 
     [HarmonyPatch(typeof(EnemyAICollisionDetect), "OnTriggerStay")]
-    class AICollisionDetectPatch
+    public class AICollisionDetectPatch
     {
         static float HitDetectionNullCD = 0.5f;
         static bool debugMode = Script.BoundingConfig.debugBool.Value;
@@ -108,21 +119,21 @@ namespace ExperimentalEnemyInteractions.Patches
                     HitDetectionNullCD = 0.5f;
                 }
 
-#pragma warning disable CS8602 // Pøístup pøes ukazatel k možnému odkazu s hodnotou null
+#pragma warning disable CS8602 // Pï¿½ï¿½stup pï¿½es ukazatel k moï¿½nï¿½mu odkazu s hodnotou null
                 if (other.CompareTag("Player") && __instance.mainScript.isEnemyDead == false)
                 {
-                    OnCollideWithUniversal.DebugLog("Player", null, null);
+                    OnCollideWithUniversal.Collide("Player", null, null);
                     return true;
                 }
-#pragma warning restore CS8602 // Pøístup pøes ukazatel k možnému odkazu s hodnotou null
-#pragma warning disable CS8602 // Pøístup pøes ukazatel k možnému odkazu s hodnotou null
+#pragma warning restore CS8602 // Pï¿½ï¿½stup pï¿½es ukazatel k moï¿½nï¿½mu odkazu s hodnotou null
+#pragma warning disable CS8602 // Pï¿½ï¿½stup pï¿½es ukazatel k moï¿½nï¿½mu odkazu s hodnotou null
                 if (other.CompareTag("Enemy") && compoment2 != null && compoment2.mainScript != __instance.mainScript && compoment2.mainScript.isEnemyDead == false
                       && IsEnemyImmortal.EnemyIsImmortal(compoment2.mainScript) == false)
                 {
-                    OnCollideWithUniversal.DebugLog("Enemy", __instance.mainScript, compoment2.mainScript);
+                    OnCollideWithUniversal.Collide("Enemy", __instance.mainScript, compoment2.mainScript);
                     return true;
                 }
-#pragma warning restore CS8602 // Pøístup pøes ukazatel k možnému odkazu s hodnotou null
+#pragma warning restore CS8602 // Pï¿½ï¿½stup pï¿½es ukazatel k moï¿½nï¿½mu odkazu s hodnotou null
             }
             //Script.Logger.LogError("EnemyAICollisionDetect triggered, Return stage");
             return true;

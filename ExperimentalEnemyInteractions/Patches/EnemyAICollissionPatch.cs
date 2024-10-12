@@ -21,7 +21,7 @@ namespace ExperimentalEnemyInteractions.Patches
 
             if (HitCooldownTime <= 0f)
             {
-                if (debugMode) Script.Logger.LogInfo(mainscript + ", ID: " + mainscript?.GetInstanceID() + "Hit collider of " + mainscript2 + ", ID: " + mainscript2?.GetInstanceID() + ", Tag: " + text);
+                Script.Logger.LogDebug(mainscript + ", ID: " + mainscript?.GetInstanceID() + "Hit collider of " + mainscript2 + ", ID: " + mainscript2?.GetInstanceID() + ", Tag: " + text);
                 HitCooldownTime = 0.2f;
             }
             if (mainscript != null && text == "Player")
@@ -116,15 +116,15 @@ namespace ExperimentalEnemyInteractions.Patches
                 {
                     if (other == null)
                     {
-                        Script.Logger.LogError("Collider is NULL");
+                        if (debugMode) Script.Logger.LogError("Collider is NULL");
                     }
                     if (__instance.mainScript == null)
                     {
-                        Script.Logger.LogError("Instance.mainScript is NULL");
+                        if (debugMode) Script.Logger.LogError("Instance.mainScript is NULL");
                     }
                     if (compoment2 == null)
                     {
-                        Script.Logger.LogError("Compoment2 is NULL");
+                        if (debugMode) Script.Logger.LogError("Compoment2 is NULL");
                     }
                     HitDetectionNullCD = 0.5f;
                 }
@@ -143,9 +143,7 @@ namespace ExperimentalEnemyInteractions.Patches
                     OnCollideWithUniversal.Collide("Enemy", __instance.mainScript, compoment2.mainScript);
                     return true;
                 }
-#pragma warning restore CS8602 // P��stup p�es ukazatel k mo�n�mu odkazu s hodnotou null
             }
-            //Script.Logger.LogError("EnemyAICollisionDetect triggered, Return stage");
             return true;
         }
     }

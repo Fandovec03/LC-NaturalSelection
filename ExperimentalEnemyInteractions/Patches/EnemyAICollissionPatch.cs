@@ -26,14 +26,7 @@ namespace ExperimentalEnemyInteractions.Patches
             }
             if (mainscript != null && text == "Player")
             {
-                if (mainscript is PufferAI && mainscript2 is not PufferAI && mainscript2 != null)
-                {
-                    PufferAI? pufferAI = mainscript as PufferAI;
-                    if (pufferAI != null)
-                    {
-                        PufferAIPatch.CustomOnHit(1, mainscript, true, pufferAI);
-                    }
-                }
+                
             }
             if (mainscript != null && mainscript2 != null)
             {
@@ -59,35 +52,10 @@ namespace ExperimentalEnemyInteractions.Patches
 
                 if (mainscript is BlobAI && mainscript2 is not BlobAI && mainscript2 != null && enableSlime)
                 {
-                    /*
-                    BlobAI? blobAI = mainscript as BlobAI;
-
-                     (blobAI?.timeSinceHittingLocalPlayer > 1.5f && mainscript2 is not NutcrackerEnemyAI && mainscript2 is not CaveDwellerAI)
-                    {
-                        if (mainscript2 is FlowermanAI)
-                        {
-                            FlowermanAI? flowermanAI = mainscript2 as FlowermanAI;
-                            if (flowermanAI != null)
-                            {
-                                float AngerbeforeHit = flowermanAI.angerMeter;
-                                blobAI.timeSinceHittingLocalPlayer = 0f;
-                                flowermanAI.HitEnemy(1, null, playHitSFX: true);
-                                flowermanAI.isInAngerMode = false;
-                                flowermanAI.angerMeter = AngerbeforeHit;
-                            }
-                           
-                        }
-
-                        else
-                        {
-                            blobAI.timeSinceHittingLocalPlayer = 0f;
-                            mainscript2.HitEnemy(1, null, playHitSFX: true);
-                        }
-                    }*/
                    BlobAIPatch.OnCustomEnemyCollision((BlobAI)mainscript, mainscript2);
                 }
 
-                if (mainscript is PufferAI && mainscript2 is not PufferAI && mainscript2 != null)
+                /*if (mainscript is PufferAI && mainscript2 is not PufferAI && mainscript2 != null)
                 {
                     PufferAI? pufferAI = mainscript as PufferAI;
                     if (pufferAI != null)
@@ -95,6 +63,15 @@ namespace ExperimentalEnemyInteractions.Patches
                     PufferAIPatch.CustomOnHit(1, mainscript, true, pufferAI);
                     }
                 }
+
+                if (mainscript is HoarderBugAI && mainscript2 is not HoarderBugAI && mainscript2 != null)
+                {
+                    HoarderBugAI? hoarderBugAI = mainscript as HoarderBugAI;
+                    if (hoarderBugAI != null)
+                    {
+                        HoarderBugPatch.CustomOnHit(1, mainscript, true, hoarderBugAI);
+                    }
+                }*/
             }
         } 
     }

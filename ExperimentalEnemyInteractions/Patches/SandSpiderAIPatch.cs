@@ -24,9 +24,6 @@ namespace ExperimentalEnemyInteractions.Patches
         static bool enableSpider = Script.BoundingConfig.enableSpider.Value;
         static bool spiderHuntHoardingbug = Script.BoundingConfig.spiderHuntHoardingbug.Value;
 
-        static bool isInWallState = false;
-        static float returningFromWallState = 0f;
-
         [HarmonyPatch("Update")]
         [HarmonyPostfix]
         static void UpdatePatch(SandSpiderAI __instance)

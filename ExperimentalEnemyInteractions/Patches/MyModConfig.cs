@@ -27,7 +27,7 @@ namespace ExperimentalEnemyInteractions;
                 "Experimental",
                 "Enable spider",
                 false,
-                "Mod applies changes Bunker Spider. Untested."
+                "Mod applies changes Bunker Spider. Currently bugged with SpiderPositionFix."
                 );
             enableSlime = cfg.Bind(
                 "Entity settings",
@@ -45,13 +45,13 @@ namespace ExperimentalEnemyInteractions;
                 "WIP",
                 "Enable SporeLizard",
                 false,
-                "Mod applies changes Earth leviathan. Leviathan now targets other creatures aswell."
+                "Mod applies changes Spore lizard. It is now mortal!"
                 );
             spiderHuntHoardingbug = cfg.Bind(
                     "Experimental",
                     "Spider hunts Hoarding bugs",
                     false,
-                    "Bunker spider chases and hunts hoarding bugs. Untested."
+                    "Bunker spider chases and hunts hoarding bugs. Currently bugged with SpiderPositionFix."
                     );
         }
         ClearOrphanedEntries(cfg);

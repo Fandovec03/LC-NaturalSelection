@@ -24,7 +24,17 @@ namespace ExperimentalEnemyInteractions.Patches
                 if (debugMode) Script.Logger.LogInfo(mainscript + ", ID: " + mainscript?.GetInstanceID() + "Hit collider of " + mainscript2 + ", ID: " + mainscript2?.GetInstanceID() + ", Tag: " + text);
                 HitCooldownTime = 0.2f;
             }
-
+            if (mainscript != null && text == "Player")
+            {
+                if (mainscript is PufferAI && mainscript2 is not PufferAI && mainscript2 != null)
+                {
+                    PufferAI? pufferAI = mainscript as PufferAI;
+                    if (pufferAI != null)
+                    {
+                        PufferAIPatch.CustomOnHit(1, mainscript, true, pufferAI);
+                    }
+                }
+            }
             if (mainscript != null && mainscript2 != null)
             {
                 if (mainscript is SandSpiderAI && mainscript2 is not SandSpiderAI && mainscript2 != null && enableSpider)

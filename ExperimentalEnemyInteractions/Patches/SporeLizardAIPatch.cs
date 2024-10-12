@@ -12,10 +12,11 @@ namespace ExperimentalEnemyInteractions.Patches
         {
             instance.creatureAnimator.SetBool("alerted", true);
             instance.enemyHP -= force;
+            Script.Logger.LogInfo("SpodeLizard CustomHit Triggered");
 
             if (instance.enemyHP <= 0)
             {
-                instance.KillEnemy(false);
+                instance.KillEnemy(true);
             }
         }
     }

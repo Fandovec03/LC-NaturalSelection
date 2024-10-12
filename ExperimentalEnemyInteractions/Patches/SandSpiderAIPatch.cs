@@ -24,6 +24,9 @@ namespace ExperimentalEnemyInteractions.Patches
         static bool enableSpider = Script.BoundingConfig.enableSpider.Value;
         static bool spiderHuntHoardingbug = Script.BoundingConfig.spiderHuntHoardingbug.Value;
 
+        static bool isInWallState = false;
+        static float returningFromWallState = 0f;
+
         [HarmonyPatch("Update")]
         [HarmonyPostfix]
         static void UpdatePatch(SandSpiderAI __instance)
@@ -44,10 +47,10 @@ namespace ExperimentalEnemyInteractions.Patches
                 if (closestEnemy is HoarderBugAI)
                 {
                     targetEnemy = closestEnemy;
-                    __instance.setDestinationToHomeBase = false;
+                    /*__instance.setDestinationToHomeBase = false;
                     __instance.reachedWallPosition = false;
                     __instance.lookingForWallPosition = false;
-                    __instance.waitOnWallTimer = 11f;
+                    __instance.waitOnWallTimer = 11f;*/
 
                     if (__instance.spoolingPlayerBody)
                     {
@@ -56,12 +59,10 @@ namespace ExperimentalEnemyInteractions.Patches
 
                     if (targetEnemy == null || targetEnemy.isEnemyDead)
                     {
-                        __instance.movingTowardsTargetPlayer = false;
                         __instance.StopChasing();
                     }
                     if (__instance.onWall)
                     {
-                        __instance.movingTowardsTargetPlayer = false;
                         __instance.agent.speed = 4.25f;
                         __instance.spiderSpeed = 4.25f;
                     }
@@ -92,7 +93,7 @@ namespace ExperimentalEnemyInteractions.Patches
                 {
                     __instance.StopSearch(__instance.patrolHomeBase);
                 }
-                if (targetEnemy.isEnemyDead || !__instance.SetDestinationToPosition(targetEnemy.transform.position, true))
+                if (targetEnemy.isEnemyDead || !__instance.SetDestinationToPosition(targetEnemy.transform.position, true))  
                 {
                     targetEnemy = null;
                     __instance.StopChasing();
@@ -100,6 +101,41 @@ namespace ExperimentalEnemyInteractions.Patches
                 __instance.SetDestinationToPosition(targetEnemy.transform.position, true);
             }
 #pragma warning restore CS8602 // Přístup přes ukazatel k možnému odkazu s hodnotou null
+        }
+
+        [HarmonyPatch("LateUpdate")]
+        [HarmonyPostfix]
+        static void MeshContainerPositionFix(SandSpiderAI __instance)
+        {
+            Script.Logger.LogInfo(Vector3.Distance(__instance.meshContainerPosition, __instance.transform.position));
+
+            if (!__instance.lookingForWallPosition && !__instance.gotWallPositionInLOS && !isInWallState)
+            {
+                if (Vector3.Distance(__instance.meshContainerPosition, __instance.transform.position - __instance.meshContainerPosition) > 2.5f)
+                {
+                    __instance.meshContainerPosition = Vector3.Lerp(__instance.transform.position, __instance.meshContainerPosition, Distance(Vector3.Distance(__instance.meshContainerPosition, __instance.transform.position - __instance.meshContainerPosition), 1.5f) * Time.deltaTime);
+                }
+            }
+            if (__instance.lookingForWallPosition && __instance.gotWallPositionInLOS && !isInWallState)
+            {
+                isInWallState = true;
+            }
+            if (__instance.lookingForWallPosition && __instance.gotWallPositionInLOS && isInWallState)
+            {
+                returningFromWallState += Time.deltaTime;
+
+                if (isInWallState && Vector3.Distance(__instance.meshContainerPosition, __instance.transform.position - __instance.meshContainerPosition) < 2f || returningFromWallState > 10f)
+                {
+                    isInWallState = false;
+                    returningFromWallState = 0f;
+                }
+            }
+        }
+
+        static float Distance(float distance, float speed)
+        {
+            float ratio = speed / distance;
+            return ratio;
         }
     }
 }

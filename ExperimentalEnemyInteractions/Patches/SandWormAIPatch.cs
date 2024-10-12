@@ -90,7 +90,7 @@ namespace ExperimentalEnemyInteractions.Patches
                         __instance.updateDestinationInterval -= Time.deltaTime;
                     }
                     else
-                    {
+                    {                        
                         Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": calling DoAIInterval");
                         __instance.DoAIInterval();
                         __instance.updateDestinationInterval = __instance.AIIntervalTime + UnityEngine.Random.Range(-0.015f, 0.015f);

@@ -78,7 +78,7 @@ namespace ExperimentalEnemyInteractions.Patches
             BlobAI blobAI = __instance;
 			if (timeSinceHittingLocalMonster > 1.5f)
 			{
-                if (mainscript2 is not NutcrackerEnemyAI && mainscript2 is not CaveDwellerAI)
+                if (mainscript2 is not NutcrackerEnemyAI && mainscript2 is not CaveDwellerAI && !blobAI.isEnemyDead)
                 {
 					timeSinceHittingLocalMonster = 0f;
                     if (mainscript2 is FlowermanAI)

@@ -1,3 +1,8 @@
+- 0.1.11 - Hygrodere now does not anger Hoarding Bugs
+	- Hygrodere should anger Bracken less
+	- **Added a dependency to fix spider getting stuck and other position issues**
+	- Converted most debug logs to DebugLog
+	- Fixed Hygrodere hitting enemies with custom hit trigger stupidly fast
 - 0.1.10 - Rewritten Earth leviathan patch code. Now sandworms behave as intended.
 	- ***known bugs: Audio not playing when chasing targets. Audio cutting off when chasign player.***
 - 0.1.9 - Fixed critical error causing hard crash on load caused by leftover Lobby Compatibility code

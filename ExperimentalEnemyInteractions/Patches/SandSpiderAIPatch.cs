@@ -44,10 +44,10 @@ namespace ExperimentalEnemyInteractions.Patches
                 if (closestEnemy is HoarderBugAI)
                 {
                     targetEnemy = closestEnemy;
-                    __instance.setDestinationToHomeBase = false;
+                    /*__instance.setDestinationToHomeBase = false;
                     __instance.reachedWallPosition = false;
                     __instance.lookingForWallPosition = false;
-                    __instance.waitOnWallTimer = 11f;
+                    __instance.waitOnWallTimer = 11f;*/
 
                     if (__instance.spoolingPlayerBody)
                     {
@@ -56,12 +56,10 @@ namespace ExperimentalEnemyInteractions.Patches
 
                     if (targetEnemy == null || targetEnemy.isEnemyDead)
                     {
-                        __instance.movingTowardsTargetPlayer = false;
                         __instance.StopChasing();
                     }
                     if (__instance.onWall)
                     {
-                        __instance.movingTowardsTargetPlayer = false;
                         __instance.agent.speed = 4.25f;
                         __instance.spiderSpeed = 4.25f;
                     }
@@ -85,19 +83,21 @@ namespace ExperimentalEnemyInteractions.Patches
         {
             if (!spiderHuntHoardingbug) return;
 
-            else if (targetEnemy != null || targetEnemy.isEnemyDead)
+#pragma warning disable CS8602 // Přístup přes ukazatel k možnému odkazu s hodnotou null
+            if (targetEnemy != null || targetEnemy.isEnemyDead)
             {
                 if (__instance.patrolHomeBase.inProgress)
                 {
                     __instance.StopSearch(__instance.patrolHomeBase);
                 }
-                if (targetEnemy.isEnemyDead || !__instance.SetDestinationToPosition(targetEnemy.transform.position, true))
+                if (targetEnemy.isEnemyDead || !__instance.SetDestinationToPosition(targetEnemy.transform.position, true))  
                 {
                     targetEnemy = null;
                     __instance.StopChasing();
                 }
                 __instance.SetDestinationToPosition(targetEnemy.transform.position, true);
             }
+#pragma warning restore CS8602 // Přístup přes ukazatel k možnému odkazu s hodnotou null
         }
     }
 }

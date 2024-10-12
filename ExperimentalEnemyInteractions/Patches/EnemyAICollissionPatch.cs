@@ -15,16 +15,19 @@ namespace ExperimentalEnemyInteractions.Patches
         static bool enableSlime = Script.BoundingConfig.enableSlime.Value;
 
 
-        public static void DebugLog(string text, EnemyAI? mainscript, EnemyAI? mainscript2)
+        public static void Collide(string text, EnemyAI? mainscript, EnemyAI? mainscript2)
         {
             HitCooldownTime -= Time.deltaTime;
 
             if (HitCooldownTime <= 0f)
             {
-                if (debugMode) Script.Logger.LogInfo(mainscript + ", ID: " + mainscript?.GetInstanceID() + "Hit collider of " + mainscript2 + ", ID: " + mainscript2?.GetInstanceID() + ", Tag: " + text);
+                Script.Logger.LogDebug(mainscript + ", ID: " + mainscript?.GetInstanceID() + "Hit collider of " + mainscript2 + ", ID: " + mainscript2?.GetInstanceID() + ", Tag: " + text);
                 HitCooldownTime = 0.2f;
             }
-
+            if (mainscript != null && text == "Player")
+            {
+                
+            }
             if (mainscript != null && mainscript2 != null)
             {
                 if (mainscript is SandSpiderAI && mainscript2 is not SandSpiderAI && mainscript2 != null && enableSpider)
@@ -49,37 +52,32 @@ namespace ExperimentalEnemyInteractions.Patches
 
                 if (mainscript is BlobAI && mainscript2 is not BlobAI && mainscript2 != null && enableSlime)
                 {
-                    BlobAI? blobAI = mainscript as BlobAI;
+                   BlobAIPatch.OnCustomEnemyCollision((BlobAI)mainscript, mainscript2);
+                }
 
-                    if (blobAI?.timeSinceHittingLocalPlayer > 1.5f && mainscript2 is not NutcrackerEnemyAI && mainscript2 is not CaveDwellerAI)
+                /*if (mainscript is PufferAI && mainscript2 is not PufferAI && mainscript2 != null)
+                {
+                    PufferAI? pufferAI = mainscript as PufferAI;
+                    if (pufferAI != null)
                     {
-                        if (mainscript2 is FlowermanAI)
-                        {
-                            FlowermanAI? flowermanAI = mainscript2 as FlowermanAI;
-                            if (flowermanAI != null)
-                            {
-                                float AngerbeforeHit = flowermanAI.angerMeter;
-                                blobAI.timeSinceHittingLocalPlayer = 0f;
-                                flowermanAI.HitEnemy(1, null, playHitSFX: true);
-                                flowermanAI.isInAngerMode = false;
-                                flowermanAI.angerMeter = AngerbeforeHit;
-                            }
-                           
-                        }
-
-                        else
-                        {
-                            blobAI.timeSinceHittingLocalPlayer = 0f;
-                            mainscript2.HitEnemy(1, null, playHitSFX: true);
-                        }
+                    PufferAIPatch.CustomOnHit(1, mainscript, true, pufferAI);
                     }
                 }
+
+                if (mainscript is HoarderBugAI && mainscript2 is not HoarderBugAI && mainscript2 != null)
+                {
+                    HoarderBugAI? hoarderBugAI = mainscript as HoarderBugAI;
+                    if (hoarderBugAI != null)
+                    {
+                        HoarderBugPatch.CustomOnHit(1, mainscript, true, hoarderBugAI);
+                    }
+                }*/
             }
         } 
     }
 
     [HarmonyPatch(typeof(EnemyAICollisionDetect), "OnTriggerStay")]
-    class AICollisionDetectPatch
+    public class AICollisionDetectPatch
     {
         static float HitDetectionNullCD = 0.5f;
         static bool debugMode = Script.BoundingConfig.debugBool.Value;
@@ -95,32 +93,34 @@ namespace ExperimentalEnemyInteractions.Patches
                 {
                     if (other == null)
                     {
-                        Script.Logger.LogError("Collider is NULL");
+                        if (debugMode) Script.Logger.LogError("Collider is NULL");
                     }
                     if (__instance.mainScript == null)
                     {
-                        Script.Logger.LogError("Instance.mainScript is NULL");
+                        if (debugMode) Script.Logger.LogError("Instance.mainScript is NULL");
                     }
                     if (compoment2 == null)
                     {
-                        Script.Logger.LogError("Compoment2 is NULL");
+                        if (debugMode) Script.Logger.LogError("Compoment2 is NULL");
                     }
                     HitDetectionNullCD = 0.5f;
                 }
 
+#pragma warning disable CS8602 // P��stup p�es ukazatel k mo�n�mu odkazu s hodnotou null
                 if (other.CompareTag("Player") && __instance.mainScript.isEnemyDead == false)
                 {
-                    OnCollideWithUniversal.DebugLog("Player", null, null);
+                    OnCollideWithUniversal.Collide("Player", null, null);
                     return true;
                 }
+#pragma warning restore CS8602 // P��stup p�es ukazatel k mo�n�mu odkazu s hodnotou null
+#pragma warning disable CS8602 // P��stup p�es ukazatel k mo�n�mu odkazu s hodnotou null
                 if (other.CompareTag("Enemy") && compoment2 != null && compoment2.mainScript != __instance.mainScript && compoment2.mainScript.isEnemyDead == false
                       && IsEnemyImmortal.EnemyIsImmortal(compoment2.mainScript) == false)
                 {
-                    OnCollideWithUniversal.DebugLog("Enemy", __instance.mainScript, compoment2.mainScript);
+                    OnCollideWithUniversal.Collide("Enemy", __instance.mainScript, compoment2.mainScript);
                     return true;
                 }
             }
-            //Script.Logger.LogError("EnemyAICollisionDetect triggered, Return stage");
             return true;
         }
     }

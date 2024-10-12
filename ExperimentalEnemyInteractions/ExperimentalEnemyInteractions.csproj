@@ -2,10 +2,10 @@
 
     <!-- BepInEx Properties -->
     <PropertyGroup>
-        <AssemblyName>ExperimentalEnemyInteractions</AssemblyName>
+        <AssemblyName>fandovec03.ExperimentalEnemyInteractions</AssemblyName>
         <Product>ExperimentalEnemyInteractions</Product>
         <!-- Change to whatever version you're currently on. -->
-        <Version>0.1.9</Version>
+        <Version>0.1.11</Version>
     </PropertyGroup>
 
     <!-- Project Properties -->

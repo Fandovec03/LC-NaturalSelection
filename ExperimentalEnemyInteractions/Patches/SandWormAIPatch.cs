@@ -30,20 +30,6 @@ namespace ExperimentalEnemyInteractions.Patches
             targetedTypes.Add(typeof(BushWolfEnemy));
             targetedTypes.Add(typeof(RadMechAI));
         }
-        /*[HarmonyPatch("Update")]
-        [HarmonyTranspiler]
-
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-        {
-            bool foundCode = false;
-            var startIndex = -1;
-            var endIndex = -1;
-
-            var codes = new List<CodeInstruction>(instructions);
-            for (int i = 0; i < codes.Count; i++)
-            {
-            }
-        }*/
         [HarmonyPatch("Update")]
         [HarmonyPrefix]
         static bool SandWormPrefixUpdatePatch(SandWormAI __instance)
@@ -83,6 +69,10 @@ namespace ExperimentalEnemyInteractions.Patches
             }
             if (targetingEntity)
             {
+                if (!__instance.IsOwner)
+                {
+                    return;
+                }
                 if (__instance != null)
                 {
                     if (__instance.updateDestinationInterval >= 0f)
@@ -96,34 +86,37 @@ namespace ExperimentalEnemyInteractions.Patches
                         __instance.updateDestinationInterval = __instance.AIIntervalTime + UnityEngine.Random.Range(-0.015f, 0.015f);
                     }
                 }
-                if (!__instance.creatureSFX.isPlaying && !__instance.inEmergingState && !__instance.emerged)
+                if (__instance != null)
                 {
-                    int num = UnityEngine.Random.Range(0, __instance.ambientRumbleSFX.Length);
-                    __instance.creatureSFX.clip = __instance.ambientRumbleSFX[num];
-                    __instance.creatureSFX.Play();
-                    Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Started playing sounds");
-                    
-                }
-                if (targetEnemy == null)
-                {
-                    Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": TargetEnemy is null! TargetingEntity set to false /Trigger 1/");
-                    targetingEntity = false;
-                    return;
-                }
-                if (Vector3.Distance(targetEnemy.transform.position, __instance.transform.position) > 22f)
-                {
-                    __instance.chaseTimer += Time.deltaTime;
-                    Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": updated chaseTimer: " + __instance.chaseTimer);
-                }
-                else
-                {
-                    __instance.chaseTimer = 0f;
-                    Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Reset chasetimer");
-                }
-                if (__instance.chaseTimer > 6f)
-                {
-                    Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Chasing for too long. targetEnemy set to null");
-                    targetEnemy = null;
+                    if (!__instance.creatureSFX.isPlaying && !__instance.inEmergingState && !__instance.emerged)
+                    {
+                        int num = UnityEngine.Random.Range(0, __instance.ambientRumbleSFX.Length);
+                        __instance.creatureSFX.clip = __instance.ambientRumbleSFX[num];
+                        __instance.creatureSFX.Play();
+                        Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Started playing sounds");
+
+                    }
+                    if (targetEnemy == null)
+                    {
+                        Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": TargetEnemy is null! TargetingEntity set to false /Trigger 1/");
+                        targetingEntity = false;
+                        return;
+                    }
+                    if (Vector3.Distance(targetEnemy.transform.position, __instance.transform.position) > 22f)
+                    {
+                        __instance.chaseTimer += Time.deltaTime;
+                        Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": updated chaseTimer: " + __instance.chaseTimer);
+                    }
+                    else
+                    {
+                        __instance.chaseTimer = 0f;
+                        Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Reset chasetimer");
+                    }
+                    if (__instance.chaseTimer > 6f)
+                    {
+                        Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Chasing for too long. targetEnemy set to null");
+                        targetEnemy = null;
+                    }
                 }
             }
         }
@@ -164,20 +157,22 @@ namespace ExperimentalEnemyInteractions.Patches
                 }
                 targetEnemy = closestEnemy;
                 if (debugMode) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + "DoAIInterval: Set " + targetEnemy + " as targetEnemy");
-
-                if (Vector3.Distance(__instance.transform.position, targetEnemy.transform.position) > 19f)
+                if (targetEnemy != null)
                 {
-                    targetEnemy = null;
-                    Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + "DoAIInterval: TargetEnemy too far! set to null");
-                    return;
-                }
-                __instance.SetDestinationToPosition(targetEnemy.transform.position, checkForPath: true);
-                Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + "DoAIInterval: Set destitantion to " + targetEnemy);
+                    if (Vector3.Distance(__instance.transform.position, targetEnemy.transform.position) > 19f)
+                    {
+                        targetEnemy = null;
+                        Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + "DoAIInterval: TargetEnemy too far! set to null");
+                        return;
+                    }
+                    __instance.SetDestinationToPosition(targetEnemy.transform.position, checkForPath: true);
+                    Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + "DoAIInterval: Set destitantion to " + targetEnemy);
 
-                if (__instance.chaseTimer < 1.5f && Vector3.Distance(__instance.transform.position, targetEnemy.transform.position) < 4f && !(Vector3.Distance(StartOfRound.Instance.shipInnerRoomBounds.ClosestPoint(__instance.transform.position), __instance.transform.position) < 9f) && UnityEngine.Random.Range(0, 100) < 17)
-                {
-                    Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + "DoAIInterval: Emerging!");
-                    __instance.StartEmergeAnimation();
+                    if (__instance.chaseTimer < 1.5f && Vector3.Distance(__instance.transform.position, targetEnemy.transform.position) < 4f && !(Vector3.Distance(StartOfRound.Instance.shipInnerRoomBounds.ClosestPoint(__instance.transform.position), __instance.transform.position) < 9f) && UnityEngine.Random.Range(0, 100) < 17)
+                    {
+                        Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + "DoAIInterval: Emerging!");
+                        __instance.StartEmergeAnimation();
+                    }
                 }
             }
         }

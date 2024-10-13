@@ -89,20 +89,8 @@ namespace ExperimentalEnemyInteractions.Patches
 
             if (__instance != null)
             {
-                if ((other == null || __instance.mainScript == null || compoment2 == null || compoment2.mainScript == null) && HitDetectionNullCD < 0f && debugMode)
+                if ((other == null || __instance.mainScript == null || compoment2 == null || compoment2.mainScript == null) && HitDetectionNullCD < 0f)
                 {
-                    if (other == null)
-                    {
-                        if (debugMode) Script.Logger.LogError("Collider is NULL");
-                    }
-                    if (__instance.mainScript == null)
-                    {
-                        if (debugMode) Script.Logger.LogError("Instance.mainScript is NULL");
-                    }
-                    if (compoment2 == null)
-                    {
-                        if (debugMode) Script.Logger.LogError("Compoment2 is NULL");
-                    }
                     HitDetectionNullCD = 0.5f;
                 }
 

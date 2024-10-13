@@ -50,6 +50,7 @@ namespace ExperimentalEnemyInteractions.Patches
         [HarmonyPostfix]
         static void NutcrackerUpdatePostfix(NutcrackerEnemyAI __instance)
         {
+            if (true) return;
             NutcrackerData data = NutcrackerData[__instance];
 
             enemyList = EnemyAIPatch.GetOutsideEnemyList(__instance);
@@ -124,6 +125,7 @@ namespace ExperimentalEnemyInteractions.Patches
         [HarmonyPostfix]
         static void DoAIIntervalPatch(NutcrackerEnemyAI __instance)
         {
+            if (true) return;
             NutcrackerData data = NutcrackerData[__instance];
 
             if (__instance.currentBehaviourStateIndex == 2)

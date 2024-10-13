@@ -97,7 +97,7 @@ namespace ExperimentalEnemyInteractions.Patches
 
             if (blobData.timeSinceHittingLocalMonster > 1.5f)
 			{
-                if (mainscript2 is not NutcrackerEnemyAI && mainscript2 is not CaveDwellerAI)
+                if (mainscript2 is not NutcrackerEnemyAI && mainscript2 is not CaveDwellerAI && !blobAI.isEnemyDead)
                 {
                     blobData.timeSinceHittingLocalMonster = 0f;
                     if (mainscript2 is FlowermanAI)

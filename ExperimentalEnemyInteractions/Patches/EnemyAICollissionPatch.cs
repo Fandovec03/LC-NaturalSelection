@@ -9,7 +9,7 @@ namespace ExperimentalEnemyInteractions.Patches
 {
     public class OnCollideWithUniversal
     {
-        static float HitCooldownTime = 0.2f;
+        static float HitCooldownTime = 0.3f;
         static bool debugMode = Script.BoundingConfig.debugBool.Value;
         static bool enableSpider = Script.BoundingConfig.enableSpider.Value;
         static bool enableSlime = Script.BoundingConfig.enableSlime.Value;
@@ -22,7 +22,7 @@ namespace ExperimentalEnemyInteractions.Patches
             if (HitCooldownTime <= 0f)
             {
                 Script.Logger.LogDebug(mainscript + ", ID: " + mainscript?.GetInstanceID() + "Hit collider of " + mainscript2 + ", ID: " + mainscript2?.GetInstanceID() + ", Tag: " + text);
-                HitCooldownTime = 0.2f;
+                HitCooldownTime = 0.3f;
             }
             if (mainscript != null && text == "Player")
             {

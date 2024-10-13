@@ -11,39 +11,53 @@ using UnityEngine.Experimental.Rendering;
 
 namespace ExperimentalEnemyInteractions.Patches
 {
+    class SpiderData
+    {
+        public EnemyAI? closestEnemy = null;
+        public EnemyAI? targetEnemy = null;
+    }
+
+
     [HarmonyPatch(typeof(SandSpiderAI))]
     class SandSpiderAIPatch
     {
         static List<EnemyAI> enemyList = new List<EnemyAI>();
-        static float timeSpider = 0;
         static float refreshCDtimeSpider = 1f;
-        static EnemyAI? closestEnemy;
-        static EnemyAI? targetEnemy;
-
         static bool debugMode = Script.BoundingConfig.debugBool.Value;
         static bool enableSpider = Script.BoundingConfig.enableSpider.Value;
         static bool spiderHuntHoardingbug = Script.BoundingConfig.spiderHuntHoardingbug.Value;
+
+        static Dictionary<SandSpiderAI, SpiderData> spiderList = [];
+
+        [HarmonyPatch("Start")]
+        [HarmonyPrefix]
+        static void StartPatch(SandSpiderAI __instance)
+        {
+            spiderList.Add(__instance, new SpiderData());
+        }
+
 
         [HarmonyPatch("Update")]
         [HarmonyPostfix]
         static void UpdatePatch(SandSpiderAI __instance)
         {
+            SpiderData spiderData = spiderList[__instance];
+
             refreshCDtimeSpider -= Time.deltaTime;
-            timeSpider += Time.deltaTime;
 
             if (!enableSpider) return;
 
             if (refreshCDtimeSpider <= 0)
             {
                 enemyList = EnemyAIPatch.GetInsideEnemyList(__instance);
-                closestEnemy = EnemyAIPatch.findClosestEnemy(enemyList, closestEnemy, __instance);
+                spiderData.closestEnemy = EnemyAIPatch.findClosestEnemy(enemyList, spiderData.closestEnemy, __instance);
             }
 
-            if (spiderHuntHoardingbug && closestEnemy != null && __instance != null && Vector3.Distance(__instance.transform.position, closestEnemy.transform.position) < 80f && refreshCDtimeSpider <= 0)
+            if (spiderHuntHoardingbug && spiderData.closestEnemy != null && __instance != null && Vector3.Distance(__instance.transform.position, spiderData.closestEnemy.transform.position) < 80f && refreshCDtimeSpider <= 0)
             {
-                if (closestEnemy is HoarderBugAI)
+                if (spiderData.closestEnemy is HoarderBugAI)
                 {
-                    targetEnemy = closestEnemy;
+                    spiderData.targetEnemy = spiderData.closestEnemy;
                     /*__instance.setDestinationToHomeBase = false;
                     __instance.reachedWallPosition = false;
                     __instance.lookingForWallPosition = false;
@@ -54,7 +68,7 @@ namespace ExperimentalEnemyInteractions.Patches
                         __instance.CancelSpoolingBody();
                     }
 
-                    if (targetEnemy == null || targetEnemy.isEnemyDead)
+                    if (spiderData.targetEnemy == null || spiderData.targetEnemy.isEnemyDead)
                     {
                         __instance.StopChasing();
                     }
@@ -70,10 +84,6 @@ namespace ExperimentalEnemyInteractions.Patches
             {
                 refreshCDtimeSpider = 1f;
             }
-            if (timeSpider > 1)
-            {
-                timeSpider = 0;
-            }
         }
 
 
@@ -82,20 +92,21 @@ namespace ExperimentalEnemyInteractions.Patches
         static void DoAIIntervalPostfix(SandSpiderAI __instance)
         {
             if (!spiderHuntHoardingbug) return;
+            SpiderData spiderData = spiderList[__instance];
 
 #pragma warning disable CS8602 // Přístup přes ukazatel k možnému odkazu s hodnotou null
-            if (targetEnemy != null || targetEnemy.isEnemyDead)
+            if (spiderData.targetEnemy != null || spiderData.targetEnemy.isEnemyDead)
             {
                 if (__instance.patrolHomeBase.inProgress)
                 {
                     __instance.StopSearch(__instance.patrolHomeBase);
                 }
-                if (targetEnemy.isEnemyDead || !__instance.SetDestinationToPosition(targetEnemy.transform.position, true))  
+                if (spiderData.targetEnemy.isEnemyDead || !__instance.SetDestinationToPosition(spiderData.targetEnemy.transform.position, true))  
                 {
-                    targetEnemy = null;
+                    spiderData.targetEnemy = null;
                     __instance.StopChasing();
                 }
-                __instance.SetDestinationToPosition(targetEnemy.transform.position, true);
+                __instance.SetDestinationToPosition(spiderData.targetEnemy.transform.position, true);
             }
 #pragma warning restore CS8602 // Přístup přes ukazatel k možnému odkazu s hodnotou null
         }

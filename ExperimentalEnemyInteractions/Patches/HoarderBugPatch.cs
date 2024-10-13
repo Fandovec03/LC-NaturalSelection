@@ -8,15 +8,15 @@ namespace ExperimentalEnemyInteractions.Patches
     [HarmonyPatch(typeof(HoarderBugAI))]
     class HoarderBugPatch()
     {
-    public static void CustomOnHit(int force, EnemyAI enemyWhoHit, bool playHitSFX, HoarderBugAI instance)
+    public static void CustomOnHit(int force, EnemyAI enemyWhoHit, bool playHitSFX, HoarderBugAI __instance)
     {
-                instance.enemyHP -= force;
+                __instance.enemyHP -= force;
                 Script.Logger.LogDebug("Hoarderbug CustomHit Triggered");
-                RoundManager.PlayRandomClip(instance.creatureVoice, instance.angryScreechSFX);
+                RoundManager.PlayRandomClip(__instance.creatureVoice, __instance.angryScreechSFX);
 
-                if (instance.enemyHP <= 0)
+                if (__instance.enemyHP <= 0)
                 {
-                    instance.KillEnemy(false);
+                __instance.KillEnemy(false);
                 }
             }
     }

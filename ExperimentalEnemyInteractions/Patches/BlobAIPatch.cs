@@ -11,19 +11,37 @@ using UnityEngine.ProBuilder.MeshOperations;
 
 namespace ExperimentalEnemyInteractions.Patches
 {
+
+	class BlobData
+	{
+        public float timeSinceHittingLocalMonster = 0f;
+        public EnemyAI? closestEnemy = null;
+    }
+
 	[HarmonyPatch(typeof(BlobAI))]
 	public class BlobAIPatch
 	{
-		static float timeSinceHittingLocalMonster = 0f;
 		static float CDtimer = 0.5f;
 		static List<EnemyAI> whiteList = new List<EnemyAI>();
 		static EnemyAI? closestEnemy = null;
 
-		[HarmonyPatch("Update")]
+		static Dictionary<BlobAI, BlobData> slimeList = [];
+
+		[HarmonyPatch("Start")]
 		[HarmonyPrefix]
-		static void BlobUpdatePatch(EnemyAI __instance)
+		static void StartPatch(BlobAI __instance)
 		{
-			timeSinceHittingLocalMonster += Time.deltaTime;
+            slimeList.Add(__instance, new BlobData());
+        }
+
+
+        [HarmonyPatch("Update")]
+		[HarmonyPrefix]
+		static void BlobUpdatePatch(BlobAI __instance)
+		{
+			BlobData blobData = slimeList[__instance];
+
+            blobData.timeSinceHittingLocalMonster += Time.deltaTime;
 			if (CDtimer > 0)
 			{
 				CDtimer -= Time.deltaTime;
@@ -75,12 +93,13 @@ namespace ExperimentalEnemyInteractions.Patches
 
 		public static void OnCustomEnemyCollision(BlobAI __instance, EnemyAI mainscript2)
 		{
-            BlobAI blobAI = __instance;
-			if (timeSinceHittingLocalMonster > 1.5f)
+            BlobData blobData = slimeList[__instance];
+
+            if (blobData.timeSinceHittingLocalMonster > 1.5f)
 			{
                 if (mainscript2 is not NutcrackerEnemyAI && mainscript2 is not CaveDwellerAI && !blobAI.isEnemyDead)
                 {
-					timeSinceHittingLocalMonster = 0f;
+                    blobData.timeSinceHittingLocalMonster = 0f;
                     if (mainscript2 is FlowermanAI)
                     {
                         FlowermanAI? flowermanAI = mainscript2 as FlowermanAI;
@@ -112,7 +131,7 @@ namespace ExperimentalEnemyInteractions.Patches
 
                     else
                     {
-                        blobAI.timeSinceHittingLocalPlayer = 0f;
+                        blobData.timeSinceHittingLocalMonster = 0f;
                         mainscript2.HitEnemy(1, null, playHitSFX: true);
 						return;
                     }

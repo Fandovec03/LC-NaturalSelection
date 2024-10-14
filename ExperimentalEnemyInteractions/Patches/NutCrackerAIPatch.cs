@@ -52,7 +52,7 @@ namespace ExperimentalEnemyInteractions.Patches
         {
             NutcrackerData data = NutcrackerData[__instance];
 
-            enemyList = EnemyAIPatch.GetOutsideEnemyList(__instance);
+            enemyList = EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(),__instance);
             data.closestEnemy = EnemyAIPatch.findClosestEnemy(enemyList, data.closestEnemy, __instance);
 
             if (__instance.currentBehaviourStateIndex == 1)

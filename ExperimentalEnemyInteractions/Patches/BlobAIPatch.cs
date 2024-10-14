@@ -50,7 +50,7 @@ namespace ExperimentalEnemyInteractions.Patches
 			{
 				List<EnemyAI> tempList = new List<EnemyAI>();
 
-				tempList = EnemyAIPatch.GetInsideEnemyList(__instance);
+				tempList = EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(), __instance);
 
 				for (int i = 0; i < tempList.Count; i++)
 				{
@@ -97,7 +97,7 @@ namespace ExperimentalEnemyInteractions.Patches
 
             if (blobData.timeSinceHittingLocalMonster > 1.5f)
 			{
-                if (mainscript2 is not NutcrackerEnemyAI && mainscript2 is not CaveDwellerAI && !blobAI.isEnemyDead)
+                if (mainscript2 is not NutcrackerEnemyAI && mainscript2 is not CaveDwellerAI && !__instance.isEnemyDead)
                 {
                     blobData.timeSinceHittingLocalMonster = 0f;
                     if (mainscript2 is FlowermanAI)

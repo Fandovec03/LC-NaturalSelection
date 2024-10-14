@@ -79,16 +79,29 @@ namespace ExperimentalEnemyInteractions.Patches
             }
         }
 
-        public static List<EnemyAI> GetCompleteList()
+        public static List<EnemyAI> GetCompleteList(Type enemyType = null)
         {
-            return enemyList;
+            List<EnemyAI> tempList = enemyList;
+            Type type = enemyType;
+
+            if (type != null)
+            {
+                foreach (EnemyAI enemy in tempList)
+                {
+                    if (enemy.GetType() == type)
+                    {
+                        tempList.Remove(enemy);
+                    }
+                }
+            }
+            return tempList;
         }
 
-        public static List<EnemyAI> GetOutsideEnemyList(EnemyAI instance)
+        public static List<EnemyAI> GetOutsideEnemyList(List<EnemyAI> importEnemyList, EnemyAI instance)
         {
             List<EnemyAI> outsideEnemies = new List<EnemyAI>();
 
-            foreach (EnemyAI enemy in enemyList )
+            foreach (EnemyAI enemy in importEnemyList)
             {
                 if (enemy.isOutside == true && enemy != instance)
                 {
@@ -99,11 +112,11 @@ namespace ExperimentalEnemyInteractions.Patches
             return outsideEnemies;
         }
 
-        public static List<EnemyAI> GetInsideEnemyList(EnemyAI instance)
+        public static List<EnemyAI> GetInsideEnemyList(List<EnemyAI> importEnemyList, EnemyAI instance)
         {
             List<EnemyAI> insideEnemies = new List<EnemyAI>();
 
-            foreach (EnemyAI enemy in enemyList)
+            foreach (EnemyAI enemy in importEnemyList)
             {
                 if (enemy.isOutside == false && enemy != instance)
                 {

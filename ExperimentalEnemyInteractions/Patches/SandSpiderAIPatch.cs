@@ -49,7 +49,7 @@ namespace ExperimentalEnemyInteractions.Patches
 
             if (refreshCDtimeSpider <= 0)
             {
-                enemyList = EnemyAIPatch.GetInsideEnemyList(__instance);
+                enemyList = EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(),__instance);
                 spiderData.closestEnemy = EnemyAIPatch.findClosestEnemy(enemyList, spiderData.closestEnemy, __instance);
             }
 

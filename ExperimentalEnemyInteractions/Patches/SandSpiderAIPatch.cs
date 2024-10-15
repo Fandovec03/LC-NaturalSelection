@@ -63,15 +63,6 @@ namespace ExperimentalEnemyInteractions.Patches
                     __instance.lookingForWallPosition = false;
                     __instance.waitOnWallTimer = 11f;*/
 
-                    if (__instance.spoolingPlayerBody)
-                    {
-                        __instance.CancelSpoolingBody();
-                    }
-
-                    if (spiderData.targetEnemy == null || spiderData.targetEnemy.isEnemyDead)
-                    {
-                        __instance.StopChasing();
-                    }
                     if (__instance.onWall)
                     {
                         __instance.agent.speed = 4.25f;

@@ -28,6 +28,8 @@ namespace ExperimentalEnemyInteractions.Patches
         static bool spiderHuntHoardingbug = Script.BoundingConfig.spiderHuntHoardingbug.Value;
 
         static Dictionary<SandSpiderAI, SpiderData> spiderList = [];
+        static bool debugSpider = Script.BoundingConfig.debugUnspecified.Value;
+
 
         [HarmonyPatch("Start")]
         [HarmonyPrefix]

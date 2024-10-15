@@ -10,10 +10,10 @@ namespace ExperimentalEnemyInteractions.Patches
     public class OnCollideWithUniversal
     {
         static float HitCooldownTime = 0.3f;
-        static bool debugMode = Script.BoundingConfig.debugBool.Value;
         static bool enableSpider = Script.BoundingConfig.enableSpider.Value;
         static bool enableSlime = Script.BoundingConfig.enableSlime.Value;
 
+        static bool logUnspecified = Script.BoundingConfig.debugUnspecified.Value;
 
         public static void Collide(string text, EnemyAI? mainscript, EnemyAI? mainscript2)
         {
@@ -21,7 +21,7 @@ namespace ExperimentalEnemyInteractions.Patches
 
             if (HitCooldownTime <= 0f)
             {
-                Script.Logger.LogDebug(mainscript + ", ID: " + mainscript?.GetInstanceID() + "Hit collider of " + mainscript2 + ", ID: " + mainscript2?.GetInstanceID() + ", Tag: " + text);
+                if (logUnspecified)Script.Logger.LogDebug(mainscript + ", ID: " + mainscript?.GetInstanceID() + "Hit collider of " + mainscript2 + ", ID: " + mainscript2?.GetInstanceID() + ", Tag: " + text);
                 HitCooldownTime = 0.3f;
             }
             if (mainscript != null && text == "Player")
@@ -85,7 +85,6 @@ namespace ExperimentalEnemyInteractions.Patches
     public class AICollisionDetectPatch
     {
         static float HitDetectionNullCD = 0.5f;
-        static bool debugMode = Script.BoundingConfig.debugBool.Value;
         //[HarmonyPrefix]
         static bool Prefix(Collider other, EnemyAICollisionDetect __instance)
         {

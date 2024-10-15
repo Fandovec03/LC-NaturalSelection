@@ -24,6 +24,8 @@ namespace ExperimentalEnemyInteractions.Patches
         static List<EnemyAI> enemyList = new List<EnemyAI>();
         static Dictionary<NutcrackerEnemyAI, NutcrackerData> NutcrackerData = [];
 
+        static bool debugNutcrackers = Script.BoundingConfig.debugNutcrackers.Value;
+
         static public bool CheckLOSForMonsters(Vector3 monsterPosition, NutcrackerEnemyAI __instance, float width = 45f, int range = 60, int proximityAwareness = 60)
         {
             if (Vector3.Distance(monsterPosition, __instance.eye.position) < (float)range && !Physics.Linecast(__instance.eye.position, monsterPosition, StartOfRound.Instance.collidersAndRoomMaskAndDefault))
@@ -74,7 +76,7 @@ namespace ExperimentalEnemyInteractions.Patches
                 {
                     __instance.StopInspection();
                 }
-                __instance.SwitchToBehaviourState(2);
+                __instance.SwitchToBehaviourServerRpc(2);
                 if (__instance.lostPlayerInChase)
                 {
                     __instance.targetTorsoDegrees = 0;
@@ -139,11 +141,12 @@ namespace ExperimentalEnemyInteractions.Patches
                         __instance.reachedStrafePosition = false;
                         __instance.SetDestinationToPosition(data.targetEnemy.transform.position);
                         __instance.agent.stoppingDistance = 1f;
+                        __instance.moveTowardsDestination = true;
 
                     }
                     if (data.TimeSinceSeeingMonster > 12f && __instance.timeSinceSeeingTarget > 12f)
                     {
-                        __instance.SwitchToBehaviourState(1);
+                        __instance.SwitchToBehaviourServerRpc(1);
                     }
                 }
             }

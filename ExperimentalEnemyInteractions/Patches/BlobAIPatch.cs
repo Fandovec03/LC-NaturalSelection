@@ -27,6 +27,8 @@ namespace ExperimentalEnemyInteractions.Patches
 
 		static Dictionary<BlobAI, BlobData> slimeList = [];
 
+		static bool logBlob = Script.BoundingConfig.debugHygrodere.Value;
+
 		[HarmonyPatch("Start")]
 		[HarmonyPrefix]
 		static void StartPatch(BlobAI __instance)
@@ -58,18 +60,18 @@ namespace ExperimentalEnemyInteractions.Patches
 					{
 						if (tempList[i] is NutcrackerEnemyAI)
 						{
-							Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + tempList[i] + " is blacklisted!");
+							if (logBlob)Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + tempList[i] + " is blacklisted!");
 						}
 						else
 						{
 							if (!whiteList.Contains(tempList[i]))
 							{
-								Script.Logger.LogMessage(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Added "+ tempList[i] +" to whitelist");
+								if (logBlob)Script.Logger.LogMessage(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Added "+ tempList[i] +" to whitelist");
 								whiteList.Add(tempList[i]);
 							}
 							if (whiteList.Contains(tempList[i]))
 							{
-								Script.Logger.LogWarning(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + tempList[i] + " is already in the whitelist");
+								if (logBlob)Script.Logger.LogWarning(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + tempList[i] + " is already in the whitelist");
 							}
 						}
 					}
@@ -79,7 +81,7 @@ namespace ExperimentalEnemyInteractions.Patches
 				{
 					if (whiteList[i] == null)
 					{
-						Script.Logger.LogError(__instance.name + ", ID: " + __instance.GetInstanceID() + ": found NULL enemz in whitelist. removing.");
+						if (logBlob)Script.Logger.LogError(__instance.name + ", ID: " + __instance.GetInstanceID() + ": found NULL enemz in whitelist. removing.");
 						whiteList.Remove(whiteList[i]);
 					}
 				}

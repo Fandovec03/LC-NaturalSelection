@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Runtime.CompilerServices;
+using GameNetcodeStuff;
 using HarmonyLib;
 using UnityEngine;
 
@@ -18,7 +19,8 @@ namespace ExperimentalEnemyInteractions.Patches
         static List<EnemyAI> enemyList = new List<EnemyAI>();
         static float time = 0f;
         static float refreshCDtime = 1f;
-        static bool debugMode = Script.BoundingConfig.debugBool.Value;
+
+        static bool debugUnspecified = Script.BoundingConfig.debugUnspecified.Value;
 
         static Dictionary<EnemyAI, EnemyAIData> enemyAIData = [];
 
@@ -42,17 +44,17 @@ namespace ExperimentalEnemyInteractions.Patches
                 {
                     if (enemyList.Contains(enemy) && enemy.isEnemyDead == false)
                     {
-                        if (debugMode) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Found Duplicate " + enemy.gameObject.name + ", ID: " + enemy.GetInstanceID());
+                        if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Found Duplicate " + enemy.gameObject.name + ", ID: " + enemy.GetInstanceID());
                     }
                     if (enemyList.Contains(enemy) && enemy.isEnemyDead == true)
                     {
                         enemyList.Remove(enemy);
-                        if (debugMode) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Found and removed dead Enemy " + enemy.gameObject.name + ", ID:  " + enemy.GetInstanceID() + "on List.");
+                        if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Found and removed dead Enemy " + enemy.gameObject.name + ", ID:  " + enemy.GetInstanceID() + "on List.");
                     }
                     if (!enemyList.Contains(enemy) && enemy.isEnemyDead == false && enemy.name != __instance.name)
                     {
                         enemyList.Add(enemy);
-                        if (debugMode) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Added " + enemy.gameObject.name + " detected in List. Instance: " + enemy.GetInstanceID());
+                        if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Added " + enemy.gameObject.name + " detected in List. Instance: " + enemy.GetInstanceID());
                     }
                 }
 
@@ -63,14 +65,14 @@ namespace ExperimentalEnemyInteractions.Patches
                         RaycastHit hit = new RaycastHit();
                         if (enemyList[i] == null)
                         {
-                            if (debugMode) Script.Logger.LogError(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Detected null enemy in the list. Removing...");
+                            if (debugUnspecified) Script.Logger.LogError(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Detected null enemy in the list. Removing...");
                             enemyList.RemoveAt(i);
                         }
                         if (enemyList[i] != null)
                         {
                             if (!Physics.Linecast(__instance.gameObject.transform.position, enemyList[i].gameObject.transform.position, out hit, StartOfRound.Instance.collidersRoomMaskDefaultAndPlayers, QueryTriggerInteraction.Ignore))
                             {
-                                if (debugMode) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "LOS check: Have LOS on " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID());
+                                if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "LOS check: Have LOS on " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID());
                             }
                         }
                     }
@@ -137,20 +139,20 @@ namespace ExperimentalEnemyInteractions.Patches
             {
                 if (enemyAIdata.closestEnemy == null)
                 {
-                    if (debugMode) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "No enemy assigned. Assigning " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID() + " as new closestEnemy.");
+                    if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "No enemy assigned. Assigning " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID() + " as new closestEnemy.");
                     enemyAIdata.closestEnemy = enemyList[i];
                 }
                 if (enemyAIdata.closestEnemy == enemyList[i])
                 {
-                    if (debugMode) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID() + " is already assigned as closestEnemy");
+                    if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID() + " is already assigned as closestEnemy");
                 }
                 if (enemyList[i] != enemyAIdata.closestEnemy)
                 {
                     if (Vector3.Distance(__instance.transform.position, enemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, enemyAIdata.closestEnemy.transform.position))
                     {
                         enemyAIdata.closestEnemy = enemyList[i];
-                        if (debugMode) Script.Logger.LogDebug(Vector3.Distance(__instance.transform.position, enemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, enemyAIdata.closestEnemy.transform.position));
-                        if (debugMode) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Assigned " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID() + " as new closestEnemy. Distance: " + Vector3.Distance(__instance.transform.position, enemyAIdata.closestEnemy.transform.position));
+                        if (debugUnspecified) Script.Logger.LogDebug(Vector3.Distance(__instance.transform.position, enemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, enemyAIdata.closestEnemy.transform.position));
+                        if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Assigned " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID() + " as new closestEnemy. Distance: " + Vector3.Distance(__instance.transform.position, enemyAIdata.closestEnemy.transform.position));
                     }
                 }
             }
@@ -164,12 +166,12 @@ namespace ExperimentalEnemyInteractions.Patches
                 {
                     if (targetTypes.Contains(enemyList[i].GetType()))
                     {
-                        if (debugMode) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Enemy of type " + enemyList[i].GetType() + " passed the filter.");
+                        if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Enemy of type " + enemyList[i].GetType() + " passed the filter.");
                         filteredList.Add(enemyList[i]);
                     }
-                    else if (debugMode)
+                    else if (debugUnspecified)
                     {
-                    if (debugMode) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Caught and filtered out Enemy of type " + enemyList[i].GetType());
+                    if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Caught and filtered out Enemy of type " + enemyList[i].GetType());
                     }
                 }
                 return filteredList;
@@ -194,6 +196,23 @@ namespace ExperimentalEnemyInteractions.Patches
                 }
             }
             return null;
+        }
+
+        static public int ReactToHit(EnemyAI __instance, int force = 0, EnemyAI? enemyAI = null, PlayerControllerB? player = null)
+        {
+
+            if (__instance is PufferAI)
+            {
+                if (force > 0)
+                {
+                    return 1;
+                }
+                if (force > 1)
+                {
+                    return 2;
+                }
+            }
+            return 0;
         }
     }
 }

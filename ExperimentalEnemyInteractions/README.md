@@ -4,12 +4,15 @@ Ever felt like every living being is trying to kill you and everything is stacke
 <br>
 Currently supported entities:<br>
 - Bunker Spider
-	- Hunts Hoarding bugs.
+	- Hunts Hoarding bugs. (Unfinished)
 - Hygrodere (Blob)
 	- Damages creatures that has contact with it with an exception of Maneater. Non-organic and immortal entities are not affected.
 - Earth Leviathan<br>
 	- Targets creatures that come near it.
 
+WIP:
+- Circuit Bees
+- Nutcracker
 
 Report bugs on either github issues or the Lethal company modding discord.
 
@@ -17,3 +20,4 @@ Credits:
 --------------------------------------------------
 Unofficial LethalCompany Discord: <br>
 - Zesa, TKronix, Swaggies: helping me figure out collision detection <br>
+- Hamunii: Helped fixing the code <br>

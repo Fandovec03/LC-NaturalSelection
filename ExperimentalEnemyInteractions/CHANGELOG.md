@@ -1,3 +1,5 @@
+- 0.1.13
+	- Removed code breaking spider with the position fix
 - 0.1.12
 	-  Fixed sandworms affecting eachother for good! [Credit to Hamunii]
 	- Œome QOL changes for development

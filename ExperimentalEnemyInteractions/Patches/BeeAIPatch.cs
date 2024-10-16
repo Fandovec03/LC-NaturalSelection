@@ -57,7 +57,7 @@ namespace ExperimentalEnemyInteractions.Patches
         {
             BeeValues beeData = beeList[__instance];
 
-            enemyList = EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance.GetType()), __instance);
+            enemyList = EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance);
 
             switch (__instance.currentBehaviourStateIndex)
             {

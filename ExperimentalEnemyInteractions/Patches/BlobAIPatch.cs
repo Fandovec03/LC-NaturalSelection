@@ -52,7 +52,7 @@ namespace ExperimentalEnemyInteractions.Patches
 			{
 				List<EnemyAI> tempList = new List<EnemyAI>();
 
-				tempList = EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(), __instance);
+				tempList = EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance);
 
 				for (int i = 0; i < tempList.Count; i++)
 				{
@@ -88,8 +88,6 @@ namespace ExperimentalEnemyInteractions.Patches
 				CDtimer = 0.5f;
 
             }
-
-			EnemyAIPatch.findClosestEnemy(whiteList, closestEnemy, __instance);	
 		}
 
 

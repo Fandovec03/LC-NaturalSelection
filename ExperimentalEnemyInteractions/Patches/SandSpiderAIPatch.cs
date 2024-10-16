@@ -15,13 +15,13 @@ namespace ExperimentalEnemyInteractions.Patches
     {
         public EnemyAI? closestEnemy = null;
         public EnemyAI? targetEnemy = null;
+        public List<EnemyAI> enemyList = new List<EnemyAI>();
     }
 
 
     [HarmonyPatch(typeof(SandSpiderAI))]
     class SandSpiderAIPatch
     {
-        static List<EnemyAI> enemyList = new List<EnemyAI>();
         static float refreshCDtimeSpider = 1f;
         static bool debugMode = Script.BoundingConfig.debugBool.Value;
         static bool enableSpider = Script.BoundingConfig.enableSpider.Value;
@@ -51,8 +51,8 @@ namespace ExperimentalEnemyInteractions.Patches
 
             if (refreshCDtimeSpider <= 0)
             {
-                enemyList = EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(),__instance);
-                spiderData.closestEnemy = EnemyAIPatch.findClosestEnemy(enemyList, spiderData.closestEnemy, __instance);
+                spiderData.enemyList = EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(__instance),__instance);
+                spiderData.closestEnemy = EnemyAIPatch.findClosestEnemy(spiderData.enemyList, spiderData.closestEnemy, __instance);
             }
 
             if (spiderHuntHoardingbug && spiderData.closestEnemy != null && __instance != null && Vector3.Distance(__instance.transform.position, spiderData.closestEnemy.transform.position) < 80f && refreshCDtimeSpider <= 0)
@@ -65,15 +65,7 @@ namespace ExperimentalEnemyInteractions.Patches
                     __instance.lookingForWallPosition = false;
                     __instance.waitOnWallTimer = 11f;*/
 
-                    if (__instance.spoolingPlayerBody)
-                    {
-                        __instance.CancelSpoolingBody();
-                    }
-
-                    if (spiderData.targetEnemy == null || spiderData.targetEnemy.isEnemyDead)
-                    {
-                        __instance.StopChasing();
-                    }
+                    
                     if (__instance.onWall)
                     {
                         __instance.agent.speed = 4.25f;
@@ -96,21 +88,10 @@ namespace ExperimentalEnemyInteractions.Patches
             if (!spiderHuntHoardingbug) return;
             SpiderData spiderData = spiderList[__instance];
 
-#pragma warning disable CS8602 // Přístup přes ukazatel k možnému odkazu s hodnotou null
-            if (spiderData.targetEnemy != null || spiderData.targetEnemy.isEnemyDead)
+            if (spiderData.targetEnemy == null || spiderData.targetEnemy.isEnemyDead)
             {
-                if (__instance.patrolHomeBase.inProgress)
-                {
-                    __instance.StopSearch(__instance.patrolHomeBase);
-                }
-                if (spiderData.targetEnemy.isEnemyDead || !__instance.SetDestinationToPosition(spiderData.targetEnemy.transform.position, true))  
-                {
-                    spiderData.targetEnemy = null;
-                    __instance.StopChasing();
-                }
-                __instance.SetDestinationToPosition(spiderData.targetEnemy.transform.position, true);
+                //__instance.SetDestinationToPosition(spiderData.targetEnemy.transform.position, true);
             }
-#pragma warning restore CS8602 // Přístup přes ukazatel k možnému odkazu s hodnotou null
         }
     }
 }

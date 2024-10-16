@@ -53,7 +53,7 @@ namespace ExperimentalEnemyInteractions.Patches
 
             if (mySandwormFields.refreshCDtime <= 0)
             {
-                enemyList = EnemyAIPatch.filterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(),__instance), targetedTypes, __instance);
+                enemyList = EnemyAIPatch.filterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance),__instance), targetedTypes, __instance);
                 mySandwormFields.refreshCDtime = 0.5f;
             }
             if (mySandwormFields.refreshCDtime > 0)

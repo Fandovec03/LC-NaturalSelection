@@ -81,18 +81,18 @@ namespace ExperimentalEnemyInteractions.Patches
             }
         }
 
-        public static List<EnemyAI> GetCompleteList(Type enemyType = null)
+        public static List<EnemyAI> GetCompleteList(EnemyAI __instance, bool FilterThemselves = true)
         {
             List<EnemyAI> tempList = enemyList;
-            Type type = enemyType;
+            bool filter = FilterThemselves;
 
-            if (type != null)
+            if (__instance != null)
             {
-                foreach (EnemyAI enemy in tempList)
+                for (int i = 0; i < tempList.Count; i++)
                 {
-                    if (enemy.GetType() == type)
+                    if (tempList[i].GetType() == __instance.GetType() && filter)
                     {
-                        tempList.Remove(enemy);
+                        tempList.Remove(tempList[i]);
                     }
                 }
             }
@@ -177,21 +177,31 @@ namespace ExperimentalEnemyInteractions.Patches
                 return filteredList;
         }
 
-        static public EnemyAI CheckLOSForEnemies(EnemyAI instance, List<EnemyAI> enemyList, float width = 45f, int range = 60, int proximityAwareness = -1)
+        static public EnemyAI CheckLOSForEnemies(EnemyAI instance, List<EnemyAI> enemyList, float width = 45f, int importRange = 0, int proximityAwareness = -1)
         {
+            List<EnemyAI> tempList = new List<EnemyAI>();
+            float range = (float) importRange;
             if (instance.isOutside && !instance.enemyType.canSeeThroughFog && TimeOfDay.Instance.currentLevelWeather == LevelWeatherType.Foggy)
             {
-                //range = Mathf.Clamp(range, 0, 30);
+                range = Mathf.Clamp(importRange, 0, 30);
             }
-            for (int i = 0; i < enemyList.Count; i++)
+            foreach (EnemyAI enemy in enemyList)
+            {
+                if (!enemy.isEnemyDead)
+                {
+                    tempList.Add(enemy);
+                }
+            }
+
+            for (int i = 0; i < tempList.Count; i++)
             {
                 Vector3 position = enemyList[i].transform.position;
-                if (Vector3.Distance(position, instance.eye.position) < (float)range && !Physics.Linecast(instance.eye.position, position, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Ignore))
+                if (Vector3.Distance(position, instance.eye.position) < range && !Physics.Linecast(instance.eye.position, position, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Ignore))
                 {
                     Vector3 to = position - instance.eye.position;
                     if (Vector3.Angle(instance.eye.forward, to) < width || proximityAwareness != -1 && Vector3.Distance(instance.eye.position, position) < (float)proximityAwareness)
                     {
-                        return enemyList[i];
+                        return tempList[i];
                     }
                 }
             }

@@ -58,7 +58,7 @@ namespace ExperimentalEnemyInteractions.Patches
             BeeValues beeData = beeList[__instance];
 
             enemyList = EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance);
-
+            /*
             switch (__instance.currentBehaviourStateIndex)
             {
                 case 0:
@@ -176,7 +176,7 @@ namespace ExperimentalEnemyInteractions.Patches
                             if (logBees) Script.Logger.LogDebug("case2: Started search for hive.");
                         }
                     }
-                    break;*/
+                    break;
             }
         }
 
@@ -189,8 +189,8 @@ namespace ExperimentalEnemyInteractions.Patches
             }
             else
             {
-                beeList[__instance].timeSinceHittingEnemy += Time.deltaTime;
+                beeList[__instance].timeSinceHittingEnemy += Time.deltaTime;*/
             }
-        }
+        
     }
 }

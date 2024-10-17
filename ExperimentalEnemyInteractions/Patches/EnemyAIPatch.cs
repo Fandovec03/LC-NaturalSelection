@@ -8,11 +8,6 @@ using UnityEngine;
 
 namespace ExperimentalEnemyInteractions.Patches
 {
-    class EnemyAIData
-    {
-        public EnemyAI? closestEnemy;
-    }
-
     [HarmonyPatch(typeof(EnemyAI))]
     class EnemyAIPatch
     {
@@ -22,22 +17,14 @@ namespace ExperimentalEnemyInteractions.Patches
 
         static bool debugUnspecified = Script.BoundingConfig.debugUnspecified.Value;
 
-        static Dictionary<EnemyAI, EnemyAIData> enemyAIData = [];
-
-        [HarmonyPatch("Start")]
-        [HarmonyPrefix]
-        static void EnemyAIStartPatch(EnemyAI __instance)
-        {
-            enemyAIData.Add(__instance, new EnemyAIData());
-        }
-
         [HarmonyPatch("Update")]
         [HarmonyPostfix]
+
         static void UpdatePostfixPatch(EnemyAI __instance)
         {
             time += Time.deltaTime;
             refreshCDtime -= Time.deltaTime;
-            
+
             if (refreshCDtime <= 0)
             {
                 foreach (EnemyAI enemy in RoundManager.Instance.SpawnedEnemies)
@@ -131,51 +118,50 @@ namespace ExperimentalEnemyInteractions.Patches
 
         public static EnemyAI? findClosestEnemy(List<EnemyAI> enemyList, EnemyAI? importClosestEnemy, EnemyAI __instance)
         {
-            EnemyAIData enemyAIdata = enemyAIData[__instance];
-
-            enemyAIdata.closestEnemy = importClosestEnemy;
+            EnemyAI tempClosestEnemy = importClosestEnemy;
 
             for (int i = 0; i < enemyList.Count; i++)
             {
-                if (enemyAIdata.closestEnemy == null)
+                if (tempClosestEnemy == null)
                 {
                     if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "No enemy assigned. Assigning " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID() + " as new closestEnemy.");
-                    enemyAIdata.closestEnemy = enemyList[i];
+                    tempClosestEnemy = enemyList[i];
                 }
-                if (enemyAIdata.closestEnemy == enemyList[i])
+                if (tempClosestEnemy == enemyList[i])
                 {
                     if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID() + " is already assigned as closestEnemy");
                 }
-                if (enemyList[i] != enemyAIdata.closestEnemy)
+                if (enemyList[i] != tempClosestEnemy)
                 {
-                    if (Vector3.Distance(__instance.transform.position, enemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, enemyAIdata.closestEnemy.transform.position))
+                    if (Vector3.Distance(__instance.transform.position, enemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position))
                     {
-                        enemyAIdata.closestEnemy = enemyList[i];
-                        if (debugUnspecified) Script.Logger.LogDebug(Vector3.Distance(__instance.transform.position, enemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, enemyAIdata.closestEnemy.transform.position));
-                        if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Assigned " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID() + " as new closestEnemy. Distance: " + Vector3.Distance(__instance.transform.position, enemyAIdata.closestEnemy.transform.position));
+                        tempClosestEnemy = enemyList[i];
+                        if (debugUnspecified) Script.Logger.LogDebug(Vector3.Distance(__instance.transform.position, enemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position));
+                        if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Assigned " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID() + " as new closestEnemy. Distance: " + Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position));
                     }
                 }
             }
-            return enemyAIdata.closestEnemy;
+            return tempClosestEnemy;
         }
         public static List<EnemyAI> filterEnemyList(List<EnemyAI> enemyList, List<Type> targetTypes, EnemyAI __instance)
         {
             List<EnemyAI> filteredList = new List<EnemyAI>();
 
             for (int i = 0; i < enemyList.Count; i++)
+            {
+                if (targetTypes.Contains(enemyList[i].GetType()))
                 {
-                    if (targetTypes.Contains(enemyList[i].GetType()))
-                    {
-                        if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Enemy of type " + enemyList[i].GetType() + " passed the filter.");
-                        filteredList.Add(enemyList[i]);
-                    }
-                    else if (debugUnspecified)
-                    {
-                    if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Caught and filtered out Enemy of type " + enemyList[i].GetType());
-                    }
+                    if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Enemy of type " + enemyList[i].GetType() + " passed the filter.");
+                    filteredList.Add(enemyList[i]);
                 }
-                return filteredList;
+                else if (debugUnspecified)
+                {
+                    if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Caught and filtered out Enemy of type " + enemyList[i].GetType());
+                }
+            }
+            return filteredList;
         }
+        
 
         static public EnemyAI CheckLOSForEnemies(EnemyAI instance, List<EnemyAI> enemyList, float width = 45f, int importRange = 0, int proximityAwareness = -1)
         {

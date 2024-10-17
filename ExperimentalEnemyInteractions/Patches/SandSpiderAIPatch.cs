@@ -8,6 +8,8 @@ using BepInEx;
 using BepInEx.Logging;
 using System.Runtime.CompilerServices;
 using UnityEngine.Experimental.Rendering;
+using UnityEngine.Rendering.HighDefinition;
+using static UnityEngine.MeshSubsetCombineUtility;
 
 namespace ExperimentalEnemyInteractions.Patches
 {
@@ -17,6 +19,7 @@ namespace ExperimentalEnemyInteractions.Patches
         public EnemyAI? targetEnemy = null;
         public List<EnemyAI> enemyList = new List<EnemyAI>();
         public CustomBehavior CustomBehaviorState;
+        public float LookAtEnemyTimer = 0f;
     }
     public enum CustomBehavior
         {
@@ -44,12 +47,11 @@ namespace ExperimentalEnemyInteractions.Patches
         {
             spiderList.Add(__instance, new SpiderData());
             SpiderData spiderData = spiderList[__instance];
-            spiderData.CustomBehaviorState = CustomBehavior.OverriddenByVanilla;
+            spiderData.CustomBehaviorState = CustomBehavior.Idle;
         }
 
-
         [HarmonyPatch("Update")]
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         static void UpdatePatch(SandSpiderAI __instance)
         {
             SpiderData spiderData = spiderList[__instance];
@@ -62,13 +64,60 @@ namespace ExperimentalEnemyInteractions.Patches
             switch(spiderData.CustomBehaviorState)
             {
                 case CustomBehavior.Idle:
-                break;
+                    {
+                        spiderData.closestEnemy = EnemyAIPatch.findClosestEnemy(spiderData.enemyList, spiderData.closestEnemy, __instance);
+                        if (spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f))
+                        {
+                            spiderData.targetEnemy = spiderData.closestEnemy;
+                            SwitchCustomState(__instance, CustomBehavior.Chase);
+                            __instance.chaseTimer = 12.5f;
+                        }
+                    }
+                    break;
                 case CustomBehavior.Patrol:
-                break;
+                    {
+                        if (__instance.waitOnWallTimer <= 0f)
+                        {
+                            SwitchCustomState(__instance, CustomBehavior.Idle);
+                        }
+                    }
+                    break;
                 case CustomBehavior.Chase:
-                break;
-                case CustomBehavior.OverriddenByVanilla:
-                break;
+                    {
+                        __instance.setDestinationToHomeBase = false;
+                        __instance.movingTowardsTargetPlayer = false;
+                        __instance.lookingForWallPosition = false;
+                        __instance.waitOnWallTimer = 11f;
+                        if (__instance.spoolingPlayerBody)
+                        {
+                            __instance.CancelSpoolingBody();
+                        }
+                        if (spiderData.targetEnemy == null && __instance.targetPlayer == null)
+                        {
+                            break;
+                        }
+                        if (__instance.onWall)
+                        {
+                            if (Physics.Linecast(__instance.meshContainer.position, spiderData.targetEnemy.transform.position, StartOfRound.Instance.collidersAndRoomMaskAndDefault))
+                            {
+                                
+                            }
+                            else if (Vector3.Distance(spiderData.targetEnemy.transform.position, __instance.transform.position) < 5f || __instance.stunNormalizedTimer > 0f)
+                            {
+                                __instance.watchFromDistance = false;
+                            }
+                            break;
+                        }
+                        __instance.movingTowardsTargetPlayer = false;
+                        __instance.moveTowardsDestination = true;
+                        __instance.overrideSpiderLookRotation = false;
+                        if (spiderData.targetEnemy.isEnemyDead || spiderData.targetEnemy == null)
+                        {
+                            spiderData.targetEnemy = null;
+                            __instance.StopChasing();
+                        }
+                    }
+                    break;
             }
 
             if (refreshCDtimeSpider <= 0)
@@ -77,9 +126,8 @@ namespace ExperimentalEnemyInteractions.Patches
             }
         }
 
-
         [HarmonyPatch("DoAIInterval")]
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         static void DoAIIntervalPostfix(SandSpiderAI __instance)
         {
             if (!spiderHuntHoardingbug) return;
@@ -87,6 +135,9 @@ namespace ExperimentalEnemyInteractions.Patches
             switch (spiderData.CustomBehaviorState)
             {
                 case CustomBehavior.Idle:
+                {
+                    
+                }
                 break;
                 case CustomBehavior.Patrol:
                 {
@@ -145,6 +196,7 @@ namespace ExperimentalEnemyInteractions.Patches
                 break;
                 case CustomBehavior.OverriddenByVanilla:
                 {
+
                 }
                 break;
             }

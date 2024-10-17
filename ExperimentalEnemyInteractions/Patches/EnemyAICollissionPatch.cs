@@ -55,10 +55,10 @@ namespace ExperimentalEnemyInteractions.Patches
                    BlobAIPatch.OnCustomEnemyCollision((BlobAI)mainscript, mainscript2);
                 }
 
-                /*if (mainscript is RedLocustBees && mainscript2 is not RedLocustBees && mainscript2 != null)
+                if (mainscript is RedLocustBees && mainscript2 is not RedLocustBees && mainscript2 != null)
                 {
                     BeeAIPatch.OnCustomEnemyCollision((RedLocustBees)mainscript, mainscript2);
-                }*/
+                }
 
                 if (mainscript is PufferAI && mainscript2 is not PufferAI && mainscript2 != null)
                 {

@@ -116,7 +116,7 @@ namespace ExperimentalEnemyInteractions.Patches
             return insideEnemies;
         }
 
-        public static EnemyAI? findClosestEnemy(List<EnemyAI> enemyList, EnemyAI? importClosestEnemy, EnemyAI __instance)
+        public static EnemyAI? findClosestEnemy(List<EnemyAI> enemyList, EnemyAI importClosestEnemy, EnemyAI __instance)
         {
             EnemyAI tempClosestEnemy = importClosestEnemy;
 

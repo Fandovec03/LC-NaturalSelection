@@ -6,6 +6,7 @@ using System.Reflection;
 namespace ExperimentalEnemyInteractions;
     class MyModConfig
     {
+        public readonly ConfigEntry<bool> stableMode;
         public readonly ConfigEntry<bool> debugBool;
         public readonly ConfigEntry<bool> enableSpider;
         public readonly ConfigEntry<bool> spiderHuntHoardingbug;
@@ -13,6 +14,9 @@ namespace ExperimentalEnemyInteractions;
         public readonly ConfigEntry<bool> enableLeviathan;
         public readonly ConfigEntry<bool> enableSporeLizard;
         public readonly ConfigEntry<bool> enableRedBees;
+
+
+        //debug
         public readonly ConfigEntry<bool> debugRedBees;
         public readonly ConfigEntry<bool> debugSandworms;
         public readonly ConfigEntry<bool> debugHygrodere;
@@ -23,6 +27,8 @@ namespace ExperimentalEnemyInteractions;
         {
         cfg.SaveOnConfigSet = false;
         {
+            stableMode = cfg.Bind("WIP","Toggle stable mode",true,"When true, the mod will exlude patches that are being worked or are in WIP from loading");
+
             enableSpider = cfg.Bind("Experimental","Enable spider",false,"Mod applies changes Bunker Spider. Currently bugged with SpiderPositionFix.");
             enableSlime = cfg.Bind("Entity settings","Enable slime",true,"Mod applies changes Hygrodere. Slime now damages every entity it passes by.");
             enableLeviathan = cfg.Bind("Entity settings","Enable leviathan",true,"Mod applies changes Earth leviathan. Leviathan now targets other creatures aswell.");
@@ -30,6 +36,7 @@ namespace ExperimentalEnemyInteractions;
             enableRedBees = cfg.Bind("WIP","Enable Red bees (Circuit bees)",false,"Mod applies changes red bees. They now defend nest from other mobs and kill everythong in rampage!");
             spiderHuntHoardingbug = cfg.Bind("Experimental","Spider hunts Hoarding bugs",false,"Bunker spider chases and hunts hoarding bugs. Currently bugged with SpiderPositionFix.");
 
+            //debug
             debugBool = cfg.Bind("Debug","Debug mode",false,"Enables debug mode for more debug logs.");
             debugRedBees = cfg.Bind("Debug","Log bees",false,"Enables logs for bees.");
             debugSandworms = cfg.Bind("Debug","Log sandworms",false,"Enables logs for sandowrms.");

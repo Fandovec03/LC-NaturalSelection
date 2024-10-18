@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
 using GameNetcodeStuff;
@@ -163,9 +164,10 @@ namespace ExperimentalEnemyInteractions.Patches
         }
         
 
-        static public EnemyAI CheckLOSForEnemies(EnemyAI instance, List<EnemyAI> enemyList, float width = 45f, int importRange = 0, int proximityAwareness = -1)
+        static public SortedList<EnemyAI,float> CheckLOSForEnemies(EnemyAI instance, List<EnemyAI> enemyList, float width = 45f, int importRange = 0, float proximityAwareness = -1)
         {
             List<EnemyAI> tempList = new List<EnemyAI>();
+            SortedList<EnemyAI,float> tempSortedList = new SortedList<EnemyAI,float>();
             float range = (float) importRange;
             if (instance.isOutside && !instance.enemyType.canSeeThroughFog && TimeOfDay.Instance.currentLevelWeather == LevelWeatherType.Foggy)
             {
@@ -185,13 +187,14 @@ namespace ExperimentalEnemyInteractions.Patches
                 if (Vector3.Distance(position, instance.eye.position) < range && !Physics.Linecast(instance.eye.position, position, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Ignore))
                 {
                     Vector3 to = position - instance.eye.position;
-                    if (Vector3.Angle(instance.eye.forward, to) < width || proximityAwareness != -1 && Vector3.Distance(instance.eye.position, position) < (float)proximityAwareness)
+                    if (Vector3.Angle(instance.eye.forward, to) < width || proximityAwareness != -1 && Vector3.Distance(instance.transform.position, position) < proximityAwareness)
                     {
-                        return tempList[i];
+                        tempSortedList.Add(enemyList[i], Vector3.Distance(instance.transform.position, position));
                     }
                 }
             }
-            return null;
+            tempSortedList.OrderBy(value => tempSortedList.Values);
+            return tempSortedList;
         }
 
         static public int ReactToHit(EnemyAI __instance, int force = 0, EnemyAI? enemyAI = null, PlayerControllerB? player = null)

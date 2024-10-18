@@ -60,6 +60,7 @@ namespace ExperimentalEnemyInteractions.Patches
                     BeeAIPatch.OnCustomEnemyCollision((RedLocustBees)mainscript, mainscript2);
                 }
 
+                /*
                 if (mainscript is PufferAI && mainscript2 is not PufferAI && mainscript2 != null)
                 {
                     PufferAI? pufferAI = mainscript as PufferAI;
@@ -76,7 +77,7 @@ namespace ExperimentalEnemyInteractions.Patches
                     {
                         HoarderBugPatch.CustomOnHit(1, mainscript, true, hoarderBugAI);
                     }
-                }
+                }*/
             }
         } 
     }

@@ -27,7 +27,7 @@ namespace ExperimentalEnemyInteractions;
         {
         cfg.SaveOnConfigSet = false;
         {
-            stableMode = cfg.Bind("General Settings","Toggle stable mode",true,"When true, the mod will exlude patches that are being worked or are in WIP from loading");
+            stableMode = cfg.Bind("General Settings","Toggle stable mode",true,"When true, the mod will exlude patches that are WIP or are experimental from loading");
             //enable entities
             enableSpider = cfg.Bind("WIP","Enable spider",false, "Mod applies changes Bunker Spider. DEV ONLY");
             enableSlime = cfg.Bind("Entity settings","Enable slime",true,"Mod applies changes Hygrodere. Slime now damages every entity it passes by.");

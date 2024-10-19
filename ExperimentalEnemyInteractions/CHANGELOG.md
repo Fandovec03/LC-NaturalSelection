@@ -1,3 +1,13 @@
+- 0.1.14
+	- Added many more config options
+		- ** Safe mode:** On by default. Prevents unfinished and experimental scripts from loading.
+	- **Bees added!** Bees now target every enemy in their LOS.
+	- Several bugs and oversights fixed
+- 0.1.13
+	- Removed code breaking spider with the position fix
+- 0.1.12
+	- Fixed sandworms affecting eachother for good! [Credit to Hamunii]
+	- Some QOL changes for development
 - 0.1.11 - Hygrodere now does not anger Hoarding Bugs
 	- Hygrodere should anger Bracken less
 	- **Added a dependency to fix spider getting stuck and other position issues**

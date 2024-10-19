@@ -14,28 +14,29 @@ namespace ExperimentalEnemyInteractions;
         public readonly ConfigEntry<bool> enableLeviathan;
         public readonly ConfigEntry<bool> enableSporeLizard;
         public readonly ConfigEntry<bool> enableRedBees;
+        public readonly ConfigEntry<bool> enableNutcrackers;
 
-
-        //debug
+    //debug
         public readonly ConfigEntry<bool> debugRedBees;
         public readonly ConfigEntry<bool> debugSandworms;
         public readonly ConfigEntry<bool> debugHygrodere;
         public readonly ConfigEntry<bool> debugNutcrackers;
         public readonly ConfigEntry<bool> debugSpiders;
         public readonly ConfigEntry<bool> debugUnspecified;
-    public MyModConfig(ConfigFile cfg)
+        public MyModConfig(ConfigFile cfg)
         {
         cfg.SaveOnConfigSet = false;
         {
-            stableMode = cfg.Bind("WIP","Toggle stable mode",true,"When true, the mod will exlude patches that are being worked or are in WIP from loading");
-
-            enableSpider = cfg.Bind("Experimental","Enable spider",false,"Mod applies changes Bunker Spider. Currently bugged with SpiderPositionFix.");
+            stableMode = cfg.Bind("General Settings","Toggle stable mode",true,"When true, the mod will exlude patches that are being worked or are in WIP from loading");
+            //enable entities
+            enableSpider = cfg.Bind("WIP","Enable spider",false, "Mod applies changes Bunker Spider. DEV ONLY");
             enableSlime = cfg.Bind("Entity settings","Enable slime",true,"Mod applies changes Hygrodere. Slime now damages every entity it passes by.");
             enableLeviathan = cfg.Bind("Entity settings","Enable leviathan",true,"Mod applies changes Earth leviathan. Leviathan now targets other creatures aswell.");
             enableSporeLizard = cfg.Bind("WIP","Enable SporeLizard",false,"Mod applies changes Spore lizard. It is now mortal!");
-            enableRedBees = cfg.Bind("WIP","Enable Red bees (Circuit bees)",false,"Mod applies changes red bees. They now defend nest from other mobs and kill everythong in rampage!");
-            spiderHuntHoardingbug = cfg.Bind("Experimental","Spider hunts Hoarding bugs",false,"Bunker spider chases and hunts hoarding bugs. Currently bugged with SpiderPositionFix.");
-
+            enableRedBees = cfg.Bind("Entity settings","Enable Red bees (Circuit bees)",true,"Mod applies changes red bees. They now defend nest from other mobs and kill everything in rampage!");
+            enableNutcrackers = cfg.Bind("WIP", "Enable Nutcrackers", false, "Mod applies changes to nutcrackers. DEV ONLY");
+            //entity settings
+            spiderHuntHoardingbug = cfg.Bind("WIP", "Spider hunts Hoarding bugs", false, "Bunker spider chases and hunts hoarding bugs. DEV ONLY");
             //debug
             debugBool = cfg.Bind("Debug","Debug mode",false,"Enables debug mode for more debug logs.");
             debugRedBees = cfg.Bind("Debug","Log bees",false,"Enables logs for bees.");

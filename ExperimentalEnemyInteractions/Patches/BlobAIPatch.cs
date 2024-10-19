@@ -33,7 +33,7 @@ namespace ExperimentalEnemyInteractions.Patches
 		{
             slimeList.Add(__instance, new BlobData());
         }
-
+		/*
 		[HarmonyPatch("DoAIInterval")]
 		[HarmonyPostfix]
 		static void DoAIIntervalPrefixPatch(BlobAI __instance)
@@ -46,7 +46,7 @@ namespace ExperimentalEnemyInteractions.Patches
 				__instance.SetDestinationToPosition(blobData.closestEnemy.transform.position);
 			}
 		}
-
+		*/
         [HarmonyPatch("Update")]
 		[HarmonyPrefix]
 		static void BlobUpdatePatch(BlobAI __instance)

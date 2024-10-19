@@ -13,7 +13,7 @@ namespace ExperimentalEnemyInteractions.Patches
         public EnemyAI? closestEnemy = null;
         public EnemyAI? targetEnemy = null;
         public bool SeeMovingEnemy = false;
-        public UnityEngine.Vector3 lastSeenEnemyPosition = UnityEngine.Vector3.zero;
+        public Vector3 lastSeenEnemyPosition = UnityEngine.Vector3.zero;
         public float TimeSinceSeeingMonster = 0f;
         public float TimeSinceHittingMonster = 0f;
     }
@@ -23,6 +23,7 @@ namespace ExperimentalEnemyInteractions.Patches
     {
         static List<EnemyAI> enemyList = new List<EnemyAI>();
         static Dictionary<NutcrackerEnemyAI, NutcrackerData> NutcrackerData = [];
+        static bool enableNucracker = Script.BoundingConfig.enableNutcrackers.Value;
 
         static bool debugNutcrackers = Script.BoundingConfig.debugNutcrackers.Value;
 
@@ -52,6 +53,7 @@ namespace ExperimentalEnemyInteractions.Patches
         [HarmonyPostfix]
         static void NutcrackerUpdatePostfix(NutcrackerEnemyAI __instance)
         {
+            if (!enableNucracker) return;
             NutcrackerData data = NutcrackerData[__instance];
 
             enemyList = EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance),__instance);
@@ -126,6 +128,7 @@ namespace ExperimentalEnemyInteractions.Patches
         [HarmonyPostfix]
         static void DoAIIntervalPatch(NutcrackerEnemyAI __instance)
         {
+            if (!enableNucracker) return;
             NutcrackerData data = NutcrackerData[__instance];
 
             if (__instance.currentBehaviourStateIndex == 2)

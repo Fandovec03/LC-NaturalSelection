@@ -256,14 +256,17 @@ namespace ExperimentalEnemyInteractions.Patches
 
         public static void OnCustomEnemyCollision(RedLocustBees __instance, EnemyAI mainscript2)
         {
-            if (beeList[__instance].timeSinceHittingEnemy > 1.6f && __instance.currentBehaviourStateIndex > 0)
+            if (beeList.ContainsKey(__instance))
             {
-                mainscript2.HitEnemy(1, null, playHitSFX: true);
-                beeList[__instance].timeSinceHittingEnemy = 0f;
-            }
-            else
-            {
-                beeList[__instance].timeSinceHittingEnemy += Time.deltaTime;
+                if (beeList[__instance].timeSinceHittingEnemy > 1.6f && __instance.currentBehaviourStateIndex > 0)
+                {
+                    mainscript2.HitEnemy(1, null, playHitSFX: true);
+                    beeList[__instance].timeSinceHittingEnemy = 0f;
+                }
+                else
+                {
+                    beeList[__instance].timeSinceHittingEnemy += Time.deltaTime;
+                }
             }
         }
     }

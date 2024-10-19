@@ -104,62 +104,65 @@ namespace ExperimentalEnemyInteractions.Patches
 
 		public static void OnCustomEnemyCollision(BlobAI __instance, EnemyAI mainscript2)
 		{
+			if (slimeList.ContainsKey(__instance))
+			{
             BlobData blobData = slimeList[__instance];
 
             if (blobData.timeSinceHittingLocalMonster > 1.5f)
 			{
-                if (mainscript2 is not NutcrackerEnemyAI && mainscript2 is not CaveDwellerAI && !__instance.isEnemyDead)
-                {
-
-                    blobData.timeSinceHittingLocalMonster = 0f;
-
-                    if (mainscript2 is FlowermanAI)
-                    {
-                        FlowermanAI? flowermanAI = mainscript2 as FlowermanAI;
-                        if (flowermanAI != null)
-                        {
-                            float AngerbeforeHit = flowermanAI.angerMeter;
-                            bool wasAngryBefore = flowermanAI.isInAngerMode;
-							
-                            flowermanAI.HitEnemy(1, null, playHitSFX: true);
-							if (mainscript2.enemyHP <= 0)
-							{
-							mainscript2.KillEnemyOnOwnerClient();
-							}
-
-                            flowermanAI.targetPlayer = null;
-							flowermanAI.movingTowardsTargetPlayer = false;
-                            flowermanAI.isInAngerMode = false;
-                            flowermanAI.angerMeter = AngerbeforeHit;
-                            flowermanAI.isInAngerMode = wasAngryBefore;
-							return;
-                        }
-                    }
-
-					else if (mainscript2 is HoarderBugAI)
+					if (mainscript2 is not NutcrackerEnemyAI && mainscript2 is not CaveDwellerAI && !__instance.isEnemyDead)
 					{
-						HoarderBugAI? hoarderBugAI = mainscript2 as HoarderBugAI;
 
-						if (hoarderBugAI != null)
+						blobData.timeSinceHittingLocalMonster = 0f;
+
+						if (mainscript2 is FlowermanAI)
 						{
-                            HoarderBugPatch.CustomOnHit(1, __instance, true, hoarderBugAI);
+							FlowermanAI? flowermanAI = mainscript2 as FlowermanAI;
+							if (flowermanAI != null)
+							{
+								float AngerbeforeHit = flowermanAI.angerMeter;
+								bool wasAngryBefore = flowermanAI.isInAngerMode;
+
+								flowermanAI.HitEnemy(1, null, playHitSFX: true);
+								if (mainscript2.enemyHP <= 0)
+								{
+									mainscript2.KillEnemyOnOwnerClient();
+								}
+
+								flowermanAI.targetPlayer = null;
+								flowermanAI.movingTowardsTargetPlayer = false;
+								flowermanAI.isInAngerMode = false;
+								flowermanAI.angerMeter = AngerbeforeHit;
+								flowermanAI.isInAngerMode = wasAngryBefore;
+								return;
+							}
+						}
+
+						else if (mainscript2 is HoarderBugAI)
+						{
+							HoarderBugAI? hoarderBugAI = mainscript2 as HoarderBugAI;
+
+							if (hoarderBugAI != null)
+							{
+								HoarderBugPatch.CustomOnHit(1, __instance, true, hoarderBugAI);
+								if (mainscript2.enemyHP <= 0)
+								{
+									mainscript2.KillEnemyOnOwnerClient();
+								}
+							}
+						}
+
+						else
+						{
+							blobData.timeSinceHittingLocalMonster = 0f;
+							mainscript2.HitEnemy(1, null, playHitSFX: true);
 							if (mainscript2.enemyHP <= 0)
 							{
-							mainscript2.KillEnemyOnOwnerClient();
+								mainscript2.KillEnemyOnOwnerClient();
 							}
-                        }
-					}
-
-                    else
-                    {
-                        blobData.timeSinceHittingLocalMonster = 0f;
-                        mainscript2.HitEnemy(1, null, playHitSFX: true);
-						if (mainscript2.enemyHP <= 0)
-						{
-							mainscript2.KillEnemyOnOwnerClient();
+							return;
 						}
-						return;
-                    }
+					}
                 }
             }
 		}

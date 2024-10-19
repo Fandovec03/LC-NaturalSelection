@@ -1,3 +1,5 @@
+- 0.1.16
+	- Potencially fixed same exception on blobAI
 - 0.1.15
 	- Emergency fix: Fixed Key not foudn exception causing bees to not work  
 - 0.1.14

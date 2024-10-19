@@ -43,11 +43,11 @@ namespace ExperimentalEnemyInteractions
             Harmony.PatchAll(typeof(SandWormAIPatch));
             Harmony.PatchAll(typeof(BlobAIPatch));
             Harmony.PatchAll(typeof(HoarderBugPatch));
+            Harmony.PatchAll(typeof(BeeAIPatch));
 
             if (!StableToggle)
             {
             Harmony.PatchAll(typeof(NutcrackerAIPatch));
-            Harmony.PatchAll(typeof(BeeAIPatch));
             Harmony.PatchAll(typeof(PufferAIPatch));
             Harmony.PatchAll(typeof(SandSpiderAI));
 

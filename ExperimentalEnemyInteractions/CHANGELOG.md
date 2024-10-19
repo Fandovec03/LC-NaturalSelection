@@ -1,3 +1,5 @@
+- 0.1.17
+	- Fixed safe mode accidentally preventing load of The bee patch
 - 0.1.16
 	- Potencially fixed same exception on blobAI
 - 0.1.15

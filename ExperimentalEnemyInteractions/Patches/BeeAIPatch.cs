@@ -118,7 +118,7 @@ namespace ExperimentalEnemyInteractions.Patches
                         if (logBees) Script.Logger.LogDebug("case0: Moving towards " + LOSenemy);
 
                         beeData.customBehaviorStateIndex = 1;
-                        __instance.SwitchToBehaviourServerRpc(1);
+                        __instance.SwitchToBehaviourState(1);
                         __instance.syncedLastKnownHivePosition = false;
                         __instance.SyncLastKnownHivePositionServerRpc(__instance.lastKnownHivePosition);
                         if (logBees) Script.Logger.LogDebug("case0: CustomBehaviorStateIndex changed: " + beeData.customBehaviorStateIndex);
@@ -133,13 +133,13 @@ namespace ExperimentalEnemyInteractions.Patches
                         if (__instance.IsHiveMissing())
                         {
                             beeData.customBehaviorStateIndex = 2;
-                            __instance.SwitchToBehaviourServerRpc(2);
+                            __instance.SwitchToBehaviourState(2);
                             if (logBees) Script.Logger.LogDebug("case1: HIVE IS MISSING! CustomBehaviorStateIndex changed: " + beeData.customBehaviorStateIndex);
                         }
                         else
                         {
                             beeData.customBehaviorStateIndex = 0;
-                            __instance.SwitchToBehaviourServerRpc(0);
+                            __instance.SwitchToBehaviourState(0);
                             if (logBees) Script.Logger.LogDebug("case1: CustomBehaviorStateIndex changed: " + beeData.customBehaviorStateIndex);
                         }
                     }
@@ -177,7 +177,7 @@ namespace ExperimentalEnemyInteractions.Patches
                             __instance.SetDestinationToPosition(enemyAI2.transform.position, true);
                             if (logBees) Script.Logger.LogDebug("case2: Moving towards: " + enemyAI2);
                             beeData.customBehaviorStateIndex = 1;
-                            __instance.SwitchToBehaviourServerRpc(1);
+                            __instance.SwitchToBehaviourState(1);
                             __instance.syncedLastKnownHivePosition = false;
                             __instance.SyncLastKnownHivePositionServerRpc(__instance.lastKnownHivePosition);
                             if (logBees) Script.Logger.LogDebug("case2: CustomBehaviorStateIndex changed: " + beeData.customBehaviorStateIndex);
@@ -185,7 +185,7 @@ namespace ExperimentalEnemyInteractions.Patches
                         else
                         {
                             beeData.customBehaviorStateIndex = 0;
-                            __instance.SwitchToBehaviourServerRpc(0);
+                            __instance.SwitchToBehaviourState(0);
                             if (logBees) Script.Logger.LogDebug("case2: CustomBehaviorStateIndex changed: " + beeData.customBehaviorStateIndex);
                         }
                         break;

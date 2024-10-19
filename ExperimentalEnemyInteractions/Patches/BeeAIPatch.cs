@@ -11,8 +11,6 @@ namespace ExperimentalEnemyInteractions.Patches
     {
         public EnemyAI? closestEnemy = null;
         public EnemyAI? targetEnemy = null;
-        public EnemyAI? closestToBeehive = null;
-        public GrabbableObject? hive = null;
         public Vector3 lastKnownEnemyPosition = Vector3.zero;
         public int customBehaviorStateIndex = 0;
         public float timeSinceHittingEnemy = 0f;
@@ -36,18 +34,43 @@ namespace ExperimentalEnemyInteractions.Patches
 
             BeeValues beeData = beeList[__instance];
         }
+
         [HarmonyPatch("Update")]
         [HarmonyPrefix]
+        static void PrefixUpdatePatch(RedLocustBees __instance)
+        {
+
+        }
+        [HarmonyPatch("Update")]
+        [HarmonyPostfix]
         static void UpdatePatch(RedLocustBees __instance)
         {
             if (UpdateTimer <= 0f)
             {
                 enemyList = EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance);
-                UpdateTimer = 0.25f;
+                UpdateTimer = 0.20f;
             }
             else
             {
                 UpdateTimer -= Time.deltaTime;
+            }
+            switch (__instance.currentBehaviourStateIndex)
+            {
+                case 0:
+                    {
+                        __instance.SetBeeParticleMode(0);
+                    }
+                    break;
+                case 1:
+                    {
+                        __instance.SetBeeParticleMode(1);
+                    }
+                    break;
+                case 2:
+                    {
+                        __instance.SetBeeParticleMode(2);
+                    }
+                    break;
             }
         }
             [HarmonyPatch("DoAIInterval")]
@@ -56,7 +79,7 @@ namespace ExperimentalEnemyInteractions.Patches
         {
             BeeValues beeData = beeList[__instance];
 
-            if (beeData.targetEnemy != null && __instance.targetPlayer == null && !__instance.movingTowardsTargetPlayer)
+            if (beeData.targetEnemy != null && __instance.movingTowardsTargetPlayer)
             {
                 return false;
             }
@@ -86,7 +109,7 @@ namespace ExperimentalEnemyInteractions.Patches
                     {
                         __instance.SwitchToBehaviourState(2);
                         beeData.customBehaviorStateIndex = 2;
-                        if (logBees) Script.Logger.LogDebug("case0: CustomBehaviorStateIndex changed: " + beeData.customBehaviorStateIndex);
+                        if (logBees) Script.Logger.LogDebug("case0: HIVE IS MISSING! CustomBehaviorStateIndex changed: " + beeData.customBehaviorStateIndex);
                         break;
                     }
                     if (LOSenemy != null && Vector3.Distance(LOSenemy.transform.position, __instance.hive.transform.position) < (float)__instance.defenseDistance /*&& Vector3.Distance(__instance.targetPlayer.transform.position, __instance.hive.transform.position) < Vector3.Distance(LOSenemy.transform.position, __instance.hive.transform.position)*/)
@@ -111,7 +134,7 @@ namespace ExperimentalEnemyInteractions.Patches
                         {
                             beeData.customBehaviorStateIndex = 2;
                             __instance.SwitchToBehaviourServerRpc(2);
-                            if (logBees) Script.Logger.LogDebug("case1: CustomBehaviorStateIndex changed: " + beeData.customBehaviorStateIndex);
+                            if (logBees) Script.Logger.LogDebug("case1: HIVE IS MISSING! CustomBehaviorStateIndex changed: " + beeData.customBehaviorStateIndex);
                         }
                         else
                         {
@@ -142,6 +165,7 @@ namespace ExperimentalEnemyInteractions.Patches
                                 if (collisionArray[i].gameObject.tag == "Enemy")
                                 {
                                     enemyAI2 = collisionArray[i].GetComponent<EnemyAI>();
+                                    if (logBees) Script.Logger.LogDebug("case2: CollisionArray triggered. Enemy found");
                                     break;
                                 }
                             }
@@ -191,6 +215,7 @@ namespace ExperimentalEnemyInteractions.Patches
                         __instance.StopSearch(__instance.searchForHive);
                         __instance.syncedLastKnownHivePosition = false;
                         __instance.SyncLastKnownHivePositionServerRpc(__instance.lastKnownHivePosition);
+                        break;
                     }
                     if (beeData.targetEnemy != null)
                     {

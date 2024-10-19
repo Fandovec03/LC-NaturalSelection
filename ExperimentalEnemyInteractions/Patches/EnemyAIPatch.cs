@@ -117,43 +117,43 @@ namespace ExperimentalEnemyInteractions.Patches
             return insideEnemies;
         }
 
-        public static EnemyAI? findClosestEnemy(List<EnemyAI> enemyList, EnemyAI importClosestEnemy, EnemyAI __instance)
+        public static EnemyAI? findClosestEnemy(List<EnemyAI> importEnemyList, EnemyAI importClosestEnemy, EnemyAI __instance)
         {
             EnemyAI tempClosestEnemy = importClosestEnemy;
 
-            for (int i = 0; i < enemyList.Count; i++)
+            for (int i = 0; i < importEnemyList.Count; i++)
             {
                 if (tempClosestEnemy == null)
                 {
-                    if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "No enemy assigned. Assigning " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID() + " as new closestEnemy.");
-                    tempClosestEnemy = enemyList[i];
+                    if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "No enemy assigned. Assigning " + importEnemyList[i] + ", ID: " + importEnemyList[i].GetInstanceID() + " as new closestEnemy.");
+                    tempClosestEnemy = importEnemyList[i];
                 }
-                if (tempClosestEnemy == enemyList[i])
+                if (tempClosestEnemy == importEnemyList[i])
                 {
-                    if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID() + " is already assigned as closestEnemy");
+                    if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + importEnemyList[i] + ", ID: " + importEnemyList[i].GetInstanceID() + " is already assigned as closestEnemy");
                 }
-                if (enemyList[i] != tempClosestEnemy)
+                if (importEnemyList[i] != tempClosestEnemy)
                 {
-                    if (Vector3.Distance(__instance.transform.position, enemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position))
+                    if (Vector3.Distance(__instance.transform.position, importEnemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position))
                     {
-                        tempClosestEnemy = enemyList[i];
-                        if (debugUnspecified) Script.Logger.LogDebug(Vector3.Distance(__instance.transform.position, enemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position));
-                        if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Assigned " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID() + " as new closestEnemy. Distance: " + Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position));
+                        tempClosestEnemy = importEnemyList[i];
+                        if (debugUnspecified) Script.Logger.LogDebug(Vector3.Distance(__instance.transform.position, importEnemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position));
+                        if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Assigned " + importEnemyList[i] + ", ID: " + importEnemyList[i].GetInstanceID() + " as new closestEnemy. Distance: " + Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position));
                     }
                 }
             }
             return tempClosestEnemy;
         }
-        public static List<EnemyAI> filterEnemyList(List<EnemyAI> enemyList, List<Type> targetTypes, EnemyAI __instance)
+        public static List<EnemyAI> filterEnemyList(List<EnemyAI> importEnemyList, List<Type> targetTypes, EnemyAI __instance)
         {
             List<EnemyAI> filteredList = new List<EnemyAI>();
 
-            for (int i = 0; i < enemyList.Count; i++)
+            for (int i = 0; i < importEnemyList.Count; i++)
             {
-                if (targetTypes.Contains(enemyList[i].GetType()))
+                if (targetTypes.Contains(importEnemyList[i].GetType()))
                 {
-                    if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Enemy of type " + enemyList[i].GetType() + " passed the filter.");
-                    filteredList.Add(enemyList[i]);
+                    if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Enemy of type " + importEnemyList[i].GetType() + " passed the filter.");
+                    filteredList.Add(importEnemyList[i]);
                 }
                 else if (debugUnspecified)
                 {
@@ -164,8 +164,8 @@ namespace ExperimentalEnemyInteractions.Patches
         }
         
 
-        static public SortedList<EnemyAI,float> CheckLOSForEnemies(EnemyAI instance, List<EnemyAI> enemyList, float width = 45f, int importRange = 0, float proximityAwareness = -1)
-        {
+        static public SortedList<EnemyAI,float> CheckLOSForEnemies(EnemyAI instance, List<EnemyAI> importEnemyList, float width = 45f, int importRange = 0, float proximityAwareness = -1)
+        {;
             List<EnemyAI> tempList = new List<EnemyAI>();
             SortedList<EnemyAI,float> tempSortedList = new SortedList<EnemyAI,float>();
             float range = (float) importRange;
@@ -173,7 +173,7 @@ namespace ExperimentalEnemyInteractions.Patches
             {
                 range = Mathf.Clamp(importRange, 0, 30);
             }
-            foreach (EnemyAI enemy in enemyList)
+            foreach (EnemyAI enemy in importEnemyList)
             {
                 if (!enemy.isEnemyDead)
                 {
@@ -183,13 +183,13 @@ namespace ExperimentalEnemyInteractions.Patches
 
             for (int i = 0; i < tempList.Count; i++)
             {
-                Vector3 position = enemyList[i].transform.position;
+                Vector3 position = tempList[i].transform.position;
                 if (Vector3.Distance(position, instance.eye.position) < range && !Physics.Linecast(instance.eye.position, position, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Ignore))
                 {
                     Vector3 to = position - instance.eye.position;
                     if (Vector3.Angle(instance.eye.forward, to) < width || proximityAwareness != -1 && Vector3.Distance(instance.transform.position, position) < proximityAwareness)
                     {
-                        tempSortedList.Add(enemyList[i], Vector3.Distance(instance.transform.position, position));
+                        tempSortedList.Add(tempList[i], Vector3.Distance(instance.transform.position, position));
                     }
                 }
             }

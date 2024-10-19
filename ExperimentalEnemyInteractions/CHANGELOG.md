@@ -1,21 +1,22 @@
+- 0.1.14
+	- Added many more config options
+		- ** Safe mode:** On by default. Prevents unfinished and experimental scripts from loading.
+	- **Bees added!** Bees now target every enemy in their LOS.
+	- Several bugs and oversights fixed
 - 0.1.13
 	- Removed code breaking spider with the position fix
 - 0.1.12
-	-  Fixed sandworms affecting eachother for good! [Credit to Hamunii]
-	- Œome QOL changes for development
-- 0.1.11
-	- Hygrodere now does not anger Hoarding Bugs
+	- Fixed sandworms affecting eachother for good! [Credit to Hamunii]
+	- Some QOL changes for development
+- 0.1.11 - Hygrodere now does not anger Hoarding Bugs
 	- Hygrodere should anger Bracken less
 	- **Added a dependency to fix spider getting stuck and other position issues**
 	- Converted most debug logs to DebugLog
 	- Fixed Hygrodere hitting enemies with custom hit trigger stupidly fast
-- 0.1.10
-	- Rewritten Earth leviathan patch code. Now sandworms behave as intended.
+- 0.1.10 - Rewritten Earth leviathan patch code. Now sandworms behave as intended.
 	- ***known bugs: Audio not playing when chasing targets. Audio cutting off when chasign player.***
-- 0.1.9 
-		- Fixed critical error causing hard crash on load caused by leftover Lobby Compatibility code
-- 0.1.8
-		- Regenerated DLL - forgot to regenerate after changing versions
+- 0.1.9 - Fixed critical error causing hard crash on load caused by leftover Lobby Compatibility code
+- 0.1.8 - Regenerated DLL - forgot to regenerate after changing versions
 - 0.1.7
 	- Moved functions and methods of enemyList to EnemyAI. This makes development much faster and gives a potencial for a memory as a side effect, though that has to be implemented first in each enemyAI type.
 	- Resolved NullException error messages in the Collision patch

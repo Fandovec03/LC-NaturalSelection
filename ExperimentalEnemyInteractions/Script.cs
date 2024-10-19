@@ -4,6 +4,7 @@ using BepInEx.Configuration;
 using HarmonyLib;
 using LobbyCompatibility.Attributes;
 using LobbyCompatibility.Enums;
+using ExperimentalEnemyInteractions.Patches;
 
 namespace ExperimentalEnemyInteractions
 {
@@ -16,6 +17,7 @@ namespace ExperimentalEnemyInteractions
         internal static Harmony? Harmony { get; set; }
 
         internal static MyModConfig BoundingConfig { get; set; } = null!;
+        internal static bool StableToggle;
 
         private void Awake()
         {
@@ -23,6 +25,7 @@ namespace ExperimentalEnemyInteractions
             Instance = this;
 
             BoundingConfig = new MyModConfig(base.Config);
+            StableToggle = StableToggle = BoundingConfig.stableMode.Value;
 
             Patch();
 
@@ -33,11 +36,28 @@ namespace ExperimentalEnemyInteractions
         {
             Harmony ??= new Harmony(MyPluginInfo.PLUGIN_GUID);
 
-            Logger.LogDebug("Patching...");
+            Logger.LogInfo("Patching EEI...");
 
-            Harmony.PatchAll();
+            Harmony.PatchAll(typeof(AICollisionDetectPatch));
+            Harmony.PatchAll(typeof(EnemyAIPatch));
+            Harmony.PatchAll(typeof(SandWormAIPatch));
+            Harmony.PatchAll(typeof(BlobAIPatch));
+            Harmony.PatchAll(typeof(HoarderBugPatch));
 
-            Logger.LogDebug("Finished patching!");
+            if (!StableToggle)
+            {
+            Harmony.PatchAll(typeof(NutcrackerAIPatch));
+            Harmony.PatchAll(typeof(BeeAIPatch));
+            Harmony.PatchAll(typeof(PufferAIPatch));
+            Harmony.PatchAll(typeof(SandSpiderAI));
+
+            Logger.LogInfo("Stable mode off. Loaded all patches.");
+            }
+            else
+            {
+            Logger.LogInfo("Stable mode on. Excluded unstable and WIP patches from loading.");
+            }
+            Logger.LogInfo("Finished patching EEI!");
         }
 
         internal static void Unpatch()

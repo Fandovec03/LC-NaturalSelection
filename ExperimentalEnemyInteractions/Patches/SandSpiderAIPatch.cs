@@ -8,6 +8,9 @@ using BepInEx;
 using BepInEx.Logging;
 using System.Runtime.CompilerServices;
 using UnityEngine.Experimental.Rendering;
+using UnityEngine.Rendering.HighDefinition;
+using static UnityEngine.MeshSubsetCombineUtility;
+using System.Linq;
 
 namespace ExperimentalEnemyInteractions.Patches
 {
@@ -15,60 +18,112 @@ namespace ExperimentalEnemyInteractions.Patches
     {
         public EnemyAI? closestEnemy = null;
         public EnemyAI? targetEnemy = null;
+        public List<EnemyAI> enemyList = new List<EnemyAI>();
+        public CustomBehavior CustomBehaviorState;
+        public float LookAtEnemyTimer = 0f;
+        public SortedList<EnemyAI,float> enemiesInLOSSortList = new SortedList<EnemyAI, float>();
     }
-
+    public enum CustomBehavior
+        {
+            Idle,
+            Patrol,
+            Chase,
+            OverriddenByVanilla
+        }
 
     [HarmonyPatch(typeof(SandSpiderAI))]
     class SandSpiderAIPatch
     {
-        static List<EnemyAI> enemyList = new List<EnemyAI>();
         static float refreshCDtimeSpider = 1f;
         static bool debugMode = Script.BoundingConfig.debugBool.Value;
         static bool enableSpider = Script.BoundingConfig.enableSpider.Value;
         static bool spiderHuntHoardingbug = Script.BoundingConfig.spiderHuntHoardingbug.Value;
 
+        static float refreshLOS = 0.2f;
+
         static Dictionary<SandSpiderAI, SpiderData> spiderList = [];
+        static bool debugSpider = Script.BoundingConfig.debugUnspecified.Value;
+
 
         [HarmonyPatch("Start")]
         [HarmonyPrefix]
         static void StartPatch(SandSpiderAI __instance)
         {
             spiderList.Add(__instance, new SpiderData());
+            SpiderData spiderData = spiderList[__instance];
+            spiderData.CustomBehaviorState = CustomBehavior.Idle;
         }
 
-
         [HarmonyPatch("Update")]
-        [HarmonyPostfix]
-        static void UpdatePatch(SandSpiderAI __instance)
+        [HarmonyPrefix]
+        static void UpdatePrefixPatch(SandSpiderAI __instance)
         {
             SpiderData spiderData = spiderList[__instance];
+            
+            if (refreshLOS <=0)
+            {
+                spiderData.enemiesInLOSSortList = EnemyAIPatch.CheckLOSForEnemies(__instance, spiderData.enemyList, 80f, 15, 2f);
+                refreshLOS = 0.2f;
+            }
+            else
+            {
+                refreshLOS -= Time.deltaTime;
+            }
 
             refreshCDtimeSpider -= Time.deltaTime;
 
             if (!enableSpider) return;
 
+
+
             if (refreshCDtimeSpider <= 0)
             {
-                enemyList = EnemyAIPatch.GetInsideEnemyList(__instance);
-                spiderData.closestEnemy = EnemyAIPatch.findClosestEnemy(enemyList, spiderData.closestEnemy, __instance);
+                refreshCDtimeSpider = 1f;
             }
+        }
+        [HarmonyPatch("Update")]
+        [HarmonyPostfix]
+        static void UpdatePostfixPatch(SandSpiderAI __instance)
+        {
+            SpiderData spiderData = spiderList[__instance];
+            
 
-            if (spiderHuntHoardingbug && spiderData.closestEnemy != null && __instance != null && Vector3.Distance(__instance.transform.position, spiderData.closestEnemy.transform.position) < 80f && refreshCDtimeSpider <= 0)
+            refreshCDtimeSpider -= Time.deltaTime;
+
+            if (!enableSpider) return;
+
+            switch(spiderData.CustomBehaviorState)
             {
-                if (spiderData.closestEnemy is HoarderBugAI)
-                {
-                    spiderData.targetEnemy = spiderData.closestEnemy;
-                    /*__instance.setDestinationToHomeBase = false;
-                    __instance.reachedWallPosition = false;
-                    __instance.lookingForWallPosition = false;
-                    __instance.waitOnWallTimer = 11f;*/
-
-                    if (__instance.onWall)
+                case CustomBehavior.Idle:
+                    break;
+                case CustomBehavior.Patrol:
+                    if (spiderData.enemiesInLOSSortList.Count > 0)
                     {
-                        __instance.agent.speed = 4.25f;
-                        __instance.spiderSpeed = 4.25f;
+                        if (spiderData.enemiesInLOSSortList.Keys.First() is HoarderBugAI)
+                        {
+                            spiderData.targetEnemy = spiderData.enemiesInLOSSortList.Keys.First();
+                            SwitchCustomState(__instance, CustomBehavior.Chase);
+                            break;
+                        }
+                        else
+                        {
+                            spiderData.targetEnemy = null;
+                            break;
+                        }
                     }
-                }
+                    break;
+                case CustomBehavior.Chase:
+                    {
+                        if (spiderData.targetEnemy != null)
+                        {
+                            __instance.SetDestinationToPosition(spiderData.targetEnemy.transform.position, checkForPath: true);
+                        }
+                        else
+                        {
+                            SwitchCustomState(__instance, CustomBehavior.Patrol);
+                        }
+                    }
+                    break;
             }
 
             if (refreshCDtimeSpider <= 0)
@@ -77,29 +132,48 @@ namespace ExperimentalEnemyInteractions.Patches
             }
         }
 
+        [HarmonyPatch("DoAIInterval")]
+        [HarmonyPrefix]
+        static void DoAIIntervalPrefix(SandSpiderAI __instance)
+        {
+            if (!spiderHuntHoardingbug) return;
+            SpiderData spiderData = spiderList[__instance];
+
+            switch (spiderData.CustomBehaviorState)
+            {
+                case CustomBehavior.Idle:
+                {
+                    
+                }
+                break;
+                case CustomBehavior.Patrol:
+                {
+
+                }
+                break;
+                case CustomBehavior.Chase:
+                {
+
+                }
+                break;
+                case CustomBehavior.OverriddenByVanilla:
+                {
+
+                }
+                break;
+            }
+        }
+        static public void SwitchCustomState(SandSpiderAI instance, CustomBehavior state)
+        {
+            SpiderData spiderData = spiderList[instance];
+            spiderData.CustomBehaviorState = state;
+        }
 
         [HarmonyPatch("DoAIInterval")]
         [HarmonyPostfix]
         static void DoAIIntervalPostfix(SandSpiderAI __instance)
         {
-            if (!spiderHuntHoardingbug) return;
-            SpiderData spiderData = spiderList[__instance];
 
-#pragma warning disable CS8602 // Přístup přes ukazatel k možnému odkazu s hodnotou null
-            if (spiderData.targetEnemy != null || spiderData.targetEnemy.isEnemyDead)
-            {
-                if (__instance.patrolHomeBase.inProgress)
-                {
-                    __instance.StopSearch(__instance.patrolHomeBase);
-                }
-                if (spiderData.targetEnemy.isEnemyDead || !__instance.SetDestinationToPosition(spiderData.targetEnemy.transform.position, true))  
-                {
-                    spiderData.targetEnemy = null;
-                    __instance.StopChasing();
-                }
-                __instance.SetDestinationToPosition(spiderData.targetEnemy.transform.position, true);
-            }
-#pragma warning restore CS8602 // Přístup přes ukazatel k možnému odkazu s hodnotou null
         }
     }
 }

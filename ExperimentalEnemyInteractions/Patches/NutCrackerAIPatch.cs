@@ -13,7 +13,7 @@ namespace ExperimentalEnemyInteractions.Patches
         public EnemyAI? closestEnemy = null;
         public EnemyAI? targetEnemy = null;
         public bool SeeMovingEnemy = false;
-        public UnityEngine.Vector3 lastSeenEnemyPosition = UnityEngine.Vector3.zero;
+        public Vector3 lastSeenEnemyPosition = UnityEngine.Vector3.zero;
         public float TimeSinceSeeingMonster = 0f;
         public float TimeSinceHittingMonster = 0f;
     }
@@ -23,6 +23,9 @@ namespace ExperimentalEnemyInteractions.Patches
     {
         static List<EnemyAI> enemyList = new List<EnemyAI>();
         static Dictionary<NutcrackerEnemyAI, NutcrackerData> NutcrackerData = [];
+        static bool enableNucracker = Script.BoundingConfig.enableNutcrackers.Value;
+
+        static bool debugNutcrackers = Script.BoundingConfig.debugNutcrackers.Value;
 
         static public bool CheckLOSForMonsters(Vector3 monsterPosition, NutcrackerEnemyAI __instance, float width = 45f, int range = 60, int proximityAwareness = 60)
         {
@@ -50,10 +53,10 @@ namespace ExperimentalEnemyInteractions.Patches
         [HarmonyPostfix]
         static void NutcrackerUpdatePostfix(NutcrackerEnemyAI __instance)
         {
-            if (true) return;
+            if (!enableNucracker) return;
             NutcrackerData data = NutcrackerData[__instance];
 
-            enemyList = EnemyAIPatch.GetOutsideEnemyList(__instance);
+            enemyList = EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance),__instance);
             data.closestEnemy = EnemyAIPatch.findClosestEnemy(enemyList, data.closestEnemy, __instance);
 
             if (__instance.currentBehaviourStateIndex == 1)
@@ -75,7 +78,7 @@ namespace ExperimentalEnemyInteractions.Patches
                 {
                     __instance.StopInspection();
                 }
-                __instance.SwitchToBehaviourState(2);
+                __instance.SwitchToBehaviourServerRpc(2);
                 if (__instance.lostPlayerInChase)
                 {
                     __instance.targetTorsoDegrees = 0;
@@ -125,7 +128,7 @@ namespace ExperimentalEnemyInteractions.Patches
         [HarmonyPostfix]
         static void DoAIIntervalPatch(NutcrackerEnemyAI __instance)
         {
-            if (true) return;
+            if (!enableNucracker) return;
             NutcrackerData data = NutcrackerData[__instance];
 
             if (__instance.currentBehaviourStateIndex == 2)
@@ -141,11 +144,12 @@ namespace ExperimentalEnemyInteractions.Patches
                         __instance.reachedStrafePosition = false;
                         __instance.SetDestinationToPosition(data.targetEnemy.transform.position);
                         __instance.agent.stoppingDistance = 1f;
+                        __instance.moveTowardsDestination = true;
 
                     }
                     if (data.TimeSinceSeeingMonster > 12f && __instance.timeSinceSeeingTarget > 12f)
                     {
-                        __instance.SwitchToBehaviourState(1);
+                        __instance.SwitchToBehaviourServerRpc(1);
                     }
                 }
             }

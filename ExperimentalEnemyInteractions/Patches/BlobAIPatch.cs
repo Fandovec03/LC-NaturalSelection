@@ -23,9 +23,9 @@ namespace ExperimentalEnemyInteractions.Patches
 	{
 		static float CDtimer = 0.5f;
 		static List<EnemyAI> whiteList = new List<EnemyAI>();
-		static EnemyAI? closestEnemy = null;
-
 		static Dictionary<BlobAI, BlobData> slimeList = [];
+
+		static bool logBlob = Script.BoundingConfig.debugHygrodere.Value;
 
 		[HarmonyPatch("Start")]
 		[HarmonyPrefix]
@@ -33,8 +33,20 @@ namespace ExperimentalEnemyInteractions.Patches
 		{
             slimeList.Add(__instance, new BlobData());
         }
+		/*
+		[HarmonyPatch("DoAIInterval")]
+		[HarmonyPostfix]
+		static void DoAIIntervalPrefixPatch(BlobAI __instance)
+		{
+            BlobData blobData = slimeList[__instance];
 
-
+            if (!blobData.closestEnemy.isEnemyDead && Vector3.Distance(__instance.transform.position,__instance.GetClosestPlayer().transform.position) < Vector3.Distance(__instance.transform.position, blobData.closestEnemy.transform.position))
+			{
+				__instance.StopSearch(__instance.searchForPlayers);
+				__instance.SetDestinationToPosition(blobData.closestEnemy.transform.position);
+			}
+		}
+		*/
         [HarmonyPatch("Update")]
 		[HarmonyPrefix]
 		static void BlobUpdatePatch(BlobAI __instance)
@@ -50,7 +62,7 @@ namespace ExperimentalEnemyInteractions.Patches
 			{
 				List<EnemyAI> tempList = new List<EnemyAI>();
 
-				tempList = EnemyAIPatch.GetInsideEnemyList(__instance);
+				tempList = EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance);
 
 				for (int i = 0; i < tempList.Count; i++)
 				{
@@ -58,18 +70,18 @@ namespace ExperimentalEnemyInteractions.Patches
 					{
 						if (tempList[i] is NutcrackerEnemyAI)
 						{
-							Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + tempList[i] + " is blacklisted!");
+							if (logBlob) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + tempList[i] + " is blacklisted!");
 						}
 						else
 						{
 							if (!whiteList.Contains(tempList[i]))
 							{
-								Script.Logger.LogMessage(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Added "+ tempList[i] +" to whitelist");
+								if (logBlob) Script.Logger.LogMessage(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Added " + tempList[i] + " to whitelist");
 								whiteList.Add(tempList[i]);
 							}
 							if (whiteList.Contains(tempList[i]))
 							{
-								Script.Logger.LogWarning(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + tempList[i] + " is already in the whitelist");
+								if (logBlob) Script.Logger.LogWarning(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + tempList[i] + " is already in the whitelist");
 							}
 						}
 					}
@@ -79,15 +91,14 @@ namespace ExperimentalEnemyInteractions.Patches
 				{
 					if (whiteList[i] == null)
 					{
-						Script.Logger.LogError(__instance.name + ", ID: " + __instance.GetInstanceID() + ": found NULL enemz in whitelist. removing.");
+						if (logBlob) Script.Logger.LogError(__instance.name + ", ID: " + __instance.GetInstanceID() + ": found NULL enemz in whitelist. removing.");
 						whiteList.Remove(whiteList[i]);
 					}
 				}
-				CDtimer = 0.5f;
+
+                CDtimer = 0.5f;
 
             }
-
-			EnemyAIPatch.findClosestEnemy(whiteList, closestEnemy, __instance);	
 		}
 
 
@@ -99,7 +110,9 @@ namespace ExperimentalEnemyInteractions.Patches
 			{
                 if (mainscript2 is not NutcrackerEnemyAI && mainscript2 is not CaveDwellerAI && !__instance.isEnemyDead)
                 {
+
                     blobData.timeSinceHittingLocalMonster = 0f;
+
                     if (mainscript2 is FlowermanAI)
                     {
                         FlowermanAI? flowermanAI = mainscript2 as FlowermanAI;
@@ -109,6 +122,10 @@ namespace ExperimentalEnemyInteractions.Patches
                             bool wasAngryBefore = flowermanAI.isInAngerMode;
 							
                             flowermanAI.HitEnemy(1, null, playHitSFX: true);
+							if (mainscript2.enemyHP <= 0)
+							{
+							mainscript2.KillEnemyOnOwnerClient();
+							}
 
                             flowermanAI.targetPlayer = null;
 							flowermanAI.movingTowardsTargetPlayer = false;
@@ -119,13 +136,17 @@ namespace ExperimentalEnemyInteractions.Patches
                         }
                     }
 
-					if (mainscript2 is HoarderBugAI)
+					else if (mainscript2 is HoarderBugAI)
 					{
 						HoarderBugAI? hoarderBugAI = mainscript2 as HoarderBugAI;
 
 						if (hoarderBugAI != null)
 						{
                             HoarderBugPatch.CustomOnHit(1, __instance, true, hoarderBugAI);
+							if (mainscript2.enemyHP <= 0)
+							{
+							mainscript2.KillEnemyOnOwnerClient();
+							}
                         }
 					}
 
@@ -133,6 +154,10 @@ namespace ExperimentalEnemyInteractions.Patches
                     {
                         blobData.timeSinceHittingLocalMonster = 0f;
                         mainscript2.HitEnemy(1, null, playHitSFX: true);
+						if (mainscript2.enemyHP <= 0)
+						{
+							mainscript2.KillEnemyOnOwnerClient();
+						}
 						return;
                     }
                 }

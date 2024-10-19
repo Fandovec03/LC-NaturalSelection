@@ -1,6 +1,8 @@
+- 0.1.15
+	- Emergency fix: Fixed Key not foudn exception causing bees to not work  
 - 0.1.14
 	- Added many more config options
-		- ** Safe mode:** On by default. Prevents unfinished and experimental scripts from loading.
+		- **Safe mode:** On by default. Prevents unfinished and experimental scripts from loading.
 	- **Bees added!** Bees now target every enemy in their LOS.
 	- Several bugs and oversights fixed
 - 0.1.13

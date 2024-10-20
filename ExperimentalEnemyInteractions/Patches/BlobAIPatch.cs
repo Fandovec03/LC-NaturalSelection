@@ -31,7 +31,10 @@ namespace ExperimentalEnemyInteractions.Patches
 		[HarmonyPrefix]
 		static void StartPatch(BlobAI __instance)
 		{
-            slimeList.Add(__instance, new BlobData());
+			if (!slimeList.ContainsKey(__instance))
+			{
+				slimeList.Add(__instance, new BlobData());
+			}
         }
 		/*
 		[HarmonyPatch("DoAIInterval")]

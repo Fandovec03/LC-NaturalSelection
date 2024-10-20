@@ -46,7 +46,10 @@ namespace ExperimentalEnemyInteractions.Patches
         [HarmonyPostfix]
         static void UpdatePatch(NutcrackerEnemyAI __instance)
         {
-            NutcrackerData.Add(__instance, new NutcrackerData());
+            if (!NutcrackerData.ContainsKey(__instance))
+            {
+                NutcrackerData.Add(__instance, new NutcrackerData());
+            }
         }
 
         [HarmonyPatch("Update")]

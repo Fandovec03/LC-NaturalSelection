@@ -17,7 +17,7 @@ namespace ExperimentalEnemyInteractions
         internal static Harmony? Harmony { get; set; }
 
         internal static MyModConfig BoundingConfig { get; set; } = null!;
-        internal static bool StableToggle;
+        internal static bool stableToggle;
 
         private void Awake()
         {
@@ -25,7 +25,7 @@ namespace ExperimentalEnemyInteractions
             Instance = this;
 
             BoundingConfig = new MyModConfig(base.Config);
-            StableToggle = StableToggle = BoundingConfig.stableMode.Value;
+            stableToggle = BoundingConfig.stableMode.Value;
 
             Patch();
 
@@ -45,11 +45,11 @@ namespace ExperimentalEnemyInteractions
             Harmony.PatchAll(typeof(HoarderBugPatch));
             Harmony.PatchAll(typeof(BeeAIPatch));
 
-            if (!StableToggle)
+            if (!stableToggle)
             {
             Harmony.PatchAll(typeof(NutcrackerAIPatch));
             Harmony.PatchAll(typeof(PufferAIPatch));
-            Harmony.PatchAll(typeof(SandSpiderAI));
+            Harmony.PatchAll(typeof(SandSpiderAIPatch));
 
             Logger.LogInfo("Stable mode off. Loaded all patches.");
             }

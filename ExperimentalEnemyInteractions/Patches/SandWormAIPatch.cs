@@ -35,15 +35,18 @@ namespace ExperimentalEnemyInteractions.Patches
         [HarmonyPrefix]
         static void SandWormStartPatch(SandWormAI __instance)
         {
-            sandworms.Add(__instance, new ExtendedSandWormAIData());
+            if (sandworms.ContainsKey(__instance))
+            {
+                sandworms.Add(__instance, new ExtendedSandWormAIData());
 
-            if (targetedTypes.Count != 0) return;
+                if (targetedTypes.Count != 0) return;
 
-            targetedTypes.Add(typeof(BaboonBirdAI));
-            targetedTypes.Add(typeof(ForestGiantAI));
-            targetedTypes.Add(typeof(MouthDogAI));
-            targetedTypes.Add(typeof(BushWolfEnemy));
-            targetedTypes.Add(typeof(RadMechAI));
+                targetedTypes.Add(typeof(BaboonBirdAI));
+                targetedTypes.Add(typeof(ForestGiantAI));
+                targetedTypes.Add(typeof(MouthDogAI));
+                targetedTypes.Add(typeof(BushWolfEnemy));
+                targetedTypes.Add(typeof(RadMechAI));
+            }
         }
         [HarmonyPatch("Update")]
         [HarmonyPrefix]

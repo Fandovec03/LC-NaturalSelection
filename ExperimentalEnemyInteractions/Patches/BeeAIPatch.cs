@@ -30,8 +30,10 @@ namespace ExperimentalEnemyInteractions.Patches
         [HarmonyPostfix]
         static void StartPatch(RedLocustBees __instance)
         {
-            beeList.Add(__instance, new BeeValues());
-
+            if (!beeList.ContainsKey(__instance))
+            {
+                beeList.Add(__instance, new BeeValues());
+            }
             BeeValues beeData = beeList[__instance];
         }
 

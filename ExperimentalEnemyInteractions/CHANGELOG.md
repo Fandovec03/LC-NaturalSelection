@@ -1,3 +1,6 @@
+- 0.1.18
+	- Fixed an issue where the mob tries to add itself again into dictionary causing error (This fixes the error when paired with lethalmon)
+	- Fixed the script trying to apply patch via original Spider class instead of the patched one
 - 0.1.17
 	- Fixed safe mode accidentally preventing load of The bee patch
 - 0.1.16

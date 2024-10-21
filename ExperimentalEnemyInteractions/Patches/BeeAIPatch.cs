@@ -157,7 +157,7 @@ namespace ExperimentalEnemyInteractions.Patches
                         __instance.lastKnownHivePosition = __instance.hive.transform.position + Vector3.up * 0.5f;
 
                         if (logBees) Script.Logger.LogDebug("case2: IsHivePlacedAndInLOS triggered");
-                        EnemyAI enemyAI2 = null;
+                        EnemyAI? enemyAI2 = null;
                         Collider[] collisionArray = Physics.OverlapSphere(__instance.hive.transform.position, (float)__instance.defenseDistance, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Collide);
 
                         if (collisionArray != null && collisionArray.Length != 0)

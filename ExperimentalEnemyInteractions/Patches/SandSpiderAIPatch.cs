@@ -11,12 +11,14 @@ using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering.HighDefinition;
 using static UnityEngine.MeshSubsetCombineUtility;
 using System.Linq;
+using System.Net;
 
 namespace ExperimentalEnemyInteractions.Patches
 {
     class SpiderData
     {
         public EnemyAI? closestEnemy = null;
+        public EnemyAI? closestEnemyLOS = null;
         public EnemyAI? targetEnemy = null;
         public List<EnemyAI> enemyList = new List<EnemyAI>();
         public float LookAtEnemyTimer = 0f;
@@ -52,7 +54,7 @@ namespace ExperimentalEnemyInteractions.Patches
         [HarmonyPrefix]
         static bool UpdatePrefixPatch(SandSpiderAI __instance)
         {
-            if (!enableSpider) return true;
+           // if (!enableSpider) return true;
             SpiderData spiderData = spiderList[__instance];
             
             if (refreshLOS <=0)
@@ -91,16 +93,24 @@ namespace ExperimentalEnemyInteractions.Patches
         static void UpdatePostfixPatch(SandSpiderAI __instance)
         {
             SpiderData spiderData = spiderList[__instance];
+            if (spiderData == null)
+            {
+                return;
+            }
 
             refreshCDtimeSpider -= Time.deltaTime;
 
             if (!enableSpider) return;
+            if (__instance.navigateMeshTowardsPosition && spiderData.targetEnemy != null)
+            {
+                __instance.CalculateSpiderPathToPosition();
+            }
             switch (__instance.currentBehaviourStateIndex)
             {
                 case 0:
                     {
                         spiderData.closestEnemy = EnemyAIPatch.findClosestEnemy(EnemyAIPatch.GetCompleteList(__instance), spiderData.closestEnemy, __instance);
-                        if (spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f))
+                        if (spiderData.closestEnemy != null && EnemyAIPatch.CheckLOSForEnemies(__instance, spiderData.enemyList, 80f, 15, 2f) != null && EnemyAIPatch.CheckLOSForEnemies(__instance, spiderData.enemyList, 80f, 15, 2f).Count > 0)
                         {
                             spiderData.targetEnemy = spiderData.closestEnemy;
                             if (debugSpider) Script.Logger.LogDebug(__instance + "Update Postfix: /case0/ Set " + spiderData.closestEnemy + " as TargetEnemy");

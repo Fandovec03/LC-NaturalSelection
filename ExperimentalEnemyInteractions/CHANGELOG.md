@@ -1,3 +1,6 @@
+- 0.1.20 - <br>
+	- Fixed typo causing Sandworms to throw keynotfoundExceptions
+	- Fixed changelog format
 - 0.1.19 - <br>
 	- Forgot to upload updated DLL. All changes bellow apply with this version
 - 0.1.18 - <br>

@@ -35,7 +35,7 @@ namespace ExperimentalEnemyInteractions.Patches
         [HarmonyPrefix]
         static void SandWormStartPatch(SandWormAI __instance)
         {
-            if (sandworms.ContainsKey(__instance))
+            if (!sandworms.ContainsKey(__instance))
             {
                 sandworms.Add(__instance, new ExtendedSandWormAIData());
 

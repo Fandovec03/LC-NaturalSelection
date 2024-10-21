@@ -1,51 +1,53 @@
-- 0.1.18
+0.1.19
+	- Forgot to upload updated DLL. All changes bellow apply with this version
+0.1.18
 	- Fixed an issue where the mob tries to add itself again into dictionary causing error (This fixes the error when paired with lethalmon)
 	- Fixed the script trying to apply patch via original Spider class instead of the patched one
-- 0.1.17
+0.1.17
 	- Fixed safe mode accidentally preventing load of The bee patch
-- 0.1.16
+0.1.16
 	- Potencially fixed same exception on blobAI
-- 0.1.15
+0.1.15
 	- Emergency fix: Fixed Key not foudn exception causing bees to not work  
-- 0.1.14
+0.1.14
 	- Added many more config options
 		- **Safe mode:** On by default. Prevents unfinished and experimental scripts from loading.
 	- **Bees added!** Bees now target every enemy in their LOS.
 	- Several bugs and oversights fixed
-- 0.1.13
+ 0.1.13
 	- Removed code breaking spider with the position fix
-- 0.1.12
+ 0.1.12
 	- Fixed sandworms affecting eachother for good! [Credit to Hamunii]
 	- Some QOL changes for development
-- 0.1.11 - Hygrodere now does not anger Hoarding Bugs
+0.1.11 - Hygrodere now does not anger Hoarding Bugs
 	- Hygrodere should anger Bracken less
 	- **Added a dependency to fix spider getting stuck and other position issues**
 	- Converted most debug logs to DebugLog
 	- Fixed Hygrodere hitting enemies with custom hit trigger stupidly fast
-- 0.1.10 - Rewritten Earth leviathan patch code. Now sandworms behave as intended.
+0.1.10 - Rewritten Earth leviathan patch code. Now sandworms behave as intended.
 	- ***known bugs: Audio not playing when chasing targets. Audio cutting off when chasign player.***
-- 0.1.9 - Fixed critical error causing hard crash on load caused by leftover Lobby Compatibility code
-- 0.1.8 - Regenerated DLL - forgot to regenerate after changing versions
-- 0.1.7
+0.1.9 - Fixed critical error causing hard crash on load caused by leftover Lobby Compatibility code
+0.1.8 - Regenerated DLL - forgot to regenerate after changing versions
+0.1.7
 	- Moved functions and methods of enemyList to EnemyAI. This makes development much faster and gives a potencial for a memory as a side effect, though that has to be implemented first in each enemyAI type.
 	- Resolved NullException error messages in the Collision patch
 	- **Earth leviathan** is now implemented. Leviathan now targets and consumes other surface creatures.
-- 0.1.6
+0.1.6
 	- fixed typos and formatting in CHANGELOG and README
-- 0.1.5
+0.1.5
 	- Fixed collisions not working
 	- Much less logs spam
 	- **Hygrodere now eats almost everything alive!**
 	- Spider deals 1 damage when Enemy has 2 or less health
 	- Added config file
 	- ~~Spider is now hunting Hoarding bugs~~ Disabled due to sync issues. Available as a toggle in config
-- 0.1.4
+0.1.4
 	- Fixed NullReferences, Functioning LOS check, added enemy list and base of assigning target (WIP)
-- 0.1.3
+0.1.3
 	- Attempt at custom behavior, fixed README/CHANGELOG, renamed namespaces ect.
-- 0.1.2
+0.1.2
 	- Reupload cause I forgot to edit CHANGELOG
-- 0.1.1
+0.1.1
 	- Updated description and added credits.
-- 0.0.1
+0.0.1
 	- Test upload.

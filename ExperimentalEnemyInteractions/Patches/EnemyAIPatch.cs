@@ -164,11 +164,12 @@ namespace ExperimentalEnemyInteractions.Patches
         }
         
 
-        static public SortedList<EnemyAI,float> CheckLOSForEnemies(EnemyAI instance, List<EnemyAI> importEnemyList, float width = 45f, int importRange = 0, float proximityAwareness = -1)
-        {;
+        static public SortedList<EnemyAI,float> GetEnemiesInLOS(EnemyAI instance, List<EnemyAI> importEnemyList, float width = 45f, int importRange = 0, float proximityAwareness = -1)
+        {
             List<EnemyAI> tempList = new List<EnemyAI>();
             SortedList<EnemyAI,float> tempSortedList = new SortedList<EnemyAI,float>();
             float range = (float) importRange;
+
             if (instance.isOutside && !instance.enemyType.canSeeThroughFog && TimeOfDay.Instance.currentLevelWeather == LevelWeatherType.Foggy)
             {
                 range = Mathf.Clamp(importRange, 0, 30);
@@ -185,15 +186,17 @@ namespace ExperimentalEnemyInteractions.Patches
             {
                 Vector3 position = tempList[i].transform.position;
                 if (Vector3.Distance(position, instance.eye.position) < range && !Physics.Linecast(instance.eye.position, position, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Ignore))
-                {
-                    Vector3 to = position - instance.eye.position;
-                    if (Vector3.Angle(instance.eye.forward, to) < width || proximityAwareness != -1 && Vector3.Distance(instance.transform.position, position) < proximityAwareness)
+                {   
+                    if (instance.CheckLineOfSightForPosition(position, width, (int)range, proximityAwareness, instance.eye.transform))
                     {
                         tempSortedList.Add(tempList[i], Vector3.Distance(instance.transform.position, position));
                     }
                 }
             }
-            tempSortedList.OrderBy(value => tempSortedList.Values);
+            if (tempSortedList.Count > 1)
+            {
+                tempSortedList.OrderBy(value => tempSortedList.Values);
+            }
             return tempSortedList;
         }
 

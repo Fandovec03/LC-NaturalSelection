@@ -96,7 +96,7 @@ namespace ExperimentalEnemyInteractions.Patches
             switch (__instance.currentBehaviourStateIndex)
             {
                 case 0:
-                    EnemyAI? LOSenemy = EnemyAIPatch.CheckLOSForEnemies(__instance, enemyList, 360f, 16, 1).Keys[0];
+                    EnemyAI? LOSenemy = EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1).Keys[0];
                     if (logBees) Script.Logger.LogDebug("case0: Checked LOS for enemies. Enemy found: " + LOSenemy);
 
                     if (__instance.wasInChase)
@@ -195,7 +195,7 @@ namespace ExperimentalEnemyInteractions.Patches
 
                     
                     bool flag = false;
-                    SortedList<EnemyAI, float> priorityEnemies = EnemyAIPatch.CheckLOSForEnemies(__instance, enemyList, 360f, 16, 1f);
+                    SortedList<EnemyAI, float> priorityEnemies = EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1f);
                     KeyValuePair<EnemyAI, float> closestToHive = new KeyValuePair<EnemyAI, float>();
                     foreach (KeyValuePair<EnemyAI, float> enemyPair in priorityEnemies)
                     {
@@ -221,7 +221,7 @@ namespace ExperimentalEnemyInteractions.Patches
                     }
                     if (beeData.targetEnemy != null)
                     {
-                        if (!flag && EnemyAIPatch.CheckLOSForEnemies(__instance, enemyList, 360f, 16, 2f).Keys.First() != null)
+                        if (!flag && EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 2f).Keys.First() != null)
                         {
                             beeData.LostLOSOfEnemy += Time.deltaTime;
                             if (beeData.LostLOSOfEnemy >= 4.5f)

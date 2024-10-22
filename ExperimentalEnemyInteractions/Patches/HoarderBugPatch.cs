@@ -14,7 +14,7 @@ namespace ExperimentalEnemyInteractions.Patches
                 Script.Logger.LogDebug("Hoarderbug CustomHit Triggered");
                 __instance.creatureVoice.PlayOneShot(__instance.hitPlayerSFX);
                 RoundManager.PlayRandomClip(__instance.creatureVoice, __instance.angryScreechSFX);
-                __instance.SwitchToBehaviourServerRpc(1);
+                __instance.SwitchToBehaviourState(1);
 
                 if (__instance.enemyHP <= 0)
                 {

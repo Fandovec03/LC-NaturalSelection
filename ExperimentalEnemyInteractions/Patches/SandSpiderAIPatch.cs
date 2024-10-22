@@ -105,12 +105,28 @@ namespace ExperimentalEnemyInteractions.Patches
             {
                 __instance.CalculateSpiderPathToPosition();
             }
+
+            spiderData.enemiesInLOSSortList = EnemyAIPatch.GetEnemiesInLOS(__instance, spiderData.enemyList, 80f, 15, 2f);
+
+            foreach(KeyValuePair<EnemyAI,float> enemy in spiderData.enemiesInLOSSortList)
+            {
+                if (spiderData.enemyList.Contains(enemy.Key))
+                {
+                    if (debugSpider) Script.Logger.LogDebug(__instance + " Update Postfix: " + enemy.Key + " is already in sortedList");
+                }
+                else
+                {
+                    if (debugSpider) Script.Logger.LogDebug(__instance + " Update Postfix: Adding " + enemy.Key + " to sortedList");
+                    spiderData.enemyList.Add(enemy.Key);
+                }
+            }
+
             switch (__instance.currentBehaviourStateIndex)
             {
                 case 0:
                     {
-                        spiderData.closestEnemy = EnemyAIPatch.findClosestEnemy(EnemyAIPatch.GetCompleteList(__instance), spiderData.closestEnemy, __instance);
-                        if (spiderData.closestEnemy != null && EnemyAIPatch.CheckLOSForEnemies(__instance, spiderData.enemyList, 80f, 15, 2f) != null && EnemyAIPatch.CheckLOSForEnemies(__instance, spiderData.enemyList, 80f, 15, 2f).Count > 0)
+                        spiderData.closestEnemy = EnemyAIPatch.findClosestEnemy(spiderData.enemyList, spiderData.closestEnemy, __instance);
+                        if (spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f) != false)
                         {
                             spiderData.targetEnemy = spiderData.closestEnemy;
                             if (debugSpider) Script.Logger.LogDebug(__instance + "Update Postfix: /case0/ Set " + spiderData.closestEnemy + " as TargetEnemy");

@@ -38,12 +38,6 @@ namespace ExperimentalEnemyInteractions.Patches
         }
 
         [HarmonyPatch("Update")]
-        [HarmonyPrefix]
-        static void PrefixUpdatePatch(RedLocustBees __instance)
-        {
-
-        }
-        [HarmonyPatch("Update")]
         [HarmonyPostfix]
         static void UpdatePatch(RedLocustBees __instance)
         {
@@ -60,17 +54,29 @@ namespace ExperimentalEnemyInteractions.Patches
             {
                 case 0:
                     {
-                        __instance.SetBeeParticleMode(0);
+                        if (__instance.previousState != __instance.currentBehaviourStateIndex)
+                        {
+                            __instance.previousState = __instance.currentBehaviourStateIndex;
+                            __instance.SetBeeParticleMode(0);
+                        }
                     }
                     break;
                 case 1:
                     {
-                        __instance.SetBeeParticleMode(1);
+                        if (__instance.previousState != __instance.currentBehaviourStateIndex)
+                        {
+                            __instance.previousState = __instance.currentBehaviourStateIndex;
+                            __instance.SetBeeParticleMode(1);
+                        }
                     }
                     break;
                 case 2:
                     {
-                        __instance.SetBeeParticleMode(2);
+                        if (__instance.previousState != __instance.currentBehaviourStateIndex)
+                        {
+                            __instance.previousState = __instance.currentBehaviourStateIndex;
+                            __instance.SetBeeParticleMode(2);
+                        }
                     }
                     break;
             }
@@ -96,7 +102,7 @@ namespace ExperimentalEnemyInteractions.Patches
             switch (__instance.currentBehaviourStateIndex)
             {
                 case 0:
-                    EnemyAI? LOSenemy = EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1).Keys[0];
+                    EnemyAI? LOSenemy = EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1).Keys.First();
                     if (logBees) Script.Logger.LogDebug("case0: Checked LOS for enemies. Enemy found: " + LOSenemy);
 
                     if (__instance.wasInChase)
@@ -146,7 +152,7 @@ namespace ExperimentalEnemyInteractions.Patches
                         }
                     }
                     break;
-                case 2: // Currently whenever bees go to state 2 they will ignore players and stop reporting into logs. Disabled for now
+                case 2:
                     if (__instance.targetPlayer != null && __instance.movingTowardsTargetPlayer) return;
                     if (__instance.IsHivePlacedAndInLOS())
                     {
@@ -195,7 +201,7 @@ namespace ExperimentalEnemyInteractions.Patches
 
                     
                     bool flag = false;
-                    SortedList<EnemyAI, float> priorityEnemies = EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1f);
+                    Dictionary<EnemyAI, float> priorityEnemies = EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1f);
                     KeyValuePair<EnemyAI, float> closestToHive = new KeyValuePair<EnemyAI, float>();
                     foreach (KeyValuePair<EnemyAI, float> enemyPair in priorityEnemies)
                     {

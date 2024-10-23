@@ -164,10 +164,10 @@ namespace ExperimentalEnemyInteractions.Patches
         }
         
 
-        static public SortedList<EnemyAI,float> GetEnemiesInLOS(EnemyAI instance, List<EnemyAI> importEnemyList, float width = 45f, int importRange = 0, float proximityAwareness = -1)
+        static public Dictionary<EnemyAI,float> GetEnemiesInLOS(EnemyAI instance, List<EnemyAI> importEnemyList, float width = 45f, int importRange = 0, float proximityAwareness = -1)
         {
             List<EnemyAI> tempList = new List<EnemyAI>();
-            SortedList<EnemyAI,float> tempSortedList = new SortedList<EnemyAI,float>();
+            Dictionary<EnemyAI,float> tempDictionary = new Dictionary<EnemyAI,float>();
             float range = (float) importRange;
 
             if (instance.isOutside && !instance.enemyType.canSeeThroughFog && TimeOfDay.Instance.currentLevelWeather == LevelWeatherType.Foggy)
@@ -178,6 +178,7 @@ namespace ExperimentalEnemyInteractions.Patches
             {
                 if (!enemy.isEnemyDead)
                 {
+                   if (debugUnspecified) Script.Logger.LogDebug(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Added " + enemy + " to tempList");
                     tempList.Add(enemy);
                 }
             }
@@ -187,17 +188,32 @@ namespace ExperimentalEnemyInteractions.Patches
                 Vector3 position = tempList[i].transform.position;
                 if (Vector3.Distance(position, instance.eye.position) < range && !Physics.Linecast(instance.eye.position, position, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Ignore))
                 {   
-                    if (instance.CheckLineOfSightForPosition(position, width, (int)range, proximityAwareness, instance.eye.transform))
+                    if (instance.CheckLineOfSightForPosition(position, width, (int)range, proximityAwareness))
                     {
-                        tempSortedList.Add(tempList[i], Vector3.Distance(instance.transform.position, position));
+                        if (!tempDictionary.ContainsKey(tempList[i]))
+                        {
+                            tempDictionary.Add(tempList[i], Vector3.Distance(instance.transform.position, position));
+                             if (debugUnspecified)
+                            Script.Logger.LogDebug(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Added " + tempList[i] + " to tempDictionary");
+                        }
+                        else
+                        {
+                            Script.Logger.LogInfo(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/:" + tempList[i] + " is already in tempDictionary");
+                        }
                     }
                 }
             }
-            if (tempSortedList.Count > 1)
+            if (tempDictionary.Count > 1)
             {
-                tempSortedList.OrderBy(value => tempSortedList.Values);
+                tempDictionary.OrderBy(value => tempDictionary.Values);
+
+                for(int i = 0;i < tempDictionary.Count;i++)
+                {
+                    if (debugUnspecified) 
+                    Script.Logger.LogDebug(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Final list: "+ tempDictionary[tempList[i]] + ", position: " + i);
+                }
             }
-            return tempSortedList;
+            return tempDictionary;
         }
 
         static public int ReactToHit(EnemyAI __instance, int force = 0, EnemyAI? enemyAI = null, PlayerControllerB? player = null)
@@ -215,6 +231,14 @@ namespace ExperimentalEnemyInteractions.Patches
                 }
             }
             return 0;
+        }
+    }
+    
+    public class ReversePatchEnemy : EnemyAI
+    {
+        public override void Update()
+        {
+            base.Update();
         }
     }
 }

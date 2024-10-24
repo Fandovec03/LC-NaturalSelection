@@ -63,36 +63,7 @@ namespace ExperimentalEnemyInteractions.Patches
         [HarmonyPrefix]
         static bool UpdatePrefixPatch(SandSpiderAI __instance)
         {
-                    // if (!enableSpider) return true;
-           SpiderData spiderData = spiderList[__instance];
-
-            refreshCDtimeSpider -= Time.deltaTime;
-
-            if (refreshCDtimeSpider <= 0)
-            {
-                refreshCDtimeSpider = 1f;
-            }
-
-            if (spiderData.targetEnemy != null && !__instance.movingTowardsTargetPlayer)
-            {
-                Reversepatch.ReverseUpdate(__instance);
-                if (__instance.updateDestinationInterval > 0)
-                {
-                    __instance.updateDestinationInterval -= Time.deltaTime;
-                }
-                else
-                {
-                    __instance.DoAIInterval();
-                }
-                return false;
-            }
-            return true;
-        }
-        [HarmonyPatch("Update")]
-        [HarmonyPostfix]
-        static void UpdatePostfixPatch(SandSpiderAI __instance)
-        {
-            if (!enableSpider) return;
+            if (!enableSpider) return true;
 
             SpiderData spiderData = spiderList[__instance];
 
@@ -108,14 +79,24 @@ namespace ExperimentalEnemyInteractions.Patches
             {
                 if (spiderData.enemyList.Contains(enemy.Key))
                 {
-                    if (debugSpider) Script.Logger.LogDebug(__instance + " Update Postfix: " + enemy.Key + " is already in sortedList");
+                    if (debugSpider) Script.Logger.LogDebug(__instance + " Update Postfix: " + enemy.Key + " is already in enelyList");
                 }
                 else
                 {
-                    if (debugSpider) Script.Logger.LogDebug(__instance + " Update Postfix: Adding " + enemy.Key + " to sortedList");
+                    if (debugSpider) Script.Logger.LogDebug(__instance + " Update Postfix: Adding " + enemy.Key + " to enemyList");
                     spiderData.enemyList.Add(enemy.Key);
                 }
             }
+            for (int i = 0; i < spiderData.enemyList.Count; i++)
+            {
+                if (spiderData.enemyList[i].isEnemyDead)
+                {
+                    spiderData.enemyList.Remove(spiderData.enemyList[i]);
+                    if (debugSpider) Script.Logger.LogDebug(__instance + " Update Postfix: Removed " + spiderData.enemyList[i] + " from sortedList");
+                }
+            }
+            __instance.SyncMeshContainerPositionToClients();
+            __instance.CalculateMeshMovement();
             switch (__instance.currentBehaviourStateIndex)
             {
                 case 0:
@@ -128,10 +109,9 @@ namespace ExperimentalEnemyInteractions.Patches
                         {
                             spiderData.targetEnemy = spiderData.closestEnemy;
                             if (debugSpider) Script.Logger.LogDebug(__instance + "Update Postfix: /case0/ Set " + spiderData.closestEnemy + " as TargetEnemy");
-                            __instance.SwitchToBehaviourServerRpc(2);
+                            __instance.SwitchToBehaviourState(2);
                             if (debugSpider) Script.Logger.LogDebug(__instance + "Update Postfix: /case0/ Set state to " + __instance.currentBehaviourStateIndex);
                             spiderData.ChaseEnemy = 12.5f;
-                            if (spiderData.targetEnemy is not HoarderBugAI)
                             __instance.watchFromDistance = Vector3.Distance(__instance.meshContainer.transform.position, spiderData.targetEnemy.transform.position) > 8f;
                         }
                         break;
@@ -141,9 +121,10 @@ namespace ExperimentalEnemyInteractions.Patches
                         if (spiderData.targetEnemy == null && __instance.targetPlayer == null)
                         {
                             if (debugSpider) Script.Logger.LogDebug(__instance + "Update Postfix: /case2-0/ Stopping chasing: " + spiderData.targetEnemy);
+                            spiderData.targetEnemy = null;
                             __instance.StopChasing();
                         }
-                        if (__instance.onWall && spiderData.targetEnemy != null && __instance.targetPlayer == null)
+                        if (__instance.onWall && __instance.targetPlayer == null)
                         {
                             __instance.movingTowardsTargetPlayer = false;
                             __instance.agent.speed = 4.25f;
@@ -151,9 +132,9 @@ namespace ExperimentalEnemyInteractions.Patches
                             if (debugSpider) Script.Logger.LogDebug(__instance + "Update Postfix: /case2/ onWall");
                             break;
                         }
-                        if (__instance.watchFromDistance && __instance.targetPlayer == null && spiderData.targetEnemy != null)
+                        if (__instance.watchFromDistance && __instance.targetPlayer == null)
                         {
-                            if (__instance.lookAtPlayerInterval < 0f)
+                            if (__instance.lookAtPlayerInterval <= 0f)
                             {
                                 __instance.lookAtPlayerInterval = 3f;
                                 __instance.movingTowardsTargetPlayer = false;
@@ -172,23 +153,22 @@ namespace ExperimentalEnemyInteractions.Patches
                                 if (debugSpider) Script.Logger.LogDebug(__instance + "Update Postfix: /case2-1/ Stopping chasing: " + spiderData.targetEnemy);
                                 __instance.StopChasing();
                             }
-                            else if (Vector3.Distance(spiderData.targetEnemy.transform.position, __instance.transform.position) < 5f && __instance.targetPlayer == null || __instance.stunNormalizedTimer > 0f)
+                            else if (Vector3.Distance(spiderData.targetEnemy.transform.position, __instance.meshContainer.position) < 5f && __instance.targetPlayer == null || __instance.stunNormalizedTimer > 0f || spiderData.targetEnemy is HoarderBugAI)
                             {
                                 __instance.watchFromDistance = false;
                             }
                             break;
                         }
-                        if (__instance.targetPlayer == null)
+                        if (__instance.targetPlayer != null)
                         {
                             __instance.movingTowardsTargetPlayer = true;
                         }
-                        if (spiderData.targetEnemy != null && spiderData.targetEnemy.isEnemyDead)
+                        if (spiderData.targetEnemy == null || spiderData.targetEnemy.isEnemyDead)
                         {
                             if (debugSpider) Script.Logger.LogDebug(__instance + "Update Postfix: /case2-2/ Stopping chasing: " + spiderData.targetEnemy);
-                            spiderData.targetEnemy = null;
                             __instance.StopChasing();
                         }
-                        else if (spiderData.targetEnemy != null && (Vector3.Distance(spiderData.targetEnemy.transform.position, __instance.homeNode.position) > 12f && Vector3.Distance(spiderData.targetEnemy.transform.position, __instance.transform.position) > 5f))
+                        else if ((Vector3.Distance(spiderData.targetEnemy.transform.position, __instance.homeNode.position) > 12f && Vector3.Distance(spiderData.targetEnemy.transform.position, __instance.meshContainer.position) > 5f))
                         {
                             spiderData.ChaseEnemy -= Time.deltaTime;
                             if (spiderData.ChaseEnemy <= 0)
@@ -206,6 +186,22 @@ namespace ExperimentalEnemyInteractions.Patches
             {
                 refreshCDtimeSpider = 1f;
             }
+
+            if (spiderData.targetEnemy != null && __instance.targetPlayer == null)
+            {
+                Reversepatch.ReverseUpdate(__instance);
+                if (__instance.updateDestinationInterval >= 0)
+                {
+                    __instance.updateDestinationInterval -= Time.deltaTime;
+                }
+                else
+                {
+                    __instance.updateDestinationInterval = __instance.AIIntervalTime + UnityEngine.Random.Range(-0.015f, 0.015f);
+                    __instance.DoAIInterval();
+                }
+                return false;
+            }
+            return true;
         }
 
         [HarmonyPatch("DoAIInterval")]
@@ -214,13 +210,8 @@ namespace ExperimentalEnemyInteractions.Patches
         {
             if (!spiderHuntHoardingbug) return;
             SpiderData spiderData = spiderList[__instance];
-
-           /* if (!__instance.movingTowardsTargetPlayer && spiderData.targetEnemy != null)
-            {
-                return false;
-            }
-            return true;*/
-        }
+            SandSpiderAI Ins = __instance;
+     /*   }
 
         [HarmonyPatch("DoAIInterval")]
         [HarmonyPostfix]
@@ -228,14 +219,14 @@ namespace ExperimentalEnemyInteractions.Patches
         {
             SandSpiderAI Ins = __instance;
             SpiderData spiderData = spiderList[__instance];
-
+            */
             switch (__instance.currentBehaviourStateIndex)
             {
                 case 0:
                     {
                         if (debugSpider) Script.Logger.LogDebug(__instance + "DoAIInterval Postfix: /case0/ nothing");
+                        break;
                     }
-                    break;
                 case 1:
                     {
                         if (debugSpider) Script.Logger.LogDebug(__instance + "DoAIInterval Postfix: /case1/");
@@ -244,7 +235,7 @@ namespace ExperimentalEnemyInteractions.Patches
                         {
                             for (int i = 0; i < tempList.Count; i++)
                             {
-                                if (Vector3.Distance(Ins.meshContainer.position, tempList[i].transform.position) < 5f)
+                                if (Vector3.Distance(Ins.meshContainer.position, tempList[i].transform.position) < 5f || tempList[i] is HoarderBugAI)
                                 {
                                     ChaseEnemy(__instance, tempList[i]);
                                     if (debugSpider) Script.Logger.LogDebug(__instance + "DoAIInterval Postfix: /case1/ Chasing enemy: " + tempList[i]);
@@ -267,36 +258,36 @@ namespace ExperimentalEnemyInteractions.Patches
                     break;
                 case 2:
                     {
-                        if (spiderData.targetEnemy != null && Ins.targetPlayer == null)
+                        if (!(spiderData.targetEnemy == null))
                         {
-                            if (spiderData.targetEnemy.isEnemyDead)
+                            if (spiderData.targetEnemy.isEnemyDead && !(__instance.SetDestinationToPosition(spiderData.targetEnemy.transform.position, checkForPath: true)))
                             {
-                                if (debugSpider) Script.Logger.LogDebug(__instance + "DoAIInterval Postfix: /case1/ Stopping chasing: " + spiderData.targetEnemy);
+                                if (debugSpider) Script.Logger.LogDebug(__instance + "DoAIInterval Postfix: /case2/ Stopping chasing: " + spiderData.targetEnemy);
                                 spiderData.targetEnemy = null;
                                 Ins.StopChasing();
                             }
                             if (Ins.watchFromDistance && spiderData.targetEnemy != null)
                             {
                                 Ins.SetDestinationToPosition(Ins.ChooseClosestNodeToPosition(spiderData.targetEnemy.transform.position, avoidLineOfSight: false, 4).transform.position);
-                                if (debugSpider) Script.Logger.LogDebug(__instance + "DoAIInterval Postfix: /case1/ Set destination to: " + spiderData.targetEnemy);
+                                if (debugSpider) Script.Logger.LogDebug(__instance + "DoAIInterval Postfix: /case2/ Set destination to: " + spiderData.targetEnemy);
                             }
                         }
+                        break;
                     }
-                    break;
             }
-
         }
 
         static void ChaseEnemy(SandSpiderAI __instance, EnemyAI target)
         {
             SpiderData spiderData = spiderList[__instance];
             SandSpiderAI ins = __instance;
-            if ((ins.currentBehaviourStateIndex != 2 && ins.watchFromDistance) || Vector3.Distance(target.transform.position, ins.homeNode.position) < 25f || Vector3.Distance(target.transform.position, target.transform.position) < 15f)
+            if ((ins.currentBehaviourStateIndex != 2 && ins.watchFromDistance) || Vector3.Distance(target.transform.position, ins.homeNode.position) < 25f || Vector3.Distance(__instance.meshContainer.position, target.transform.position) < 15f)
             {
                 ins.watchFromDistance = false;
                 spiderData.targetEnemy = target;
                 ins.chaseTimer = 12.5f;
-                ins.SwitchToBehaviourServerRpc(2);
+                ins.SwitchToBehaviourState(2);
+                if (debugSpider) Script.Logger.LogDebug(__instance + "ChaseEnemy: Switched state to: " + __instance.currentBehaviourStateIndex);
             }
         }
     }

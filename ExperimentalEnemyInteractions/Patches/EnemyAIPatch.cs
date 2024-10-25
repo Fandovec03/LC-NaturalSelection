@@ -176,29 +176,31 @@ namespace ExperimentalEnemyInteractions.Patches
             }
             foreach (EnemyAI enemy in importEnemyList)
             {
-                if (!enemy.isEnemyDead)
+                if (!enemy.isEnemyDead && enemy != null)
                 {
                    if (debugUnspecified) Script.Logger.LogDebug(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Added " + enemy + " to tempList");
                     tempList.Add(enemy);
                 }
             }
-
-            for (int i = 0; i < tempList.Count; i++)
+            if (tempList != null && tempList.Count > 0)
             {
-                Vector3 position = tempList[i].transform.position;
-                if (Vector3.Distance(position, instance.eye.position) < range && !Physics.Linecast(instance.eye.position, position, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Ignore))
-                {   
-                    if (instance.CheckLineOfSightForPosition(position, width, (int)range, proximityAwareness))
+                for (int i = 0; i < tempList.Count; i++)
+                {
+                    Vector3 position = tempList[i].transform.position;
+                    if (Vector3.Distance(position, instance.eye.position) < range && !Physics.Linecast(instance.eye.position, position, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Ignore))
                     {
-                        if (!tempDictionary.ContainsKey(tempList[i]))
+                        if (instance.CheckLineOfSightForPosition(position, width, (int)range, proximityAwareness))
                         {
-                            tempDictionary.Add(tempList[i], Vector3.Distance(instance.transform.position, position));
-                             if (debugUnspecified)
-                            Script.Logger.LogDebug(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Added " + tempList[i] + " to tempDictionary");
-                        }
-                        else
-                        {
-                            Script.Logger.LogInfo(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/:" + tempList[i] + " is already in tempDictionary");
+                            if (!tempDictionary.ContainsKey(tempList[i]))
+                            {
+                                tempDictionary.Add(tempList[i], Vector3.Distance(instance.transform.position, position));
+                                if (debugUnspecified)
+                                    Script.Logger.LogDebug(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Added " + tempList[i] + " to tempDictionary");
+                            }
+                            else
+                            {
+                                Script.Logger.LogInfo(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/:" + tempList[i] + " is already in tempDictionary");
+                            }
                         }
                     }
                 }

@@ -22,6 +22,7 @@ namespace ExperimentalEnemyInteractions.Patches
         public EnemyAI? closestEnemyLOS = null;
         public EnemyAI? targetEnemy = null;
         public List<EnemyAI> enemyList = new List<EnemyAI>();
+        public List<EnemyAI> knownEnemy = new List<EnemyAI>();
         public float LookAtEnemyTimer = 0f;
         public Dictionary<EnemyAI,float> enemiesInLOSDictionary = new Dictionary<EnemyAI, float>();   
         public float ChaseEnemy = 0f;
@@ -77,22 +78,22 @@ namespace ExperimentalEnemyInteractions.Patches
 
             foreach (KeyValuePair<EnemyAI, float> enemy in spiderData.enemiesInLOSDictionary)
             {
-                if (spiderData.enemyList.Contains(enemy.Key))
+                if (spiderData.knownEnemy.Contains(enemy.Key))
                 {
-                    if (debugSpider) Script.Logger.LogDebug(__instance + " Update Postfix: " + enemy.Key + " is already in enelyList");
+                    if (debugSpider) Script.Logger.LogDebug(__instance + " Update Postfix: " + enemy.Key + " is already in knownEnemyList");
                 }
                 else
                 {
-                    if (debugSpider) Script.Logger.LogDebug(__instance + " Update Postfix: Adding " + enemy.Key + " to enemyList");
-                    spiderData.enemyList.Add(enemy.Key);
+                    if (debugSpider) Script.Logger.LogInfo(__instance + " Update Postfix: Adding " + enemy.Key + " to knownEnemyList");
+                    spiderData.knownEnemy.Add(enemy.Key);
                 }
             }
-            for (int i = 0; i < spiderData.enemyList.Count; i++)
+            for (int i = 0; i < spiderData.knownEnemy.Count; i++)
             {
-                if (spiderData.enemyList[i].isEnemyDead)
+                if (spiderData.knownEnemy[i].isEnemyDead)
                 {
-                    spiderData.enemyList.Remove(spiderData.enemyList[i]);
-                    if (debugSpider) Script.Logger.LogDebug(__instance + " Update Postfix: Removed " + spiderData.enemyList[i] + " from sortedList");
+                    if (debugSpider) Script.Logger.LogWarning(__instance + " Update Postfix: Removed " + spiderData.knownEnemy[i] + " from knownEnemyList");
+                    spiderData.knownEnemy.Remove(spiderData.knownEnemy[i]);
                 }
             }
             __instance.SyncMeshContainerPositionToClients();
@@ -102,7 +103,7 @@ namespace ExperimentalEnemyInteractions.Patches
                 case 0:
                     {
 
-                        spiderData.closestEnemy = EnemyAIPatch.findClosestEnemy(spiderData.enemyList, spiderData.closestEnemy, __instance);
+                        spiderData.closestEnemy = EnemyAIPatch.findClosestEnemy(spiderData.knownEnemy, spiderData.closestEnemy, __instance);
                         //if (debugSpider) Script.Logger.LogDebug(__instance + "Update Postfix: /case0/ " + spiderData.closestEnemy + " is Closest enemy");
 
                         if (spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f) != false)
@@ -206,20 +207,30 @@ namespace ExperimentalEnemyInteractions.Patches
 
         [HarmonyPatch("DoAIInterval")]
         [HarmonyPrefix]
-        static void DoAIIntervalPrefix(SandSpiderAI __instance)
+        static bool DoAIIntervalPrefix(SandSpiderAI __instance)
         {
-            if (!spiderHuntHoardingbug) return;
+            if (!spiderHuntHoardingbug) return true;
             SpiderData spiderData = spiderList[__instance];
             SandSpiderAI Ins = __instance;
-     /*   }
 
+        if (spiderData.targetEnemy != null && !__instance.movingTowardsTargetPlayer)
+            {
+                if (__instance.moveTowardsDestination)
+                {
+                    __instance.agent.SetDestination(__instance.destination);
+                }
+                __instance.SyncPositionToClients();
+                return false;
+            }       
+        return true;
+        }
         [HarmonyPatch("DoAIInterval")]
         [HarmonyPostfix]
         static void DoAIIntervalPostfix(SandSpiderAI __instance)
         {
             SandSpiderAI Ins = __instance;
             SpiderData spiderData = spiderList[__instance];
-            */
+            
             switch (__instance.currentBehaviourStateIndex)
             {
                 case 0:

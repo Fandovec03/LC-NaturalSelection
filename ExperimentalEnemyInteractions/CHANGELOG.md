@@ -1,3 +1,7 @@
+- 0.1.21 - <br>
+	- Fixed bees throwing LOS exceptions when no enemy is in LOS
+	- Fixed typo disabling vanilla code to be disabled and bees (the particles) not change the state
+	- Temporarily disabled custom state 2 on bees due to bees breaking. Bees will revert to vanilla state 2
 - 0.1.20 - <br>
 	- Fixed typo causing Sandworms to throw keynotfoundExceptions
 	- Fixed changelog format

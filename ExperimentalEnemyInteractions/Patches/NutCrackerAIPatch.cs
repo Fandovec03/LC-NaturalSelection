@@ -81,7 +81,7 @@ namespace ExperimentalEnemyInteractions.Patches
                 {
                     __instance.StopInspection();
                 }
-                __instance.SwitchToBehaviourServerRpc(2);
+                __instance.SwitchToBehaviourState(2);
                 if (__instance.lostPlayerInChase)
                 {
                     __instance.targetTorsoDegrees = 0;
@@ -152,7 +152,7 @@ namespace ExperimentalEnemyInteractions.Patches
                     }
                     if (data.TimeSinceSeeingMonster > 12f && __instance.timeSinceSeeingTarget > 12f)
                     {
-                        __instance.SwitchToBehaviourServerRpc(1);
+                        __instance.SwitchToBehaviourState(1);
                     }
                 }
             }

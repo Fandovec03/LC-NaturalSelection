@@ -164,37 +164,58 @@ namespace ExperimentalEnemyInteractions.Patches
         }
         
 
-        static public SortedList<EnemyAI,float> CheckLOSForEnemies(EnemyAI instance, List<EnemyAI> importEnemyList, float width = 45f, int importRange = 0, float proximityAwareness = -1)
-        {;
+        static public Dictionary<EnemyAI,float> GetEnemiesInLOS(EnemyAI instance, List<EnemyAI> importEnemyList, float width = 45f, int importRange = 0, float proximityAwareness = -1)
+        {
             List<EnemyAI> tempList = new List<EnemyAI>();
-            SortedList<EnemyAI,float> tempSortedList = new SortedList<EnemyAI,float>();
+            Dictionary<EnemyAI,float> tempDictionary = new Dictionary<EnemyAI,float>();
             float range = (float) importRange;
+
             if (instance.isOutside && !instance.enemyType.canSeeThroughFog && TimeOfDay.Instance.currentLevelWeather == LevelWeatherType.Foggy)
             {
                 range = Mathf.Clamp(importRange, 0, 30);
             }
             foreach (EnemyAI enemy in importEnemyList)
             {
-                if (!enemy.isEnemyDead)
+                if (!enemy.isEnemyDead && enemy != null)
                 {
+                   if (debugUnspecified) Script.Logger.LogDebug(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Added " + enemy + " to tempList");
                     tempList.Add(enemy);
                 }
             }
-
-            for (int i = 0; i < tempList.Count; i++)
+            if (tempList != null && tempList.Count > 0)
             {
-                Vector3 position = tempList[i].transform.position;
-                if (Vector3.Distance(position, instance.eye.position) < range && !Physics.Linecast(instance.eye.position, position, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Ignore))
+                for (int i = 0; i < tempList.Count; i++)
                 {
-                    Vector3 to = position - instance.eye.position;
-                    if (Vector3.Angle(instance.eye.forward, to) < width || proximityAwareness != -1 && Vector3.Distance(instance.transform.position, position) < proximityAwareness)
+                    Vector3 position = tempList[i].transform.position;
+                    if (Vector3.Distance(position, instance.eye.position) < range && !Physics.Linecast(instance.eye.position, position, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Ignore))
                     {
-                        tempSortedList.Add(tempList[i], Vector3.Distance(instance.transform.position, position));
+                        if (instance.CheckLineOfSightForPosition(position, width, (int)range, proximityAwareness))
+                        {
+                            if (!tempDictionary.ContainsKey(tempList[i]))
+                            {
+                                tempDictionary.Add(tempList[i], Vector3.Distance(instance.transform.position, position));
+                                if (debugUnspecified)
+                                    Script.Logger.LogDebug(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Added " + tempList[i] + " to tempDictionary");
+                            }
+                            else
+                            {
+                                Script.Logger.LogInfo(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/:" + tempList[i] + " is already in tempDictionary");
+                            }
+                        }
                     }
                 }
             }
-            tempSortedList.OrderBy(value => tempSortedList.Values);
-            return tempSortedList;
+            if (tempDictionary.Count > 1)
+            {
+                tempDictionary.OrderBy(value => tempDictionary.Values);
+
+                for(int i = 0;i < tempDictionary.Count;i++)
+                {
+                    if (debugUnspecified) 
+                    Script.Logger.LogDebug(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Final list: "+ tempDictionary[tempList[i]] + ", position: " + i);
+                }
+            }
+            return tempDictionary;
         }
 
         static public int ReactToHit(EnemyAI __instance, int force = 0, EnemyAI? enemyAI = null, PlayerControllerB? player = null)
@@ -212,6 +233,14 @@ namespace ExperimentalEnemyInteractions.Patches
                 }
             }
             return 0;
+        }
+    }
+    
+    public class ReversePatchEnemy : EnemyAI
+    {
+        public override void Update()
+        {
+            base.Update();
         }
     }
 }

@@ -38,12 +38,6 @@ namespace ExperimentalEnemyInteractions.Patches
         }
 
         [HarmonyPatch("Update")]
-        [HarmonyPrefix]
-        static void PrefixUpdatePatch(RedLocustBees __instance)
-        {
-
-        }
-        [HarmonyPatch("Update")]
         [HarmonyPostfix]
         static void UpdatePatch(RedLocustBees __instance)
         {
@@ -60,17 +54,29 @@ namespace ExperimentalEnemyInteractions.Patches
             {
                 case 0:
                     {
-                        __instance.SetBeeParticleMode(0);
+                        if (__instance.previousState != __instance.currentBehaviourStateIndex)
+                        {
+                            __instance.previousState = __instance.currentBehaviourStateIndex;
+                           // __instance.SetBeeParticleMode(0);
+                        }
                     }
                     break;
                 case 1:
                     {
-                        __instance.SetBeeParticleMode(1);
+                        if (__instance.previousState != __instance.currentBehaviourStateIndex)
+                        {
+                            __instance.previousState = __instance.currentBehaviourStateIndex;
+                           // __instance.SetBeeParticleMode(1);
+                        }
                     }
                     break;
                 case 2:
                     {
-                        __instance.SetBeeParticleMode(2);
+                        if (__instance.previousState != __instance.currentBehaviourStateIndex)
+                        {
+                            __instance.previousState = __instance.currentBehaviourStateIndex;
+                           // __instance.SetBeeParticleMode(2);
+                        }
                     }
                     break;
             }
@@ -81,7 +87,7 @@ namespace ExperimentalEnemyInteractions.Patches
         {
             BeeValues beeData = beeList[__instance];
 
-            if (beeData.targetEnemy != null && __instance.movingTowardsTargetPlayer)
+            if (beeData.targetEnemy != null && !__instance.movingTowardsTargetPlayer && __instance.currentBehaviourStateIndex != 2)
             {
                 return false;
             }
@@ -96,8 +102,14 @@ namespace ExperimentalEnemyInteractions.Patches
             switch (__instance.currentBehaviourStateIndex)
             {
                 case 0:
-                    EnemyAI? LOSenemy = EnemyAIPatch.CheckLOSForEnemies(__instance, enemyList, 360f, 16, 1).Keys[0];
-                    if (logBees) Script.Logger.LogDebug("case0: Checked LOS for enemies. Enemy found: " + LOSenemy);
+                    EnemyAI? LOSenemy = null;
+                    if (EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1).Count > 0)
+                    {
+                        LOSenemy = EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1).Keys.First();
+                        if (logBees) Script.Logger.LogDebug("case0: Checked LOS for enemies. Enemy found: " + LOSenemy);
+                    }
+                        //LOSenemy = EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1).Keys.First();
+                        //if (logBees) Script.Logger.LogDebug("case0: Checked LOS for enemies. Enemy found: " + LOSenemy);
 
                     if (__instance.wasInChase)
                     {
@@ -146,7 +158,7 @@ namespace ExperimentalEnemyInteractions.Patches
                         }
                     }
                     break;
-                case 2: // Currently whenever bees go to state 2 they will ignore players and stop reporting into logs. Disabled for now
+               /* case 2:
                     if (__instance.targetPlayer != null && __instance.movingTowardsTargetPlayer) return;
                     if (__instance.IsHivePlacedAndInLOS())
                     {
@@ -193,9 +205,8 @@ namespace ExperimentalEnemyInteractions.Patches
                         break;
                     }
 
-                    
                     bool flag = false;
-                    SortedList<EnemyAI, float> priorityEnemies = EnemyAIPatch.CheckLOSForEnemies(__instance, enemyList, 360f, 16, 1f);
+                    Dictionary<EnemyAI, float> priorityEnemies = EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1f);
                     KeyValuePair<EnemyAI, float> closestToHive = new KeyValuePair<EnemyAI, float>();
                     foreach (KeyValuePair<EnemyAI, float> enemyPair in priorityEnemies)
                     {
@@ -221,7 +232,7 @@ namespace ExperimentalEnemyInteractions.Patches
                     }
                     if (beeData.targetEnemy != null)
                     {
-                        if (!flag && EnemyAIPatch.CheckLOSForEnemies(__instance, enemyList, 360f, 16, 2f).Keys.First() != null)
+                        if (!flag && EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 2f).Keys.First() != null)
                         {
                             beeData.LostLOSOfEnemy += Time.deltaTime;
                             if (beeData.LostLOSOfEnemy >= 4.5f)
@@ -238,6 +249,7 @@ namespace ExperimentalEnemyInteractions.Patches
                         }
                         break;
                     }
+                    __instance.agent.acceleration = 13f;
                     if (!__instance.searchForHive.inProgress)
                     {
                         if (logBees) Script.Logger.LogDebug("case2: set new search for hive");
@@ -252,7 +264,7 @@ namespace ExperimentalEnemyInteractions.Patches
                             if (logBees) Script.Logger.LogDebug("case2: Started search for hive.");
                         }
                     }
-                    break;
+                    break;*/
             }
         }
 

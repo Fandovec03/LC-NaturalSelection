@@ -44,6 +44,7 @@ namespace ExperimentalEnemyInteractions
             Harmony.PatchAll(typeof(BlobAIPatch));
             Harmony.PatchAll(typeof(HoarderBugPatch));
             Harmony.PatchAll(typeof(BeeAIPatch));
+            Harmony.PatchAll(typeof(ForestGiantPatch));
 
             if (!stableToggle)
             {

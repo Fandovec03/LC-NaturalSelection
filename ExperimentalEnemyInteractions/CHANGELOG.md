@@ -1,3 +1,7 @@
+- 0.1.22 - <br>
+	- Fixed bees pathfinding being broken in state 2
+	- The fire no on forest giant no longer extinguishes itself the moment giant dies
+	- Added special interaction between Red bees and Forest giant
 - 0.1.21 - <br>
 	- Fixed bees throwing LOS exceptions when no enemy is in LOS
 	- Fixed typo disabling vanilla code to be disabled and bees (the particles) not change the state

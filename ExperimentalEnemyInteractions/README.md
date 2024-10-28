@@ -5,12 +5,16 @@ Ever felt like every living being is trying to kill you and everything is stacke
 Currently supported entities:<br>
 - Red bees (Circuit bees)<br>
 	- They defend their hive from anything that gets too close. They're now deadly to every living being!
+	- Small chance to set giants on fire
 - Hygrodere (Blob)<br>
-	- Damages creatures that has contact with it with an exception of Maneater. Non-organic and immortal entities are not affected.
+	- Damages creatures it has contact with it with an exception of Maneater. Non-organic and immortal entities are not affected.
 - Earth Leviathan (Sandworm)<br>
-	- Targets creatures that come near it.
+	- Targets creatures that come near it. Ignores small creatures.
 
-Planned/WIP:
+Modified enemies:
+	- Forest keeper: Stays on fire for a while after death
+
+WIP: <br>
 - Nutcracker<br>
 - Bunker Spider<br>
 - Spore Lizard<br>

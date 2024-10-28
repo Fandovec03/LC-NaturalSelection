@@ -189,7 +189,7 @@ namespace ExperimentalEnemyInteractions.Patches
                     Vector3 position = tempList[i].transform.position;
                     if (Vector3.Distance(position, instance.eye.position) < range && !Physics.Linecast(instance.eye.position, position, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Ignore))
                     {
-                        if (instance.CheckLineOfSightForPosition(position, width, (int)range, proximityAwareness))
+                        if (instance.CheckLineOfSightForPosition(position, width, (int)range, proximityAwareness, instance.eye))
                         {
                             if (!tempDictionary.ContainsKey(tempList[i]))
                             {

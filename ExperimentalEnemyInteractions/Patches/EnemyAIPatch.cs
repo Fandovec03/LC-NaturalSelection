@@ -48,7 +48,7 @@ namespace ExperimentalEnemyInteractions.Patches
 
                 for (int i = 0; i < enemyList.Count; i++)
                 {
-                    if (__instance != null)
+                    if (__instance != null && enemyList.Count > 0)
                     {
                         RaycastHit hit = new RaycastHit();
                         if (enemyList[i] == null)
@@ -125,12 +125,12 @@ namespace ExperimentalEnemyInteractions.Patches
             {
                 if (tempClosestEnemy == null)
                 {
-                    if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "No enemy assigned. Assigning " + importEnemyList[i] + ", ID: " + importEnemyList[i].GetInstanceID() + " as new closestEnemy.");
+                    if (debugUnspecified) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "No enemy assigned. Assigning " + importEnemyList[i] + ", ID: " + importEnemyList[i].GetInstanceID() + " as new closestEnemy.");
                     tempClosestEnemy = importEnemyList[i];
                 }
                 if (tempClosestEnemy == importEnemyList[i])
                 {
-                    if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + importEnemyList[i] + ", ID: " + importEnemyList[i].GetInstanceID() + " is already assigned as closestEnemy");
+                    if (debugUnspecified) Script.Logger.LogWarning(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + importEnemyList[i] + ", ID: " + importEnemyList[i].GetInstanceID() + " is already assigned as closestEnemy");
                 }
                 if (importEnemyList[i] != tempClosestEnemy)
                 {
@@ -157,7 +157,7 @@ namespace ExperimentalEnemyInteractions.Patches
                 }
                 else if (debugUnspecified)
                 {
-                    if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Caught and filtered out Enemy of type " + enemyList[i].GetType());
+                    if (debugUnspecified) Script.Logger.LogWarning(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Caught and filtered out Enemy of type " + enemyList[i].GetType());
                 }
             }
             return filteredList;
@@ -178,7 +178,7 @@ namespace ExperimentalEnemyInteractions.Patches
             {
                 if (!enemy.isEnemyDead && enemy != null)
                 {
-                   if (debugUnspecified) Script.Logger.LogDebug(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Added " + enemy + " to tempList");
+                   if (debugUnspecified) Script.Logger.LogInfo(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Added " + enemy + " to tempList");
                     tempList.Add(enemy);
                 }
             }
@@ -199,7 +199,7 @@ namespace ExperimentalEnemyInteractions.Patches
                             }
                             else
                             {
-                                Script.Logger.LogInfo(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/:" + tempList[i] + " is already in tempDictionary");
+                                Script.Logger.LogWarning(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/:" + tempList[i] + " is already in tempDictionary");
                             }
                         }
                     }

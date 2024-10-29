@@ -22,6 +22,7 @@ namespace ExperimentalEnemyInteractions;
         public readonly ConfigEntry<bool> debugHygrodere;
         public readonly ConfigEntry<bool> debugNutcrackers;
         public readonly ConfigEntry<bool> debugSpiders;
+        public readonly ConfigEntry<bool> debugGiants;
         public readonly ConfigEntry<bool> debugUnspecified;
         public MyModConfig(ConfigFile cfg)
         {
@@ -43,7 +44,8 @@ namespace ExperimentalEnemyInteractions;
             debugSandworms = cfg.Bind("Debug","Log sandworms",false,"Enables logs for sandowrms.");
             debugHygrodere = cfg.Bind("Debug","Log hydrogere",false,"Enables logs for hydrogere.");
             debugNutcrackers = cfg.Bind("Debug","Log nutcrackers",false,"Enables logs for nutcrackers.");
-            debugSpiders = cfg.Bind("Debug","Log spider",false,"Enables logs for spider.");
+            debugSpiders = cfg.Bind("Debug","Log spiders",false,"Enables logs for spiders.");
+            debugGiants = cfg.Bind("Debug", "Log giants", false, "Enables logs for giants.");
             debugUnspecified = cfg.Bind("Debug","Log unspecified",false,"Enables logs for unspecified.");
         }
         ClearOrphanedEntries(cfg);

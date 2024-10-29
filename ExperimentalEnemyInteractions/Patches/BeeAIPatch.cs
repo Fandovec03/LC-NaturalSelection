@@ -57,7 +57,7 @@ namespace ExperimentalEnemyInteractions.Patches
         static bool DoAIIntervalPrefixPatch(RedLocustBees __instance)
         {
             BeeValues beeData = beeList[__instance];
-            if (beeData.targetEnemy != null && __instance.movingTowardsTargetPlayer == false)
+            if (beeData.targetEnemy != null && __instance.movingTowardsTargetPlayer == false && __instance.currentBehaviourStateIndex != 0)
             {
                 if (logBees) Script.Logger.LogDebug("DoAIInterval: Prefix triggered false");
 
@@ -77,12 +77,6 @@ namespace ExperimentalEnemyInteractions.Patches
         {
             BeeValues beeData = beeList[__instance];
 
-            if (logBees) Script.Logger.LogDebug("case2: Moving towards destination: " + __instance.moveTowardsDestination);
-            if (logBees) Script.Logger.LogDebug("case2: Target player: " + __instance.targetPlayer);
-            if (logBees) Script.Logger.LogDebug("case2: Moving towards player: " + __instance.movingTowardsTargetPlayer);
-            if (logBees) Script.Logger.LogDebug("case2: Synced last known hive position: " + __instance.syncedLastKnownHivePosition);
-            if (logBees) Script.Logger.LogDebug("case2: lostLOSTimer: " + beeData.LostLOSOfEnemy);
-
             switch (__instance.currentBehaviourStateIndex)
             {
                 case 0:
@@ -90,7 +84,7 @@ namespace ExperimentalEnemyInteractions.Patches
                     if (EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1).Count > 0)
                     {
                         LOSenemy = EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1).Keys.First();
-                        if (logBees) Script.Logger.LogDebug("case0: Checked LOS for enemies. Enemy found: " + LOSenemy);
+                        if (logBees) Script.Logger.LogInfo("case0: Checked LOS for enemies. Enemy found: " + LOSenemy);
                     }
 
                     if (__instance.wasInChase)
@@ -105,13 +99,13 @@ namespace ExperimentalEnemyInteractions.Patches
                     {
                         __instance.SwitchToBehaviourState(2);
                         beeData.customBehaviorStateIndex = 2;
-                        if (logBees) Script.Logger.LogDebug("case0: HIVE IS MISSING! CustomBehaviorStateIndex changed: " + beeData.customBehaviorStateIndex);
+                        if (logBees) Script.Logger.LogInfo("case0: HIVE IS MISSING! CustomBehaviorStateIndex changed: " + beeData.customBehaviorStateIndex);
                         break;
                     }
                     if (LOSenemy != null && Vector3.Distance(LOSenemy.transform.position, __instance.hive.transform.position) < (float)__instance.defenseDistance /*&& Vector3.Distance(__instance.targetPlayer.transform.position, __instance.hive.transform.position) < Vector3.Distance(LOSenemy.transform.position, __instance.hive.transform.position)*/)
                     {
                         __instance.SetDestinationToPosition(LOSenemy.transform.position, true);
-                        if (logBees) Script.Logger.LogDebug("case0: Moving towards " + LOSenemy);
+                        if (logBees) Script.Logger.LogInfo("case0: Moving towards " + LOSenemy);
 
                         beeData.customBehaviorStateIndex = 1;
                         __instance.SwitchToBehaviourState(1);
@@ -123,7 +117,7 @@ namespace ExperimentalEnemyInteractions.Patches
                     break;
                 case 1:
                   if (__instance.targetPlayer != null && __instance.movingTowardsTargetPlayer) return;
-                    if (beeData.targetEnemy == null || Vector3.Distance(beeData.targetEnemy.transform.position, __instance.hive.transform.position) > (float)__instance.defenseDistance + 5f)
+                    if (beeData.targetEnemy == null || beeData.targetEnemy.isEnemyDead || Vector3.Distance(beeData.targetEnemy.transform.position, __instance.hive.transform.position) > (float)__instance.defenseDistance + 5f)
                     {
                         beeData.targetEnemy = null;
                         __instance.wasInChase = false;
@@ -131,7 +125,7 @@ namespace ExperimentalEnemyInteractions.Patches
                         {
                             beeData.customBehaviorStateIndex = 2;
                             __instance.SwitchToBehaviourState(2);
-                            if (logBees) Script.Logger.LogDebug("case1: HIVE IS MISSING! CustomBehaviorStateIndex changed: " + beeData.customBehaviorStateIndex);
+                            if (logBees) Script.Logger.LogInfo("case1: HIVE IS MISSING! CustomBehaviorStateIndex changed: " + beeData.customBehaviorStateIndex);
                         }
                         else
                         {
@@ -167,7 +161,7 @@ namespace ExperimentalEnemyInteractions.Patches
                                 if (collisionArray[i].gameObject.tag == "Enemy")
                                 {
                                     enemyAI2 = collisionArray[i].gameObject.GetComponent<EnemyAICollisionDetect>().mainScript;
-                                    if (logBees) Script.Logger.LogDebug("case2: CollisionArray triggered. Enemy found");
+                                    if (logBees) Script.Logger.LogInfo("case2: CollisionArray triggered. Enemy found: " + enemyAI2);
                                     break;  
                                 }
                             }
@@ -176,7 +170,7 @@ namespace ExperimentalEnemyInteractions.Patches
                         if (enemyAI2 != null && Vector3.Distance(enemyAI2.transform.position, __instance.hive.transform.position) < (float)__instance.defenseDistance)
                         {
                             __instance.SetDestinationToPosition(enemyAI2.transform.position, true);
-                            if (logBees) Script.Logger.LogDebug("case2: Moving towards: " + enemyAI2);
+                            if (logBees) Script.Logger.LogInfo("case2: Moving towards: " + enemyAI2);
                             beeData.customBehaviorStateIndex = 1;
                             __instance.SwitchToBehaviourState(1);
                             __instance.syncedLastKnownHivePosition = false;
@@ -214,7 +208,7 @@ namespace ExperimentalEnemyInteractions.Patches
                         __instance.syncedLastKnownHivePosition = false;
                         beeData.LostLOSOfEnemy = 0f;
                         __instance.SyncLastKnownHivePositionServerRpc(__instance.lastKnownHivePosition);
-                        if (logBees) Script.Logger.LogDebug("case2: Targeting " + closestToHive + ". Synced hive position");
+                        if (logBees) Script.Logger.LogInfo("case2: Targeting " + closestToHive + ". Synced hive position");
                         break;
                     }
                     if (beeData.targetEnemy != null)
@@ -245,7 +239,7 @@ namespace ExperimentalEnemyInteractions.Patches
                     __instance.agent.acceleration = 13f;
                     if (!__instance.searchForHive.inProgress)
                     {
-                        if (logBees) Script.Logger.LogDebug("case2: set new search for hive");
+                        if (logBees) Script.Logger.LogInfo("case2: set new search for hive");
                         if (__instance.wasInChase)
                         {
                             __instance.StartSearch(beeData.lastKnownEnemyPosition, __instance.searchForHive);
@@ -272,19 +266,19 @@ namespace ExperimentalEnemyInteractions.Patches
 
                     if (mainscript2 is ForestGiantAI && mainscript2.currentBehaviourStateIndex != 2)
                     {
-                        float randomchance = UnityEngine.Random.Range(0, 100);
+                        float randomchance = UnityEngine.Random.Range(0f, 100f);
                         float maxChance = 0;
 
                         if (__instance.currentBehaviourStateIndex != 2)
                         {
-                            maxChance = 2f;
+                            maxChance = 1.5f;
                         }
                         else
                         {
-                            maxChance = 10.5f;
+                            maxChance = 8f;
                         }
                         if (logBees) Script.Logger.LogInfo("OnCustomEnemyCollision: Giant hit. Chance to set on fire: " + maxChance);
-                        if (randomchance < maxChance)
+                        if (randomchance <= maxChance)
                         {
                             if (logBees) Script.Logger.LogInfo("OnCustomEnemyCollision: SET GIANT ON FIRE! Random number: " + randomchance);
                             ForestGiantAI giant = mainscript2 as ForestGiantAI;

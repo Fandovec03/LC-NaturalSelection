@@ -48,7 +48,7 @@ namespace ExperimentalEnemyInteractions.Patches
 
                 for (int i = 0; i < enemyList.Count; i++)
                 {
-                    if (__instance != null)
+                    if (__instance != null && enemyList.Count > 0)
                     {
                         RaycastHit hit = new RaycastHit();
                         if (enemyList[i] == null)

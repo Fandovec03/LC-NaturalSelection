@@ -79,7 +79,7 @@ namespace ExperimentalEnemyInteractions.Patches
 						{
 							if (!whiteList.Contains(tempList[i]))
 							{
-								if (logBlob) Script.Logger.LogMessage(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Added " + tempList[i] + " to whitelist");
+								if (logBlob) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Added " + tempList[i] + " to whitelist");
 								whiteList.Add(tempList[i]);
 							}
 							if (whiteList.Contains(tempList[i]))

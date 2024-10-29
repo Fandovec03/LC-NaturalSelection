@@ -8,8 +8,8 @@ namespace ExperimentalEnemyInteractions.Patches
 {
     class HoarderBugValues
     {
-        public EnemyAI? targetEnemy;
-        public EnemyAI? closestEnemy;
+        public EnemyAI? targetEnemy = null;
+        public EnemyAI? closestEnemy = null;
         public bool alertedByEnemy = false;
         public List<EnemyAI> enemies = new List<EnemyAI>();
         public List<EnemyAI> enemiesInLOS = new List<EnemyAI>();

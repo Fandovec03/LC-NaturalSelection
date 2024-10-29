@@ -1,3 +1,11 @@
+- 0.1.23 - <br>
+	- Giants have a chance to extinguish themselves, though they will be severely weakened by the fire
+	- Few improvements to bees
+		- Bees no longer target dead enemies
+		- DoAIInterval in not skipped on behavior state 0
+		- fixed an exception regarding dictionary count
+	- Changed some logs
+	- 
 - 0.1.22 - <br>
 	- Fixed bees pathfinding being broken in state 2
 	- The fire no on forest giant no longer extinguishes itself the moment giant dies

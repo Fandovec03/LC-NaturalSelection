@@ -121,7 +121,7 @@ namespace ExperimentalEnemyInteractions.Patches
                     }
                     if (mySandwormFields.targetEnemy == null)
                     {
-                        if (debugSandworm) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": TargetEnemy is null! TargetingEntity set to false /Trigger 1/");
+                        if (debugSandworm) Script.Logger.LogError(__instance.name + ", ID: " + __instance.GetInstanceID() + ": TargetEnemy is null! TargetingEntity set to false /Trigger 1/");
                         mySandwormFields.targetingEntity = false;
                         return;
                     }
@@ -137,7 +137,7 @@ namespace ExperimentalEnemyInteractions.Patches
                     }
                     if (__instance.chaseTimer > 6f)
                     {
-                        if (debugSandworm) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Chasing for too long. targetEnemy set to null");
+                        if (debugSandworm) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Chasing for too long. targetEnemy set to null");
                         mySandwormFields.targetEnemy = null;
                     }
                 }
@@ -176,7 +176,7 @@ namespace ExperimentalEnemyInteractions.Patches
             {
                 if (mySandwormFields.targetEnemy == null)
                 {
-                    if (debugSandworm) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": targetEnemy is at null. Setting targetingEntity to false /Trigger 2/");
+                    if (debugSandworm) Script.Logger.LogError(__instance.name + ", ID: " + __instance.GetInstanceID() + ": targetEnemy is at null. Setting targetingEntity to false /Trigger 2/");
                     mySandwormFields.targetingEntity = false;
                     return;
                 }
@@ -187,7 +187,7 @@ namespace ExperimentalEnemyInteractions.Patches
                     if (Vector3.Distance(__instance.transform.position, mySandwormFields.targetEnemy.transform.position) > 19f)
                     {
                         mySandwormFields.targetEnemy = null;
-                        if (debugSandworm) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + "DoAIInterval: TargetEnemy too far! set to null");
+                        if (debugSandworm) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + "DoAIInterval: TargetEnemy too far! set to null");
                         return;
                     }
                     __instance.SetDestinationToPosition(mySandwormFields.targetEnemy.transform.position, checkForPath: true);
@@ -195,7 +195,7 @@ namespace ExperimentalEnemyInteractions.Patches
 
                     if (__instance.chaseTimer < 1.5f && Vector3.Distance(__instance.transform.position, mySandwormFields.targetEnemy.transform.position) < 4f && !(Vector3.Distance(StartOfRound.Instance.shipInnerRoomBounds.ClosestPoint(__instance.transform.position), __instance.transform.position) < 9f) && UnityEngine.Random.Range(0, 100) < 17)
                     {
-                        if (debugSandworm) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + "DoAIInterval: Emerging!");
+                        if (debugSandworm) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + "DoAIInterval: Emerging!");
                         __instance.StartEmergeAnimation();
                     }
                 }

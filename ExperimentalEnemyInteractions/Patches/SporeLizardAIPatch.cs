@@ -14,7 +14,7 @@ namespace ExperimentalEnemyInteractions.Patches
                 if (enableSporeLizard != true) return;
                 instance.creatureAnimator.SetBool("alerted", true);
                 instance.enemyHP -= force;
-                Script.Logger.LogDebug("SpodeLizard CustomHit Triggered");
+                Script.Logger.LogInfo("SpodeLizard CustomHit Triggered");
 
                 if (instance.enemyHP <= 0)
                 {

@@ -1,10 +1,8 @@
 using HarmonyLib;
 using System.Collections.Generic;
-using System.Diagnostics;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 
-namespace ExperimentalEnemyInteractions.Patches
+namespace ExperimentalEnemyInteractions.EnemyPatches
 {
     class GiantData
     {

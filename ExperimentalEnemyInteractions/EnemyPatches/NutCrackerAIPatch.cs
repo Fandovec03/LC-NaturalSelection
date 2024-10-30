@@ -1,12 +1,9 @@
 ﻿using HarmonyLib;
-using System;
 using System.Collections.Generic;
-using System.Numerics;
-using System.Text;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
-namespace ExperimentalEnemyInteractions.Patches
+namespace ExperimentalEnemyInteractions.EnemyPatches
 {
     class NutcrackerData
     {

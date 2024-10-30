@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Runtime.CompilerServices;
 using GameNetcodeStuff;
 using HarmonyLib;
 using UnityEngine;
 
-namespace ExperimentalEnemyInteractions.Patches
+namespace ExperimentalEnemyInteractions.EnemyPatches
 {
     [HarmonyPatch(typeof(EnemyAI))]
     class EnemyAIPatch
@@ -134,7 +132,7 @@ namespace ExperimentalEnemyInteractions.Patches
                 }
                 if (importEnemyList[i] != tempClosestEnemy)
                 {
-                    if (Vector3.Distance(__instance.transform.position, importEnemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position))
+                    //Fix nullreferenceexception //if (Vector3.Distance(__instance.transform.position, importEnemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position))
                     {
                         tempClosestEnemy = importEnemyList[i];
                         if (debugUnspecified) Script.Logger.LogDebug(Vector3.Distance(__instance.transform.position, importEnemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position));

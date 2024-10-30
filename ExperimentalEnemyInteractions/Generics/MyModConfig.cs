@@ -3,7 +3,7 @@ using HarmonyLib;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace ExperimentalEnemyInteractions;
+namespace ExperimentalEnemyInteractions.Generics;
     class MyModConfig
     {
         public readonly ConfigEntry<bool> stableMode;

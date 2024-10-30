@@ -1,10 +1,8 @@
 using BepInEx;
 using BepInEx.Logging;
-using BepInEx.Configuration;
 using HarmonyLib;
-using LobbyCompatibility.Attributes;
-using LobbyCompatibility.Enums;
-using ExperimentalEnemyInteractions.Patches;
+using ExperimentalEnemyInteractions.Generics;
+using ExperimentalEnemyInteractions.EnemyPatches;
 
 namespace ExperimentalEnemyInteractions
 {

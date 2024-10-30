@@ -1,12 +1,9 @@
 ﻿using HarmonyLib;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Unity.Mathematics;
 using UnityEngine;
 
-namespace ExperimentalEnemyInteractions.Patches
+namespace ExperimentalEnemyInteractions.EnemyPatches
 {
     class BeeValues
     {

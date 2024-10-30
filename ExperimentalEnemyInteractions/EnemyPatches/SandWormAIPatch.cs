@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using HarmonyLib;
-using Unity.Mathematics;
 using UnityEngine;
-using GameNetcodeStuff;
-using System.Diagnostics;
-using Mono.Cecil.Cil;
 
-namespace ExperimentalEnemyInteractions.Patches
+namespace ExperimentalEnemyInteractions.EnemyPatches
 {
 
     class ExtendedSandWormAIData

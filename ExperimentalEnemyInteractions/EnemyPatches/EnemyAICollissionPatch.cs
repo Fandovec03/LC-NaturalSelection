@@ -1,11 +1,7 @@
-using BepInEx;
-using BepInEx.Logging;
 using HarmonyLib;
-using JetBrains.Annotations;
 using UnityEngine;
-using UnityEngine.Assertions.Must;
 
-namespace ExperimentalEnemyInteractions.Patches
+namespace ExperimentalEnemyInteractions.EnemyPatches
 {
     public class OnCollideWithUniversal
     {

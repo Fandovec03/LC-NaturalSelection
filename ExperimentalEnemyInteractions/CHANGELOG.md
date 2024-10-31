@@ -1,3 +1,11 @@
+- 0.1.24 - <br>
+	- Added log option to include/exclude spammy logs
+	- Sandworms updated:
+		- Addressed a bug with Worms trying to move with disabled agent
+		- Added more arguments preventing skipping of vanilla code while emerging/emerged
+		- Worms no longer target dead enemies that were previously targetted before death
+		- Observed some weird behavior but works for now. Will fix later.
+	- Fixed ArgumentOutOfRangeException where enemyList tried to check LOS to previously removed enemy.
 - 0.1.23 - <br>
 	- Giants have a chance to extinguish themselves, though they will be severely weakened by the fire
 	- Few improvements to bees

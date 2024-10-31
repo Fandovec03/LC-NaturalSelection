@@ -11,8 +11,10 @@ Currently supported entities:<br>
 - Earth Leviathan (Sandworm)<br>
 	- Targets creatures that come near it. Ignores small creatures.
 
-Modified enemies:
-	- Forest keeper: Stays on fire for a while after death
+Modified enemies: <br>
+- Forest keeper:
+	- Stays on fire for a while after death
+	- Has a chance to extinguish itself
 
 WIP: <br>
 - Nutcracker<br>

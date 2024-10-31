@@ -13,7 +13,6 @@
 		- DoAIInterval is not skipped on behavior state 0
 		- fixed an exception regarding dictionary count
 	- Changed some logs
-	- 
 - 0.1.22 - <br>
 	- Fixed bees pathfinding being broken in state 2
 	- The fire on forest giant no longer extinguishes itself the moment giant dies

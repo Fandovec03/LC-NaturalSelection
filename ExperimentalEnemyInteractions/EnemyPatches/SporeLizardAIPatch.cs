@@ -1,9 +1,6 @@
 using HarmonyLib;
-using UnityEngine;
-using BepInEx;
-using BepInEx.Logging;
 
-namespace ExperimentalEnemyInteractions.Patches
+namespace ExperimentalEnemyInteractions.EnemyPatches
 {
     [HarmonyPatch(typeof(PufferAI))]
     class PufferAIPatch()

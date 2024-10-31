@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Runtime.CompilerServices;
 using GameNetcodeStuff;
 using HarmonyLib;
 using UnityEngine;
 
-namespace ExperimentalEnemyInteractions.Patches
+namespace ExperimentalEnemyInteractions.EnemyPatches
 {
     [HarmonyPatch(typeof(EnemyAI))]
     class EnemyAIPatch
@@ -17,6 +15,7 @@ namespace ExperimentalEnemyInteractions.Patches
         static float refreshCDtime = 1f;
 
         static bool debugUnspecified = Script.BoundingConfig.debugUnspecified.Value;
+        static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
 
         [HarmonyPatch("Update")]
         [HarmonyPostfix]
@@ -32,14 +31,14 @@ namespace ExperimentalEnemyInteractions.Patches
                 {
                     if (enemyList.Contains(enemy) && enemy.isEnemyDead == false)
                     {
-                        if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Found Duplicate " + enemy.gameObject.name + ", ID: " + enemy.GetInstanceID());
+                        if (debugUnspecified && debugSpam) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Found Duplicate " + enemy.gameObject.name + ", ID: " + enemy.GetInstanceID());
                     }
-                    if (enemyList.Contains(enemy) && enemy.isEnemyDead == true)
+                    else if (enemyList.Contains(enemy) && enemy.isEnemyDead == true)
                     {
                         enemyList.Remove(enemy);
                         if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Found and removed dead Enemy " + enemy.gameObject.name + ", ID:  " + enemy.GetInstanceID() + "on List.");
                     }
-                    if (!enemyList.Contains(enemy) && enemy.isEnemyDead == false && enemy.name != __instance.name)
+                    else if(!enemyList.Contains(enemy) && enemy.isEnemyDead == false && enemy.name != __instance.name)
                     {
                         enemyList.Add(enemy);
                         if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Added " + enemy.gameObject.name + " detected in List. Instance: " + enemy.GetInstanceID());
@@ -50,23 +49,29 @@ namespace ExperimentalEnemyInteractions.Patches
                 {
                     if (__instance != null && enemyList.Count > 0)
                     {
-                        RaycastHit hit = new RaycastHit();
                         if (enemyList[i] == null)
                         {
                             if (debugUnspecified) Script.Logger.LogError(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Detected null enemy in the list. Removing...");
                             enemyList.RemoveAt(i);
                         }
-                        if (enemyList[i] != null)
+                        else if (enemyList[i] != null)
                         {
-                            if (!Physics.Linecast(__instance.gameObject.transform.position, enemyList[i].gameObject.transform.position, out hit, StartOfRound.Instance.collidersRoomMaskDefaultAndPlayers, QueryTriggerInteraction.Ignore))
+                            if (__instance.CheckLineOfSightForPosition(enemyList[i].transform.position, 360f, 60, 1f, __instance.eye))
                             {
-                                if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "LOS check: Have LOS on " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID());
+                                if (debugUnspecified && debugSpam) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "LOS check: Have LOS on " + enemyList[i] + ", ID: " + enemyList[i].GetInstanceID());
                             }
                         }
                     }
                 }
                 refreshCDtime = 1f;
             }
+        }
+
+        [HarmonyPatch("KillEnemy")]
+        [HarmonyPostfix]
+        public static void KillEnemyPatch(EnemyAI __instance)
+        {
+            
         }
 
         public static List<EnemyAI> GetCompleteList(EnemyAI __instance, bool FilterThemselves = true)
@@ -125,20 +130,20 @@ namespace ExperimentalEnemyInteractions.Patches
             {
                 if (tempClosestEnemy == null)
                 {
-                    if (debugUnspecified) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "No enemy assigned. Assigning " + importEnemyList[i] + ", ID: " + importEnemyList[i].GetInstanceID() + " as new closestEnemy.");
+                    if (debugUnspecified && debugSpam) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "No enemy assigned. Assigning " + importEnemyList[i] + ", ID: " + importEnemyList[i].GetInstanceID() + " as new closestEnemy.");
                     tempClosestEnemy = importEnemyList[i];
                 }
                 if (tempClosestEnemy == importEnemyList[i])
                 {
-                    if (debugUnspecified) Script.Logger.LogWarning(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + importEnemyList[i] + ", ID: " + importEnemyList[i].GetInstanceID() + " is already assigned as closestEnemy");
+                    if (debugUnspecified && debugSpam) Script.Logger.LogWarning(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + importEnemyList[i] + ", ID: " + importEnemyList[i].GetInstanceID() + " is already assigned as closestEnemy");
                 }
                 if (importEnemyList[i] != tempClosestEnemy)
                 {
-                    if (Vector3.Distance(__instance.transform.position, importEnemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position))
+                    //Fix nullreferenceexception //if (Vector3.Distance(__instance.transform.position, importEnemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position))
                     {
                         tempClosestEnemy = importEnemyList[i];
-                        if (debugUnspecified) Script.Logger.LogDebug(Vector3.Distance(__instance.transform.position, importEnemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position));
-                        if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Assigned " + importEnemyList[i] + ", ID: " + importEnemyList[i].GetInstanceID() + " as new closestEnemy. Distance: " + Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position));
+                        if (debugUnspecified && debugSpam) Script.Logger.LogDebug(Vector3.Distance(__instance.transform.position, importEnemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position));
+                        if (debugUnspecified) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Assigned " + importEnemyList[i] + ", ID: " + importEnemyList[i].GetInstanceID() + " as new closestEnemy. Distance: " + Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position));
                     }
                 }
             }
@@ -155,9 +160,9 @@ namespace ExperimentalEnemyInteractions.Patches
                     if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Enemy of type " + importEnemyList[i].GetType() + " passed the filter.");
                     filteredList.Add(importEnemyList[i]);
                 }
-                else if (debugUnspecified)
+                else if (debugUnspecified && debugSpam)
                 {
-                    if (debugUnspecified) Script.Logger.LogWarning(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Caught and filtered out Enemy of type " + enemyList[i].GetType());
+                    Script.Logger.LogWarning(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Caught and filtered out Enemy of type " + enemyList[i].GetType());
                 }
             }
             return filteredList;
@@ -178,7 +183,7 @@ namespace ExperimentalEnemyInteractions.Patches
             {
                 if (!enemy.isEnemyDead && enemy != null)
                 {
-                   if (debugUnspecified) Script.Logger.LogInfo(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Added " + enemy + " to tempList");
+                   if (debugUnspecified  && debugSpam) Script.Logger.LogInfo(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Added " + enemy + " to tempList");
                     tempList.Add(enemy);
                 }
             }
@@ -194,10 +199,10 @@ namespace ExperimentalEnemyInteractions.Patches
                             if (!tempDictionary.ContainsKey(tempList[i]))
                             {
                                 tempDictionary.Add(tempList[i], Vector3.Distance(instance.transform.position, position));
-                                if (debugUnspecified)
+                                if (debugUnspecified  && debugSpam)
                                     Script.Logger.LogDebug(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Added " + tempList[i] + " to tempDictionary");
                             }
-                            else
+                            else if (debugUnspecified && debugSpam)
                             {
                                 Script.Logger.LogWarning(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/:" + tempList[i] + " is already in tempDictionary");
                             }
@@ -209,11 +214,16 @@ namespace ExperimentalEnemyInteractions.Patches
             {
                 tempDictionary.OrderBy(value => tempDictionary.Values);
 
-                for(int i = 0;i < tempDictionary.Count;i++)
-                {
-                    if (debugUnspecified) 
-                    Script.Logger.LogDebug(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Final list: "+ tempDictionary[tempList[i]] + ", position: " + i);
-                }
+                 if (debugUnspecified)
+                 {
+                    for(int i = 0;i < tempDictionary.Count;i++)
+                    {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                        if (debugUnspecified && debugSpam)Script.Logger.LogDebug(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Final list: "+ tempDictionary[tempList[i]] + ", position: " + i);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+
+                    }
+                 }
             }
             return tempDictionary;
         }

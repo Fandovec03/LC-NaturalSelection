@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
-using BepInEx;
-using BepInEx.Logging;
-using System.Runtime.CompilerServices;
-using GameNetcodeStuff;
-using UnityEngine.ProBuilder.MeshOperations;
 
-namespace ExperimentalEnemyInteractions.Patches
+namespace ExperimentalEnemyInteractions.EnemyPatches
 {
 
 	class BlobData

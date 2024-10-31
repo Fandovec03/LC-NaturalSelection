@@ -1,12 +1,9 @@
 ﻿using HarmonyLib;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Unity.Mathematics;
 using UnityEngine;
 
-namespace ExperimentalEnemyInteractions.Patches
+namespace ExperimentalEnemyInteractions.EnemyPatches
 {
     class BeeValues
     {
@@ -25,6 +22,7 @@ namespace ExperimentalEnemyInteractions.Patches
         static Dictionary<RedLocustBees, BeeValues> beeList = [];
         static List<EnemyAI> enemyList = new List<EnemyAI>();
         static bool logBees = Script.BoundingConfig.debugRedBees.Value;
+        static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
         static float UpdateTimer;
 
         [HarmonyPatch("Start")]
@@ -59,7 +57,7 @@ namespace ExperimentalEnemyInteractions.Patches
             BeeValues beeData = beeList[__instance];
             if (beeData.targetEnemy != null && __instance.movingTowardsTargetPlayer == false && __instance.currentBehaviourStateIndex != 0)
             {
-                if (logBees) Script.Logger.LogDebug("DoAIInterval: Prefix triggered false");
+                if (logBees && debugSpam) Script.Logger.LogDebug("DoAIInterval: Prefix triggered false");
 
                 if (__instance.moveTowardsDestination)
                 {
@@ -68,7 +66,7 @@ namespace ExperimentalEnemyInteractions.Patches
                 __instance.SyncPositionToClients();
                 return false;
             }
-            if (logBees) Script.Logger.LogDebug("DoAIInterval: Prefix triggered true");
+            if (logBees && debugSpam) Script.Logger.LogDebug("DoAIInterval: Prefix triggered true");
             return true;
         }
         [HarmonyPatch("DoAIInterval")]
@@ -138,7 +136,7 @@ namespace ExperimentalEnemyInteractions.Patches
                 case 2:
                      if (__instance.targetPlayer != null || __instance.movingTowardsTargetPlayer)
                     {
-                        if (logBees) Script.Logger.LogDebug("case2: target player found or moving towards target player");
+                        if (logBees && debugSpam) Script.Logger.LogDebug("case2: target player found or moving towards target player");
                         return;
                     }
                          
@@ -151,7 +149,7 @@ namespace ExperimentalEnemyInteractions.Patches
                         __instance.lastKnownHivePosition = __instance.hive.transform.position + Vector3.up * 0.5f;
 
                         if (logBees) Script.Logger.LogDebug("case2: IsHivePlacedAndInLOS triggered");
-                        EnemyAI enemyAI2 = null;
+                        EnemyAI? enemyAI2 = null;
                         Collider[] collisionArray = Physics.OverlapSphere(__instance.hive.transform.position, __instance.defenseDistance, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Collide);
 
                         if (collisionArray != null && collisionArray.Length > 0)
@@ -216,13 +214,13 @@ namespace ExperimentalEnemyInteractions.Patches
                         __instance.agent.acceleration = 16f;
                         if (!flag && EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 2f).Count == 0)
                         {
-                            if (logBees) Script.Logger.LogDebug("case2: lost LOS of " + beeData.targetEnemy + ", starting timer.");
+                            if (logBees && debugSpam) Script.Logger.LogDebug("case2: lost LOS of " + beeData.targetEnemy + ", started timer.");
                             beeData.LostLOSOfEnemy += __instance.AIIntervalTime;
                             if (beeData.LostLOSOfEnemy >= 4.5f)
                             {
                                 beeData.targetEnemy = null;
                                 beeData.LostLOSOfEnemy = 0f;
-                                if (logBees) Script.Logger.LogDebug("case2: lost LOS of " + beeData.targetEnemy + ", Stopped timer.");
+                                if (logBees) Script.Logger.LogDebug("case2: lost LOS of " + beeData.targetEnemy + ", Stopped and reset timer.");
                             }
                         }
                         else
@@ -281,7 +279,7 @@ namespace ExperimentalEnemyInteractions.Patches
                         if (randomchance <= maxChance)
                         {
                             if (logBees) Script.Logger.LogInfo("OnCustomEnemyCollision: SET GIANT ON FIRE! Random number: " + randomchance);
-                            ForestGiantAI giant = mainscript2 as ForestGiantAI;
+                            ForestGiantAI giant = (ForestGiantAI)mainscript2;
 
                             giant.timeAtStartOfBurning = Time.realtimeSinceStartup;
                             giant.SwitchToBehaviourState(2);

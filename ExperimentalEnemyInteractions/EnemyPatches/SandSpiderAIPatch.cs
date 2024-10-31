@@ -36,6 +36,7 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
 
         static Dictionary<SandSpiderAI, SpiderData> spiderList = [];
         static bool debugSpider = Script.BoundingConfig.debugSpiders.Value;
+        static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
 
         [HarmonyPatch("Start")]
         [HarmonyPrefix]
@@ -67,7 +68,7 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             {
                 if (spiderData.knownEnemy.Contains(enemy.Key))
                 {
-                    if (debugSpider) Script.Logger.LogDebug(__instance + " Update Postfix: " + enemy.Key + " is already in knownEnemyList");
+                    if (debugSpider && debugSpam) Script.Logger.LogDebug(__instance + " Update Postfix: " + enemy.Key + " is already in knownEnemyList");
                 }
                 else
                 {
@@ -90,13 +91,17 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                 case 0:
                     {
 
+#pragma warning disable CS8604 // Possible null reference argument.
+
                         spiderData.closestEnemy = EnemyAIPatch.findClosestEnemy(spiderData.knownEnemy, spiderData.closestEnemy, __instance);
-                        //if (debugSpider) Script.Logger.LogDebug(__instance + "Update Postfix: /case0/ " + spiderData.closestEnemy + " is Closest enemy");
+#pragma warning restore CS8604 // Possible null reference argument.
+                              //if (debugSpider) Script.Logger.LogDebug(__instance + "Update Postfix: /case0/ " + spiderData.closestEnemy + " is Closest enemy");
+
 
                         if (spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f, __instance.eye) != false)
                         {
                             spiderData.targetEnemy = spiderData.closestEnemy;
-                            if (debugSpider) Script.Logger.LogDebug(__instance + "Update Postfix: /case0/ Set " + spiderData.closestEnemy + " as TargetEnemy");
+                            if (debugSpider) Script.Logger.LogInfo(__instance + "Update Postfix: /case0/ Set " + spiderData.closestEnemy + " as TargetEnemy");
                             __instance.SwitchToBehaviourState(2);
                             if (debugSpider) Script.Logger.LogDebug(__instance + "Update Postfix: /case0/ Set state to " + __instance.currentBehaviourStateIndex);
                             __instance.chaseTimer = 12.5f;
@@ -107,6 +112,8 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                 case 2:
                     {
                         if (__instance.targetPlayer != null) break;
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+
                         if (spiderData.targetEnemy != spiderData.closestEnemy && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f, __instance.eye))
                         {
                             if (spiderData.targetEnemy is HoarderBugAI && spiderData.closestEnemy is not HoarderBugAI && (Vector3.Distance(__instance.meshContainer.position, spiderData.targetEnemy.transform.position) * 1.2f < Vector3.Distance(__instance.meshContainer.position, spiderData.closestEnemy.transform.position)))
@@ -118,6 +125,8 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                                 spiderData.targetEnemy = spiderData.closestEnemy;
                             }
                         }
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+
 
                         if (spiderData.targetEnemy == null)
                         {
@@ -220,10 +229,10 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                 }
                 __instance.SyncPositionToClients();
 
-                if (debugSpider) Script.Logger.LogDebug(__instance + "DoAIInterval Prefix: false");
+                if (debugSpider && debugSpam) Script.Logger.LogDebug(__instance + "DoAIInterval Prefix: false");
                 return false;
             }
-            if (debugSpider) Script.Logger.LogDebug(__instance + "DoAIInterval Prefix: true");
+            if (debugSpider && debugSpam) Script.Logger.LogDebug(__instance + "DoAIInterval Prefix: true");
             return true;
         }
         [HarmonyPatch("DoAIInterval")]
@@ -237,12 +246,12 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             {
                 case 0:
                     {
-                        if (debugSpider) Script.Logger.LogDebug(__instance + "DoAIInterval Postfix: /case0/ nothing");
+                        if (debugSpider && debugSpam) Script.Logger.LogDebug(__instance + "DoAIInterval Postfix: /case0/ nothing");
                         break;
                     }
                 case 1:
                     {
-                        if (debugSpider) Script.Logger.LogDebug(__instance + "DoAIInterval Postfix: /case1/");
+                        if (debugSpider && debugSpam) Script.Logger.LogDebug(__instance + "DoAIInterval Postfix: /case1/");
                         List<EnemyAI> tempList = spiderData.enemiesInLOSDictionary.Keys.ToList();
                         if (Ins.reachedWallPosition)
                         {
@@ -335,14 +344,18 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
         }
 
 
+
+
+
+
         [HarmonyPatch("OnTriggerStay")]
         [HarmonyPostfix]
-        static void OnTriggerStayPatch(SandSpiderWebTrap __instance, Collider other)
+        static void OnTriggerStayPatch(Collider other, SandSpiderWebTrap __instance)
         {
             SpiderWebValues webValues = spiderWebs[__instance];
 
             EnemyAI trippedEnemy = other.GetComponent<EnemyAICollisionDetect>().mainScript;
-
+            if (Script.BoundingConfig.debugSpiders.Value) Script.Logger.LogInfo(__instance + " Triggered");
             if (trippedEnemy != null)
             {
                 if (Script.BoundingConfig.debugSpiders.Value) Script.Logger.LogInfo(__instance + " Collided with " + trippedEnemy);

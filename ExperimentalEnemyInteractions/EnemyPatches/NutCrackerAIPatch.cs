@@ -21,7 +21,7 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
         static List<EnemyAI> enemyList = new List<EnemyAI>();
         static Dictionary<NutcrackerEnemyAI, NutcrackerData> NutcrackerData = [];
         static bool enableNucracker = Script.BoundingConfig.enableNutcrackers.Value;
-
+        static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
         static bool debugNutcrackers = Script.BoundingConfig.debugNutcrackers.Value;
 
         static public bool CheckLOSForMonsters(Vector3 monsterPosition, NutcrackerEnemyAI __instance, float width = 45f, int range = 60, int proximityAwareness = 60)
@@ -57,7 +57,11 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             NutcrackerData data = NutcrackerData[__instance];
 
             enemyList = EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance),__instance);
+#pragma warning disable CS8604 // Possible null reference argument.
+
             data.closestEnemy = EnemyAIPatch.findClosestEnemy(enemyList, data.closestEnemy, __instance);
+#pragma warning restore CS8604 // Possible null reference argument.
+
 
             if (__instance.currentBehaviourStateIndex == 1)
             {

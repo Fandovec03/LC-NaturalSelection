@@ -17,6 +17,7 @@ namespace ExperimentalEnemyInteractions.Generics;
         public readonly ConfigEntry<bool> enableNutcrackers;
 
     //debug
+        public readonly ConfigEntry<bool> spammyLogs;
         public readonly ConfigEntry<bool> debugRedBees;
         public readonly ConfigEntry<bool> debugSandworms;
         public readonly ConfigEntry<bool> debugHygrodere;
@@ -40,6 +41,7 @@ namespace ExperimentalEnemyInteractions.Generics;
             spiderHuntHoardingbug = cfg.Bind("WIP", "Spider hunts Hoarding bugs", false, "Bunker spider chases and hunts hoarding bugs. DEV ONLY");
             //debug
             debugBool = cfg.Bind("Debug","Debug mode",false,"Enables debug mode for more debug logs.");
+            spammyLogs = cfg.Bind("Debug","Spammy logs",false,"Enables spammy logs for extra logs.");
             debugRedBees = cfg.Bind("Debug","Log bees",false,"Enables logs for bees.");
             debugSandworms = cfg.Bind("Debug","Log sandworms",false,"Enables logs for sandowrms.");
             debugHygrodere = cfg.Bind("Debug","Log hydrogere",false,"Enables logs for hydrogere.");

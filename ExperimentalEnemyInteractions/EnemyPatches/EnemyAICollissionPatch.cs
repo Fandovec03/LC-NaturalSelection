@@ -8,9 +8,8 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
         static float HitCooldownTime = 0.3f;
         static bool enableSpider = Script.BoundingConfig.enableSpider.Value;
         static bool enableSlime = Script.BoundingConfig.enableSlime.Value;
-
         static bool logUnspecified = Script.BoundingConfig.debugUnspecified.Value;
-
+        static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
         public static void Collide(string text, EnemyAI? mainscript, EnemyAI? mainscript2)
         {
             HitCooldownTime -= Time.deltaTime;

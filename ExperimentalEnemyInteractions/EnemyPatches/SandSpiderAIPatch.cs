@@ -2,6 +2,7 @@
 using HarmonyLib;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.UIElements.UIR;
 
 namespace ExperimentalEnemyInteractions.EnemyPatches
 {
@@ -22,7 +23,7 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
         [HarmonyPatch(typeof(EnemyAI), "Update")]
         public static void ReverseUpdate(SandSpiderAI instance)
         {
-            Script.Logger.LogInfo("Reverse patch triggered");
+            //Script.Logger.LogInfo("Reverse patch triggered");
         }
     }
 
@@ -151,7 +152,6 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                                 __instance.movingTowardsTargetPlayer = false;
                                 __instance.overrideSpiderLookRotation = true;
                                 Vector3 position = spiderData.targetEnemy.transform.position;
-                                position.y = __instance.meshContainer.position.y;
                                 __instance.SetSpiderLookAtPosition(position);
                             }
                             else
@@ -193,7 +193,18 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
 
             if (refreshCDtimeSpider <= 0)
             {
-                refreshCDtimeSpider = 1f;
+                if (debugSpider && debugSpam)
+                {
+                    Script.Logger.LogInfo(__instance + "watchFromDistance: " + __instance.watchFromDistance);
+                    Script.Logger.LogInfo(__instance + "overrideSpiderLookRotation: " + __instance.overrideSpiderLookRotation);
+                    Script.Logger.LogInfo(__instance + "moveTowardsDestination: " + __instance.moveTowardsDestination);
+                    Script.Logger.LogInfo(__instance + "movingTowardsTargetPlayer: " + __instance.movingTowardsTargetPlayer);
+                }
+                refreshCDtimeSpider = 0.5f;
+            }
+            else
+            {
+                refreshCDtimeSpider -= Time.deltaTime;
             }
 
             if (spiderData.targetEnemy != null && !__instance.targetPlayer && __instance.currentBehaviourStateIndex == 2)
@@ -299,17 +310,16 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             }
         }
 
-        static void ChaseEnemy(SandSpiderAI __instance, EnemyAI target, SandSpiderWebTrap? triggeredWeb = null)
+        static void ChaseEnemy(SandSpiderAI ins, EnemyAI target, SandSpiderWebTrap? triggeredWeb = null)
         {
-            SpiderData spiderData = spiderList[__instance];
-            SandSpiderAI ins = __instance;
-            if ((ins.currentBehaviourStateIndex != 2 && ins.watchFromDistance) || Vector3.Distance(target.transform.position, ins.homeNode.position) < 25f || Vector3.Distance(__instance.meshContainer.position, target.transform.position) < 15f)
+            SpiderData spiderData = spiderList[ins];
+            if ((ins.currentBehaviourStateIndex != 2 && ins.watchFromDistance) || Vector3.Distance(target.transform.position, ins.homeNode.position) < 25f || Vector3.Distance(ins.meshContainer.position, target.transform.position) < 15f)
             {
                 ins.watchFromDistance = false;
                 spiderData.targetEnemy = target;
                 ins.chaseTimer = 12.5f;
                 ins.SwitchToBehaviourState(2);
-                if (debugSpider) Script.Logger.LogDebug(__instance + "ChaseEnemy: Switched state to: " + __instance.currentBehaviourStateIndex);
+                if (debugSpider) Script.Logger.LogDebug(ins + "ChaseEnemy: Switched state to: " + ins.currentBehaviourStateIndex);
             }
         }
     }
@@ -353,8 +363,7 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
         static void OnTriggerStayPatch(Collider other, SandSpiderWebTrap __instance)
         {
             SpiderWebValues webValues = spiderWebs[__instance];
-
-            EnemyAI trippedEnemy = other.GetComponent<EnemyAICollisionDetect>().mainScript;
+            EnemyAI trippedEnemy = other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript;
             if (Script.BoundingConfig.debugSpiders.Value) Script.Logger.LogInfo(__instance + " Triggered");
             if (trippedEnemy != null)
             {
@@ -374,23 +383,45 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                     __instance.webAudio.PlayOneShot(__instance.mainScript.hitWebSFX);
                 }
             }
-            if (other == null)
+            if (trippedEnemy == null)
             {
-                if (__instance.webAudio.isPlaying)
+                webValues.collidingEnemy.Clear();
+                if (Script.BoundingConfig.debugSpiders.Value) Script.Logger.LogInfo(__instance + " Cleared " + trippedEnemy + " from collidingEnemy");
+                if (__instance.webAudio.isPlaying && __instance.currentTrappedPlayer == null)
                 {
                     __instance.webAudio.Stop();
-                    webValues.collidingEnemy.Clear();
-                    if (Script.BoundingConfig.debugSpiders.Value) Script.Logger.LogInfo(__instance + " Cleared " + trippedEnemy + " from collidingEnemy");
                 }
             }
         }
 
         [HarmonyPatch("Update")]
-        [HarmonyPostfix]
-        static void UpdatePostfix(SandSpiderWebTrap __instance)
+        [HarmonyPrefix]
+        static bool UpdatePrefix(SandSpiderWebTrap __instance, out bool __state)
         {
             SpiderWebValues webValues = spiderWebs[__instance];
+            if (__instance.currentTrappedPlayer != null)
+            {
+                __state = false;
+                return true;
+            }
+            else if (webValues.collidingEnemy.Count > 0)
+            {
+                __state = true;
+                return false;
+            }
+            __state = false;
+            return true;
+        }
 
+        [HarmonyPatch("Update")]
+        [HarmonyPostfix]
+        static void UpdatePostfix(SandSpiderWebTrap __instance, bool __state)
+        {
+            if (!__state)
+            {
+                return;
+            }
+            SpiderWebValues webValues = spiderWebs[__instance];
             if (webValues.collidingEnemy.Count > 0)
             {
                 __instance.leftBone.LookAt(webValues.collidingEnemy.First().Key.transform.position);

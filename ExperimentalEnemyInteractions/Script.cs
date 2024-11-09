@@ -3,11 +3,11 @@ using BepInEx.Logging;
 using HarmonyLib;
 using ExperimentalEnemyInteractions.Generics;
 using ExperimentalEnemyInteractions.EnemyPatches;
+using UnityEngine;
 
 namespace ExperimentalEnemyInteractions
 {
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-    //[LobbyCompatibility(CompatibilityLevel.Everyone, VersionStrictness.None)]
     public class Script : BaseUnityPlugin
     {
         public static Script Instance { get; private set; } = null!;
@@ -16,6 +16,7 @@ namespace ExperimentalEnemyInteractions
 
         internal static MyModConfig BoundingConfig { get; set; } = null!;
         internal static bool stableToggle;
+        internal static float clampedAgentRadius;
 
         private void Awake()
         {
@@ -24,6 +25,7 @@ namespace ExperimentalEnemyInteractions
 
             BoundingConfig = new MyModConfig(base.Config);
             stableToggle = BoundingConfig.stableMode.Value;
+            clampedAgentRadius = Mathf.Clamp(BoundingConfig.agentRadiusModifier.Value, 0.1f, 1f);
 
             Patch();
 

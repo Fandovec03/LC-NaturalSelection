@@ -4,6 +4,7 @@ using System.Linq;
 using GameNetcodeStuff;
 using HarmonyLib;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace ExperimentalEnemyInteractions.EnemyPatches
 {
@@ -13,9 +14,24 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
         static List<EnemyAI> enemyList = new List<EnemyAI>();
         static float time = 0f;
         static float refreshCDtime = 1f;
-
         static bool debugUnspecified = Script.BoundingConfig.debugUnspecified.Value;
         static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
+
+        [HarmonyPatch("Start")]
+        [HarmonyPostfix]
+        static void StartPostfix(EnemyAI __instance)
+        {
+            foreach (Collider collider in __instance.gameObject.GetComponentsInChildren<Collider>())
+            {
+                if (collider.isTrigger != true)
+                {
+                    collider.isTrigger = true;
+                    Script.Logger.LogInfo("Found non-trigger collider.");
+                }
+            }
+            __instance.agent.radius = __instance.agent.radius * Script.clampedAgentRadius;
+        }
+
 
         [HarmonyPatch("Update")]
         [HarmonyPostfix]
@@ -32,16 +48,19 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                     if (enemyList.Contains(enemy) && enemy.isEnemyDead == false)
                     {
                         if (debugUnspecified && debugSpam) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Found Duplicate " + enemy.gameObject.name + ", ID: " + enemy.GetInstanceID());
+                        continue;
                     }
-                    else if (enemyList.Contains(enemy) && enemy.isEnemyDead == true)
+                    if (enemyList.Contains(enemy) && enemy.isEnemyDead == true)
                     {
                         enemyList.Remove(enemy);
                         if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Found and removed dead Enemy " + enemy.gameObject.name + ", ID:  " + enemy.GetInstanceID() + "on List.");
+                        continue;
                     }
-                    else if(!enemyList.Contains(enemy) && enemy.isEnemyDead == false && enemy.name != __instance.name)
+                    if(!enemyList.Contains(enemy) && enemy.isEnemyDead == false && enemy.name != __instance.name)
                     {
                         enemyList.Add(enemy);
                         if (debugUnspecified) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Added " + enemy.gameObject.name + " detected in List. Instance: " + enemy.GetInstanceID());
+                        continue;
                     }
                 }
 
@@ -71,7 +90,17 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
         [HarmonyPostfix]
         public static void KillEnemyPatch(EnemyAI __instance)
         {
-            
+            if (!__instance.creatureVoice.isPlaying)
+            {
+                try
+                {
+                    __instance.creatureVoice.PlayOneShot(__instance.dieSFX);
+                }
+                catch (Exception e)
+                {
+                    Script.Logger.LogError("Failed to play dieSFX. Exception: " + e);
+                }
+            }
         }
 
         public static List<EnemyAI> GetCompleteList(EnemyAI __instance, bool FilterThemselves = true)
@@ -137,7 +166,7 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                 {
                     if (debugUnspecified && debugSpam) Script.Logger.LogWarning(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + importEnemyList[i] + ", ID: " + importEnemyList[i].GetInstanceID() + " is already assigned as closestEnemy");
                 }
-                if (importEnemyList[i] != tempClosestEnemy)
+                else
                 {
                     //Fix nullreferenceexception //if (Vector3.Distance(__instance.transform.position, importEnemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position))
                     {
@@ -200,7 +229,7 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                             {
                                 tempDictionary.Add(tempList[i], Vector3.Distance(instance.transform.position, position));
                                 if (debugUnspecified  && debugSpam)
-                                    Script.Logger.LogDebug(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Added " + tempList[i] + " to tempDictionary");
+                                Script.Logger.LogDebug(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Added " + tempList[i] + " to tempDictionary");
                             }
                             else if (debugUnspecified && debugSpam)
                             {
@@ -228,19 +257,15 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             return tempDictionary;
         }
 
-        static public int ReactToHit(EnemyAI __instance, int force = 0, EnemyAI? enemyAI = null, PlayerControllerB? player = null)
+        static public int ReactToHit(int force = 0, EnemyAI? enemyAI = null, PlayerControllerB? player = null)
         {
-
-            if (__instance is PufferAI)
+            if (force > 0)
             {
-                if (force > 0)
-                {
-                    return 1;
-                }
-                if (force > 1)
-                {
-                    return 2;
-                }
+                return 1;
+            }
+            if (force > 1)
+            {
+                return 2;
             }
             return 0;
         }

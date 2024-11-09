@@ -32,6 +32,7 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                 __instance.KillEnemy(false);
             }
         }
+
         /*
         [HarmonyPatch("Start")]
         [HarmonyPrefix]

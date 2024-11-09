@@ -9,16 +9,15 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
         static bool enableSpider = Script.BoundingConfig.enableSpider.Value;
         static bool enableSlime = Script.BoundingConfig.enableSlime.Value;
         static bool logUnspecified = Script.BoundingConfig.debugUnspecified.Value;
+        static bool logSpider = Script.BoundingConfig.debugSpiders.Value;
         static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
         public static void Collide(string text, EnemyAI? mainscript, EnemyAI? mainscript2)
         {
-            HitCooldownTime -= Time.deltaTime;
-
-            if (HitCooldownTime <= 0f)
-            {
+           // if (HitCooldownTime <= 0f)
+            //{
                 if (logUnspecified)Script.Logger.LogDebug(mainscript + ", ID: " + mainscript?.GetInstanceID() + "Hit collider of " + mainscript2 + ", ID: " + mainscript2?.GetInstanceID() + ", Tag: " + text);
-                HitCooldownTime = 0.3f;
-            }
+                //HitCooldownTime = 0.3f;
+            //}
             if (mainscript != null && text == "Player")
             {
                 
@@ -27,21 +26,36 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             {
                 if (mainscript is SandSpiderAI && mainscript2 is not SandSpiderAI && mainscript2 != null && enableSpider)
                 {
-                    SandSpiderAI? spiderAI = mainscript as SandSpiderAI;
-
-                    if (spiderAI?.timeSinceHittingPlayer > 1f && mainscript2 is HoarderBugAI)
+                    SandSpiderAI spiderAI = (SandSpiderAI)mainscript;
+                    if (logSpider) Script.Logger.LogDebug(mainscript + ", ID: " + mainscript?.GetInstanceID() + " timeSinceHittingPlayer: " + spiderAI.timeSinceHittingPlayer);
+                    if (spiderAI.timeSinceHittingPlayer > 1f)
                     {
                         spiderAI.timeSinceHittingPlayer = 0f;
                         spiderAI.creatureSFX.PlayOneShot(spiderAI.attackSFX);
+                        if (mainscript2 is HoarderBugAI)
+                        {
+                            if (mainscript2.enemyHP > 2)
+                            {
+                                mainscript2.HitEnemy(2, null, playHitSFX: true);
 
-                        if (mainscript2.enemyHP > 2 )
-                        {
-                            mainscript2.HitEnemy(2, null, playHitSFX: true);
+                            }
+                            else
+                            {
+                                mainscript2.HitEnemy(1, null, playHitSFX: true);
+                            }
                         }
-                        else
+                        if (mainscript2 is PufferAI)
                         {
-                            mainscript2.HitEnemy(1, null, playHitSFX: true);
+                            if (mainscript2.enemyHP > 2)
+                            {
+                                PufferAIPatch.CustomOnHit(2, mainscript, playHitSFX: true, (PufferAI)mainscript2);      
+                            }
+                            else
+                            {
+                                PufferAIPatch.CustomOnHit(1, mainscript, playHitSFX: true, (PufferAI)mainscript2);
+                            }
                         }
+                        if (logSpider) Script.Logger.LogMessage(mainscript + ", ID: " + mainscript?.GetInstanceID() + " Hit " + mainscript2 + ", ID: " + mainscript2?.GetInstanceID() + ", Tag: " + text);
                     }
                 }
 
@@ -81,18 +95,17 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
     public class AICollisionDetectPatch
     {
         static float HitDetectionNullCD = 0.5f;
-        //[HarmonyPrefix]
         static bool Prefix(Collider other, EnemyAICollisionDetect __instance)
         {
             EnemyAICollisionDetect compoment2 = other.gameObject.GetComponent<EnemyAICollisionDetect>();
-            HitDetectionNullCD -= Time.deltaTime;
+            //HitDetectionNullCD -= Time.deltaTime;
 
             if (__instance != null)
             {
-                if ((other == null || __instance.mainScript == null || compoment2 == null || compoment2.mainScript == null) && HitDetectionNullCD < 0f)
+                /*if ((other == null || __instance.mainScript == null || compoment2 == null || compoment2.mainScript == null) && HitDetectionNullCD < 0f)
                 {
                     HitDetectionNullCD = 0.5f;
-                }
+                }*/
 
 #pragma warning disable CS8602 // P��stup p�es ukazatel k mo�n�mu odkazu s hodnotou null
                 if (other.CompareTag("Player") && __instance.mainScript.isEnemyDead == false)

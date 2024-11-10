@@ -86,23 +86,6 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             }
         }
 
-        [HarmonyPatch("KillEnemy")]
-        [HarmonyPostfix]
-        public static void KillEnemyPatch(EnemyAI __instance)
-        {
-            if (!__instance.creatureVoice.isPlaying)
-            {
-                try
-                {
-                    __instance.creatureVoice.PlayOneShot(__instance.dieSFX);
-                }
-                catch (Exception e)
-                {
-                    Script.Logger.LogError("Failed to play dieSFX. Exception: " + e);
-                }
-            }
-        }
-
         public static List<EnemyAI> GetCompleteList(EnemyAI __instance, bool FilterThemselves = true)
         {
             List<EnemyAI> tempList = enemyList;

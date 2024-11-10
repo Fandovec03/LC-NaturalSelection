@@ -50,8 +50,6 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                 SpiderData spiderData = spiderList[__instance];
             }
         }
-
-
         [HarmonyPatch("Update")]
         [HarmonyPrefix]
         static bool UpdatePrefixPatch(SandSpiderAI __instance)

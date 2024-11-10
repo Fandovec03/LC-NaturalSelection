@@ -44,37 +44,11 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
         [HarmonyPrefix]
         static void StartPatch(SandSpiderAI __instance)
         {
-            foreach (Transform child in __instance.gameObject.GetComponentsInChildren<Transform>())
-            {
-                if (child.name == "Abdomen" || child.name == "Head")
-                {
-                    Vector3 tempLocal = child.localPosition;
-                    tempLocal.y = 0f;
-                    child.localPosition = tempLocal;
-                    Script.Logger.LogInfo("Found " + child.name + ", set position Y to " + tempLocal.y);
-                }
-            }
-
             if (!spiderList.ContainsKey(__instance))
             {
                 spiderList.Add(__instance, new SpiderData());
                 SpiderData spiderData = spiderList[__instance];
             }
-        }
-        [HarmonyPatch("lateUpdate")]
-        [HarmonyPostfix]
-        static void LateUpdate(SandSpiderAI __instance)
-        {
-        foreach(Transform child in __instance.gameObject.GetComponentsInChildren<Transform>())
-            {
-                if (child.name == "Abdomen" || child.name == "Head")
-                {
-                    Vector3 tempLocal = child.localPosition;
-        tempLocal.y = 0f;
-                    child.localPosition = tempLocal;
-                    Script.Logger.LogInfo("Found " + child.name + ", set position Y to " + tempLocal.y);
-                }
-}
         }
 
 

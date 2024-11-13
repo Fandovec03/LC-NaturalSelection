@@ -91,14 +91,11 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             List<EnemyAI> tempList = enemyList;
             bool filter = FilterThemselves;
 
-            if (__instance != null)
+            for (int i = 0; i < tempList.Count; i++)
             {
-                for (int i = 0; i < tempList.Count; i++)
+                if (tempList[i].GetType() == __instance.GetType() && filter)
                 {
-                    if (tempList[i].GetType() == __instance.GetType() && filter)
-                    {
-                        tempList.Remove(tempList[i]);
-                    }
+                    tempList.Remove(tempList[i]);
                 }
             }
             return tempList;
@@ -134,9 +131,9 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             return insideEnemies;
         }
 
-        public static EnemyAI? findClosestEnemy(List<EnemyAI> importEnemyList, EnemyAI importClosestEnemy, EnemyAI __instance)
+        public static EnemyAI? findClosestEnemy(List<EnemyAI> importEnemyList, EnemyAI? importClosestEnemy, EnemyAI __instance)
         {
-            EnemyAI tempClosestEnemy = importClosestEnemy;
+            EnemyAI? tempClosestEnemy = importClosestEnemy;
 
             for (int i = 0; i < importEnemyList.Count; i++)
             {
@@ -144,19 +141,27 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                 {
                     if (debugUnspecified && debugSpam) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "No enemy assigned. Assigning " + importEnemyList[i] + ", ID: " + importEnemyList[i].GetInstanceID() + " as new closestEnemy.");
                     tempClosestEnemy = importEnemyList[i];
+                    continue;
                 }
                 if (tempClosestEnemy == importEnemyList[i])
                 {
                     if (debugUnspecified && debugSpam) Script.Logger.LogWarning(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + importEnemyList[i] + ", ID: " + importEnemyList[i].GetInstanceID() + " is already assigned as closestEnemy");
+                    continue;
                 }
-                else
+                if (importEnemyList[i] == null)
                 {
-                    //Fix nullreferenceexception //if (Vector3.Distance(__instance.transform.position, importEnemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position))
+                    if (debugUnspecified)
                     {
-                        tempClosestEnemy = importEnemyList[i];
-                        if (debugUnspecified && debugSpam) Script.Logger.LogDebug(Vector3.Distance(__instance.transform.position, importEnemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position));
-                        if (debugUnspecified) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Assigned " + importEnemyList[i] + ", ID: " + importEnemyList[i].GetInstanceID() + " as new closestEnemy. Distance: " + Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position));
+                        Script.Logger.LogError(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Enemy not found!");
                     }
+                    importEnemyList.RemoveAt(i);
+                }
+                else if (Vector3.Distance(__instance.transform.position, importEnemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position))
+                {
+                    tempClosestEnemy = importEnemyList[i];
+                    if (debugUnspecified && debugSpam) Script.Logger.LogDebug(Vector3.Distance(__instance.transform.position, importEnemyList[i].transform.position) < Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position));
+                    if (debugUnspecified) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": " + "Assigned " + importEnemyList[i] + ", ID: " + importEnemyList[i].GetInstanceID() + " as new closestEnemy. Distance: " + Vector3.Distance(__instance.transform.position, tempClosestEnemy.transform.position));
+
                 }
             }
             return tempClosestEnemy;
@@ -203,6 +208,12 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             {
                 for (int i = 0; i < tempList.Count; i++)
                 {
+                    if (tempList[i] == null)
+                    {
+                        Script.Logger.LogWarning(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Enemy not found! Removing from tempList");
+                        tempList.RemoveAt(i);
+                        continue;
+                    }
                     Vector3 position = tempList[i].transform.position;
                     if (Vector3.Distance(position, instance.eye.position) < range && !Physics.Linecast(instance.eye.position, position, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Ignore))
                     {
@@ -214,7 +225,7 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                                 if (debugUnspecified  && debugSpam)
                                 Script.Logger.LogDebug(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Added " + tempList[i] + " to tempDictionary");
                             }
-                            else if (debugUnspecified && debugSpam)
+                            if (tempDictionary.ContainsKey(tempList[i]) && debugUnspecified && debugSpam)
                             {
                                 Script.Logger.LogWarning(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/:" + tempList[i] + " is already in tempDictionary");
                             }
@@ -225,15 +236,11 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             if (tempDictionary.Count > 1)
             {
                 tempDictionary.OrderBy(value => tempDictionary.Values);
-
                  if (debugUnspecified)
                  {
-                    for(int i = 0;i < tempDictionary.Count;i++)
+                    foreach (KeyValuePair<EnemyAI, float> enemy in tempDictionary)
                     {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-                        if (debugUnspecified && debugSpam)Script.Logger.LogDebug(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Final list: "+ tempDictionary[tempList[i]] + ", position: " + i);
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
-
+                        if (debugUnspecified && debugSpam)Script.Logger.LogDebug(instance.name + ", ID: " + instance.GetInstanceID() + "/GetEnemiesInLOS/: Final list: "+ tempDictionary[enemy.Key]);
                     }
                  }
             }

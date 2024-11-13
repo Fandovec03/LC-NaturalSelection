@@ -66,35 +66,38 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             spiderData.enemyList = EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance);
             spiderData.enemiesInLOSDictionary = EnemyAIPatch.GetEnemiesInLOS(__instance, spiderData.enemyList, 80f, 15, 2f);
 
-            foreach (KeyValuePair<EnemyAI, float> enemy in spiderData.enemiesInLOSDictionary)
+            if (spiderData.enemiesInLOSDictionary.Count > 0)
             {
-                if (enemy.Key.isEnemyDead)
+                foreach (KeyValuePair<EnemyAI, float> enemy in spiderData.enemiesInLOSDictionary)
                 {
-                    if (debugSpider) Script.Logger.LogWarning(__instance + " Update Postfix: " + enemy.Key + " is Dead! Checking deadEnemyBodies list and skipping...");
-
-                    if (!spiderData.deadEnemyBodies.Contains(enemy.Key))
+                    if (enemy.Key.isEnemyDead)
                     {
-                        spiderData.deadEnemyBodies.Add(enemy.Key);
-                        if (debugSpider) Script.Logger.LogWarning(__instance + " Update Postfix: " + enemy.Key + " added to deadEnemyBodies list");
+                        if (debugSpider) Script.Logger.LogWarning(__instance + " Update Postfix: " + enemy.Key + " is Dead! Checking deadEnemyBodies list and skipping...");
+
+                        if (!spiderData.deadEnemyBodies.Contains(enemy.Key))
+                        {
+                            spiderData.deadEnemyBodies.Add(enemy.Key);
+                            if (debugSpider) Script.Logger.LogWarning(__instance + " Update Postfix: " + enemy.Key + " added to deadEnemyBodies list");
+                        }
+                        continue;
                     }
-                    continue;
+                    if (spiderData.knownEnemy.Contains(enemy.Key))
+                    {
+                        if (debugSpider && debugSpam) Script.Logger.LogDebug(__instance + " Update Postfix: " + enemy.Key + " is already in knownEnemyList");
+                    }
+                    else
+                    {
+                        if (debugSpider) Script.Logger.LogInfo(__instance + " Update Postfix: Adding " + enemy.Key + " to knownEnemyList");
+                        spiderData.knownEnemy.Add(enemy.Key);
+                    }
                 }
-                if (spiderData.knownEnemy.Contains(enemy.Key))
+                for (int i = 0; i < spiderData.knownEnemy.Count; i++)
                 {
-                    if (debugSpider && debugSpam) Script.Logger.LogDebug(__instance + " Update Postfix: " + enemy.Key + " is already in knownEnemyList");
-                }
-                else
-                {
-                    if (debugSpider) Script.Logger.LogInfo(__instance + " Update Postfix: Adding " + enemy.Key + " to knownEnemyList");
-                    spiderData.knownEnemy.Add(enemy.Key);
-                }
-            }
-            for (int i = 0; i < spiderData.knownEnemy.Count; i++)
-            {
-                if (spiderData.knownEnemy[i].isEnemyDead)
-                {
-                    if (debugSpider) Script.Logger.LogWarning(__instance + " Update Postfix: Removed " + spiderData.knownEnemy[i] + " from knownEnemyList");
-                    spiderData.knownEnemy.Remove(spiderData.knownEnemy[i]);
+                    if (spiderData.knownEnemy[i].isEnemyDead)
+                    {
+                        if (debugSpider) Script.Logger.LogWarning(__instance + " Update Postfix: Removed " + spiderData.knownEnemy[i] + " from knownEnemyList");
+                        spiderData.knownEnemy.Remove(spiderData.knownEnemy[i]);
+                    }
                 }
             }
             __instance.SyncMeshContainerPositionToClients();
@@ -103,15 +106,11 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             {
                 case 0:
                     {
-
-#pragma warning disable CS8604 // Possible null reference argument.
-
                         spiderData.closestEnemy = EnemyAIPatch.findClosestEnemy(spiderData.knownEnemy, spiderData.closestEnemy, __instance);
-#pragma warning restore CS8604 // Possible null reference argument.
                               //if (debugSpider) Script.Logger.LogDebug(__instance + "Update Postfix: /case0/ " + spiderData.closestEnemy + " is Closest enemy");
 
 
-                        if (spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f, __instance.eye) != false)
+                        if (spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f, __instance.eye) != false && !spiderData.closestEnemy.isEnemyDead)
                         {
                             spiderData.targetEnemy = spiderData.closestEnemy;
                             if (debugSpider) Script.Logger.LogInfo(__instance + "Update Postfix: /case0/ Set " + spiderData.closestEnemy + " as TargetEnemy");
@@ -125,9 +124,8 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                 case 2:
                     {
                         if (__instance.targetPlayer != null) break;
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
 
-                        if (spiderData.targetEnemy != spiderData.closestEnemy && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f, __instance.eye))
+                        if (spiderData.targetEnemy != spiderData.closestEnemy && spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f, __instance.eye))
                         {
                             if (spiderData.targetEnemy is HoarderBugAI && spiderData.closestEnemy is not HoarderBugAI && (Vector3.Distance(__instance.meshContainer.position, spiderData.targetEnemy.transform.position) * 1.2f < Vector3.Distance(__instance.meshContainer.position, spiderData.closestEnemy.transform.position)))
                             {
@@ -138,7 +136,6 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                                 spiderData.targetEnemy = spiderData.closestEnemy;
                             }
                         }
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
 
 
                         if (spiderData.targetEnemy == null)
@@ -178,7 +175,7 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                                 spiderData.targetEnemy = null;
                                 __instance.StopChasing();
                             }
-                            else if (Vector3.Distance(spiderData.targetEnemy.transform.position, __instance.meshContainer.position) < 5f || __instance.stunNormalizedTimer > 0f || spiderData.targetEnemy is HoarderBugAI)
+                            else if (Vector3.Distance(spiderData.targetEnemy.transform.position, __instance.meshContainer.position) < 5f || __instance.stunNormalizedTimer > 0f)
                             {
                                 __instance.watchFromDistance = false;
                             }
@@ -320,15 +317,16 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                     break;
                 case 2:
                     {
-                        if (!(spiderData.targetEnemy == null))
+                        if (spiderData.targetEnemy != null)
                         {
-                            if (spiderData.targetEnemy.isEnemyDead && !(__instance.SetDestinationToPosition(spiderData.targetEnemy.transform.position, checkForPath: true)))
+                            if (spiderData.targetEnemy.isEnemyDead)
                             {
                                 if (debugSpider) Script.Logger.LogDebug(__instance + "DoAIInterval Postfix: /case2/ Stopping chasing: " + spiderData.targetEnemy);
                                 spiderData.targetEnemy = null;
                                 Ins.StopChasing();
+                                break;
                             }
-                            if (Ins.watchFromDistance && spiderData.targetEnemy != null)
+                            if (Ins.watchFromDistance)
                             {
                                 Ins.SetDestinationToPosition(Ins.ChooseClosestNodeToPosition(spiderData.targetEnemy.transform.position, avoidLineOfSight: false, 4).transform.position);
                                 if (debugSpider) Script.Logger.LogDebug(__instance + "DoAIInterval Postfix: /case2/ Set destination to: " + spiderData.targetEnemy);

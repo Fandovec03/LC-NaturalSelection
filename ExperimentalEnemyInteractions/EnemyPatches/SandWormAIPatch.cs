@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
@@ -11,7 +12,6 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
         public float refreshCDtime = 0.5f;
         public EnemyAI? closestEnemy = null;
         public EnemyAI? targetEnemy = null;
-        public bool targetingEntity = false;
     }
 
     [HarmonyPatch(typeof(SandWormAI))]
@@ -19,10 +19,6 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
     {
         static List<EnemyAI> enemyList = new List<EnemyAI>();
         static List<Type> targetedTypes = new List<Type>();
-        //static float refreshCDtime = 0.5f;
-        //static EnemyAI? closestEnemy = null;
-        //static EnemyAI? targetEnemy = null;
-        //static bool targetingEntity = false;
         static bool debugSandworm = Script.BoundingConfig.debugSandworms.Value;
         static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
 
@@ -45,38 +41,62 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                 targetedTypes.Add(typeof(RadMechAI));
             }
         }
+
+        [HarmonyPatch]
+        class Reversepatch
+        {
+            [HarmonyReversePatch]
+            [HarmonyPatch(typeof(EnemyAI), "Update")]
+            public static void ReverseUpdate(SandWormAI instance)
+            {
+                //Script.Logger.LogInfo("Reverse patch triggered");
+            }
+        }
+
         [HarmonyPatch("Update")]
         [HarmonyPrefix]
         static bool SandWormPrefixUpdatePatch(SandWormAI __instance)
         {
-            ExtendedSandWormAIData mySandwormFields = sandworms[__instance];
+            ExtendedSandWormAIData SandwormData = sandworms[__instance];
 
-            if (mySandwormFields.refreshCDtime <= 0)
+            if (SandwormData.refreshCDtime <= 0)
             {
                 enemyList = EnemyAIPatch.filterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance),__instance), targetedTypes, __instance);
-                mySandwormFields.refreshCDtime = 0.2f;
+                SandwormData.refreshCDtime = 0.2f;
             }
-            if (mySandwormFields.refreshCDtime > 0)
+            if (SandwormData.refreshCDtime > 0)
             {
-                mySandwormFields.refreshCDtime -= Time.deltaTime;
+                SandwormData.refreshCDtime -= Time.deltaTime;
             }
-            //if (Script.BoundingConfig.enableLeviathan.Value != true) return;
-            if (mySandwormFields.targetingEntity && !__instance.emerged && !__instance.inEmergingState)
+            SandwormData.closestEnemy = EnemyAIPatch.findClosestEnemy(enemyList, SandwormData.closestEnemy, __instance);
+
+            switch (__instance.currentBehaviourStateIndex)
             {
-                if (debugSandworm) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Prefix/1/ targetingEntity: " + mySandwormFields.targetingEntity + ", target: " + mySandwormFields.targetEnemy);
-                return false;
+                case 0:
+                {
+                    return true;
+                }
+                case 1:
+                {
+                    if (__instance.targetPlayer == null || SandwormData.closestEnemy != null && Vector3.Distance(__instance.transform.position, __instance.targetPlayer.transform.position) > Vector3.Distance(__instance.transform.position, SandwormData.closestEnemy.transform.position))
+                    {
+                        return false;
+                    }
+                    return true;
+                }
             }
-            if (debugSandworm) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Prefix/2/ targetingEntity: " + mySandwormFields.targetingEntity + ", target: " + mySandwormFields.targetEnemy);
+
+            if (debugSandworm) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Prefix/2/ targetEnemy: " + SandwormData.targetEnemy + ", target: " + SandwormData.targetEnemy);
             return true;
         }
         [HarmonyPatch("Update")]
         [HarmonyPostfix]
         static void SandWormPostfixUpdatePatch(SandWormAI __instance)
         {
-            ExtendedSandWormAIData mySandwormFields = sandworms[__instance];
+            ExtendedSandWormAIData SandwormData = sandworms[__instance];
 
             if (Script.BoundingConfig.enableLeviathan.Value != true) return;
-
+            /*
             if (debugSandworm && debugSpam) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Postfix targetingEntity: " + mySandwormFields.targetingEntity);
             if (!mySandwormFields.targetingEntity && !__instance.movingTowardsTargetPlayer)
             {
@@ -136,25 +156,80 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                         if (debugSandworm) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Chasing for too long. targetEnemy set to null");
                         mySandwormFields.targetEnemy = null;
                     }
+                } 
+            }*/
+
+            if (debugSandworm && debugSpam) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Postfix targetEnemy: " + SandwormData.targetEnemy);
+
+
+            switch(__instance.currentBehaviourStateIndex)
+            {
+                case 0:
+                {
+                    break;
+                }
+                case 1:
+                {
+                    if (__instance.targetPlayer == null || SandwormData.closestEnemy != null && Vector3.Distance(__instance.transform.position, __instance.targetPlayer.transform.position) > Vector3.Distance(__instance.transform.position, SandwormData.closestEnemy.transform.position))
+                    {
+                        Reversepatch.ReverseUpdate(__instance);
+                        if (__instance.stateLastFrame != __instance.currentBehaviourStateIndex)
+                        {
+                            __instance.stateLastFrame = __instance.currentBehaviourStateIndex;
+                            __instance.chaseTimer = 0f;
+                        }
+                        if (!__instance.creatureSFX.isPlaying && !__instance.inEmergingState && !__instance.emerged)
+                        {
+                            int num = UnityEngine.Random.Range(0, __instance.ambientRumbleSFX.Length);
+                            __instance.creatureSFX.clip = __instance.ambientRumbleSFX[num];
+                            __instance.creatureSFX.Play();
+                            if (debugSandworm) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Started playing sounds");
+                        }
+                        if (!__instance.IsOwner)
+                        {
+                            break;
+                        }
+                        if (SandwormData.targetEnemy == null || (__instance.targetPlayer == null && SandwormData.closestEnemy != null && Vector3.Distance(__instance.transform.position, __instance.GetClosestPlayer().transform.position) < Vector3.Distance(__instance.transform.position, SandwormData.closestEnemy.transform.position)))
+                        {
+                            if (debugSandworm) Script.Logger.LogError(__instance.name + ", ID: " + __instance.GetInstanceID() + ": TargetEnemy is null or player is closer than TargetEnemy! BehaviorState set to 0 /Trigger 1/");
+                            __instance.SwitchToBehaviourState(0);
+                            break;
+                        }
+                        if (Vector3.Distance(SandwormData.targetEnemy.transform.position, __instance.transform.position) > 22f)
+                        {
+                            __instance.chaseTimer += Time.deltaTime;
+                            if (debugSandworm && debugSpam) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": updated chaseTimer: " + __instance.chaseTimer);
+                        }
+                        else
+                        {
+                            __instance.chaseTimer = 0f;
+                            if (debugSandworm) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Reset chasetimer");
+                        }
+                        if (__instance.chaseTimer > 6f)
+                        {
+                            if (debugSandworm) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Chasing for too long. targetEnemy set to null");
+                            SandwormData.targetEnemy = null;
+                            __instance.SwitchToBehaviourState(0);
+                        }
+                    }
+                    break;
                 }
             }
         }
         [HarmonyPatch("DoAIInterval")]
         [HarmonyPrefix]
-        static void SandWormDoAIIntervalPatch(SandWormAI __instance)
+        static bool SandWormDoAIIntervalPrefix(SandWormAI __instance)
         {
-            //if (Script.BoundingConfig.enableLeviathan.Value != true) return true;
+            if (Script.BoundingConfig.enableLeviathan.Value != true) return true;
 
-            ExtendedSandWormAIData mySandwormFields = sandworms[__instance];
+            ExtendedSandWormAIData SandwormData = sandworms[__instance];
             if (debugSandworm && debugSpam) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + "DoAIInterval: checking chaseTimer: " + __instance.chaseTimer);
 
-            if (!mySandwormFields.targetingEntity)
+            /*if (!mySandwormFields.targetingEntity)
             {
                 if (!__instance.emerged && !__instance.inEmergingState)
                 {
-#pragma warning disable CS8604 // Possible null reference argument.
                     mySandwormFields.closestEnemy = EnemyAIPatch.findClosestEnemy(enemyList, mySandwormFields.closestEnemy, __instance);
-#pragma warning restore CS8604 // Possible null reference argument.
 
                     __instance.agent.speed = 4f;
                     if (debugSandworm) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + "DoAIInterval: assigned " + mySandwormFields.closestEnemy + " as closestEnemy");
@@ -200,6 +275,97 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                         mySandwormFields.targetingEntity = false;
                         __instance.StartEmergeAnimation();
                     }
+                }
+            }*/
+            if (__instance.targetPlayer == null || SandwormData.closestEnemy != null && Vector3.Distance(__instance.transform.position, __instance.targetPlayer.transform.position) > Vector3.Distance(__instance.transform.position, SandwormData.closestEnemy.transform.position))
+            {
+                switch (__instance.currentBehaviourStateIndex)
+                {
+                    case 0: {
+                        return true;
+                    }
+                    case 1: {
+                        if (__instance.moveTowardsDestination)
+                        {
+                            __instance.agent.SetDestination(__instance.destination);
+                        }
+                        __instance.SyncPositionToClients();
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        [HarmonyPatch("DoAIInterval")]
+        [HarmonyPostfix]
+        static void SandWormDoAIIntervalPostfix(SandWormAI __instance)
+        {
+            if (Script.BoundingConfig.enableLeviathan.Value != true) return;
+
+            ExtendedSandWormAIData SandwormData = sandworms[__instance];
+            if (debugSandworm && debugSpam) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + " DoAIInterval: checking chaseTimer: " + __instance.chaseTimer);
+
+            switch (__instance.currentBehaviourStateIndex)
+            {
+                case 0:
+                {
+                    if (!__instance.emerged && !__instance.inEmergingState)
+                    {
+                            SandwormData.closestEnemy = EnemyAIPatch.findClosestEnemy(enemyList, SandwormData.closestEnemy, __instance);
+
+                        __instance.agent.speed = 4f;
+                        if (debugSandworm) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + " DoAIInterval: assigned " + SandwormData.closestEnemy + " as closestEnemy");
+
+                        if (SandwormData.closestEnemy != null && Vector3.Distance(__instance.transform.position, SandwormData.closestEnemy.transform.position) < 15f)
+                        {
+                            __instance.SetDestinationToPosition(SandwormData.closestEnemy.transform.position);
+                            __instance.SwitchToBehaviourState(1);
+                                SandwormData.targetEnemy = SandwormData.closestEnemy;
+                            __instance.chaseTimer = 0;
+                            if (debugSandworm) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + " DoAIInterval: Set behaviorState to " + __instance.currentBehaviourStateIndex + " and reset chaseTimer: " + __instance.chaseTimer);
+                        }
+                    }
+                    break;
+                }
+                case 1:
+                {
+                    if (__instance.targetPlayer == null || SandwormData.closestEnemy != null && Vector3.Distance(__instance.transform.position, __instance.targetPlayer.transform.position) > Vector3.Distance(__instance.transform.position, SandwormData.closestEnemy.transform.position))
+                    {
+                        if (__instance.roamMap.inProgress)
+                        {
+                            __instance.StopSearch(__instance.roamMap);
+                        }
+                        if (SandwormData.targetEnemy == null || SandwormData.targetEnemy.isEnemyDead)
+                        {
+                            if (debugSandworm) Script.Logger.LogError(__instance.name + ", ID: " + __instance.GetInstanceID() + ": targetEnemy is at null or dead. Setting targetingEntity to false /Trigger 2/");
+                                SandwormData.targetEnemy = null;
+                            __instance.SwitchToBehaviourState(0);
+                            break;
+                        }
+                            SandwormData.targetEnemy = SandwormData.closestEnemy;
+                        if (debugSandworm) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + " DoAIInterval: Set " + SandwormData.targetEnemy + " as targetEnemy");
+                        if (SandwormData.targetEnemy != null)
+                        {
+                            if (Vector3.Distance(__instance.transform.position, SandwormData.targetEnemy.transform.position) > 19f)
+                            {
+                                    SandwormData.targetEnemy = null;
+                                if (debugSandworm) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + " DoAIInterval: TargetEnemy too far! set to null");
+                                break;
+                            }
+                            if (!__instance.emerged && !__instance.inEmergingState)
+                            {
+                                __instance.SetDestinationToPosition(SandwormData.targetEnemy.transform.position, checkForPath: true);
+                                if (debugSandworm && debugSpam) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + " DoAIInterval: Set destitantion to " + SandwormData.targetEnemy);
+                            }
+                            if (__instance.chaseTimer < 1.5f && Vector3.Distance(__instance.transform.position, SandwormData.targetEnemy.transform.position) < 4f && !(Vector3.Distance(StartOfRound.Instance.shipInnerRoomBounds.ClosestPoint(__instance.transform.position), __instance.transform.position) < 9f) && UnityEngine.Random.Range(0, 100) < 17)
+                            {
+                                if (debugSandworm) Script.Logger.LogMessage(__instance.name + ", ID: " + __instance.GetInstanceID() + " DoAIInterval: Emerging!");
+                                __instance.StartEmergeAnimation();
+                            }
+                        }
+                    }
+                    break;
                 }
             }
         }

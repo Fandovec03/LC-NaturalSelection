@@ -11,7 +11,7 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
     }
 
     [HarmonyPatch(typeof(PufferAI))]
-    class PufferAIPatch()
+    class PufferAIPatch
     {
         static bool enableSporeLizard = Script.BoundingConfig.enableSporeLizard.Value;
 

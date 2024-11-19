@@ -1,3 +1,7 @@
+- 0.1.25 - <br>
+	- Added more config options
+	- ~~Rewamped sandworm to use proper behavior states~~
+	- Sandworm temporarily disabled due to audio issues (can be manually enabled)
 - 0.1.24 - <br>
 	- Added log option to include/exclude spammy logs
 	- Sandworms updated:

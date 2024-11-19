@@ -40,17 +40,17 @@ namespace ExperimentalEnemyInteractions
 
             Harmony.PatchAll(typeof(AICollisionDetectPatch));
             Harmony.PatchAll(typeof(EnemyAIPatch));
-            Harmony.PatchAll(typeof(SandWormAIPatch));
-            Harmony.PatchAll(typeof(BlobAIPatch));
-            Harmony.PatchAll(typeof(HoarderBugPatch));
-            Harmony.PatchAll(typeof(BeeAIPatch));
-            Harmony.PatchAll(typeof(ForestGiantPatch));
+            if (BoundingConfig.loadSandworms.Value)Harmony.PatchAll(typeof(SandWormAIPatch));
+            if (BoundingConfig.loadBlob.Value)Harmony.PatchAll(typeof(BlobAIPatch));
+            if (BoundingConfig.loadHoardingBugs.Value)Harmony.PatchAll(typeof(HoarderBugPatch));
+            if (BoundingConfig.LoadBees.Value)Harmony.PatchAll(typeof(BeeAIPatch));
+            if (BoundingConfig.loadGiants.Value)Harmony.PatchAll(typeof(ForestGiantPatch));
 
             if (!stableToggle)
             {
-            Harmony.PatchAll(typeof(NutcrackerAIPatch));
-            Harmony.PatchAll(typeof(PufferAIPatch));
-            Harmony.PatchAll(typeof(SandSpiderAIPatch));
+            if (BoundingConfig.loadNutcrackers.Value)Harmony.PatchAll(typeof(NutcrackerAIPatch));
+            if (BoundingConfig.loadSporeLizard.Value)Harmony.PatchAll(typeof(PufferAIPatch));
+            if (BoundingConfig.loadSpiders.Value)Harmony.PatchAll(typeof(SandSpiderAIPatch));
 
             Logger.LogInfo("Stable mode off. Loaded all patches.");
             }

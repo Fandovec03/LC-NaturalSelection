@@ -8,18 +8,29 @@ using UnityEngine.UI;
 namespace ExperimentalEnemyInteractions.Generics;
     class MyModConfig
     {
+
+    //settings
         public readonly ConfigEntry<bool> stableMode;
-        public readonly ConfigEntry<bool> debugBool;
-        public readonly ConfigEntry<bool> enableSpider;
         public readonly ConfigEntry<bool> spiderHuntHoardingbug;
+        public readonly ConfigEntry<float> agentRadiusModifier;
+    //enemy bools
+        public readonly ConfigEntry<bool> enableSpider;
         public readonly ConfigEntry<bool> enableSlime;
         public readonly ConfigEntry<bool> enableLeviathan;
         public readonly ConfigEntry<bool> enableSporeLizard;
         public readonly ConfigEntry<bool> enableRedBees;
         public readonly ConfigEntry<bool> enableNutcrackers;
-        public readonly ConfigEntry<float> agentRadiusModifier;
-
+    //Load bools
+        public readonly ConfigEntry<bool> loadNutcrackers;
+        public readonly ConfigEntry<bool> loadSpiders;
+        public readonly ConfigEntry<bool> loadSandworms;
+        public readonly ConfigEntry<bool> loadGiants;
+        public readonly ConfigEntry<bool> loadHoardingBugs;
+        public readonly ConfigEntry<bool> loadBlob;
+        public readonly ConfigEntry<bool> LoadBees;
+        public readonly ConfigEntry<bool> loadSporeLizard;
     //debug
+        public readonly ConfigEntry<bool> debugBool;
         public readonly ConfigEntry<bool> spammyLogs;
         public readonly ConfigEntry<bool> debugRedBees;
         public readonly ConfigEntry<bool> debugSandworms;
@@ -32,7 +43,11 @@ namespace ExperimentalEnemyInteractions.Generics;
         {
         cfg.SaveOnConfigSet = false;
         {
+            //settings
             stableMode = cfg.Bind("General Settings", "Toggle stable mode", true, "When true, the mod will exlude patches that are WIP or are experimental from loading");
+            agentRadiusModifier = cfg.Bind("WIP", "Agent radius modifier", 0.66f, "Agent radius multiplier. Agent size is modified to make collisions more reliable. Lower multiplier makes final Agent radius smaller. \n \n [Values not between 0.1 and 1 are Clamped]");
+            agentRadiusModifier.Value = Mathf.Clamp(agentRadiusModifier.Value, 0.1f, 1f);
+            spiderHuntHoardingbug = cfg.Bind("WIP", "Spider hunts Hoarding bugs", false, "Bunker spider chases and hunts hoarding bugs. DEV ONLY");
             //enable entities
             enableSpider = cfg.Bind("WIP", "Enable spider", false, "Mod applies changes Bunker Spider. DEV ONLY");
             enableSlime = cfg.Bind("Entity settings", "Enable slime", true, "Mod applies changes Hygrodere. Slime now damages every entity it passes by.");
@@ -40,10 +55,15 @@ namespace ExperimentalEnemyInteractions.Generics;
             enableSporeLizard = cfg.Bind("WIP", "Enable SporeLizard", false, "Mod applies changes Spore lizard. It is now mortal!");
             enableRedBees = cfg.Bind("Entity settings", "Enable Red bees (Circuit bees)", true, "Mod applies changes red bees. They now defend nest from other mobs and kill everything in rampage!");
             enableNutcrackers = cfg.Bind("WIP", "Enable Nutcrackers", false, "Mod applies changes to nutcrackers. DEV ONLY");
-            //entity settings
-            agentRadiusModifier = cfg.Bind("WIP", "Agent radius modifier", 0.66f, "Agent radius multiplier. Agent size is modified to make collisions more reliable. Lower multiplier makes final Agent radius smaller. \n \n [Values not between 0.1 and 1 are Clamped]");
-            agentRadiusModifier.Value = Mathf.Clamp(agentRadiusModifier.Value, 0.1f, 1f);
-            spiderHuntHoardingbug = cfg.Bind("WIP", "Spider hunts Hoarding bugs", false, "Bunker spider chases and hunts hoarding bugs. DEV ONLY");
+            //load Entities
+            loadSpiders = cfg.Bind("Initialization settings (Not recommended)", "Load spider patches", true, "Load the spider patches. Do not touch.");
+            loadBlob = cfg.Bind("Initialization settings (Not recommended)", "Load slime patches", true, "Load the slime patches. Do not touch.");
+            loadSandworms = cfg.Bind("Initialization settings (Not recommended)", "Load leviathan patches", false, "Load the leviathan patches. Do not touch.");
+            loadGiants = cfg.Bind("Initialization settings (Not recommended)", "Load giant patches", true, "Load the giant patches. Do not touch.");
+            LoadBees = cfg.Bind("Initialization settings (Not recommended)", "Load circuit bees patches", true, "Load bees patches. Do not touch.");
+            loadNutcrackers = cfg.Bind("Initialization settings (Not recommended)", "Load nutcracker patches", true, "Load the nutcracker patches. Do not touch.");
+            loadHoardingBugs = cfg.Bind("Initialization settings (Not recommended)", "Load hoarding bugs patches", true, "Load the hoarding bug patches. Do not touch.");
+            loadSporeLizard = cfg.Bind("Initialization settings (Not recommended)", "Load spore lizards patches", true, "Load the spore lizard patches. Do not touch.");
             //debug
             debugBool = cfg.Bind("Debug","Debug mode",false,"Enables debug mode for more debug logs.");
             spammyLogs = cfg.Bind("Debug","Spammy logs",false,"Enables spammy logs for extra logs.");

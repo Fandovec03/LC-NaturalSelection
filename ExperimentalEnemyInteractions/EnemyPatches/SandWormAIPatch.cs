@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace ExperimentalEnemyInteractions.EnemyPatches
 {
@@ -14,6 +15,16 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
         public EnemyAI? targetEnemy = null;
     }
 
+    [HarmonyPatch]
+    class ReversepatchWorm
+    {
+        [HarmonyReversePatch]
+        [HarmonyPatch(typeof(EnemyAI), "Update")]
+        public static void ReverseUpdate(SandWormAI instance)
+        {
+            //Script.Logger.LogInfo("Reverse patch triggered");
+        }
+    }
     [HarmonyPatch(typeof(SandWormAI))]
     class SandWormAIPatch
     {
@@ -42,17 +53,6 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             }
         }
 
-        [HarmonyPatch]
-        class Reversepatch
-        {
-            [HarmonyReversePatch]
-            [HarmonyPatch(typeof(EnemyAI), "Update")]
-            public static void ReverseUpdate(SandWormAI instance)
-            {
-                //Script.Logger.LogInfo("Reverse patch triggered");
-            }
-        }
-
         [HarmonyPatch("Update")]
         [HarmonyPrefix]
         static bool SandWormPrefixUpdatePatch(SandWormAI __instance)
@@ -68,7 +68,6 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             {
                 SandwormData.refreshCDtime -= Time.deltaTime;
             }
-            SandwormData.closestEnemy = EnemyAIPatch.findClosestEnemy(enemyList, SandwormData.closestEnemy, __instance);
 
             switch (__instance.currentBehaviourStateIndex)
             {
@@ -78,15 +77,26 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                 }
                 case 1:
                 {
-                    if (__instance.targetPlayer == null || SandwormData.closestEnemy != null && Vector3.Distance(__instance.transform.position, __instance.targetPlayer.transform.position) > Vector3.Distance(__instance.transform.position, SandwormData.closestEnemy.transform.position))
+                    if (sandworms[__instance].targetEnemy != null)
                     {
-                        return false;
+                        if (debugSandworm && debugSpam) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + " Update: returning false");
+                            ReversepatchWorm.ReverseUpdate(__instance);
+                            if (__instance.updateDestinationInterval >= 0)
+                            {
+                                __instance.updateDestinationInterval -= Time.deltaTime;
+                            }
+                            else
+                            {
+                                __instance.updateDestinationInterval = __instance.AIIntervalTime + Random.Range(-0.015f, 0.015f);
+                                __instance.DoAIInterval();
+                            }
+                            return false;
                     }
                     return true;
                 }
             }
 
-            if (debugSandworm) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Prefix/2/ targetEnemy: " + SandwormData.targetEnemy + ", target: " + SandwormData.targetEnemy);
+            if (debugSandworm) Script.Logger.LogDebug(__instance.name + ", ID: " + __instance.GetInstanceID() + ": Prefix/2/ targetEnemy: " + SandwormData.targetEnemy + ", target: " + SandwormData.targetEnemy + ", behavior state: " + __instance.currentBehaviourStateIndex);
             return true;
         }
         [HarmonyPatch("Update")]
@@ -170,9 +180,8 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                 }
                 case 1:
                 {
-                    if (__instance.targetPlayer == null || SandwormData.closestEnemy != null && Vector3.Distance(__instance.transform.position, __instance.targetPlayer.transform.position) > Vector3.Distance(__instance.transform.position, SandwormData.closestEnemy.transform.position))
+                    if (__instance.targetPlayer == null)
                     {
-                        Reversepatch.ReverseUpdate(__instance);
                         if (__instance.stateLastFrame != __instance.currentBehaviourStateIndex)
                         {
                             __instance.stateLastFrame = __instance.currentBehaviourStateIndex;
@@ -189,7 +198,7 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                         {
                             break;
                         }
-                        if (SandwormData.targetEnemy == null || (__instance.targetPlayer == null && SandwormData.closestEnemy != null && Vector3.Distance(__instance.transform.position, __instance.GetClosestPlayer().transform.position) < Vector3.Distance(__instance.transform.position, SandwormData.closestEnemy.transform.position)))
+                        if (SandwormData.targetEnemy == null)
                         {
                             if (debugSandworm) Script.Logger.LogError(__instance.name + ", ID: " + __instance.GetInstanceID() + ": TargetEnemy is null or player is closer than TargetEnemy! BehaviorState set to 0 /Trigger 1/");
                             __instance.SwitchToBehaviourState(0);
@@ -277,21 +286,23 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                     }
                 }
             }*/
-            if (__instance.targetPlayer == null || SandwormData.closestEnemy != null && Vector3.Distance(__instance.transform.position, __instance.targetPlayer.transform.position) > Vector3.Distance(__instance.transform.position, SandwormData.closestEnemy.transform.position))
+            switch (__instance.currentBehaviourStateIndex)
             {
-                switch (__instance.currentBehaviourStateIndex)
-                {
-                    case 0: {
-                        return true;
+                case 0: {
+                    return true;
+                }
+                case 1: {
+                    if (__instance.moveTowardsDestination)
+                    {
+                        __instance.agent.SetDestination(__instance.destination);
                     }
-                    case 1: {
-                        if (__instance.moveTowardsDestination)
-                        {
-                            __instance.agent.SetDestination(__instance.destination);
-                        }
-                        __instance.SyncPositionToClients();
+                    __instance.SyncPositionToClients();
+                    if (SandwormData.targetEnemy != null)
+                    {
+                        if (debugSandworm && debugSpam) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + " DoAIInterval: returning false");
                         return false;
                     }
+                    return true;
                 }
             }
             return true;
@@ -320,17 +331,18 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                         if (SandwormData.closestEnemy != null && Vector3.Distance(__instance.transform.position, SandwormData.closestEnemy.transform.position) < 15f)
                         {
                             __instance.SetDestinationToPosition(SandwormData.closestEnemy.transform.position);
+                            SandwormData.targetEnemy = SandwormData.closestEnemy;
                             __instance.SwitchToBehaviourState(1);
-                                SandwormData.targetEnemy = SandwormData.closestEnemy;
                             __instance.chaseTimer = 0;
                             if (debugSandworm) Script.Logger.LogInfo(__instance.name + ", ID: " + __instance.GetInstanceID() + " DoAIInterval: Set behaviorState to " + __instance.currentBehaviourStateIndex + " and reset chaseTimer: " + __instance.chaseTimer);
+                            break;
                         }
                     }
                     break;
                 }
                 case 1:
                 {
-                    if (__instance.targetPlayer == null || SandwormData.closestEnemy != null && Vector3.Distance(__instance.transform.position, __instance.targetPlayer.transform.position) > Vector3.Distance(__instance.transform.position, SandwormData.closestEnemy.transform.position))
+                    if (__instance.targetPlayer == null)
                     {
                         if (__instance.roamMap.inProgress)
                         {

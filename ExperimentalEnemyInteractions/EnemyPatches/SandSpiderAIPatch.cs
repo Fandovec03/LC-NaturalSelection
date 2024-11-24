@@ -28,7 +28,6 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
         }
     }
 
-
     [HarmonyPatch(typeof(SandSpiderAI))]
     class SandSpiderAIPatch
     {

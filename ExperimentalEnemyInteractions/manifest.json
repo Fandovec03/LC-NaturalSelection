@@ -1,6 +1,6 @@
 {
     "name": "ExperimentalEnemyInteractions",
-    "version_number": "0.1.25",
+    "version_number": "0.1.26",
     "website_url": "https://github.com/Fandovec03/ExperimentalEnemyInteractions",
     "description": " *WIP* Experimental. Aims to make the game, especially the fauna feel more alive.",
   "dependencies": ["Fandovec03-SpiderPositionFix-1.1.2"]

@@ -29,3 +29,4 @@ Credits:
 Unofficial LethalCompany Discord: <br>
 - Zesa, TKronix, Swaggies: helping me figure out collision detection <br>
 - Hamunii: Helped fixing the variables <br>
+- EnzoTheProtogen: Reporting a bug.

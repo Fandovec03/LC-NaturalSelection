@@ -2,7 +2,7 @@
 	- Fixed audio issues with sandworm
 	- Sandworms revised. They're now using a proper behavior state (Due to technical difficulties they use custom state instead of vanilla when targetting enemies)
 	- Reenabled Sandworm patches (Make sure you have Load leviathan patches in Initialization settings checked)
-	- Fixed bees and other entities targetting themselves (unconfirmed)
+	- Fixed bees and other entities targetting themselves (unconfirmed. Credit to EnzoTheProtogen for reporting the issue)
 	- Bee now ignore Locusts and Sandworms (untested)
 	- Log improvements
 	- Added new config settings

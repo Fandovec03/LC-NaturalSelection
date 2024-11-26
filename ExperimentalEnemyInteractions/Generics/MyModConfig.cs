@@ -32,6 +32,7 @@ namespace ExperimentalEnemyInteractions.Generics;
     //debug
         public readonly ConfigEntry<bool> debugBool;
         public readonly ConfigEntry<bool> spammyLogs;
+        public readonly ConfigEntry<bool> debugTriggerFlags;
         public readonly ConfigEntry<bool> debugRedBees;
         public readonly ConfigEntry<bool> debugSandworms;
         public readonly ConfigEntry<bool> debugHygrodere;
@@ -67,6 +68,7 @@ namespace ExperimentalEnemyInteractions.Generics;
             //debug
             debugBool = cfg.Bind("Debug","Debug mode",false,"Enables debug mode for more debug logs.");
             spammyLogs = cfg.Bind("Debug","Spammy logs",false,"Enables spammy logs for extra logs.");
+            debugTriggerFlags = cfg.Bind("Debug","Trigger flags",false,"Enables logs with trigger flag.");
             debugRedBees = cfg.Bind("Debug","Log bees",false,"Enables logs for bees.");
             debugSandworms = cfg.Bind("Debug","Log sandworms",false,"Enables logs for sandowrms.");
             debugHygrodere = cfg.Bind("Debug","Log hydrogere",false,"Enables logs for hydrogere.");

@@ -95,8 +95,14 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             {
                 if (tempList[i].GetType() == __instance.GetType() && filter)
                 {
+                    Debug.LogWarning(tempList[i].GetType() + ", " + __instance.GetType() + " filtered from the tempList");
                     tempList.Remove(tempList[i]);
                 }
+            }
+            if (tempList.Contains(__instance))
+            {
+                Debug.LogWarning(__instance.GetType() + " filtered itself from the tempList");
+                tempList.Remove(__instance);
             }
             return tempList;
         }

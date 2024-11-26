@@ -46,7 +46,7 @@ namespace ExperimentalEnemyInteractions.Generics;
         {
             //settings
             stableMode = cfg.Bind("General Settings", "Toggle stable mode", true, "When true, the mod will exlude patches that are WIP or are experimental from loading");
-            agentRadiusModifier = cfg.Bind("WIP", "Agent radius modifier", 0.66f, "Agent radius multiplier. Agent size is modified to make collisions more reliable. Lower multiplier makes final Agent radius smaller. \n \n [Values not between 0.1 and 1 are Clamped]");
+            agentRadiusModifier = cfg.Bind("WIP", "Agent radius modifier", 0.6f, "Agent radius multiplier. Agent size is modified to make collisions more reliable. Lower multiplier makes final Agent radius smaller. \n \n [Values not between 0.1 and 1 are Clamped]");
             agentRadiusModifier.Value = Mathf.Clamp(agentRadiusModifier.Value, 0.1f, 1f);
             spiderHuntHoardingbug = cfg.Bind("WIP", "Spider hunts Hoarding bugs", false, "Bunker spider chases and hunts hoarding bugs. DEV ONLY");
             //enable entities
@@ -59,7 +59,7 @@ namespace ExperimentalEnemyInteractions.Generics;
             //load Entities
             loadSpiders = cfg.Bind("Initialization settings (Not recommended)", "Load spider patches", true, "Load the spider patches. Do not touch.");
             loadBlob = cfg.Bind("Initialization settings (Not recommended)", "Load slime patches", true, "Load the slime patches. Do not touch.");
-            loadSandworms = cfg.Bind("Initialization settings (Not recommended)", "Load leviathan patches", false, "Load the leviathan patches. Do not touch.");
+            loadSandworms = cfg.Bind("Initialization settings (Not recommended)", "Load leviathan patches", true, "Load the leviathan patches. Do not touch.");
             loadGiants = cfg.Bind("Initialization settings (Not recommended)", "Load giant patches", true, "Load the giant patches. Do not touch.");
             LoadBees = cfg.Bind("Initialization settings (Not recommended)", "Load circuit bees patches", true, "Load bees patches. Do not touch.");
             loadNutcrackers = cfg.Bind("Initialization settings (Not recommended)", "Load nutcracker patches", true, "Load the nutcracker patches. Do not touch.");

@@ -41,7 +41,7 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             {
                 __state = false;
             }
-            if (giantDaata.logGiant) Script.Logger.LogInfo("Giant state status: " + __state);
+            if (giantDaata.logGiant) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) +" state status: " + __state);
         }
 
         [HarmonyPatch("KillEnemy")]
@@ -57,7 +57,7 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             {
                 __instance.burningParticlesContainer.SetActive(false);
             }
-            if (giantDaata.logGiant) Script.Logger.LogInfo("Giant state status2: " + __state);
+            if (giantDaata.logGiant) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + " state status2: " + __state);
         }
 
         [HarmonyPatch("Update")]
@@ -77,13 +77,13 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                     __instance.creatureAnimator.SetBool("burning", false);
                     __instance.SwitchToBehaviourState(0);
                     giantData.extinguish = true;
-                    if (giantData.logGiant) Script.Logger.LogInfo("Giant successfully extinguished itself. Skipping Update. Rolled " + extinguishRandom);
+                    if (giantData.logGiant) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + " successfully extinguished itself. Skipping Update. Rolled " + extinguishRandom);
                     return false;
                 }
                 else
                 {
                     giantData.extinguish = false;
-                    if (giantData.logGiant) Script.Logger.LogInfo("Giant failed to extinguish itself. rolled " + extinguishRandom);
+                    if (giantData.logGiant) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + " failed to extinguish itself. rolled " + extinguishRandom);
                 }
             }
             return true;

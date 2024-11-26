@@ -11,11 +11,12 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
         static bool logUnspecified = Script.BoundingConfig.debugUnspecified.Value;
         static bool logSpider = Script.BoundingConfig.debugSpiders.Value;
         static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
+
         public static void Collide(string text, EnemyAI? mainscript, EnemyAI? mainscript2)
         {
            // if (HitCooldownTime <= 0f)
             //{
-                if (logUnspecified)Script.Logger.LogDebug(mainscript + ", ID: " + mainscript?.GetInstanceID() + "Hit collider of " + mainscript2 + ", ID: " + mainscript2?.GetInstanceID() + ", Tag: " + text);
+                if (logUnspecified)Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(mainscript) + "Hit collider of " + EnemyAIPatch.DebugStringHead(mainscript2) + ", Tag: " + text);
                 //HitCooldownTime = 0.3f;
             //}
             if (mainscript != null && text == "Player")
@@ -27,7 +28,7 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                 if (mainscript is SandSpiderAI && mainscript2 is not SandSpiderAI && mainscript2 != null && enableSpider)
                 {
                     SandSpiderAI spiderAI = (SandSpiderAI)mainscript;
-                    if (logSpider) Script.Logger.LogDebug(mainscript + ", ID: " + mainscript?.GetInstanceID() + " timeSinceHittingPlayer: " + spiderAI.timeSinceHittingPlayer);
+                    if (logSpider) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(mainscript) + " timeSinceHittingPlayer: " + spiderAI.timeSinceHittingPlayer);
                     if (spiderAI.timeSinceHittingPlayer > 1f)
                     {
                         spiderAI.timeSinceHittingPlayer = 0f;
@@ -55,7 +56,7 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                                 PufferAIPatch.CustomOnHit(1, mainscript, playHitSFX: true, (PufferAI)mainscript2);
                             }
                         }
-                        if (logSpider) Script.Logger.LogMessage(mainscript + ", ID: " + mainscript?.GetInstanceID() + " Hit " + mainscript2 + ", ID: " + mainscript2?.GetInstanceID() + ", Tag: " + text);
+                        if (logSpider) Script.Logger.LogMessage(EnemyAIPatch.DebugStringHead(mainscript) + " Hit " + EnemyAIPatch.DebugStringHead(mainscript2)+ ", Tag: " + text);
                     }
                 }
 

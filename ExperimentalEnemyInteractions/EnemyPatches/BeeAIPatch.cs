@@ -90,7 +90,16 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                     if (EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1).Count > 0)
                     {
                         LOSenemy = EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1).Keys.First();
-                        if (logBees) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "case0: Checked LOS for enemies. Enemy found: " + LOSenemy);
+                        if (logBees) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "case0: Checked LOS for enemies. Enemy found: " + EnemyAIPatch.DebugStringHead(LOSenemy));
+
+                        if (logBees && debugSpam)
+                        {
+                            foreach (KeyValuePair<EnemyAI, float> keyPair in EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1))
+                            {
+                                Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(__instance) + " Checking the LOSList: " + EnemyAIPatch.DebugStringHead(keyPair.Key) + ", Distance: " + keyPair.Value);
+                                if (keyPair.Key == __instance) Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + " FOUND ITSELF IN THE LOSList: " + EnemyAIPatch.DebugStringHead(keyPair.Key) + ", Distance: " + keyPair.Value);
+                            }
+                        }
                     }
 
                     if (__instance.wasInChase)
@@ -167,7 +176,7 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                                 if (collisionArray[i].gameObject.tag == "Enemy")
                                 {
                                     enemyAI2 = collisionArray[i].gameObject.GetComponent<EnemyAICollisionDetect>().mainScript;
-                                    if (logBees) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "case2: CollisionArray triggered. Enemy found: " + enemyAI2);
+                                    if (logBees) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "case2: CollisionArray triggered. Enemy found: " + EnemyAIPatch.DebugStringHead(enemyAI2));
                                     break;  
                                 }
                             }

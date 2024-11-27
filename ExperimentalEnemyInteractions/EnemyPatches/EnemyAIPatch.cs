@@ -29,7 +29,6 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             __instance.agent.radius = __instance.agent.radius * Script.clampedAgentRadius;
         }
 
-
         [HarmonyPatch("Update")]
         [HarmonyPostfix]
 

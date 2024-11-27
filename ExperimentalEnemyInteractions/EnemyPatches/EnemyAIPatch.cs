@@ -4,7 +4,6 @@ using System.Linq;
 using GameNetcodeStuff;
 using HarmonyLib;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace ExperimentalEnemyInteractions.EnemyPatches
 {
@@ -12,7 +11,6 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
     class EnemyAIPatch
     {
         static List<EnemyAI> enemyList = new List<EnemyAI>();
-        static float time = 0f;
         static float refreshCDtime = 1f;
         static bool debugUnspecified = Script.BoundingConfig.debugUnspecified.Value;
         static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
@@ -37,7 +35,6 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
 
         static void UpdatePostfixPatch(EnemyAI __instance)
         {
-            time += Time.deltaTime;
             refreshCDtime -= Time.deltaTime;
 
             if (refreshCDtime <= 0)

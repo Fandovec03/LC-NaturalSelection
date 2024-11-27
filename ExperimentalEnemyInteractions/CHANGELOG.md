@@ -1,3 +1,5 @@
+- 0.1.27 - <br>
+	- This time for real fixed bees targeting themself.
 - 0.1.26 - <br>
 	- Fixed audio issues with sandworm
 	- Sandworms revised. They're now using a proper behavior state (Due to technical difficulties they use custom state instead of vanilla when targetting enemies)

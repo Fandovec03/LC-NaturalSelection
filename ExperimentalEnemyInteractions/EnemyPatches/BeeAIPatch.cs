@@ -51,13 +51,10 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             if (UpdateTimer <= 0f)
             {
                 enemyList = EnemyAIPatch.filterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance), beeList[__instance].enemyTypes, __instance, true);
-                if (logBees && debugSpam)
+                if (enemyList.Contains(__instance))
                 {
-                    if (enemyList.Contains(__instance))
-                    {
-                        Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + " FOUND ITSELF IN THE EnemyList! Removing...");
-                        enemyList.Remove(__instance);
-                    }
+                    if (logBees && debugSpam) Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + " FOUND ITSELF IN THE EnemyList! Removing...");
+                    enemyList.Remove(__instance);
                 }
                 UpdateTimer = 0.2f;
             }
@@ -97,13 +94,10 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                     EnemyAI? LOSenemy = null;
                     if (EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1).Count > 0)
                     {
-                        if (logBees && debugSpam)
+                        if (enemyList.Contains(__instance))
                         {
-                            if (enemyList.Contains(__instance))
-                            {
-                                Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + " FOUND ITSELF IN THE EnemyList before LOSEnemy! Removing...");
-                                enemyList.Remove(__instance);
-                            }
+                            if (logBees && debugSpam) Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + " FOUND ITSELF IN THE EnemyList before LOSEnemy! Removing...");
+                            enemyList.Remove(__instance);
                         }
                         LOSenemy = EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1).Keys.First();
                         if (logBees) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "case0: Checked LOS for enemies. Enemy found: " + EnemyAIPatch.DebugStringHead(LOSenemy));

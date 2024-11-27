@@ -102,6 +102,11 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
                     tempList.Remove(tempList[i]);
                 }
             }
+            if (tempList.Contains(__instance))
+            {
+                if (debugUnspecified) Script.Logger.LogError(DebugStringHead(__instance) + " Found itself in the list. Removing...");
+                tempList.Remove(__instance);
+            }
             return tempList;
         }
 
@@ -141,9 +146,11 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
 
             for (int i = 0; i < importEnemyList.Count; i++)
             {
-                if (importEnemyList[i] == __instance)
+                if (importEnemyList.Contains(__instance))
                 {
-                    if (debugUnspecified) Script.Logger.LogError(DebugStringHead(__instance) + "Enemy not found!");
+                    if (debugUnspecified) Script.Logger.LogError(DebugStringHead(__instance) + "Found itself in the importEnemyList! Removing...");
+                    importEnemyList.Remove(__instance);
+                    continue;
                 }
                 if (tempClosestEnemy == null)
                 {
@@ -180,6 +187,11 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
 
             for (int i = 0; i < importEnemyList.Count; i++)
             {
+                if (importEnemyList.Contains(__instance))
+                {
+                    if (debugUnspecified) Script.Logger.LogError(DebugStringHead(__instance) + "Found itself in importEnemyList! Removing...");
+                    importEnemyList.Remove(__instance);
+                }
                 if (inverseToggle == false && targetTypes.Contains(importEnemyList[i].GetType()) || inverseToggle == true && !targetTypes.Contains(importEnemyList[i].GetType()))
                 {
                     if (debugUnspecified) Script.Logger.LogDebug(DebugStringHead(__instance) + "Enemy of type " + importEnemyList[i].GetType() + " passed the filter.");

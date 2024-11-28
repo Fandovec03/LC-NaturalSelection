@@ -25,7 +25,7 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
         static List<EnemyAI> enemyList = new List<EnemyAI>();
         static bool logBees = Script.BoundingConfig.debugRedBees.Value;
         static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
-        static float UpdateTimer;
+        static float UpdateTimer = 0f;
 
         [HarmonyPatch("Start")]
         [HarmonyPostfix]

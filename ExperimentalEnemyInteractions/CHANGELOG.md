@@ -1,3 +1,5 @@
+- 0.1.28 - <br>
+	- Finally fixed the root issue. Enemies (Mainly bees) no longer target themselves or their own kind anymore.
 - 0.1.27 - <br>
 	- This time for real fixed bees targeting themself.
 - 0.1.26 - <br>

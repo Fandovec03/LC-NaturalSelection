@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ExperimentalEnemyInteractions.EnemyPatches
+namespace NaturalSelection.EnemyPatches
 {
     class GiantData
     {

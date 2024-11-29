@@ -1,7 +1,7 @@
 using HarmonyLib;
 using System.Collections.Generic;
 
-namespace ExperimentalEnemyInteractions.EnemyPatches
+namespace NaturalSelection.EnemyPatches
 {
     class HoarderBugValues
     {

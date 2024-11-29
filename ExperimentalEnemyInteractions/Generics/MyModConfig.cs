@@ -5,7 +5,7 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace ExperimentalEnemyInteractions.Generics;
+namespace NaturalSelection.Generics;
     class MyModConfig
     {
 

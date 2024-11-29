@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace ExperimentalEnemyInteractions.EnemyPatches
+namespace NaturalSelection.EnemyPatches
 {
     class BeeValues
     {

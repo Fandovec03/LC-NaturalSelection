@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Linq;
 using UnityEngine.InputSystem.HID;
 
-namespace ExperimentalEnemyInteractions.EnemyPatches
+namespace NaturalSelection.EnemyPatches
 {
     class SpiderData
     {

@@ -1,7 +1,7 @@
 {
-  "name": "Natural_selection_-_food_chains_and_ecosystems",
+  "name": "Natural_selection",
   "version_number": "0.0.1",
   "website_url": "https://github.com/Fandovec03/ExperimentalEnemyInteractions",
   "description": "Test upload",
-  "dependencies": [ "Fandovec03-SpiderPositionFix-1.1.2", "Fandovec03-NaturalSelectionLib-0.2.1" ]
+  "dependencies": [ "Fandovec03-SpiderPositionFix-1.1.2", "Fandovec03-NaturalSelectionLib-0.2.3" ]
 }

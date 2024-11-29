@@ -8,6 +8,7 @@ using UnityEngine;
 namespace ExperimentalEnemyInteractions
 {
     [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
+    [BepInDependency("fandovec03.NaturalSelectionLib", BepInDependency.DependencyFlags.HardDependency)]
     public class Script : BaseUnityPlugin
     {
         public static Script Instance { get; private set; } = null!;
@@ -17,7 +18,6 @@ namespace ExperimentalEnemyInteractions
         internal static MyModConfig BoundingConfig { get; set; } = null!;
         internal static bool stableToggle;
         internal static float clampedAgentRadius;
-
         private void Awake()
         {
             Logger = base.Logger;

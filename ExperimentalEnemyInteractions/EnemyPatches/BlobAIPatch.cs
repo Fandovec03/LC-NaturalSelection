@@ -2,7 +2,7 @@
 using HarmonyLib;
 using UnityEngine;
 
-namespace ExperimentalEnemyInteractions.EnemyPatches
+namespace NaturalSelection.EnemyPatches
 {
 
 	class BlobData

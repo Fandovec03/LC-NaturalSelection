@@ -1,11 +1,10 @@
 using HarmonyLib;
 using UnityEngine;
 
-namespace ExperimentalEnemyInteractions.EnemyPatches
+namespace NaturalSelection.EnemyPatches
 {
     public class OnCollideWithUniversal
     {
-        static float HitCooldownTime = 0.3f;
         static bool enableSpider = Script.BoundingConfig.enableSpider.Value;
         static bool enableSlime = Script.BoundingConfig.enableSlime.Value;
         static bool logUnspecified = Script.BoundingConfig.debugUnspecified.Value;
@@ -14,11 +13,8 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
 
         public static void Collide(string text, EnemyAI? mainscript, EnemyAI? mainscript2)
         {
-           // if (HitCooldownTime <= 0f)
-            //{
-                if (logUnspecified)Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(mainscript) + "Hit collider of " + EnemyAIPatch.DebugStringHead(mainscript2) + ", Tag: " + text);
-                //HitCooldownTime = 0.3f;
-            //}
+
+            if (logUnspecified)Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(mainscript) + "Hit collider of " + EnemyAIPatch.DebugStringHead(mainscript2) + ", Tag: " + text);
             if (mainscript != null && text == "Player")
             {
                 
@@ -95,19 +91,12 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
     [HarmonyPatch(typeof(EnemyAICollisionDetect), "OnTriggerStay")]
     public class AICollisionDetectPatch
     {
-        static float HitDetectionNullCD = 0.5f;
         static bool Prefix(Collider other, EnemyAICollisionDetect __instance)
         {
             EnemyAICollisionDetect compoment2 = other.gameObject.GetComponent<EnemyAICollisionDetect>();
-            //HitDetectionNullCD -= Time.deltaTime;
 
             if (__instance != null)
             {
-                /*if ((other == null || __instance.mainScript == null || compoment2 == null || compoment2.mainScript == null) && HitDetectionNullCD < 0f)
-                {
-                    HitDetectionNullCD = 0.5f;
-                }*/
-
 #pragma warning disable CS8602 // P��stup p�es ukazatel k mo�n�mu odkazu s hodnotou null
                 if (other.CompareTag("Player") && __instance.mainScript.isEnemyDead == false)
                 {

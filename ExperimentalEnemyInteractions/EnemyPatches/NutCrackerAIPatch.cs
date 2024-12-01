@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
-namespace ExperimentalEnemyInteractions.EnemyPatches
+namespace NaturalSelection.EnemyPatches
 {
     class NutcrackerData
     {
@@ -59,7 +59,7 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             enemyList = EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance),__instance);
 #pragma warning disable CS8604 // Possible null reference argument.
 
-            data.closestEnemy = EnemyAIPatch.findClosestEnemy(enemyList, data.closestEnemy, __instance);
+            data.closestEnemy = EnemyAIPatch.FindClosestEnemy(enemyList, data.closestEnemy, __instance);
 #pragma warning restore CS8604 // Possible null reference argument.
 
 

@@ -2,9 +2,8 @@
 using HarmonyLib;
 using UnityEngine;
 using System.Linq;
-using UnityEngine.InputSystem.HID;
 
-namespace ExperimentalEnemyInteractions.EnemyPatches
+namespace NaturalSelection.EnemyPatches
 {
     class SpiderData
     {
@@ -106,7 +105,7 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
             {
                 case 0:
                     {
-                        spiderData.closestEnemy = EnemyAIPatch.findClosestEnemy(spiderData.knownEnemy, spiderData.closestEnemy, __instance);
+                        spiderData.closestEnemy = EnemyAIPatch.FindClosestEnemy(spiderData.knownEnemy, spiderData.closestEnemy, __instance);
                               //if (debugSpider) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(__instance)  + "Update Postfix: /case0/ " + spiderData.closestEnemy + " is Closest enemy");
 
 

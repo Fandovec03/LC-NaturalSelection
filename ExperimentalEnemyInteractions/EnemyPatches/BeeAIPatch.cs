@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace ExperimentalEnemyInteractions.EnemyPatches
+namespace NaturalSelection.EnemyPatches
 {
     class BeeValues
     {
@@ -50,7 +50,7 @@ namespace ExperimentalEnemyInteractions.EnemyPatches
         {
             if (UpdateTimer <= 0f)
             {
-                enemyList = EnemyAIPatch.filterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance), beeList[__instance].enemyTypes, __instance, true);
+                enemyList = EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance), beeList[__instance].enemyTypes, __instance, true);
                 if (enemyList.Contains(__instance))
                 {
                     if (logBees && debugSpam) Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + " FOUND ITSELF IN THE EnemyList! Removing...");

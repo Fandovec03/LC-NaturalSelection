@@ -1,7 +1,7 @@
 {
   "name": "Natural_selection",
-  "version_number": "0.0.2",
+  "version_number": "0.1.0",
   "website_url": "https://github.com/Fandovec03/ExperimentalEnemyInteractions",
-  "description": "Test upload",
-  "dependencies": [ "Fandovec03-SpiderPositionFix-1.1.2", "Fandovec03-NaturalSelectionLib-0.2.3" ]
+  "description": "Rewamps the ecosystem to feel more alive and immersive.",
+  "dependencies": [ "Fandovec03-SpiderPositionFix-1.1.2", "Fandovec03-NaturalSelectionLib-0.3.0" ]
 }

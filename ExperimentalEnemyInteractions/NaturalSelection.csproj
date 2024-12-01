@@ -2,8 +2,8 @@
 
     <!-- BepInEx Properties -->
     <PropertyGroup>
-        <AssemblyName>fandovec03.NaturalSelection</AssemblyName>
-        <Product>NaturalSelection</Product>
+        <AssemblyName>fandovec03.ExperimentalEnemyInteractions</AssemblyName>
+        <Product>ExperimentalEnemyInteractions</Product>
         <!-- Change to whatever version you're currently on. -->
         <Version>0.1.0</Version>
     </PropertyGroup>

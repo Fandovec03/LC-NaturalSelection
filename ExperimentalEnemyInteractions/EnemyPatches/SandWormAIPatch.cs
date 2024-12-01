@@ -128,7 +128,7 @@ namespace NaturalSelection.EnemyPatches
                     break;
                 case 1:
                     {
-                        if (debugSandworm) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "closestEnemy is " + EnemyAIPatch.DebugStringHead(SandwormData.closestEnemy) + ", isEnemyDead: " + SandwormData.closestEnemy.isEnemyDead + " /3/");
+                        if (debugSandworm && SandwormData.closestEnemy != null) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "closestEnemy is " + EnemyAIPatch.DebugStringHead(SandwormData.closestEnemy) + ", isEnemyDead: " + SandwormData.closestEnemy.isEnemyDead + " /3/");
                         if (!__instance.movingTowardsTargetPlayer)
                         {
                             if (!__instance.creatureSFX.isPlaying && !__instance.inEmergingState && !__instance.emerged)
@@ -143,7 +143,7 @@ namespace NaturalSelection.EnemyPatches
                             {
                                 break;
                             }
-                            if (!SandwormData.targetEnemy)
+                            if (SandwormData.targetEnemy == null)
                             {
                                 if (debugSandworm) Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + " TargetEnemy is null! TargetingEntity set to false /Trigger 1/");
                                 SandwormData.targetingEntity = 0;
@@ -203,7 +203,7 @@ namespace NaturalSelection.EnemyPatches
                     break;
                 case 1:
                     {
-                        if (debugSandworm) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "closestEnemy is " + EnemyAIPatch.DebugStringHead(SandwormData.closestEnemy) + ", isEnemyDead: " + SandwormData.closestEnemy.isEnemyDead + " /2/");
+                        if (debugSandworm && SandwormData.closestEnemy != null) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "closestEnemy is " + EnemyAIPatch.DebugStringHead(SandwormData.closestEnemy) + ", isEnemyDead: " + SandwormData.closestEnemy.isEnemyDead + " /2/");
                         if (SandwormData.targetEnemy == null || SandwormData.targetEnemy.isEnemyDead)
                         {
                             if (debugSandworm) Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + ": targetEnemy is at null or dead. Setting targetingEntity to false /Trigger 2/");

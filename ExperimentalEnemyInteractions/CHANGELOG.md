@@ -1,3 +1,6 @@
+0.1.2 <br>
+	- fixed logs
+	- some minor changes
 0.1.1 <br>
 	- Fixed NullReferenceException some logs
 0.1.0 <br>

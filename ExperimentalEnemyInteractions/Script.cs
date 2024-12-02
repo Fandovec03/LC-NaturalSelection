@@ -36,10 +36,19 @@ public class Script : BaseUnityPlugin
     {
         Harmony ??= new Harmony(MyPluginInfo.PLUGIN_GUID);
 
-        Logger.LogInfo("Patching "+ MyPluginInfo.PLUGIN_GUID + " ...");
+        Logger.LogInfo("Patching "+ MyPluginInfo.PLUGIN_NAME + " ...");
 
         Harmony.PatchAll(typeof(AICollisionDetectPatch));
         Harmony.PatchAll(typeof(EnemyAIPatch));
+        try
+        {
+            NaturalSelectionLib.NaturalSelectionLib.LibrarySetup(Logger, BoundingConfig.spammyLogs.Value, BoundingConfig.debugUnspecified.Value);
+            Logger.LogInfo("Library successfully setup!");
+        }
+        catch
+        {
+            Logger.LogError("Failed to setup library!");
+        }
         if (BoundingConfig.loadSandworms.Value)Harmony.PatchAll(typeof(SandWormAIPatch));
         if (BoundingConfig.loadBlob.Value)Harmony.PatchAll(typeof(BlobAIPatch));
         if (BoundingConfig.loadHoardingBugs.Value)Harmony.PatchAll(typeof(HoarderBugPatch));
@@ -58,7 +67,7 @@ public class Script : BaseUnityPlugin
         {
         Logger.LogInfo("Stable mode on. Excluded unstable and WIP patches from loading.");
         }
-        Logger.LogInfo("Finished patching " + MyPluginInfo.PLUGIN_GUID + " !");
+        Logger.LogInfo("Finished patching " + MyPluginInfo.PLUGIN_NAME + " !");
     }
 
     internal static void Unpatch()

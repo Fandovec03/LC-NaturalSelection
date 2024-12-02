@@ -19,7 +19,6 @@ namespace NaturalSelection.EnemyPatches
         static void StartPostfix(EnemyAI __instance)
         {
             if (debugSpam && debugUnspecified)Script.Logger.LogInfo("Called Setup library!");
-            NaturalSelectionLib.NaturalSelectionLib.LibrarySetup(Script.Logger, debugSpam, debugUnspecified);
             foreach (Collider collider in __instance.gameObject.GetComponentsInChildren<Collider>())
             {
                 if (collider.isTrigger != true)
@@ -29,19 +28,6 @@ namespace NaturalSelection.EnemyPatches
                 }
             }
             __instance.agent.radius = __instance.agent.radius * Script.clampedAgentRadius;
-        }
-
-        [HarmonyPatch("Update")]
-        [HarmonyPostfix]
-        static void UpdatePostfixPatch(EnemyAI __instance)
-        {
-            if (refreshCDtime <= 0)
-            {
-                if (debugSpam && debugTriggerFlag && debugUnspecified) Script.Logger.LogInfo("Called library!");
-                NaturalSelectionLib.NaturalSelectionLib.EnemyListUpdate(__instance);
-                refreshCDtime = 1f;
-            }
-            else refreshCDtime -= Time.deltaTime;
         }
 
         public static string DebugStringHead(EnemyAI? instance)

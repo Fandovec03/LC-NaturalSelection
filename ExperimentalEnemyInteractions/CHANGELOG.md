@@ -1,7 +1,7 @@
 **Natural selection**
 0.1.2 <br>
-	- fixed logs
-	- some minor changes
+	- Fixed logs
+	- Updated for NaturalSelectionLib 0.4.0
 0.1.1 <br>
 	- Fixed NullReferenceException some logs<br>
 0.1.0 <br>

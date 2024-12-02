@@ -1,7 +1,7 @@
 **Natural selection**
 0.1.2 <br>
-	- fixed logs<br>
-	- some minor changes<br>
+	- fixed logs
+	- some minor changes
 0.1.1 <br>
 	- Fixed NullReferenceException some logs<br>
 0.1.0 <br>

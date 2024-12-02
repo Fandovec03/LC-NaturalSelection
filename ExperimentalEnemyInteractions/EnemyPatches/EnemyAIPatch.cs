@@ -9,7 +9,6 @@ namespace NaturalSelection.EnemyPatches
     [HarmonyPatch(typeof(EnemyAI))]
     class EnemyAIPatch
     {
-        static List<EnemyAI> enemyList = new List<EnemyAI>();
         static float refreshCDtime = 1f;
         static bool debugUnspecified = Script.BoundingConfig.debugUnspecified.Value;
         static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
@@ -19,7 +18,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void StartPostfix(EnemyAI __instance)
         {
-            Script.Logger.LogInfo("Called Setup library!");
+            if (debugSpam && debugUnspecified)Script.Logger.LogInfo("Called Setup library!");
             NaturalSelectionLib.NaturalSelectionLib.LibrarySetup(Script.Logger, debugSpam, debugUnspecified);
             foreach (Collider collider in __instance.gameObject.GetComponentsInChildren<Collider>())
             {

@@ -1,7 +1,5 @@
 # Natural selection - food chains and ecosystems
 
-__This is experimental branch of [Natural selection - food chains and ecosystems](https://thunderstore.io/c/lethal-company/p/Fandovec03/Natural_selection/)!__
-
 Aimed to make the game's ecosystem feel more alive, immersive and semi-realistic.<br>
 Ever felt like every living being is trying to kill you and everything is stacked agaisnt you? or do you just want to observe the world? __This mod might be for you!__<br>
 <br>

@@ -1,7 +1,7 @@
-**Natural selection**
+**Natural selection**<br>
 0.1.2 <br>
-	- Fixed logs
-	- Updated for NaturalSelectionLib 0.4.0
+	- Fixed logs<br>
+	- Updated for NaturalSelectionLib 0.4.0<br>
 0.1.1 <br>
 	- Fixed NullReferenceException some logs<br>
 0.1.0 <br>
@@ -11,7 +11,7 @@
 0.0.1 <br>
 - Inital Upload <br>
 --------------------------------------------------------------
-**Experimental Enemy Interactions**
+**Experimental Enemy Interactions**<br>
 0.2.0 - <br>
 	- Updated to the Stable release!<br>
 0.1.28 - <br>

@@ -38,6 +38,10 @@ public class Script : BaseUnityPlugin
 
         Logger.LogInfo("Patching "+ MyPluginInfo.PLUGIN_NAME + " ...");
 
+        for (int i = 0; i < 100; i++)
+        {
+            Logger.LogError("LOADING EXPERIMENTAL " + MyPluginInfo.PLUGIN_NAME.ToUpper() + ", DOWNLOAD NATURAL SELECTION INSTEAD!");
+        }
         Harmony.PatchAll(typeof(AICollisionDetectPatch));
         Harmony.PatchAll(typeof(EnemyAIPatch));
         try

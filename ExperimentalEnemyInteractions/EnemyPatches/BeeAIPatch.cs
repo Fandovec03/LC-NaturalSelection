@@ -22,7 +22,6 @@ namespace NaturalSelection.EnemyPatches
     class BeeAIPatch
     {
         static Dictionary<RedLocustBees, BeeValues> beeList = [];
-        static List<EnemyAI> enemyList = new List<EnemyAI>();
         static bool logBees = Script.BoundingConfig.debugRedBees.Value;
         static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
         static float UpdateTimer = 0f;
@@ -50,11 +49,11 @@ namespace NaturalSelection.EnemyPatches
         {
             if (UpdateTimer <= 0f)
             {
-                enemyList = EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance), beeList[__instance].enemyTypes, __instance, true);
-                if (enemyList.Contains(__instance))
+                EnemyAIPatch.UpdateListInsideDictionrary(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance), beeList[__instance].enemyTypes, __instance, true));
+                if (EnemyAIPatch.globalEnemyLists[__instance.GetType()].Contains(__instance))
                 {
                     if (logBees && debugSpam) Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + " FOUND ITSELF IN THE EnemyList! Removing...");
-                    enemyList.Remove(__instance);
+                    EnemyAIPatch.globalEnemyLists[__instance.GetType()].Remove(__instance);
                 }
                 UpdateTimer = 0.2f;
             }
@@ -92,19 +91,19 @@ namespace NaturalSelection.EnemyPatches
             {
                 case 0:
                     EnemyAI? LOSenemy = null;
-                    if (EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1).Count > 0)
+                    if (EnemyAIPatch.GetEnemiesInLOS(__instance, EnemyAIPatch.globalEnemyLists[__instance.GetType()], 360f, 16, 1).Count > 0)
                     {
-                        if (enemyList.Contains(__instance))
+                        if (EnemyAIPatch.globalEnemyLists[__instance.GetType()].Contains(__instance))
                         {
                             if (logBees && debugSpam) Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + " FOUND ITSELF IN THE EnemyList before LOSEnemy! Removing...");
-                            enemyList.Remove(__instance);
+                            EnemyAIPatch.globalEnemyLists[__instance.GetType()].Remove(__instance);
                         }
-                        LOSenemy = EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1).Keys.First();
+                        LOSenemy = EnemyAIPatch.GetEnemiesInLOS(__instance, EnemyAIPatch.globalEnemyLists[__instance.GetType()], 360f, 16, 1).Keys.First();
                         if (logBees) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "case0: Checked LOS for enemies. Enemy found: " + EnemyAIPatch.DebugStringHead(LOSenemy));
 
                         if (logBees && debugSpam)
                         {
-                            foreach (KeyValuePair<EnemyAI, float> keyPair in EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1))
+                            foreach (KeyValuePair<EnemyAI, float> keyPair in EnemyAIPatch.GetEnemiesInLOS(__instance, EnemyAIPatch.globalEnemyLists[__instance.GetType()], 360f, 16, 1))
                             {
                                 Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(__instance) + " Checking the LOSList: " + EnemyAIPatch.DebugStringHead(keyPair.Key) + ", Distance: " + keyPair.Value);
                                 if (keyPair.Key == __instance) Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + " FOUND ITSELF IN THE LOSList: " + EnemyAIPatch.DebugStringHead(keyPair.Key) + ", Distance: " + keyPair.Value);
@@ -213,7 +212,7 @@ namespace NaturalSelection.EnemyPatches
                     }
 
                     bool flag = false;
-                    Dictionary<EnemyAI, float> priorityEnemies = EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1f);
+                    Dictionary<EnemyAI, float> priorityEnemies = EnemyAIPatch.GetEnemiesInLOS(__instance, EnemyAIPatch.globalEnemyLists[__instance.GetType()], 360f, 16, 1f);
                     EnemyAI? closestToHive = null;
                     
                     if (priorityEnemies.Count > 0)
@@ -239,7 +238,7 @@ namespace NaturalSelection.EnemyPatches
                     if (beeData.targetEnemy != null)
                     {
                         __instance.agent.acceleration = 16f;
-                        if (!flag && EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 2f).Count == 0)
+                        if (!flag && EnemyAIPatch.GetEnemiesInLOS(__instance, EnemyAIPatch.globalEnemyLists[__instance.GetType()], 360f, 16, 2f).Count == 0)
                         {
                             if (logBees && debugSpam) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(__instance) + "case2: lost LOS of " + beeData.targetEnemy + ", started timer.");
                             beeData.LostLOSOfEnemy += __instance.AIIntervalTime;

@@ -14,7 +14,6 @@ namespace NaturalSelection.EnemyPatches
         static bool debugUnspecified = Script.BoundingConfig.debugUnspecified.Value;
         static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
         static bool debugTriggerFlag = Script.BoundingConfig.debugTriggerFlags.Value;
-        public static Dictionary<Type, List<EnemyAI>> globalEnemyLists = new Dictionary<Type, List<EnemyAI>>();
 
         [HarmonyPatch("Start")]
         [HarmonyPostfix]
@@ -30,19 +29,6 @@ namespace NaturalSelection.EnemyPatches
                 }
             }
             __instance.agent.radius = __instance.agent.radius * Script.clampedAgentRadius;
-        }
-
-        public static void UpdateListInsideDictionrary(EnemyAI instance, List<EnemyAI> list)
-        {
-            if (!globalEnemyLists.Keys.Contains(instance.GetType()))
-            {
-                globalEnemyLists.Add(instance.GetType(), new List<EnemyAI>());
-            }
-            else
-            {
-                globalEnemyLists[instance.GetType()] = list;
-                if (debugSpam && debugUnspecified)Script.Logger.LogInfo(DebugStringHead(instance) + "/updateListInsideDictionary/ updating new list for " + instance.GetType());
-            }
         }
 
         public static string DebugStringHead(EnemyAI? instance)
@@ -73,10 +59,10 @@ namespace NaturalSelection.EnemyPatches
             if (debugSpam && debugTriggerFlag && debugUnspecified) Script.Logger.LogInfo("Called library findClosestEnemy!");
             return NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemy(importEnemyList, importClosestEnemy, instance, includeTheDead);
         }
-        public static List<EnemyAI> FilterEnemyList(List<EnemyAI> importEnemyList, List<Type> targetTypes, EnemyAI instance, bool inverseToggle = false)
+        public static List<EnemyAI> FilterEnemyList(List<EnemyAI> importEnemyList, List<Type>? targetTypes, EnemyAI instance, bool inverseToggle = false, bool filterOutImmortal = true)
         {
             if (debugSpam && debugTriggerFlag && debugUnspecified) Script.Logger.LogInfo("Called library filterEnemyList!");
-            return NaturalSelectionLib.NaturalSelectionLib.FilterEnemyList(importEnemyList, targetTypes, instance, inverseToggle);
+            return NaturalSelectionLib.NaturalSelectionLib.FilterEnemyList(importEnemyList, targetTypes, instance, inverseToggle, filterOutImmortal);
         }
         
 

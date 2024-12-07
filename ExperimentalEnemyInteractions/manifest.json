@@ -1,7 +1,7 @@
 {
   "name": "ExperimentalEnemyInteractions",
   "version_number": "0.2.3",
-  "website_url": "https://github.com/Fandovec03/ExperimentalEnemyInteractions",
+  "website_url": "https://github.com/Fandovec03/LC-NaturalSelection",
   "description": "Rewamps the ecosystem to feel more alive and immersive.",
   "dependencies": [
     "Fandovec03-SpiderPositionFix-1.1.2",

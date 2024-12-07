@@ -16,6 +16,8 @@
 - Inital Upload <br>
 --------------------------------------------------------------<br>
 **Experimental Enemy Interactions**<br>
+0.2.1 - <br>
+	- Experimental release of 0.1.3<br>
 0.2.0 - <br>
 	- Updated to the Stable release!<br>
 0.1.28 - <br>

@@ -15,6 +15,9 @@ namespace NaturalSelection.Generics
         static Dictionary<Type, List<EnemyAI>> checkedTypes = new Dictionary<Type, List<EnemyAI>>();
         public static float updateListInterval = 1f;
         private static bool canUpdate = true;
+        static bool logSpam = Script.BoundingConfig.spammyLogs.Value;
+        static bool logUnspecified = Script.BoundingConfig.debugUnspecified.Value;
+
         [HarmonyPatch("Update")]
         [HarmonyPrefix]
         static void UpdatePatch()
@@ -35,12 +38,12 @@ namespace NaturalSelection.Generics
             if (!checkedTypes.ContainsKey(instance.GetType()))
             {
                 checkedTypes.Add(instance.GetType(), new List<EnemyAI>());
-                Script.Logger.LogMessage("/RoundManager/ request was Accepted. Requested by " + EnemyAIPatch.DebugStringHead(instance) + " at " + Time.realtimeSinceStartup);
+                if (logUnspecified && logSpam) Script.Logger.LogMessage("/RoundManager/ request was Accepted. Requested by " + EnemyAIPatch.DebugStringHead(instance) + " at " + Time.realtimeSinceStartup);
                 return true;
             }
             else
             {
-                Script.Logger.LogInfo("/RoundManager/ request was Denied. Requested by " + EnemyAIPatch.DebugStringHead(instance) + " at " + Time.realtimeSinceStartup);
+                if (logUnspecified && logSpam) Script.Logger.LogInfo("/RoundManager/ request was Denied. Requested by " + EnemyAIPatch.DebugStringHead(instance) + " at " + Time.realtimeSinceStartup);
                 return false;
             }
         }

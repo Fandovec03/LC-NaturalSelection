@@ -16,6 +16,8 @@
 - Inital Upload <br>
 --------------------------------------------------------------<br>
 **Experimental Enemy Interactions**<br>
+0.2.3 - <br>
+	- Experimental fix for bees
 0.2.2 - <br>
 	- Implemented experimental global enemy list system. Every enemy now shares the same enemy list between eachother. Hopefully this will improve performance<br>
 0.2.1 - <br>

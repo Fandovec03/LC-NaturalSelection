@@ -7,7 +7,8 @@ using UnityEngine;
 namespace NaturalSelection.Generics;
     class MyModConfig
     {
-
+    //experimental fixes
+        public readonly ConfigEntry<bool> delayScriptsOnSpawn;
     //settings
         public readonly ConfigEntry<bool> stableMode;
         public readonly ConfigEntry<bool> spiderHuntHoardingbug;
@@ -43,7 +44,8 @@ namespace NaturalSelection.Generics;
         {
         cfg.SaveOnConfigSet = false;
         {
-            //settings
+            //experimental fixes
+            delayScriptsOnSpawn = cfg.Bind("Experimental Fixes", "Delay enemy scripts on spawn", false, "Delay enemy scripts from taking effect on enemy spawns. Might fix invisible bees");
             stableMode = cfg.Bind("General Settings", "Toggle stable mode", true, "When true, the mod will exlude patches that are WIP or are experimental from loading");
             agentRadiusModifier = cfg.Bind("WIP", "Agent radius modifier", 0.6f, "Agent radius multiplier. Agent size is modified to make collisions more reliable. Lower multiplier makes final Agent radius smaller. \n \n [Values not between 0.1 and 1 are Clamped]");
             agentRadiusModifier.Value = Mathf.Clamp(agentRadiusModifier.Value, 0.1f, 1f);

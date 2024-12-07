@@ -1,4 +1,8 @@
 **Natural selection**<br>
+0.1.3 <br>
+	- Added config to delay enemy patches taking effect when enemy spawns.
+		-- Currenty only applies to bees. Hopefilly fixes invisible bees bug
+	- The mod no longer sets all colliders on enemies to be triggers.
 0.1.2 <br>
 	- Fixed logs<br>
 	- Updated for NaturalSelectionLib 0.4.0<br>
@@ -10,7 +14,7 @@
 	- Made less spammy logs <br>
 0.0.1 <br>
 - Inital Upload <br>
---------------------------------------------------------------
+--------------------------------------------------------------<br>
 **Experimental Enemy Interactions**<br>
 0.2.0 - <br>
 	- Updated to the Stable release!<br>

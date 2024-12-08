@@ -1,5 +1,6 @@
 **Natural selection**<br>
 0.1.3 <br>
+	- Implemented global enemy list.
 	- Added config to delay enemy patches taking effect when enemy spawns.<br>
 		-- Currenty only applies to bees. Hopefilly fixes invisible bees bug<br>
 	- The mod no longer sets all colliders on enemies to be triggers.<br>

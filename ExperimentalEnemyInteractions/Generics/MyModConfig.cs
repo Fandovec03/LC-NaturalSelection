@@ -7,43 +7,48 @@ using UnityEngine;
 namespace NaturalSelection.Generics;
     class MyModConfig
     {
-
+    //experimental fixes
+    public readonly ConfigEntry<bool> delayScriptsOnSpawn;
+    public readonly ConfigEntry<float> delay;
     //settings
-        public readonly ConfigEntry<bool> stableMode;
-        public readonly ConfigEntry<bool> spiderHuntHoardingbug;
-        public readonly ConfigEntry<float> agentRadiusModifier;
+    public readonly ConfigEntry<bool> stableMode;
+    public readonly ConfigEntry<bool> spiderHuntHoardingbug;
+    public readonly ConfigEntry<float> agentRadiusModifier;
     //enemy bools
-        public readonly ConfigEntry<bool> enableSpider;
-        public readonly ConfigEntry<bool> enableSlime;
-        public readonly ConfigEntry<bool> enableLeviathan;
-        public readonly ConfigEntry<bool> enableSporeLizard;
-        public readonly ConfigEntry<bool> enableRedBees;
-        public readonly ConfigEntry<bool> enableNutcrackers;
+    public readonly ConfigEntry<bool> enableSpider;
+    public readonly ConfigEntry<bool> enableSlime;
+    public readonly ConfigEntry<bool> enableLeviathan;
+    public readonly ConfigEntry<bool> enableSporeLizard;
+    public readonly ConfigEntry<bool> enableRedBees;
+    public readonly ConfigEntry<bool> enableNutcrackers;
     //Load bools
-        public readonly ConfigEntry<bool> loadNutcrackers;
-        public readonly ConfigEntry<bool> loadSpiders;
-        public readonly ConfigEntry<bool> loadSandworms;
-        public readonly ConfigEntry<bool> loadGiants;
-        public readonly ConfigEntry<bool> loadHoardingBugs;
-        public readonly ConfigEntry<bool> loadBlob;
-        public readonly ConfigEntry<bool> LoadBees;
-        public readonly ConfigEntry<bool> loadSporeLizard;
+    public readonly ConfigEntry<bool> loadNutcrackers;
+    public readonly ConfigEntry<bool> loadSpiders;
+    public readonly ConfigEntry<bool> loadSandworms;
+    public readonly ConfigEntry<bool> loadGiants;
+    public readonly ConfigEntry<bool> loadHoardingBugs;
+    public readonly ConfigEntry<bool> loadBlob;
+    public readonly ConfigEntry<bool> LoadBees;
+    public readonly ConfigEntry<bool> loadSporeLizard;
     //debug
-        public readonly ConfigEntry<bool> debugBool;
-        public readonly ConfigEntry<bool> spammyLogs;
-        public readonly ConfigEntry<bool> debugTriggerFlags;
-        public readonly ConfigEntry<bool> debugRedBees;
-        public readonly ConfigEntry<bool> debugSandworms;
-        public readonly ConfigEntry<bool> debugHygrodere;
-        public readonly ConfigEntry<bool> debugNutcrackers;
-        public readonly ConfigEntry<bool> debugSpiders;
-        public readonly ConfigEntry<bool> debugGiants;
-        public readonly ConfigEntry<bool> debugUnspecified;
-        public MyModConfig(ConfigFile cfg)
-        {
+    public readonly ConfigEntry<bool> debugBool;
+    public readonly ConfigEntry<bool> spammyLogs;
+    public readonly ConfigEntry<bool> debugTriggerFlags;
+    public readonly ConfigEntry<bool> debugRedBees;
+    public readonly ConfigEntry<bool> debugSandworms;
+    public readonly ConfigEntry<bool> debugHygrodere;
+    public readonly ConfigEntry<bool> debugNutcrackers;
+    public readonly ConfigEntry<bool> debugSpiders;
+    public readonly ConfigEntry<bool> debugGiants;
+    public readonly ConfigEntry<bool> debugUnspecified;
+    public MyModConfig(ConfigFile cfg)
+    {
         cfg.SaveOnConfigSet = false;
         {
-            //settings
+            //experimental fixes
+            delayScriptsOnSpawn = cfg.Bind("Experimental Fixes", "Delay enemy scripts on spawn", false, "Delay enemy scripts from taking effect on enemy spawns. Might fix invisible bees");
+            delay = cfg.Bind("Experimental Fixes", "Delay", 0.2f, "Set the length of the delay");
+            //general settings
             stableMode = cfg.Bind("General Settings", "Toggle stable mode", true, "When true, the mod will exlude patches that are WIP or are experimental from loading");
             agentRadiusModifier = cfg.Bind("WIP", "Agent radius modifier", 0.6f, "Agent radius multiplier. Agent size is modified to make collisions more reliable. Lower multiplier makes final Agent radius smaller. \n \n [Values not between 0.1 and 1 are Clamped]");
             agentRadiusModifier.Value = Mathf.Clamp(agentRadiusModifier.Value, 0.1f, 1f);
@@ -79,11 +84,11 @@ namespace NaturalSelection.Generics;
         ClearOrphanedEntries(cfg);
         cfg.Save();
         cfg.SaveOnConfigSet = true;
-        }
-        public void ClearOrphanedEntries(ConfigFile cfg)
-        {
-        PropertyInfo orphanedEnriesProp = AccessTools.Property(typeof(ConfigFile), "OrphanedEntries");
-        var orphanedEntries = (Dictionary<ConfigDefinition, string>)orphanedEnriesProp.GetValue(cfg);
-        orphanedEntries.Clear();
-        }
     }
+    public void ClearOrphanedEntries(ConfigFile cfg)
+    {
+    PropertyInfo orphanedEnriesProp = AccessTools.Property(typeof(ConfigFile), "OrphanedEntries");
+    var orphanedEntries = (Dictionary<ConfigDefinition, string>)orphanedEnriesProp.GetValue(cfg);
+    orphanedEntries.Clear();
+    }
+}

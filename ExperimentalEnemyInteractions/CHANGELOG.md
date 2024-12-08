@@ -1,7 +1,11 @@
-**Natural selection** <br>
+**Natural selection**<br>
+0.1.3 <br>
+	- Added config to delay enemy patches taking effect when enemy spawns.<br>
+		-- Currenty only applies to bees. Hopefilly fixes invisible bees bug<br>
+	- The mod no longer sets all colliders on enemies to be triggers.<br>
 0.1.2 <br>
 	- Fixed logs<br>
-	- Updated for NaturalSelectionLib 0.4.0 <br>
+	- Updated for NaturalSelectionLib 0.4.0<br>
 0.1.1 <br>
 	- Fixed NullReferenceException some logs<br>
 0.1.0 <br>
@@ -10,11 +14,17 @@
 	- Made less spammy logs <br>
 0.0.1 <br>
 - Inital Upload <br>
--------------------------------------------------------------- <br>
-**Experimental Enemy Interactions** <br>
+--------------------------------------------------------------<br>
+**Experimental Enemy Interactions**<br>
+0.2.4 -<br>
+	- Added config for the bees fix
+0.2.3 - <br>
+	- Experimental fix for bees
+0.2.2 - <br>
+	- Implemented experimental global enemy list system. Every enemy now shares the same enemy list between eachother. Hopefully this will improve performance<br>
 0.2.1 - <br>
-	- Updated to latest branch
-	- Implemented experimental global enemyList
+	- Updated to latest branch<br>
+	- Implemented experimental global enemyList<br>
 0.2.0 - <br>
 	- Updated to the Stable release!<br>
 0.1.28 - <br>

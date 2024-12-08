@@ -5,7 +5,7 @@
         <AssemblyName>fandovec03.NaturalSelection</AssemblyName>
         <Product>NaturalSelection</Product>
         <!-- Change to whatever version you're currently on. -->
-        <Version>0.1.2</Version>
+        <Version>0.1.3</Version>
     </PropertyGroup>
 
     <!-- Project Properties -->
@@ -47,7 +47,7 @@
         <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" PrivateAssets="all" />
         <PackageReference Include="LethalCompany.GameLibs.Steam" Version="*-*" PrivateAssets="all" />
         <PackageReference Include="UnityEngine.Modules" Version="2022.3.9" IncludeAssets="compile" PrivateAssets="all" />
-		<PackageReference Include="fandovec03.NaturalSelectionLib" Version="0.3.0" />
+		<PackageReference Include="fandovec03.NaturalSelectionLib" Version="0.4.1-alpha3" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">

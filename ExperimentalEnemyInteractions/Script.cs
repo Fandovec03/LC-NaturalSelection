@@ -8,7 +8,7 @@ using UnityEngine;
 namespace NaturalSelection;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-[BepInDependency("fandovec03.NaturalSelectionLib", BepInDependency.DependencyFlags.HardDependency)]
+//[BepInDependency("fandovec03.NaturalSelectionLib", BepInDependency.DependencyFlags.HardDependency)]
 public class Script : BaseUnityPlugin
 {
     public static Script Instance { get; private set; } = null!;
@@ -53,6 +53,7 @@ public class Script : BaseUnityPlugin
         {
             Logger.LogError("Failed to setup library!");
         }
+        Harmony.PatchAll(typeof(RoundManagerPatch));
         if (BoundingConfig.loadSandworms.Value)Harmony.PatchAll(typeof(SandWormAIPatch));
         if (BoundingConfig.loadBlob.Value)Harmony.PatchAll(typeof(BlobAIPatch));
         if (BoundingConfig.loadHoardingBugs.Value)Harmony.PatchAll(typeof(HoarderBugPatch));

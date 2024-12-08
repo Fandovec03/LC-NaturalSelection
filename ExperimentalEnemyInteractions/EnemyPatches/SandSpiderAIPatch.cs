@@ -2,6 +2,7 @@
 using HarmonyLib;
 using UnityEngine;
 using System.Linq;
+using NaturalSelection.Generics;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -30,7 +31,6 @@ namespace NaturalSelection.EnemyPatches
     [HarmonyPatch(typeof(SandSpiderAI))]
     class SandSpiderAIPatch
     {
-        static public List<EnemyAI> enemyList = new List<EnemyAI>();
         static float refreshCDtimeSpider = 1f;
         static bool enableSpider = Script.BoundingConfig.enableSpider.Value;
         static bool spiderHuntHoardingbug = Script.BoundingConfig.spiderHuntHoardingbug.Value;
@@ -61,9 +61,11 @@ namespace NaturalSelection.EnemyPatches
              {
                  __instance.CalculateSpiderPathToPosition();
              }*/
-
-            enemyList = EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance);
-            spiderData.enemiesInLOSDictionary = EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 80f, 15, 2f);
+            if (RoundManagerPatch.RequestUpdate(__instance) == true)
+            {
+                RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance));
+            }
+            spiderData.enemiesInLOSDictionary = EnemyAIPatch.GetEnemiesInLOS(__instance, NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()], 80f, 15, 2f);
 
             if (spiderData.enemiesInLOSDictionary.Count > 0)
             {

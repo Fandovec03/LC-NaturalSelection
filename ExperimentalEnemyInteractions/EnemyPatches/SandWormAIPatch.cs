@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using HarmonyLib;
+using NaturalSelection.Generics;
 using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches
@@ -28,7 +29,6 @@ namespace NaturalSelection.EnemyPatches
     [HarmonyPatch(typeof(SandWormAI))]
     class SandWormAIPatch
     {
-        static List<EnemyAI> enemyList = new List<EnemyAI>();
         static List<Type> targetedTypes = new List<Type>();
         static bool debugSandworm = Script.BoundingConfig.debugSandworms.Value;
         static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
@@ -62,8 +62,12 @@ namespace NaturalSelection.EnemyPatches
 
             if (SandwormData.refreshCDtime <= 0)
             {
-                enemyList = EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 0), __instance), targetedTypes, __instance);
-                SandwormData.closestEnemy = EnemyAIPatch.FindClosestEnemy(enemyList, SandwormData.closestEnemy, __instance);
+                if (RoundManagerPatch.RequestUpdate(__instance) == true)
+                {
+                    RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 0), __instance), targetedTypes, __instance));
+                    //NaturalSelectionLib.NaturalSelectionLib.UpdateListInsideDictionrary(__instance.GetType(), EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 0), __instance), targetedTypes, __instance));
+                }
+                SandwormData.closestEnemy = EnemyAIPatch.FindClosestEnemy(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()], SandwormData.closestEnemy, __instance);
                 SandwormData.refreshCDtime = 0.2f;
             }
             if (SandwormData.refreshCDtime > 0)
@@ -185,7 +189,7 @@ namespace NaturalSelection.EnemyPatches
                     {
                         if (!__instance.emerged && !__instance.inEmergingState)
                         {
-                            SandwormData.closestEnemy = EnemyAIPatch.FindClosestEnemy(enemyList, SandwormData.closestEnemy, __instance);
+                            SandwormData.closestEnemy = EnemyAIPatch.FindClosestEnemy(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()], SandwormData.closestEnemy, __instance);
                             __instance.agent.speed = 4f;
                             if (debugSandworm) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "DoAIInterval: assigned " + SandwormData.closestEnemy + " as closestEnemy");
                             if (SandwormData.closestEnemy != null && Vector3.Distance(__instance.transform.position, SandwormData.closestEnemy.transform.position) < 15f)

@@ -23,7 +23,6 @@ namespace NaturalSelection.EnemyPatches
     class BeeAIPatch
     {
         static Dictionary<RedLocustBees, BeeValues> beeList = [];
-        static List<EnemyAI> enemyList = new List<EnemyAI>();
         static bool logBees = Script.BoundingConfig.debugRedBees.Value;
         static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
         static float UpdateTimer = Script.BoundingConfig.delay.Value;
@@ -51,19 +50,14 @@ namespace NaturalSelection.EnemyPatches
         {
             if (beeList[__instance].start == false)
             {
-                if (UpdateTimer <= 0f)
+                if (RoundManagerPatch.RequestUpdateList(__instance) == true)
                 {
-                    enemyList = EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance), beeList[__instance].enemyTypes, __instance, true);
-                    if (enemyList.Contains(__instance))
-                    {
-                        if (logBees && debugSpam) Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + " FOUND ITSELF IN THE EnemyList! Removing...");
-                        enemyList.Remove(__instance);
-                    }
-                    UpdateTimer = 0.2f;
+                    EnemyAIPatch.UpdateListInsideDictionrary(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance), beeList[__instance].enemyTypes, __instance, true));
                 }
-                else
+                if (EnemyAIPatch.globalEnemyLists[__instance.GetType()].Contains(__instance))
                 {
-                    UpdateTimer -= Time.deltaTime;
+                    if (logBees && debugSpam) Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + " FOUND ITSELF IN THE EnemyList! Removing...");
+                    EnemyAIPatch.globalEnemyLists[__instance.GetType()].Remove(__instance);
                 }
             }
             else if (UpdateTimer <= 0f)
@@ -107,11 +101,21 @@ namespace NaturalSelection.EnemyPatches
             {
                 switch (__instance.currentBehaviourStateIndex)
                 {
-                    case 0:
-                        EnemyAI? LOSenemy = null;
-                        if (EnemyAIPatch.GetEnemiesInLOS(__instance, enemyList, 360f, 16, 1).Count > 0)
+                case 0:
+                    EnemyAI? LOSenemy = null;
+                    if (EnemyAIPatch.GetEnemiesInLOS(__instance, EnemyAIPatch.globalEnemyLists[__instance.GetType()], 360f, 16, 1).Count > 0)
+                    {
+                        if (EnemyAIPatch.globalEnemyLists[__instance.GetType()].Contains(__instance))
                         {
-                            if (enemyList.Contains(__instance))
+                            if (logBees && debugSpam) Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + " FOUND ITSELF IN THE EnemyList before LOSEnemy! Removing...");
+                            EnemyAIPatch.globalEnemyLists[__instance.GetType()].Remove(__instance);
+                        }
+                        LOSenemy = EnemyAIPatch.GetEnemiesInLOS(__instance, EnemyAIPatch.globalEnemyLists[__instance.GetType()], 360f, 16, 1).Keys.First();
+                        if (logBees) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "case0: Checked LOS for enemies. Enemy found: " + EnemyAIPatch.DebugStringHead(LOSenemy));
+
+                        if (logBees && debugSpam)
+                        {
+                            foreach (KeyValuePair<EnemyAI, float> keyPair in EnemyAIPatch.GetEnemiesInLOS(__instance, EnemyAIPatch.globalEnemyLists[__instance.GetType()], 360f, 16, 1))
                             {
                                 if (logBees && debugSpam) Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + " FOUND ITSELF IN THE EnemyList before LOSEnemy! Removing...");
                                 enemyList.Remove(__instance);
@@ -128,39 +132,68 @@ namespace NaturalSelection.EnemyPatches
                                 }
                             }
                         }
+                    }
+                    if (__instance.wasInChase)
+                    {
+                        __instance.wasInChase = false;
+                    }
+                    if (Vector3.Distance(__instance.transform.position, __instance.lastKnownHivePosition) > 2f)
+                    {
+                        __instance.SetDestinationToPosition(__instance.lastKnownHivePosition, true);
+                    }
+                    if (__instance.IsHiveMissing())
+                    {
+                        __instance.SwitchToBehaviourState(2);
+                        beeData.customBehaviorStateIndex = 2;
+                        if (logBees) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "case0: HIVE IS MISSING! CustomBehaviorStateIndex changed: " + beeData.customBehaviorStateIndex);
+                        break;
+                    }
+                    if (LOSenemy != null && Vector3.Distance(LOSenemy.transform.position, __instance.hive.transform.position) < (float)__instance.defenseDistance /*&& Vector3.Distance(__instance.targetPlayer.transform.position, __instance.hive.transform.position) < Vector3.Distance(LOSenemy.transform.position, __instance.hive.transform.position)*/)
+                    {
+                        __instance.SetDestinationToPosition(LOSenemy.transform.position, true);
+                        if (logBees) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "case0: Moving towards " + LOSenemy);
 
-                        if (__instance.wasInChase)
+                        beeData.customBehaviorStateIndex = 1;
+                        __instance.SwitchToBehaviourState(1);
+                        __instance.syncedLastKnownHivePosition = false;
+                        __instance.SyncLastKnownHivePositionServerRpc(__instance.lastKnownHivePosition);
+                        beeData.LostLOSOfEnemy = 0f;
+                        if (logBees) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(__instance) + "case0: CustomBehaviorStateIndex changed: " + beeData.customBehaviorStateIndex);
+                    }
+                    break;
+                }
+                case 1:
+                    if (__instance.targetPlayer != null && __instance.movingTowardsTargetPlayer) return;
+                    if (beeData.targetEnemy == null || beeData.targetEnemy.isEnemyDead || Vector3.Distance(beeData.targetEnemy.transform.position, __instance.hive.transform.position) > (float)__instance.defenseDistance + 5f)
+                    {
+                        bool flag = false;
+                        Dictionary<EnemyAI, float> priorityEnemies = EnemyAIPatch.GetEnemiesInLOS(__instance, EnemyAIPatch.globalEnemyLists[__instance.GetType()], 360f, 16, 1f);
+                        EnemyAI? closestToHive = null;
+                        
+                        if (priorityEnemies.Count > 0)
                         {
+                            closestToHive = priorityEnemies.Keys.First();
+                        }
+
+                        if (logBees) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(__instance) + "case2: " + closestToHive + " is closest to hive.");
+
+                        if (closestToHive != null && beeData.targetEnemy != closestToHive)
+                        {
+                            flag = true;
                             __instance.wasInChase = false;
-                        }
-                        if (Vector3.Distance(__instance.transform.position, __instance.lastKnownHivePosition) > 2f)
-                        {
-                            __instance.SetDestinationToPosition(__instance.lastKnownHivePosition, true);
-                        }
-                        if (__instance.IsHiveMissing())
-                        {
-                            __instance.SwitchToBehaviourState(2);
-                            beeData.customBehaviorStateIndex = 2;
-                            if (logBees) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "case0: HIVE IS MISSING! CustomBehaviorStateIndex changed: " + beeData.customBehaviorStateIndex);
+                            beeData.targetEnemy = closestToHive;
+                            __instance.SetDestinationToPosition(beeData.targetEnemy.transform.position, true);
+                            __instance.StopSearch(__instance.searchForHive);
+                            __instance.syncedLastKnownHivePosition = false;
+                            beeData.LostLOSOfEnemy = 0f;
+                            __instance.SyncLastKnownHivePositionServerRpc(__instance.lastKnownHivePosition);
+                            if (logBees) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "case2: Targeting " + closestToHive + ". Synced hive position");
                             break;
                         }
-                        if (LOSenemy != null && Vector3.Distance(LOSenemy.transform.position, __instance.hive.transform.position) < (float)__instance.defenseDistance /*&& Vector3.Distance(__instance.targetPlayer.transform.position, __instance.hive.transform.position) < Vector3.Distance(LOSenemy.transform.position, __instance.hive.transform.position)*/)
+                        if (beeData.targetEnemy != null)
                         {
-                            __instance.SetDestinationToPosition(LOSenemy.transform.position, true);
-                            if (logBees) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "case0: Moving towards " + LOSenemy);
-
-                            beeData.customBehaviorStateIndex = 1;
-                            __instance.SwitchToBehaviourState(1);
-                            __instance.syncedLastKnownHivePosition = false;
-                            __instance.SyncLastKnownHivePositionServerRpc(__instance.lastKnownHivePosition);
-                            beeData.LostLOSOfEnemy = 0f;
-                            if (logBees) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(__instance) + "case0: CustomBehaviorStateIndex changed: " + beeData.customBehaviorStateIndex);
-                        }
-                        break;
-                    case 1:
-                        if (__instance.targetPlayer != null && __instance.movingTowardsTargetPlayer) return;
-                        if (beeData.targetEnemy == null || beeData.targetEnemy.isEnemyDead || Vector3.Distance(beeData.targetEnemy.transform.position, __instance.hive.transform.position) > (float)__instance.defenseDistance + 5f)
-                        {
+                        __instance.agent.acceleration = 16f;
+                        if (!flag && EnemyAIPatch.GetEnemiesInLOS(__instance, EnemyAIPatch.globalEnemyLists[__instance.GetType()], 360f, 16, 2f).Count == 0)
                             beeData.targetEnemy = null;
                             __instance.wasInChase = false;
                             if (__instance.IsHiveMissing())

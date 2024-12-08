@@ -1,3 +1,5 @@
+__**MAIN BRANCH: [Natural Selection - food chains and ecosystems](https://thunderstore.io/c/lethal-company/p/Fandovec03/Natural_selection/)**__
+
 # Natural selection - food chains and ecosystems
 
 Aimed to make the game's ecosystem feel more alive, immersive and semi-realistic.<br>

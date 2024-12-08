@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using HarmonyLib;
+using NaturalSelection.Generics;
 using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches
@@ -14,7 +15,6 @@ namespace NaturalSelection.EnemyPatches
 	[HarmonyPatch(typeof(BlobAI))]
 	public class BlobAIPatch
 	{
-		static float CDtimer = 0.5f;
 		static List<EnemyAI> whiteList = new List<EnemyAI>();
 		static Dictionary<BlobAI, BlobData> slimeList = [];
 
@@ -50,51 +50,10 @@ namespace NaturalSelection.EnemyPatches
 			BlobData blobData = slimeList[__instance];
 
             blobData.timeSinceHittingLocalMonster += Time.deltaTime;
-			if (CDtimer > 0)
+			if (RoundManagerPatch.RequestUpdate(__instance) == true)
 			{
-				CDtimer -= Time.deltaTime;
+				RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 0), __instance), null, __instance, false, true));
 			}
-			if (CDtimer <= 0)
-			{
-				List<EnemyAI> tempList = new List<EnemyAI>();
-
-				tempList = EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance);
-
-				for (int i = 0; i < tempList.Count; i++)
-				{
-					if (tempList[i] != IsEnemyImmortal.EnemyIsImmortal(tempList[i]))
-					{
-						if (tempList[i] is NutcrackerEnemyAI)
-						{
-							if (logBlob) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + tempList[i] + " is blacklisted!");
-						}
-						else
-						{
-							if (!whiteList.Contains(tempList[i]))
-							{
-								if (logBlob) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + " Added " + tempList[i] + " to whitelist");
-								whiteList.Add(tempList[i]);
-							}
-							if (whiteList.Contains(tempList[i]))
-							{
-								if (logBlob) Script.Logger.LogWarning(EnemyAIPatch.DebugStringHead(__instance) + tempList[i] + " is already in the whitelist");
-							}
-						}
-					}
-				}
-
-				for (int i = 0; i < whiteList.Count; i++)
-				{
-					if (whiteList[i] == null)
-					{
-						if (logBlob) Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + " found NULL enemz in whitelist. removing.");
-						whiteList.Remove(whiteList[i]);
-					}
-				}
-
-                CDtimer = 0.5f;
-
-            }
 		}
 
 

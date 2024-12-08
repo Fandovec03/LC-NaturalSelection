@@ -36,7 +36,7 @@ namespace NaturalSelection.EnemyPatches
                                 mainscript2.HitEnemy(2, null, playHitSFX: true);
 
                             }
-                            else
+                            else if (mainscript2.enemyHP > 0)
                             {
                                 mainscript2.HitEnemy(1, null, playHitSFX: true);
                             }
@@ -47,7 +47,7 @@ namespace NaturalSelection.EnemyPatches
                             {
                                 PufferAIPatch.CustomOnHit(2, mainscript, playHitSFX: true, (PufferAI)mainscript2);      
                             }
-                            else
+                            else if (mainscript2.enemyHP > 0)
                             {
                                 PufferAIPatch.CustomOnHit(1, mainscript, playHitSFX: true, (PufferAI)mainscript2);
                             }
@@ -105,8 +105,7 @@ namespace NaturalSelection.EnemyPatches
                 }
 #pragma warning restore CS8602 // P��stup p�es ukazatel k mo�n�mu odkazu s hodnotou null
 #pragma warning disable CS8602 // P��stup p�es ukazatel k mo�n�mu odkazu s hodnotou null
-                if (other.CompareTag("Enemy") && compoment2 != null && compoment2.mainScript != __instance.mainScript && compoment2.mainScript.isEnemyDead == false
-                      && IsEnemyImmortal.EnemyIsImmortal(compoment2.mainScript) == false)
+                if (other.CompareTag("Enemy") && compoment2 != null && compoment2.mainScript != __instance.mainScript && IsEnemyImmortal.EnemyIsImmortal(compoment2.mainScript) == false && !__instance.mainScript.isEnemyDead)
                 {
                     OnCollideWithUniversal.Collide("Enemy", __instance.mainScript, compoment2.mainScript);
                     return true;

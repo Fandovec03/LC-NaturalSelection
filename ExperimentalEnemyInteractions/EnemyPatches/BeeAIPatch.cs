@@ -342,7 +342,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (beeList.ContainsKey(__instance))
             {
-                if (beeList[__instance].timeSinceHittingEnemy > 1.7f && __instance.currentBehaviourStateIndex > 0 || beeList[__instance].timeSinceHittingEnemy > 1.3f && __instance.currentBehaviourStateIndex == 2)
+                if (beeList[__instance].timeSinceHittingEnemy > 1.7f && __instance.currentBehaviourStateIndex > 0 || beeList[__instance].timeSinceHittingEnemy > 1.3f && __instance.currentBehaviourStateIndex == 2 && !mainscript2.isEnemyDead)
                 {
                     mainscript2.HitEnemy(1, null, playHitSFX: true);
                     beeList[__instance].timeSinceHittingEnemy = 0f;

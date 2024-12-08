@@ -8,7 +8,7 @@ namespace NaturalSelection.EnemyPatches
 {
     class BeeValues
     {
-        public bool start = false;
+        public bool start = Script.BoundingConfig.delayScriptsOnSpawn.Value;
         public EnemyAI? closestEnemy = null;
         public EnemyAI? targetEnemy = null;
         public Vector3 lastKnownEnemyPosition = Vector3.zero;
@@ -26,7 +26,7 @@ namespace NaturalSelection.EnemyPatches
         static List<EnemyAI> enemyList = new List<EnemyAI>();
         static bool logBees = Script.BoundingConfig.debugRedBees.Value;
         static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
-        static float UpdateTimer = 0.1f;
+        static float UpdateTimer = Script.BoundingConfig.delay.Value;
 
         [HarmonyPatch("Start")]
         [HarmonyPostfix]
@@ -43,14 +43,13 @@ namespace NaturalSelection.EnemyPatches
                 beeData.enemyTypes.Add(typeof(DocileLocustBeesAI));
                 beeData.enemyTypes.Add(typeof(SandWormAI));
             }
-            beeData.start = Script.BoundingConfig.delayScriptsOnSpawn.Value;
         }
 
         [HarmonyPatch("Update")]
         [HarmonyPostfix]
         static void UpdatePatch(RedLocustBees __instance)
         {
-            if (!beeList[__instance].start)
+            if (beeList[__instance].start == false)
             {
                 if (UpdateTimer <= 0f)
                 {
@@ -69,7 +68,7 @@ namespace NaturalSelection.EnemyPatches
             }
             else if (UpdateTimer <= 0f)
             {
-                UpdateTimer = 0.1f;
+                UpdateTimer = Script.BoundingConfig.delay.Value;
                 beeList[__instance].start = false;
             }
             else
@@ -82,7 +81,7 @@ namespace NaturalSelection.EnemyPatches
         static bool DoAIIntervalPrefixPatch(RedLocustBees __instance)
         {
             BeeValues beeData = beeList[__instance];
-            if (!beeList[__instance].start)
+            if (beeList[__instance].start == false)
             {
                 if (beeData.targetEnemy != null && __instance.movingTowardsTargetPlayer == false && __instance.currentBehaviourStateIndex != 0)
                 {
@@ -104,7 +103,8 @@ namespace NaturalSelection.EnemyPatches
         static void DoAIIntervalPostfixPatch(RedLocustBees __instance)
         {
             BeeValues beeData = beeList[__instance];
-            if (!beeList[__instance].start) {
+            if (beeList[__instance].start == false)
+            {
                 switch (__instance.currentBehaviourStateIndex)
                 {
                     case 0:

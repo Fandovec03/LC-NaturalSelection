@@ -16,6 +16,8 @@
 - Inital Upload <br>
 --------------------------------------------------------------<br>
 **Experimental Enemy Interactions**<br>
+0.2.4 -<br>
+	- Added config for the bees fix
 0.2.3 - <br>
 	- Experimental fix for bees
 0.2.2 - <br>

@@ -22,12 +22,12 @@
 
 0.2.6 - <br>
 	- Finally discovered a fix for bees <br>
-	- Hygrodiges move towards and consume corpses
-	--- Pathfinding broken (WIP)
-	- Added config options
-	--- Ignore immortal enemies
-	--- Set chances for bees to set giants on fire
-	--- Set chance for giant to extinguish themself
+	- Hygrodiges move towards and consume corpses<br>
+	--- Pathfinding broken (WIP)<br>
+	- Added config options<br>
+	--- Ignore immortal enemies<br>
+	--- Set chances for bees to set giants on fire<br>
+	--- Set chance for giant to extinguish themself<br>
 0.2.5 - <br>
 	- Merged bees fix and global enemy list branches <br>
 0.2.4 -<br>

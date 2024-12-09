@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace NaturalSelection.Generics
 {
-    [HarmonyPatch(typeof(StartOfRound))]
+    [HarmonyPatch(typeof(RoundManager))]
     class RoundManagerPatch
     {
         static float nextUpdate = 0;
@@ -53,6 +53,11 @@ namespace NaturalSelection.Generics
             if (checkedTypes.ContainsKey(instance.GetType()))
             {
                 checkedTypes[instance.GetType()] = list;
+            }
+            if (!NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists.ContainsKey(instance.GetType()))
+            {
+                Script.Logger.LogError(EnemyAIPatch.DebugStringHead(instance) + "global enemy list for this enemy does not exist! Creating a new one.");
+                NaturalSelectionLib.NaturalSelectionLib.UpdateListInsideDictionrary(instance.GetType(), checkedTypes[instance.GetType()]);
             }
         }
     }

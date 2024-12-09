@@ -49,60 +49,51 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void UpdatePatch(RedLocustBees __instance)
         {
-            if (beeList[__instance].start == false)
+            if (true)
             {
                 if (RoundManagerPatch.RequestUpdate(__instance) == true)
                 {
-                    RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance), beeList[__instance].enemyTypes, __instance, true));
+                    //RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance), beeList[__instance].enemyTypes, __instance, true));
                 }
-                if (NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()].Contains(__instance))
+               if (NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()].Contains(__instance))
                 {
                     if (logBees && debugSpam) Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + " FOUND ITSELF IN THE EnemyList! Removing...");
                     NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()].Remove(__instance);
                 }
-            }
-            else if (UpdateTimer <= 0f)
-            {
-                UpdateTimer = Script.BoundingConfig.delay.Value;
-                beeList[__instance].start = false;
-            }
-            else
-            {
-                UpdateTimer -= Time.deltaTime;
             }
         }
         [HarmonyPatch("DoAIInterval")]
         [HarmonyPrefix]
         static bool DoAIIntervalPrefixPatch(RedLocustBees __instance)
         {
-            BeeValues beeData = beeList[__instance];
-            if (beeList[__instance].start == false)
+        BeeValues beeData = beeList[__instance];
+        if (true)
+        {
+            if (beeData.targetEnemy != null && __instance.movingTowardsTargetPlayer == false && __instance.currentBehaviourStateIndex != 0)
             {
-                if (beeData.targetEnemy != null && __instance.movingTowardsTargetPlayer == false && __instance.currentBehaviourStateIndex != 0)
-                {
-                    if (logBees && debugSpam) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(__instance) + "DoAIInterval: Prefix triggered false");
+                if (logBees && debugSpam) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(__instance) + "DoAIInterval: Prefix triggered false");
 
-                    if (__instance.moveTowardsDestination)
-                    {
-                        __instance.agent.SetDestination(__instance.destination);
-                    }
-                    __instance.SyncPositionToClients();
-                    return false;
+                if (__instance.moveTowardsDestination)
+                {
+                    __instance.agent.SetDestination(__instance.destination);
                 }
-                if (logBees && debugSpam) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(__instance) + "DoAIInterval: Prefix triggered true");
+                __instance.SyncPositionToClients();
+                return false;
             }
-            return true;
+        }
+        if (logBees && debugSpam) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(__instance) + "DoAIInterval: Prefix triggered true");
+        return true;
         }
         [HarmonyPatch("DoAIInterval")]
         [HarmonyPostfix]
         static void DoAIIntervalPostfixPatch(RedLocustBees __instance)
         {
-            BeeValues beeData = beeList[__instance];
-            if (beeList[__instance].start == false)
+            if (true)
             {
+                BeeValues beeData = beeList[__instance];
                 switch (__instance.currentBehaviourStateIndex)
                 {
-                    case 0:
+                case 0:
                     {
                         EnemyAI? LOSenemy = null;
                         if (EnemyAIPatch.GetEnemiesInLOS(__instance, NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()], 360f, 16, 1).Count > 0)
@@ -164,7 +155,7 @@ namespace NaturalSelection.EnemyPatches
                         }
                         break;
                     }
-                    case 1:
+                case 1:
                     {
                         if (__instance.targetPlayer != null && __instance.movingTowardsTargetPlayer) return;
                         if (beeData.targetEnemy == null || beeData.targetEnemy.isEnemyDead || Vector3.Distance(beeData.targetEnemy.transform.position, __instance.hive.transform.position) > (float)__instance.defenseDistance + 5f)
@@ -215,7 +206,7 @@ namespace NaturalSelection.EnemyPatches
                         }
                         break;
                     }
-                    case 2:
+                case 2:
                     {
                         if (__instance.targetPlayer != null || __instance.movingTowardsTargetPlayer)
                         {
@@ -337,7 +328,6 @@ namespace NaturalSelection.EnemyPatches
                 }
             }
         }
-
         public static void OnCustomEnemyCollision(RedLocustBees __instance, EnemyAI mainscript2)
         {
             if (beeList.ContainsKey(__instance))

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using GameNetcodeStuff;
 using HarmonyLib;
 using NaturalSelection.Generics;
 using UnityEngine;
@@ -15,7 +16,6 @@ namespace NaturalSelection.EnemyPatches
 	[HarmonyPatch(typeof(BlobAI))]
 	public class BlobAIPatch
 	{
-		static List<EnemyAI> whiteList = new List<EnemyAI>();
 		static Dictionary<BlobAI, BlobData> slimeList = [];
 
 		static bool logBlob = Script.BoundingConfig.debugHygrodere.Value;
@@ -35,18 +35,25 @@ namespace NaturalSelection.EnemyPatches
 		{
             BlobData blobData = slimeList[__instance];
 
-            if (blobData.closestEnemy != null && Vector3.Distance(__instance.transform.position,__instance.GetClosestPlayer().transform.position) > Vector3.Distance(__instance.transform.position, blobData.closestEnemy.transform.position))
+            if (blobData.closestEnemy != null && Vector3.Distance(__instance.transform.position, __instance.GetClosestPlayer().transform.position) > Vector3.Distance(__instance.transform.position, blobData.closestEnemy.transform.position) && Script.BoundingConfig.blobPathfindToCorpses.Value)
 			{
 				if (__instance.moveTowardsDestination)
 				{
 					__instance.agent.SetDestination(__instance.destination);
 				}
 				__instance.SyncPositionToClients();
+				if (__instance.movingTowardsTargetPlayer)
+				{
+                    __instance.movingTowardsTargetPlayer = false;
+                }
 				if (__instance.searchForPlayers.inProgress)
 				{
 					__instance.StopSearch(__instance.searchForPlayers);
 				}
-				__instance.SetDestinationToPosition(blobData.closestEnemy.transform.position);
+				if (blobData.closestEnemy != null)
+				{
+					__instance.SetDestinationToPosition(blobData.closestEnemy.transform.position, true);
+				}
 				return false;
 			}
 			return true;
@@ -73,60 +80,63 @@ namespace NaturalSelection.EnemyPatches
 
             if (blobData.timeSinceHittingLocalMonster > 1.5f)
 			{
-                if (mainscript2.isEnemyDead && IsEnemyImmortal.EnemyIsImmortal(mainscript2) == false)
+                if (mainscript2.isEnemyDead && IsEnemyImmortal.EnemyIsImmortal(mainscript2) == false && Vector3.Distance(__instance.transform.position, mainscript2.transform.position) <= 2.8f && Script.BoundingConfig.blobConsumesCorpses.Value)
                 {
 					mainscript2.thisNetworkObject.Despawn(true);
                     __instance.creatureVoice.PlayOneShot(__instance.killPlayerSFX);
                     return;
                 }
-                if (mainscript2 is not NutcrackerEnemyAI && mainscript2 is not CaveDwellerAI)
+				if (!mainscript2.isEnemyDead)
 				{
-
-					blobData.timeSinceHittingLocalMonster = 0f;
-
-                    if (mainscript2 is FlowermanAI)
+					if (mainscript2 is not NutcrackerEnemyAI && mainscript2 is not CaveDwellerAI)
 					{
-						FlowermanAI? flowermanAI = mainscript2 as FlowermanAI;
-						if (flowermanAI != null)
+
+						blobData.timeSinceHittingLocalMonster = 0f;
+
+						if (mainscript2 is FlowermanAI)
 						{
-							float AngerbeforeHit = flowermanAI.angerMeter;
-							bool wasAngryBefore = flowermanAI.isInAngerMode;
-
-							flowermanAI.HitEnemy(1, null, playHitSFX: true);
-							if (mainscript2.enemyHP <= 0)
+							FlowermanAI? flowermanAI = mainscript2 as FlowermanAI;
+							if (flowermanAI != null)
 							{
-								mainscript2.KillEnemyOnOwnerClient();
-							}
+								float AngerbeforeHit = flowermanAI.angerMeter;
+								bool wasAngryBefore = flowermanAI.isInAngerMode;
 
-							flowermanAI.targetPlayer = null;
-							flowermanAI.movingTowardsTargetPlayer = false;
-							flowermanAI.isInAngerMode = false;
-							flowermanAI.angerMeter = AngerbeforeHit;
-							flowermanAI.isInAngerMode = wasAngryBefore;
+								flowermanAI.HitEnemy(1, null, playHitSFX: true);
+								if (mainscript2.enemyHP <= 0)
+								{
+									mainscript2.KillEnemyOnOwnerClient();
+								}
+
+								flowermanAI.targetPlayer = null;
+								flowermanAI.movingTowardsTargetPlayer = false;
+								flowermanAI.isInAngerMode = false;
+								flowermanAI.angerMeter = AngerbeforeHit;
+								flowermanAI.isInAngerMode = wasAngryBefore;
+								return;
+							}
+						}
+
+						if (mainscript2 is HoarderBugAI)
+						{
+							HoarderBugAI? hoarderBugAI = mainscript2 as HoarderBugAI;
+
+							if (hoarderBugAI != null)
+							{
+								HoarderBugPatch.CustomOnHit(1, __instance, true, hoarderBugAI);
+								if (mainscript2.enemyHP <= 0)
+								{
+									mainscript2.KillEnemyOnOwnerClient();
+								}
+							}
 							return;
 						}
-					}
 
-					if (mainscript2 is HoarderBugAI)
-					{
-						HoarderBugAI? hoarderBugAI = mainscript2 as HoarderBugAI;
-
-						if (hoarderBugAI != null)
+						blobData.timeSinceHittingLocalMonster = 0f;
+						mainscript2.HitEnemy(1, null, playHitSFX: true);
+						if (mainscript2.enemyHP <= 0)
 						{
-							HoarderBugPatch.CustomOnHit(1, __instance, true, hoarderBugAI);
-							if (mainscript2.enemyHP <= 0)
-							{
-								mainscript2.KillEnemyOnOwnerClient();
-							}
+							mainscript2.KillEnemyOnOwnerClient();
 						}
-						return;
-					}
-
-					blobData.timeSinceHittingLocalMonster = 0f;
-					mainscript2.HitEnemy(1, null, playHitSFX: true);
-					if (mainscript2.enemyHP <= 0)
-					{
-						mainscript2.KillEnemyOnOwnerClient();
 					}
 				}
             }

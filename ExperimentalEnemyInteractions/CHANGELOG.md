@@ -1,9 +1,11 @@
 <h1>Natural selection</h1>
+
 0.1.3 <br>
 	- Implemented global enemy list.<br>
-	- Added config to delay enemy patches taking effect when enemy spawns.<br>
-	--- Currenty only applies to bees. Hopefilly fixes invisible bees bug<br>
+	- Fixed bees becoming invisible due to black magic (still dont know how).<br>
 	- The mod no longer sets all colliders on enemies to be triggers.<br>
+	- Hydrogires now move and consume dead corpses<br>
+	- Many more config options<br>
 0.1.2 <br>
 	- Fixed logs<br>
 	- Updated for NaturalSelectionLib 0.4.0<br>
@@ -17,12 +19,21 @@
 	- Inital Upload
 
 <h1>Experimental Enemy Interactions</h1>
+
+0.2.6 - <br>
+	- Finally discovered a fix for bees <br>
+	- Hygrodiges move towards and consume corpses
+	--- Pathfinding broken (WIP)
+	- Added config options
+	--- Ignore immortal enemies
+	--- Set chances for bees to set giants on fire
+	--- Set chance for giant to extinguish themself
 0.2.5 - <br>
-	- Merged bees fix and global enemy list branches
+	- Merged bees fix and global enemy list branches <br>
 0.2.4 -<br>
-	- Added config for the bees fix
+	- Added config for the bees fix <br>
 0.2.3 - <br>
-	- Experimental fix for bees
+	- Experimental fix for bees <br>
 0.2.2 - <br>
 	- Implemented experimental global enemy list system. Every enemy now shares the same enemy list between eachother. Hopefully this will improve performance<br>
 0.2.1 - <br>
@@ -87,7 +98,7 @@
 	- Added many more config options
 		- **Safe mode:** On by default. Prevents unfinished and experimental scripts from loading.<br>
 	- **Bees added!** Bees now target every enemy in their LOS.<br>
-	- Several bugs and oversights fixed
+	- Several bugs and oversights fixed<br>
 0.1.13 - <br>
 	- Removed code breaking spider with the position fix
 0.1.12 - <br>

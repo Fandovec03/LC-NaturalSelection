@@ -17,6 +17,7 @@ namespace NaturalSelection.EnemyPatches
         public float timeSinceHittingEnemy = 0f;
         public float LostLOSOfEnemy = 0f;
         public List<Type> enemyTypes = new List<Type>();
+        public float delayTimer = 0.2f;
     }
 
 
@@ -49,11 +50,16 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void UpdatePatch(RedLocustBees __instance)
         {
-            if (true)
+            BeeValues beeData = beeList[__instance];
+            if (beeData.delayTimer > 0f)
+            {
+                beeData.delayTimer -= Time.deltaTime;
+            }
+            else
             {
                 if (RoundManagerPatch.RequestUpdate(__instance) == true)
                 {
-                    //RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance), beeList[__instance].enemyTypes, __instance, true));
+                    RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance), beeList[__instance].enemyTypes, __instance, true, Script.BoundingConfig.IgnoreImmortalEnemies.Value));
                 }
                if (NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()].Contains(__instance))
                 {
@@ -344,11 +350,11 @@ namespace NaturalSelection.EnemyPatches
 
                         if (__instance.currentBehaviourStateIndex != 2)
                         {
-                            maxChance = 1.5f;
+                            maxChance = Script.BoundingConfig.beesSetGiantsOnFireMinChance.Value;
                         }
                         else
                         {
-                            maxChance = 8f;
+                            maxChance = Script.BoundingConfig.beesSetGiantsOnFireMaxChance.Value;
                         }
                         if (logBees) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "OnCustomEnemyCollision: Giant hit. Chance to set on fire: " + maxChance);
                         if (randomchance <= maxChance)

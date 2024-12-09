@@ -14,6 +14,7 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<bool> stableMode;
     public readonly ConfigEntry<bool> spiderHuntHoardingbug;
     public readonly ConfigEntry<float> agentRadiusModifier;
+    public readonly ConfigEntry<bool> IgnoreImmortalEnemies;
     //enemy bools
     public readonly ConfigEntry<bool> enableSpider;
     public readonly ConfigEntry<bool> enableSlime;
@@ -21,6 +22,12 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<bool> enableSporeLizard;
     public readonly ConfigEntry<bool> enableRedBees;
     public readonly ConfigEntry<bool> enableNutcrackers;
+    //enemy settings
+    public readonly ConfigEntry<int> giantExtinguishChance;
+    public readonly ConfigEntry<float> beesSetGiantsOnFireMinChance;
+    public readonly ConfigEntry<float> beesSetGiantsOnFireMaxChance;
+    public readonly ConfigEntry<bool> blobConsumesCorpses;
+    public readonly ConfigEntry<bool> blobPathfindToCorpses;
     //Load bools
     public readonly ConfigEntry<bool> loadNutcrackers;
     public readonly ConfigEntry<bool> loadSpiders;
@@ -50,6 +57,8 @@ namespace NaturalSelection.Generics;
             delay = cfg.Bind("Experimental Fixes", "Delay", 0.2f, "Set the length of the delay");
             //general settings
             stableMode = cfg.Bind("General Settings", "Toggle stable mode", true, "When true, the mod will exlude patches that are WIP or are experimental from loading");
+            IgnoreImmortalEnemies = cfg.Bind("General Settings", "Ignore Immortal Enemies", false, "All immortal enemies will be ignored by majority of entities");
+            //WIP
             agentRadiusModifier = cfg.Bind("WIP", "Agent radius modifier", 0.6f, "Agent radius multiplier. Agent size is modified to make collisions more reliable. Lower multiplier makes final Agent radius smaller. \n \n [Values not between 0.1 and 1 are Clamped]");
             agentRadiusModifier.Value = Mathf.Clamp(agentRadiusModifier.Value, 0.1f, 1f);
             spiderHuntHoardingbug = cfg.Bind("WIP", "Spider hunts Hoarding bugs", false, "Bunker spider chases and hunts hoarding bugs. DEV ONLY");
@@ -60,6 +69,12 @@ namespace NaturalSelection.Generics;
             enableSporeLizard = cfg.Bind("WIP", "Enable SporeLizard", false, "Mod applies changes Spore lizard. It is now mortal!");
             enableRedBees = cfg.Bind("Entity settings", "Enable Red bees (Circuit bees)", true, "Mod applies changes red bees. They now defend nest from other mobs and kill everything in rampage!");
             enableNutcrackers = cfg.Bind("WIP", "Enable Nutcrackers", false, "Mod applies changes to nutcrackers. DEV ONLY");
+            //entity settings
+            giantExtinguishChance = cfg.Bind("Entity settings", "(Giant) Extinguish chance", 33, "[Accepts int values between 0 and 100] Chance of giants extinguishing themselves.");
+            beesSetGiantsOnFireMinChance = cfg.Bind("Entity settings", "(Bees) Ignite giants min chace", 1.5f, "[Accepts float values between 0 and 100]The minimum chance bees will set giant on fire on hit");
+            beesSetGiantsOnFireMaxChance = cfg.Bind("Entity settings", "(Bees) Ignite giants max chace", 8f, "[Accepts float values between 0 and 100]The minimum chance bees will set giant on fire on hit");
+            blobConsumesCorpses = cfg.Bind("WIP", "(Blob) Consume corpses", true, "Hydrogire consume enemy corpses");
+            blobConsumesCorpses = cfg.Bind("WIP", "(Blob) Pathfind to corpses", false, "[BROKEN - need fixing] Hydrogire move towards corpses to consume");
             //load Entities
             loadSpiders = cfg.Bind("Initialization settings (Not recommended)", "Load spider patches", true, "Load the spider patches. Do not touch.");
             loadBlob = cfg.Bind("Initialization settings (Not recommended)", "Load slime patches", true, "Load the slime patches. Do not touch.");

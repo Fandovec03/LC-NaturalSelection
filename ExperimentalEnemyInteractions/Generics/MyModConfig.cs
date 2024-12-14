@@ -28,6 +28,7 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<float> beesSetGiantsOnFireMaxChance;
     public readonly ConfigEntry<bool> blobConsumesCorpses;
     public readonly ConfigEntry<bool> blobPathfindToCorpses;
+    public readonly ConfigEntry<bool> blobPathfind;
     //Load bools
     public readonly ConfigEntry<bool> loadNutcrackers;
     public readonly ConfigEntry<bool> loadSpiders;
@@ -74,7 +75,8 @@ namespace NaturalSelection.Generics;
             beesSetGiantsOnFireMinChance = cfg.Bind("Entity settings", "(Bees) Ignite giants min chace", 1.5f, "[Accepts float values between 0 and 100]The minimum chance bees will set giant on fire on hit");
             beesSetGiantsOnFireMaxChance = cfg.Bind("Entity settings", "(Bees) Ignite giants max chace", 8f, "[Accepts float values between 0 and 100]The minimum chance bees will set giant on fire on hit");
             blobConsumesCorpses = cfg.Bind("WIP", "(Blob) Consume corpses", true, "Hydrogire consume enemy corpses");
-            blobConsumesCorpses = cfg.Bind("WIP", "(Blob) Pathfind to corpses", false, "[BROKEN - need fixing] Hydrogire move towards corpses to consume");
+            blobPathfindToCorpses = cfg.Bind("WIP", "(Blob) Pathfind to corpses", false, "[BROKEN - need fixing] Hydrogire move towards corpses to consume");
+            blobPathfind = cfg.Bind("WIP", "(Blob) Pathfind", false, "[WIP] Pathfind to other entities");
             //load Entities
             loadSpiders = cfg.Bind("Initialization settings (Not recommended)", "Load spider patches", true, "Load the spider patches. Do not touch.");
             loadBlob = cfg.Bind("Initialization settings (Not recommended)", "Load slime patches", true, "Load the slime patches. Do not touch.");

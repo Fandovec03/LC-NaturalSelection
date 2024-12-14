@@ -35,26 +35,23 @@ namespace NaturalSelection.EnemyPatches
 		{
             BlobData blobData = slimeList[__instance];
 
-            if (blobData.closestEnemy != null && Vector3.Distance(__instance.transform.position, __instance.GetClosestPlayer().transform.position) > Vector3.Distance(__instance.transform.position, blobData.closestEnemy.transform.position) && Script.BoundingConfig.blobPathfindToCorpses.Value)
+			if (Script.BoundingConfig.blobPathfind.Value == true)
 			{
-				if (__instance.moveTowardsDestination)
+				if (blobData.closestEnemy != null && Vector3.Distance(__instance.transform.position, __instance.GetClosestPlayer().transform.position) > Vector3.Distance(__instance.transform.position, blobData.closestEnemy.transform.position) && Script.BoundingConfig.blobPathfindToCorpses.Value)
 				{
-					__instance.agent.SetDestination(__instance.destination);
-				}
-				__instance.SyncPositionToClients();
-				if (__instance.movingTowardsTargetPlayer)
-				{
-                    __instance.movingTowardsTargetPlayer = false;
-                }
-				if (__instance.searchForPlayers.inProgress)
-				{
-					__instance.StopSearch(__instance.searchForPlayers);
-				}
-				if (blobData.closestEnemy != null)
-				{
+					if (__instance.moveTowardsDestination)
+					{
+						__instance.agent.SetDestination(__instance.destination);
+					}
+					__instance.SyncPositionToClients();
+
+					if (__instance.searchForPlayers.inProgress)
+					{
+						__instance.StopSearch(__instance.searchForPlayers);
+					}
 					__instance.SetDestinationToPosition(blobData.closestEnemy.transform.position, true);
+					return false;
 				}
-				return false;
 			}
 			return true;
 		}

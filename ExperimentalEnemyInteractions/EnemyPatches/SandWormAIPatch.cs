@@ -13,6 +13,7 @@ namespace NaturalSelection.EnemyPatches
         public EnemyAI? closestEnemy = null;
         public EnemyAI? targetEnemy = null;
         public int targetingEntity = 0;
+        public float clearEnemiesTimer = 0f;
     }
 
     [HarmonyPatch]
@@ -251,6 +252,24 @@ namespace NaturalSelection.EnemyPatches
                 return false;
             }
             else return true;
+        }
+
+        [HarmonyPatch("OnCollideWithEnemy")]
+        [HarmonyPrefix]
+        static bool OnCollideWithEnemyPatch(SandWormAI __instance, Collider other, EnemyAI? enemyScript)
+        {
+            if (Script.BoundingConfig.sandwormCollisionOverride.Value)
+            {
+                if (__instance.IsOwner && __instance.emerged)
+                {
+                    if (enemyScript != null && enemyScript.thisNetworkObject.IsSpawned)
+                    {
+                        enemyScript.thisNetworkObject.Despawn();
+                    }
+                }
+                return false;
+            }
+            return true;
         }
     }
 }

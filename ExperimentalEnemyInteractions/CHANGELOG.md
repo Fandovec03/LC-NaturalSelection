@@ -1,5 +1,8 @@
 <h1>Natural selection</h1>
 
+0.1.4 <br>
+	- Fixed logs spamming you're on experimental version<br>
+	- Added option to override vanilla sandworm collisions to possibly fix the lag when colliding with multiple enemies at once<br>
 0.1.3 <br>
 	- Implemented global enemy list.<br>
 	- Fixed bees becoming invisible due to black magic (still dont know how).<br>

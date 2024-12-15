@@ -1,6 +1,6 @@
 {
-  "name": "Natural_Selection",
-  "version_number": "0.1.3",
+  "name": "Natural_selection",
+  "version_number": "0.1.4",
   "website_url": "https://github.com/Fandovec03/LC-NaturalSelection",
   "description": "Rewamps the ecosystem to feel more alive and immersive.",
   "dependencies": [

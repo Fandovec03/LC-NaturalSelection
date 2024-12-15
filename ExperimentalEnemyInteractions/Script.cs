@@ -18,6 +18,7 @@ public class Script : BaseUnityPlugin
     internal static MyModConfig BoundingConfig { get; set; } = null!;
     internal static bool stableToggle;
     internal static float clampedAgentRadius;
+    internal static bool isExperimental;
     private void Awake()
     {
         Logger = base.Logger;
@@ -26,6 +27,7 @@ public class Script : BaseUnityPlugin
         BoundingConfig = new MyModConfig(base.Config);
         stableToggle = BoundingConfig.stableMode.Value;
         clampedAgentRadius = Mathf.Clamp(BoundingConfig.agentRadiusModifier.Value, 0.1f, 1f);
+        isExperimental = false;
 
         Patch();
 
@@ -37,10 +39,12 @@ public class Script : BaseUnityPlugin
         Harmony ??= new Harmony(MyPluginInfo.PLUGIN_GUID);
 
         Logger.LogInfo("Patching "+ MyPluginInfo.PLUGIN_NAME + " ...");
-
-        for (int i = 0; i < 100; i++)
+        if (isExperimental)
         {
-            Logger.LogError("LOADING EXPERIMENTAL " + MyPluginInfo.PLUGIN_NAME.ToUpper() + ", DOWNLOAD NATURAL SELECTION INSTEAD!");
+            for (int i = 0; i < 100; i++)
+            {
+                Logger.LogError("LOADING EXPERIMENTAL " + MyPluginInfo.PLUGIN_NAME.ToUpper() + ", DOWNLOAD NATURAL SELECTION INSTEAD!");
+            }
         }
         Harmony.PatchAll(typeof(AICollisionDetectPatch));
         Harmony.PatchAll(typeof(EnemyAIPatch));

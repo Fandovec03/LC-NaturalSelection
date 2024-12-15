@@ -10,6 +10,7 @@ namespace NaturalSelection.Generics;
     //experimental fixes
     public readonly ConfigEntry<bool> delayScriptsOnSpawn;
     public readonly ConfigEntry<float> delay;
+    public readonly ConfigEntry<bool> sandwormCollisionOverride;
     //settings
     public readonly ConfigEntry<bool> stableMode;
     public readonly ConfigEntry<bool> spiderHuntHoardingbug;
@@ -56,6 +57,7 @@ namespace NaturalSelection.Generics;
             //experimental fixes
             delayScriptsOnSpawn = cfg.Bind("Experimental Fixes", "Delay enemy scripts on spawn", false, "Delay enemy scripts from taking effect on enemy spawns. Might fix invisible bees");
             delay = cfg.Bind("Experimental Fixes", "Delay", 0.2f, "Set the length of the delay");
+            sandwormCollisionOverride = cfg.Bind("Experimental Fixes", "Sandworm collision override", false, "Override vanilla sandworm collisions. May fix lag when sandworm collides with multiple enemies at once");
             //general settings
             stableMode = cfg.Bind("General Settings", "Toggle stable mode", true, "When true, the mod will exlude patches that are WIP or are experimental from loading");
             IgnoreImmortalEnemies = cfg.Bind("General Settings", "Ignore Immortal Enemies", false, "All immortal enemies will be ignored by majority of entities");

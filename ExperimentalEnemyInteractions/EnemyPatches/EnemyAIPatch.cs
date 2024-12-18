@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using GameNetcodeStuff;
 using HarmonyLib;
 using UnityEngine;
@@ -18,7 +19,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void StartPostfix(EnemyAI __instance)
         {
-            if (debugSpam && debugUnspecified)Script.Logger.LogInfo("Called Setup library!");
+            if (debugSpam && debugUnspecified) Script.Logger.LogInfo("Called Setup library!");
             /*foreach (Collider collider in __instance.gameObject.GetComponentsInChildren<Collider>())
             {
                 if (collider.isTrigger != true)
@@ -38,7 +39,7 @@ namespace NaturalSelection.EnemyPatches
         public static List<EnemyAI> GetCompleteList(EnemyAI instance, bool FilterThemselves = true, int includeOrReturnThedDead = 0)
         {
             if (debugSpam && debugTriggerFlag && debugUnspecified) Script.Logger.LogInfo("Called library GetCompleteList!");
-            return NaturalSelectionLib.NaturalSelectionLib.GetCompleteList(instance,FilterThemselves, includeOrReturnThedDead);
+            return NaturalSelectionLib.NaturalSelectionLib.GetCompleteList(instance, FilterThemselves, includeOrReturnThedDead);
         }
 
         public static List<EnemyAI> GetOutsideEnemyList(List<EnemyAI> importEnemyList, EnemyAI instance)
@@ -63,9 +64,9 @@ namespace NaturalSelection.EnemyPatches
             if (debugSpam && debugTriggerFlag && debugUnspecified) Script.Logger.LogInfo("Called library filterEnemyList!");
             return NaturalSelectionLib.NaturalSelectionLib.FilterEnemyList(importEnemyList, targetTypes, instance, inverseToggle, filterOutImmortal);
         }
-        
 
-        static public Dictionary<EnemyAI,float> GetEnemiesInLOS(EnemyAI instance, List<EnemyAI> importEnemyList, float width = 45f, int importRange = 0, float proximityAwareness = -1)
+
+        static public Dictionary<EnemyAI, float> GetEnemiesInLOS(EnemyAI instance, List<EnemyAI> importEnemyList, float width = 45f, int importRange = 0, float proximityAwareness = -1)
         {
             if (debugSpam && debugTriggerFlag && debugUnspecified) Script.Logger.LogInfo("Called library GetEnemiesInLOS!");
             return NaturalSelectionLib.NaturalSelectionLib.GetEnemiesInLOS(instance, importEnemyList, width, importRange, proximityAwareness);
@@ -83,6 +84,21 @@ namespace NaturalSelection.EnemyPatches
             }
             return 0;
         }
+
+        /*[HarmonyPatch("KillEnemy")]
+        static void KillEnemyTranspiller()
+        {
+            static IEnumerable<CodeInstruction> Transpiller(IEnumerable<CodeInstruction> instructions)
+            {
+                return new CodeMatcher(instructions).MatchForward(false,
+                    new CodeMatch(OpCodes.Ldstr),
+                    new CodeMatch(OpCodes.Call, OpCodes.Call))
+                    .Repeat(matcher => matcher
+                    .RemoveInstructions(2)
+                    )
+                    .InstructionEnumeration();
+            }
+        }*/
     }
     
     public class ReversePatchEnemy : EnemyAI

@@ -30,6 +30,7 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<bool> blobConsumesCorpses;
     public readonly ConfigEntry<bool> blobPathfindToCorpses;
     public readonly ConfigEntry<bool> blobPathfind;
+    public readonly ConfigEntry<bool> sandwormDoNotEatPlayersInsideLeavingShip;
     //Load bools
     public readonly ConfigEntry<bool> loadNutcrackers;
     public readonly ConfigEntry<bool> loadSpiders;
@@ -76,9 +77,10 @@ namespace NaturalSelection.Generics;
             giantExtinguishChance = cfg.Bind("Entity settings", "(Giant) Extinguish chance", 33, "[Accepts int values between 0 and 100] Chance of giants extinguishing themselves.");
             beesSetGiantsOnFireMinChance = cfg.Bind("Entity settings", "(Bees) Ignite giants min chace", 1.5f, "[Accepts float values between 0 and 100]The minimum chance bees will set giant on fire on hit");
             beesSetGiantsOnFireMaxChance = cfg.Bind("Entity settings", "(Bees) Ignite giants max chace", 8f, "[Accepts float values between 0 and 100]The minimum chance bees will set giant on fire on hit");
-            blobConsumesCorpses = cfg.Bind("WIP", "(Blob) Consume corpses", true, "Hydrogire consume enemy corpses");
+            blobConsumesCorpses = cfg.Bind("Entity settings", "(Blob) Consume corpses", true, "Hydrogire consume enemy corpses");
             blobPathfindToCorpses = cfg.Bind("WIP", "(Blob) Pathfind to corpses", false, "[BROKEN - need fixing] Hydrogire move towards corpses to consume");
             blobPathfind = cfg.Bind("WIP", "(Blob) Pathfind", false, "[WIP] Pathfind to other entities");
+            sandwormDoNotEatPlayersInsideLeavingShip = cfg.Bind("Entity settings", "(Sandworm) Do not eat players inside leaving ship", false, "Worms do not eat players inside ship leaving the moon.");
             //load Entities
             loadSpiders = cfg.Bind("Initialization settings (Not recommended)", "Load spider patches", true, "Load the spider patches. Do not touch.");
             loadBlob = cfg.Bind("Initialization settings (Not recommended)", "Load slime patches", true, "Load the slime patches. Do not touch.");

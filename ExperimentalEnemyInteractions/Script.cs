@@ -51,7 +51,7 @@ public class Script : BaseUnityPlugin
         try
         {
             NaturalSelectionLib.NaturalSelectionLib.LibrarySetup(Logger, BoundingConfig.spammyLogs.Value, BoundingConfig.debugUnspecified.Value);
-            Logger.LogInfo("Library successfully setup!");
+            Logger.LogMessage("Library successfully setup! Version " + NaturalSelectionLib.MyPluginInfo.PLUGIN_VERSION);
         }
         catch
         {

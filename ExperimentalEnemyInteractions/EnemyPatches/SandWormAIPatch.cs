@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using GameNetcodeStuff;
 using HarmonyLib;
 using NaturalSelection.Generics;
 using UnityEngine;
@@ -252,6 +253,20 @@ namespace NaturalSelection.EnemyPatches
                 return false;
             }
             else return true;
+        }
+        [HarmonyPatch("OnCollideWithPlayer")]
+        [HarmonyPrefix]
+        static bool OnCollideWithPlayeryPatch(SandWormAI __instance, Collider other)
+        { 
+            if (other != null)
+            {
+                PlayerControllerB player = other.gameObject.GetComponent<PlayerControllerB>();
+                if (__instance.IsOwner && __instance.emerged && player.isInHangarShipRoom && StartOfRound.Instance.shipIsLeaving && Script.BoundingConfig.sandwormDoNotEatPlayersInsideLeavingShip.Value)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         [HarmonyPatch("OnCollideWithEnemy")]

@@ -3,6 +3,7 @@
 0.1.5 <br>
 	- Fixed collisions returning NullReferenceException errors<br>
 	- Added config for sandworms to not eat players inside leaving ship<br>
+	- Updated logs and configs<br>
 0.1.4 <br>
 	- Fixed logs spamming you're on experimental version<br>
 	- Added option to override vanilla sandworm collisions to possibly fix the lag when colliding with multiple enemies at once<br>

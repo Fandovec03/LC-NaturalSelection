@@ -364,3 +364,4 @@ FodyWeavers.xsd
 ExperimentalEnemyInteractions/CHANGELOG.md
 ExperimentalEnemyInteractions/manifest.json
 ExperimentalEnemyInteractions/DLLs/fandovec03.NaturalSelection.dll
+/ExperimentalEnemyInteractions/DLLs

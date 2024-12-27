@@ -24,6 +24,7 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<bool> enableRedBees;
     public readonly ConfigEntry<bool> enableNutcrackers;
     //enemy settings
+    public readonly ConfigEntry<string> Blacklist;
     public readonly ConfigEntry<int> giantExtinguishChance;
     public readonly ConfigEntry<float> beesSetGiantsOnFireMinChance;
     public readonly ConfigEntry<float> beesSetGiantsOnFireMaxChance;
@@ -74,6 +75,7 @@ namespace NaturalSelection.Generics;
             enableRedBees = cfg.Bind("Entity settings", "Enable Red bees (Circuit bees)", true, "Mod applies changes red bees. They now defend nest from other mobs and kill everything in rampage!");
             enableNutcrackers = cfg.Bind("WIP", "Enable Nutcrackers", false, "Mod applies changes to nutcrackers. DEV ONLY");
             //entity settings
+            Blacklist = cfg.Bind("Entity settings", "Blacklist", "" , "Any enemy inside the blacklist will be ignored by others. Currently works only on bees. \n \n [The ',' acts as a separator]");
             giantExtinguishChance = cfg.Bind("Entity settings", "(Giant) Extinguish chance", 33, "[Accepts int values between 0 and 100] Chance of giants extinguishing themselves.");
             beesSetGiantsOnFireMinChance = cfg.Bind("Entity settings", "(Bees) Ignite giants min chace", 1.5f, "[Accepts float values between 0 and 100]The minimum chance bees will set giant on fire on hit");
             beesSetGiantsOnFireMaxChance = cfg.Bind("Entity settings", "(Bees) Ignite giants max chace", 8f, "[Accepts float values between 0 and 100]The minimum chance bees will set giant on fire on hit");

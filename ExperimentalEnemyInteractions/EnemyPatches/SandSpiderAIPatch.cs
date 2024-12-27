@@ -391,8 +391,9 @@ namespace NaturalSelection.EnemyPatches
         static void OnTriggerStayPatch(Collider other, SandSpiderWebTrap __instance)
         {
             SpiderWebValues webValues = spiderWebs[__instance];
-            EnemyAI trippedEnemy = other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript;
+            EnemyAI trippedEnemy = other.gameObject.GetComponent<EnemyAI>();
             if (Script.BoundingConfig.debugSpiders.Value) Script.Logger.LogInfo(__instance + " Triggered");
+            if(trippedEnemy == __instance.mainScript) return;
             if (trippedEnemy != null)
             {
                 if (Script.BoundingConfig.debugSpiders.Value) Script.Logger.LogInfo(__instance + " Collided with " + trippedEnemy);

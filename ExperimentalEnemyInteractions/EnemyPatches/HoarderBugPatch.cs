@@ -23,13 +23,18 @@ namespace NaturalSelection.EnemyPatches
         {
             __instance.enemyHP -= force;
             Script.Logger.LogDebug("Hoarderbug CustomHit Triggered");
-            __instance.creatureVoice.PlayOneShot(__instance.hitPlayerSFX);
+            if (playHitSFX)
+            {
+                WalkieTalkie.TransmitOneShotAudio(__instance.creatureVoice, __instance.enemyType.hitBodySFX);
+                __instance.creatureVoice.PlayOneShot(__instance.enemyType.hitBodySFX);
+            }
+            if (__instance.creatureVoice != null) __instance.creatureVoice.PlayOneShot(__instance.enemyType.hitEnemyVoiceSFX);
             RoundManager.PlayRandomClip(__instance.creatureVoice, __instance.angryScreechSFX);
             __instance.SwitchToBehaviourState(1);
 
             if (__instance.enemyHP <= 0)
             {
-                __instance.KillEnemy(false);
+                __instance.KillEnemyOnOwnerClient(false);
             }
         }
 

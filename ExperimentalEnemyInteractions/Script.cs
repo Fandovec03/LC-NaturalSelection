@@ -9,6 +9,7 @@ namespace NaturalSelection;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 [BepInDependency("fandovec03.NaturalSelectionLib", BepInDependency.DependencyFlags.HardDependency)]
+[BepInDependency("LethalNetworkAPI", BepInDependency.DependencyFlags.HardDependency)]
 public class Script : BaseUnityPlugin
 {
     public static Script Instance { get; private set; } = null!;

@@ -1,16 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using GameNetcodeStuff;
 using HarmonyLib;
+using LethalNetworkAPI;
+using LethalNetworkAPI.Utils;
 using NaturalSelection.Generics;
+using Steamworks.Data;
+using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace NaturalSelection.EnemyPatches
 {
-
+	
 	class BlobData
 	{
-        public float timeSinceHittingLocalMonster = 0f;
+        public float timeSinceHittingLocalMonster = 0;
         public EnemyAI? closestEnemy = null;
+		public bool playSound = false;
     }
 
 	[HarmonyPatch(typeof(BlobAI))]
@@ -20,7 +28,13 @@ namespace NaturalSelection.EnemyPatches
 
 		static bool logBlob = Script.BoundingConfig.debugHygrodere.Value;
 
-		[HarmonyPatch("Start")]
+		static LNetworkEvent BlobEatCorpseEvent(BlobAI instance)
+		{
+			//Script.Logger.LogMessage("BlobEatCorpseEvent: NetworkObjectID: " + instance.NetworkObjectId);
+			return LNetworkEvent.Connect("NSnetworkEvent" + instance.NetworkObjectId);
+        }
+
+        [HarmonyPatch("Start")]
 		[HarmonyPrefix]
 		static void StartPatch(BlobAI __instance)
 		{
@@ -37,20 +51,23 @@ namespace NaturalSelection.EnemyPatches
 
 			if (Script.BoundingConfig.blobPathfind.Value == true)
 			{
-				if (blobData.closestEnemy != null && Vector3.Distance(__instance.transform.position, __instance.GetClosestPlayer().transform.position) > Vector3.Distance(__instance.transform.position, blobData.closestEnemy.transform.position) && Script.BoundingConfig.blobPathfindToCorpses.Value)
+				if (Script.BoundingConfig.blobPathfindToCorpses.Value)
 				{
-					if (__instance.moveTowardsDestination)
+					if (__instance.GetClosestPlayer() != null && (!__instance.PlayerIsTargetable(__instance.GetClosestPlayer()) || blobData.closestEnemy != null && Vector3.Distance(blobData.closestEnemy.transform.position, __instance.transform.position) < Vector3.Distance(__instance.GetClosestPlayer().transform.position, __instance.transform.position)) || __instance.GetClosestPlayer() == null)
 					{
-						__instance.agent.SetDestination(__instance.destination);
-					}
-					__instance.SyncPositionToClients();
+						if (__instance.moveTowardsDestination)
+						{
+							__instance.agent.SetDestination(__instance.destination);
+						}
+						__instance.SyncPositionToClients();
 
-					if (__instance.searchForPlayers.inProgress)
-					{
-						__instance.StopSearch(__instance.searchForPlayers);
+						if (__instance.searchForPlayers.inProgress)
+						{
+							__instance.StopSearch(__instance.searchForPlayers);
+						}
+						if (blobData.closestEnemy != null) __instance.SetDestinationToPosition(blobData.closestEnemy.transform.position, true);
+						return false;
 					}
-					__instance.SetDestinationToPosition(blobData.closestEnemy.transform.position, true);
-					return false;
 				}
 			}
 			return true;
@@ -62,25 +79,46 @@ namespace NaturalSelection.EnemyPatches
 		{
 			BlobData blobData = slimeList[__instance];
 
+			void EventReceived()
+			{
+                blobData.playSound = true;
+                //Script.Logger.LogMessage("Received event. Changed value to " + blobData.playSound + ", eventLimiter: " + eventLimiter);
+            }
+
+
             blobData.timeSinceHittingLocalMonster += Time.deltaTime;
 			if (RoundManagerPatch.RequestUpdate(__instance) == true)
 			{
-				RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 1), __instance), null, __instance, false, true));
+				RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 1), __instance), null, null,__instance, false, true));
 			}
 			blobData.closestEnemy = EnemyAIPatch.FindClosestEnemy(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()], blobData.closestEnemy, __instance, true);
-		}
 
+            BlobEatCorpseEvent(__instance).OnClientReceived += EventReceived;
 
+			if (blobData.playSound)
+			{
+                Script.Logger.LogMessage("Playing sound. NetworkObjectID: " + __instance.NetworkObjectId);
+                __instance.creatureVoice.PlayOneShot(__instance.killPlayerSFX);
+				blobData.playSound = false;
+			}
+        }
+		
 		public static void OnCustomEnemyCollision(BlobAI __instance, EnemyAI mainscript2)
 		{
             BlobData blobData = slimeList[__instance];
 
             if (blobData.timeSinceHittingLocalMonster > 1.5f)
 			{
-                if (mainscript2.isEnemyDead && IsEnemyImmortal.EnemyIsImmortal(mainscript2) == false && Vector3.Distance(__instance.transform.position, mainscript2.transform.position) <= 2.8f && Script.BoundingConfig.blobConsumesCorpses.Value)
-                {
-					mainscript2.thisNetworkObject.Despawn(true);
-                    __instance.creatureVoice.PlayOneShot(__instance.killPlayerSFX);
+				if (mainscript2.isEnemyDead && IsEnemyImmortal.EnemyIsImmortal(mainscript2) == false && Vector3.Distance(__instance.transform.position, mainscript2.transform.position) <= 2.8f && Script.BoundingConfig.blobConsumesCorpses.Value)
+				{
+                    //__instance.creatureVoice.PlayOneShot(__instance.killPlayerSFX);
+
+                    if (__instance.IsOwner && mainscript2.thisNetworkObject.IsSpawned)
+					{
+                        BlobEatCorpseEvent(__instance).InvokeClients();
+                        Script.Logger.LogMessage("Send event");
+                        mainscript2.thisNetworkObject.Despawn(true);
+					}
                     return;
                 }
 				if (!mainscript2.isEnemyDead)
@@ -103,7 +141,7 @@ namespace NaturalSelection.EnemyPatches
 								{
 									mainscript2.KillEnemyOnOwnerClient();
 								}
-
+								
 								flowermanAI.targetPlayer = null;
 								flowermanAI.movingTowardsTargetPlayer = false;
 								flowermanAI.isInAngerMode = false;
@@ -119,7 +157,7 @@ namespace NaturalSelection.EnemyPatches
 
 							if (hoarderBugAI != null)
 							{
-								HoarderBugPatch.CustomOnHit(1, __instance, true, hoarderBugAI);
+								HoarderBugPatch.CustomOnHit(1, __instance, false, hoarderBugAI);
 								if (mainscript2.enemyHP <= 0)
 								{
 									mainscript2.KillEnemyOnOwnerClient();
@@ -138,5 +176,5 @@ namespace NaturalSelection.EnemyPatches
 				}
             }
         }
-	}
+    }
 }

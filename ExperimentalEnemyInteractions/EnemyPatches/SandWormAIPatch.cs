@@ -4,28 +4,17 @@ using GameNetcodeStuff;
 using HarmonyLib;
 using NaturalSelection.Generics;
 using UnityEngine;
+using LethalNetworkAPI;
 
 namespace NaturalSelection.EnemyPatches
 {
-
     class ExtendedSandWormAIData
     {
         public float refreshCDtime = 0.5f;
         public EnemyAI? closestEnemy = null;
         public EnemyAI? targetEnemy = null;
-        public int targetingEntity = 0;
+        //public int targetingEntity = 0;
         public float clearEnemiesTimer = 0f;
-    }
-
-    [HarmonyPatch]
-    class ReversepatchWorm
-    {
-        [HarmonyReversePatch]
-        [HarmonyPatch(typeof(EnemyAI), "Update")]
-        public static void WormReverseUpdate(SandWormAI instance)
-        {
-            //Script.Logger.LogInfo("Reverse patch triggered");
-        }
     }
 
     [HarmonyPatch(typeof(SandWormAI))]
@@ -35,6 +24,21 @@ namespace NaturalSelection.EnemyPatches
         static bool debugSandworm = Script.BoundingConfig.debugSandworms.Value;
         static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
         static bool triggerFlag = Script.BoundingConfig.debugTriggerFlags.Value;
+
+        static LNetworkVariable<int> NetworkSandwormBehaviorState(SandWormAI instance)
+        {
+            return LNetworkVariable<int>.Connect("NSSandwormBehaviorState" + instance.NetworkObjectId);
+        }
+
+        static LNetworkVariable<bool> NetworkTargetingEntity(SandWormAI instance)
+        {
+            return LNetworkVariable<bool>.Connect("NSTargetingEntity" + instance.NetworkObjectId);
+        }
+
+        static LNetworkVariable<bool> NetworkMovingTowardsPlayer(SandWormAI instance)
+        {
+            return LNetworkVariable<bool>.Connect("NSMovingTowardsPlayer" + instance.NetworkObjectId);
+        }
 
         static Dictionary<SandWormAI, ExtendedSandWormAIData> sandworms = [];
 
@@ -62,11 +66,16 @@ namespace NaturalSelection.EnemyPatches
         {
             ExtendedSandWormAIData SandwormData = sandworms[__instance];
 
+            if (__instance.IsOwner) NetworkMovingTowardsPlayer(__instance).Value = __instance.movingTowardsTargetPlayer;
+
+            int targetingEntity = NetworkSandwormBehaviorState(__instance).Value;
+            bool networkMovingTowardsPlayer = NetworkMovingTowardsPlayer(__instance).Value;
+
             if (SandwormData.refreshCDtime <= 0)
             {
                 if (RoundManagerPatch.RequestUpdate(__instance) == true)
                 {
-                    RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 0), __instance), targetedTypes, __instance));
+                    RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 0), __instance), targetedTypes, null, __instance));
                     //NaturalSelectionLib.NaturalSelectionLib.UpdateListInsideDictionrary(__instance.GetType(), EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 0), __instance), targetedTypes, __instance));
                 }
                 SandwormData.closestEnemy = EnemyAIPatch.FindClosestEnemy(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()], SandwormData.closestEnemy, __instance);
@@ -77,7 +86,7 @@ namespace NaturalSelection.EnemyPatches
                 SandwormData.refreshCDtime -= Time.deltaTime;
             }
 
-            switch (SandwormData.targetingEntity)
+            switch (targetingEntity)
             {
                 case 0:
                     if (__instance.inEmergingState || __instance.emerged)
@@ -87,18 +96,23 @@ namespace NaturalSelection.EnemyPatches
                     break;
                 case 1:
                 {
-                    if (SandwormData.targetEnemy != null && !__instance.movingTowardsTargetPlayer)
+                    if ((__instance.IsOwner && SandwormData.targetEnemy != null || !__instance.IsOwner && NetworkTargetingEntity(__instance).Value) && !networkMovingTowardsPlayer)
                     {
-                        if (__instance.updateDestinationInterval >= 0f)
+                        if (__instance.IsOwner)
                         {
-                            __instance.updateDestinationInterval -= Time.deltaTime;
+                            if (SandwormData.targetEnemy != null) NetworkTargetingEntity(__instance).Value = true;
+                            if (__instance.updateDestinationInterval >= 0f)
+                            {
+                                __instance.updateDestinationInterval -= Time.deltaTime;
+                            }
+                            else
+                            {
+                                if (debugSandworm && debugSpam) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(__instance) + " calling DoAIInterval");
+                                __instance.DoAIInterval();
+                                __instance.updateDestinationInterval = __instance.AIIntervalTime + UnityEngine.Random.Range(-0.015f, 0.015f);
+                            }
                         }
-                        else
-                        {
-                            if (debugSandworm && debugSpam) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(__instance) + " calling DoAIInterval");
-                            __instance.DoAIInterval();
-                            __instance.updateDestinationInterval = __instance.AIIntervalTime + UnityEngine.Random.Range(-0.015f, 0.015f);
-                        }
+                        ReversePatchAI.ReverseUpdate(__instance);
                         return false;
                     }
                     break;
@@ -113,16 +127,18 @@ namespace NaturalSelection.EnemyPatches
         static void SandWormPostfixUpdatePatch(SandWormAI __instance)
         {
             ExtendedSandWormAIData SandwormData = sandworms[__instance];
+            int targetingEntity = NetworkSandwormBehaviorState(__instance).Value;
+            bool networkMovingTowardsPlayer = NetworkMovingTowardsPlayer(__instance).Value;
 
             if (Script.BoundingConfig.enableLeviathan.Value != true) return;
 
-            if (debugSandworm && debugSpam) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(__instance) + " Postfix targetingEntity: " + SandwormData.targetingEntity);
+            if (debugSandworm && debugSpam) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(__instance) + " Postfix targetingEntity: " + targetingEntity);
 
-            switch(SandwormData.targetingEntity)
+            switch(targetingEntity)
             {
                 case 0:
                 {
-                    if (!__instance.movingTowardsTargetPlayer && !__instance.inEmergingState && !__instance.emerged)
+                    if (!networkMovingTowardsPlayer && !__instance.inEmergingState && !__instance.emerged)
                     {
                         if (__instance.creatureSFX.isPlaying)
                         {
@@ -134,8 +150,9 @@ namespace NaturalSelection.EnemyPatches
                     break;
                 case 1:
                     {
-                        if (debugSandworm && SandwormData.closestEnemy != null) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "closestEnemy is " + EnemyAIPatch.DebugStringHead(SandwormData.closestEnemy) + ", isEnemyDead: " + SandwormData.closestEnemy.isEnemyDead + " /3/");
-                        if (!__instance.movingTowardsTargetPlayer)
+                        if (debugSandworm && SandwormData.closestEnemy != null && __instance.IsOwner) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "closestEnemy is " + EnemyAIPatch.DebugStringHead(SandwormData.closestEnemy) + ", isEnemyDead: " + SandwormData.closestEnemy.isEnemyDead + " /3/");
+                        if (networkMovingTowardsPlayer) break;
+                        if (!networkMovingTowardsPlayer)
                         {
                             if (!__instance.creatureSFX.isPlaying && !__instance.inEmergingState && !__instance.emerged)
                             {
@@ -145,14 +162,15 @@ namespace NaturalSelection.EnemyPatches
                                 if (debugSandworm) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(__instance) + " Started playing sounds");
 
                             }
-                            if (!__instance.IsOwner)
+                            if (!__instance.IsOwner)    
                             {
                                 break;
                             }
                             if (SandwormData.targetEnemy == null)
                             {
                                 if (debugSandworm) Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + " TargetEnemy is null! TargetingEntity set to false /Trigger 1/");
-                                SandwormData.targetingEntity = 0;
+                                NetworkSandwormBehaviorState(__instance).Value = 0;
+                                //__instance.SwitchToBehaviourState(0);
                                 break;
                             }
                             if (Vector3.Distance(SandwormData.targetEnemy.transform.position, __instance.transform.position) > 22f)
@@ -168,8 +186,10 @@ namespace NaturalSelection.EnemyPatches
                             if (__instance.chaseTimer > 6f)
                             {
                                 if (debugSandworm) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + " Chasing for too long. targetEnemy set to null");
-                                SandwormData.targetingEntity = 0;
+                                NetworkSandwormBehaviorState(__instance).Value = 0;
+                                //__instance.SwitchToBehaviourState(0);
                                 SandwormData.targetEnemy = null;
+                                NetworkTargetingEntity(__instance).Value = false;
                             }
                         }
                     }
@@ -183,9 +203,10 @@ namespace NaturalSelection.EnemyPatches
             //if (Script.BoundingConfig.enableLeviathan.Value != true) return true;
 
             ExtendedSandWormAIData SandwormData = sandworms[__instance];
+            int targetingEntity = NetworkSandwormBehaviorState(__instance).Value;
             if (debugSandworm && debugSpam && triggerFlag) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(__instance) + "DoAIInterval: checking chaseTimer: " + __instance.chaseTimer);
 
-            switch (SandwormData.targetingEntity)
+            switch (targetingEntity)
             {
                 case 0:
                     {
@@ -198,10 +219,12 @@ namespace NaturalSelection.EnemyPatches
                             {
                                 if (debugSandworm) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "closestEnemy is " + EnemyAIPatch.DebugStringHead(SandwormData.closestEnemy) + ", isEnemyDead: " + SandwormData.closestEnemy.isEnemyDead + " /1/");
                                 __instance.SetDestinationToPosition(SandwormData.closestEnemy.transform.position);
-                                SandwormData.targetingEntity = 1;
+                                NetworkSandwormBehaviorState(__instance).Value = 1;
+                                //__instance.SwitchToBehaviourState(1);
                                 SandwormData.targetEnemy = SandwormData.closestEnemy;
+                                NetworkTargetingEntity(__instance).Value = true;
                                 __instance.chaseTimer = 0;
-                                if (debugSandworm) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "DoAIInterval: Set targetingEntity to " + SandwormData.targetingEntity + " and reset chaseTimer: " + __instance.chaseTimer);
+                                if (debugSandworm) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "DoAIInterval: Set targetingEntity to " + targetingEntity + " and reset chaseTimer: " + __instance.chaseTimer);
                                 break;
                             }
                         }
@@ -210,11 +233,14 @@ namespace NaturalSelection.EnemyPatches
                 case 1:
                     {
                         if (debugSandworm && SandwormData.closestEnemy != null) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "closestEnemy is " + EnemyAIPatch.DebugStringHead(SandwormData.closestEnemy) + ", isEnemyDead: " + SandwormData.closestEnemy.isEnemyDead + " /2/");
+                        if (__instance.movingTowardsTargetPlayer) break;
                         if (SandwormData.targetEnemy == null || SandwormData.targetEnemy.isEnemyDead)
                         {
                             if (debugSandworm) Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + ": targetEnemy is at null or dead. Setting targetingEntity to false /Trigger 2/");
                             SandwormData.targetEnemy = null;
-                            SandwormData.targetingEntity = 0;
+                            NetworkTargetingEntity(__instance).Value = false;
+                            NetworkSandwormBehaviorState(__instance).Value = 0;
+                            //__instance.SwitchToBehaviourState(0);
                             break;
                         }
                         SandwormData.targetEnemy = SandwormData.closestEnemy;
@@ -224,6 +250,7 @@ namespace NaturalSelection.EnemyPatches
                             if (Vector3.Distance(__instance.transform.position, SandwormData.targetEnemy.transform.position) > 19f)
                             {
                                 SandwormData.targetEnemy = null;
+                                NetworkTargetingEntity(__instance).Value = false;
                                 if (debugSandworm) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "DoAIInterval: TargetEnemy too far! set to null");
                                 break;
                             }
@@ -235,7 +262,8 @@ namespace NaturalSelection.EnemyPatches
                             if (__instance.chaseTimer < 1.5f && Vector3.Distance(__instance.transform.position, SandwormData.targetEnemy.transform.position) < 4f && !(Vector3.Distance(StartOfRound.Instance.shipInnerRoomBounds.ClosestPoint(__instance.transform.position), __instance.transform.position) < 9f) && UnityEngine.Random.Range(0, 100) < 17)
                             {
                                 if (debugSandworm) Script.Logger.LogMessage(EnemyAIPatch.DebugStringHead(__instance) + "DoAIInterval: Emerging!");
-                                SandwormData.targetingEntity = 0;
+                                NetworkSandwormBehaviorState(__instance).Value = 0;
+                                //__instance.SwitchToBehaviourState(0);
                                 __instance.StartEmergeAnimation();
                             }
                         }
@@ -243,7 +271,7 @@ namespace NaturalSelection.EnemyPatches
                 break;
             }
 
-            if (!__instance.movingTowardsTargetPlayer && SandwormData.targetingEntity == 1)
+            if (!__instance.movingTowardsTargetPlayer && __instance.currentBehaviourStateIndex == 1)
             {
                 if (__instance.moveTowardsDestination)
                 {
@@ -252,7 +280,7 @@ namespace NaturalSelection.EnemyPatches
                 __instance.SyncPositionToClients();
                 return false;
             }
-            else return true;
+            return true;
         }
         [HarmonyPatch("OnCollideWithPlayer")]
         [HarmonyPrefix]
@@ -261,8 +289,9 @@ namespace NaturalSelection.EnemyPatches
             if (other != null)
             {
                 PlayerControllerB player = other.gameObject.GetComponent<PlayerControllerB>();
-                if (__instance.IsOwner && __instance.emerged && player.isInHangarShipRoom && StartOfRound.Instance.shipIsLeaving && Script.BoundingConfig.sandwormDoNotEatPlayersInsideLeavingShip.Value)
+                if (__instance.emerged && !player.isInHangarShipRoom && !StartOfRound.Instance.shipIsLeaving && Script.BoundingConfig.sandwormDoNotEatPlayersInsideLeavingShip.Value)
                 {
+                    Script.Logger.LogInfo("Prevented sandworm from eating player inside ship");
                     return false;
                 }
             }

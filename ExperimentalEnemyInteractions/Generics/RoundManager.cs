@@ -14,7 +14,6 @@ namespace NaturalSelection.Generics
         static float nextUpdate = 0;
         static Dictionary<Type, List<EnemyAI>> checkedTypes = new Dictionary<Type, List<EnemyAI>>();
         public static float updateListInterval = 1f;
-        private static bool canUpdate = true;
         static bool logSpam = Script.BoundingConfig.spammyLogs.Value;
         static bool logUnspecified = Script.BoundingConfig.debugUnspecified.Value;
 

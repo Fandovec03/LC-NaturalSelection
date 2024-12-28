@@ -30,7 +30,7 @@ namespace NaturalSelection.EnemyPatches
         static bool logBees = Script.BoundingConfig.debugRedBees.Value;
         static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
         static float UpdateTimer = Script.BoundingConfig.delay.Value;
-        static List<string> blacklist = Script.BoundingConfig.Blacklist.Value.ToUpper().Split(",").ToList(); 
+        static List<string> blacklist = Script.BoundingConfig.beeBlacklist.Value.ToUpper().Split(",").ToList(); 
 
         [HarmonyPatch("Start")]
         [HarmonyPostfix]

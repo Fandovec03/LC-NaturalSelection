@@ -11,6 +11,7 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<bool> delayScriptsOnSpawn;
     public readonly ConfigEntry<float> delay;
     public readonly ConfigEntry<bool> sandwormCollisionOverride;
+    public readonly ConfigEntry<bool> blobAICantOpenDoors;
     //settings
     public readonly ConfigEntry<bool> stableMode;
     public readonly ConfigEntry<bool> spiderHuntHoardingbug;
@@ -24,7 +25,6 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<bool> enableRedBees;
     public readonly ConfigEntry<bool> enableNutcrackers;
     //enemy settings
-    public readonly ConfigEntry<string> Blacklist;
     public readonly ConfigEntry<int> giantExtinguishChance;
     public readonly ConfigEntry<float> beesSetGiantsOnFireMinChance;
     public readonly ConfigEntry<float> beesSetGiantsOnFireMaxChance;
@@ -32,6 +32,11 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<bool> blobPathfindToCorpses;
     public readonly ConfigEntry<bool> blobPathfind;
     public readonly ConfigEntry<bool> sandwormDoNotEatPlayersInsideLeavingShip;
+    public readonly ConfigEntry<bool> sandwormFilterTypes;
+    //blacklists
+    public readonly ConfigEntry<string> beeBlacklist;
+    public readonly ConfigEntry<string> blobBlacklist;
+    public readonly ConfigEntry<string> sandwormBlacklist;
     //Load bools
     public readonly ConfigEntry<bool> loadNutcrackers;
     public readonly ConfigEntry<bool> loadSpiders;
@@ -60,6 +65,7 @@ namespace NaturalSelection.Generics;
             delayScriptsOnSpawn = cfg.Bind("Experimental Fixes", "Delay enemy scripts on spawn", false, "Delay enemy scripts from taking effect on enemy spawns. Might fix invisible bees");
             delay = cfg.Bind("Experimental Fixes", "Delay", 0.2f, "Set the length of the delay");
             sandwormCollisionOverride = cfg.Bind("Experimental Fixes", "Sandworm collision override", false, "Override vanilla sandworm collisions. May fix lag when sandworm collides with multiple enemies at once");
+            blobAICantOpenDoors = cfg.Bind("Experimental Fixes", "Blob cannot open doors", true, "Blob can't open doors.");
             //general settings
             stableMode = cfg.Bind("General Settings", "Toggle stable mode", true, "When true, the mod will exlude patches that are WIP or are experimental from loading");
             IgnoreImmortalEnemies = cfg.Bind("General Settings", "Ignore Immortal Enemies", false, "All immortal enemies will be ignored by majority of entities");
@@ -75,14 +81,18 @@ namespace NaturalSelection.Generics;
             enableRedBees = cfg.Bind("Entity settings", "Enable Red bees (Circuit bees)", true, "Mod applies changes red bees. They now defend nest from other mobs and kill everything in rampage!");
             enableNutcrackers = cfg.Bind("WIP", "Enable Nutcrackers", false, "Mod applies changes to nutcrackers. DEV ONLY");
             //entity settings
-            Blacklist = cfg.Bind("Entity settings", "Blacklist", "" , "Any enemy inside the blacklist will be ignored by others. Currently works only on bees. \n \n [The ',' acts as a separator]");
             giantExtinguishChance = cfg.Bind("Entity settings", "(Giant) Extinguish chance", 33, "[Accepts int values between 0 and 100] Chance of giants extinguishing themselves.");
             beesSetGiantsOnFireMinChance = cfg.Bind("Entity settings", "(Bees) Ignite giants min chace", 1.5f, "[Accepts float values between 0 and 100]The minimum chance bees will set giant on fire on hit");
             beesSetGiantsOnFireMaxChance = cfg.Bind("Entity settings", "(Bees) Ignite giants max chace", 8f, "[Accepts float values between 0 and 100]The minimum chance bees will set giant on fire on hit");
             blobConsumesCorpses = cfg.Bind("Entity settings", "(Blob) Consume corpses", true, "Hydrogire consume enemy corpses");
-            blobPathfindToCorpses = cfg.Bind("WIP", "(Blob) Pathfind to corpses", false, "[BROKEN - need fixing] Hydrogire move towards corpses to consume");
-            blobPathfind = cfg.Bind("WIP", "(Blob) Pathfind", false, "[WIP] Pathfind to other entities");
+            blobPathfindToCorpses = cfg.Bind("Entity settings", "(Blob) Pathfind to corpses", true, "Hydrogire move towards corpses to consume");
+            blobPathfind = cfg.Bind("Entity settings", "(Blob) Pathfind", true, "Pathfind to other entities");
             sandwormDoNotEatPlayersInsideLeavingShip = cfg.Bind("Entity settings", "(Sandworm) Do not eat players inside leaving ship", false, "Worms do not eat players inside ship leaving the moon.");
+            sandwormFilterTypes = cfg.Bind("Entity settings", "(Sandworm) Filter out enemy types", true, "Filter out enemies by the enemy type. Disabling this allows sandworms to attack other enemies. Blacklisting enemies is highly recommended when this setting is disabled.");
+            //blacklists
+            beeBlacklist = cfg.Bind("Blacklists", "Bees Blacklist", "", "Any enemy inside the blacklist will be ignored by others. \n \n [The ',' acts as a separator]");
+            blobBlacklist = cfg.Bind("Blacklists", "Blob Blacklist", "", "Any enemy inside the blacklist will be ignored by others. \n \n [The ',' acts as a separator]");
+            sandwormBlacklist = cfg.Bind("Blacklists", "Sandworm Blacklist", "", "Any enemy inside the blacklist will be ignored by others. \n \n [The ',' acts as a separator]");
             //load Entities
             loadSpiders = cfg.Bind("Initialization settings (Not recommended)", "Load spider patches", true, "Load the spider patches. Do not touch.");
             loadBlob = cfg.Bind("Initialization settings (Not recommended)", "Load slime patches", true, "Load the slime patches. Do not touch.");

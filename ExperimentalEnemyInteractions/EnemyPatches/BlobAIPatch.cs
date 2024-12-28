@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using GameNetcodeStuff;
 using HarmonyLib;
@@ -27,8 +28,8 @@ namespace NaturalSelection.EnemyPatches
 		static Dictionary<BlobAI, BlobData> slimeList = [];
 
 		static bool logBlob = Script.BoundingConfig.debugHygrodere.Value;
-
-		static LNetworkEvent BlobEatCorpseEvent(BlobAI instance)
+        static List<string> blacklist = Script.BoundingConfig.blobBlacklist.Value.ToUpper().Split(",").ToList();
+        static LNetworkEvent BlobEatCorpseEvent(BlobAI instance)
 		{
 			//Script.Logger.LogMessage("BlobEatCorpseEvent: NetworkObjectID: " + instance.NetworkObjectId);
 			return LNetworkEvent.Connect("NSnetworkEvent" + instance.NetworkObjectId);
@@ -42,6 +43,10 @@ namespace NaturalSelection.EnemyPatches
 			{
 				slimeList.Add(__instance, new BlobData());
 			}
+			if (Script.BoundingConfig.blobAICantOpenDoors.Value)
+			{
+				__instance.openDoorSpeedMultiplier = 0f;
+			}
         }
 		[HarmonyPatch("DoAIInterval")]
 		[HarmonyPrefix]
@@ -51,23 +56,20 @@ namespace NaturalSelection.EnemyPatches
 
 			if (Script.BoundingConfig.blobPathfind.Value == true)
 			{
-				if (Script.BoundingConfig.blobPathfindToCorpses.Value)
+				if (__instance.GetClosestPlayer() != null && (!__instance.PlayerIsTargetable(__instance.GetClosestPlayer()) || blobData.closestEnemy != null && Vector3.Distance(blobData.closestEnemy.transform.position, __instance.transform.position) < Vector3.Distance(__instance.GetClosestPlayer().transform.position, __instance.transform.position)) || __instance.GetClosestPlayer() == null)
 				{
-					if (__instance.GetClosestPlayer() != null && (!__instance.PlayerIsTargetable(__instance.GetClosestPlayer()) || blobData.closestEnemy != null && Vector3.Distance(blobData.closestEnemy.transform.position, __instance.transform.position) < Vector3.Distance(__instance.GetClosestPlayer().transform.position, __instance.transform.position)) || __instance.GetClosestPlayer() == null)
+					if (__instance.moveTowardsDestination)
 					{
-						if (__instance.moveTowardsDestination)
-						{
-							__instance.agent.SetDestination(__instance.destination);
-						}
-						__instance.SyncPositionToClients();
-
-						if (__instance.searchForPlayers.inProgress)
-						{
-							__instance.StopSearch(__instance.searchForPlayers);
-						}
-						if (blobData.closestEnemy != null) __instance.SetDestinationToPosition(blobData.closestEnemy.transform.position, true);
-						return false;
+						__instance.agent.SetDestination(__instance.destination);
 					}
+					__instance.SyncPositionToClients();
+
+					if (__instance.searchForPlayers.inProgress)
+					{
+						__instance.StopSearch(__instance.searchForPlayers);
+					}
+					if (blobData.closestEnemy != null) __instance.SetDestinationToPosition(blobData.closestEnemy.transform.position, true);
+					return false;
 				}
 			}
 			return true;
@@ -89,9 +91,9 @@ namespace NaturalSelection.EnemyPatches
             blobData.timeSinceHittingLocalMonster += Time.deltaTime;
 			if (RoundManagerPatch.RequestUpdate(__instance) == true)
 			{
-				RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 1), __instance), null, null,__instance, false, true));
+				RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 1), __instance), null, blacklist,__instance, false, true));
 			}
-			blobData.closestEnemy = EnemyAIPatch.FindClosestEnemy(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()], blobData.closestEnemy, __instance, true);
+			blobData.closestEnemy = EnemyAIPatch.FindClosestEnemy(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()], blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
 
             BlobEatCorpseEvent(__instance).OnClientReceived += EventReceived;
 

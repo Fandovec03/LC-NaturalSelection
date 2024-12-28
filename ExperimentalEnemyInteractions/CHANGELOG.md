@@ -5,7 +5,8 @@
 	- - Fixes desync and network related issues, mainly enemy sounds not playing on non-host clients<br>
 	- Fixed sandworm eating non-host players inside the ship with the toggle on<br>
 	- Fixed giants not using the extinguish chance from config<br>
-	- Added __blacklist__ to config<br>
+	- Added __blacklists__ to config<br>
+	- Optimization on clients/server<br>
 0.1.5 <br>
 	- Fixed collisions returning NullReferenceException errors<br>
 	- Added config for sandworms to not eat players inside leaving ship<br>
@@ -29,13 +30,13 @@
 0.0.2 <br>
 	- Made less spammy logs <br>
 0.0.1 <br>
-	- Inital Upload
+	- Inital Upload<br>
 
 <h1>Experimental Enemy Interactions</h1>
 
 0.3.0 - <br>
-	- See 0.2.0
-	- NaturalSelectionLib 0.6.0 included
+	- See 0.2.0 <br>
+	- NaturalSelectionLib 0.6.0 included <br>
 0.2.6 - <br>
 	- Finally discovered a fix for bees <br>
 	- Hygrodiges move towards and consume corpses<br>

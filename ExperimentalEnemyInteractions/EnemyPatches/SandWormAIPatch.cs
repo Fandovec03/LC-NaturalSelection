@@ -5,6 +5,7 @@ using HarmonyLib;
 using NaturalSelection.Generics;
 using UnityEngine;
 using LethalNetworkAPI;
+using System.Linq;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -24,7 +25,7 @@ namespace NaturalSelection.EnemyPatches
         static bool debugSandworm = Script.BoundingConfig.debugSandworms.Value;
         static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
         static bool triggerFlag = Script.BoundingConfig.debugTriggerFlags.Value;
-
+        static List<string> blacklist = Script.BoundingConfig.sandwormBlacklist.Value.ToUpper().Split(",").ToList();
         static LNetworkVariable<int> NetworkSandwormBehaviorState(SandWormAI instance)
         {
             return LNetworkVariable<int>.Connect("NSSandwormBehaviorState" + instance.NetworkObjectId);
@@ -50,13 +51,14 @@ namespace NaturalSelection.EnemyPatches
             {
                 sandworms.Add(__instance, new ExtendedSandWormAIData());
 
-                if (targetedTypes.Count != 0) return;
-
-                targetedTypes.Add(typeof(BaboonBirdAI));
-                targetedTypes.Add(typeof(ForestGiantAI));
-                targetedTypes.Add(typeof(MouthDogAI));
-                targetedTypes.Add(typeof(BushWolfEnemy));
-                targetedTypes.Add(typeof(RadMechAI));
+                if (targetedTypes.Count == 0 && Script.BoundingConfig.sandwormFilterTypes.Value == true)
+                {
+                    targetedTypes.Add(typeof(BaboonBirdAI));
+                    targetedTypes.Add(typeof(ForestGiantAI));
+                    targetedTypes.Add(typeof(MouthDogAI));
+                    targetedTypes.Add(typeof(BushWolfEnemy));
+                    targetedTypes.Add(typeof(RadMechAI));
+                }
             }
         }
 
@@ -75,7 +77,7 @@ namespace NaturalSelection.EnemyPatches
             {
                 if (RoundManagerPatch.RequestUpdate(__instance) == true)
                 {
-                    RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 0), __instance), targetedTypes, null, __instance));
+                    RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 0), __instance), targetedTypes, blacklist, __instance));
                     //NaturalSelectionLib.NaturalSelectionLib.UpdateListInsideDictionrary(__instance.GetType(), EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 0), __instance), targetedTypes, __instance));
                 }
                 SandwormData.closestEnemy = EnemyAIPatch.FindClosestEnemy(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()], SandwormData.closestEnemy, __instance);

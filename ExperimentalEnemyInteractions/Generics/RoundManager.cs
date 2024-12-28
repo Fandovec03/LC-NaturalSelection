@@ -34,7 +34,7 @@ namespace NaturalSelection.Generics
 
         public static bool RequestUpdate(EnemyAI instance)
         {
-            if (!checkedTypes.ContainsKey(instance.GetType()))
+            if (!checkedTypes.ContainsKey(instance.GetType()) && instance.IsOwner)
             {
                 checkedTypes.Add(instance.GetType(), new List<EnemyAI>());
                 if (logUnspecified && logSpam) Script.Logger.LogMessage("/RoundManager/ request was Accepted. Requested by " + EnemyAIPatch.DebugStringHead(instance) + " at " + Time.realtimeSinceStartup);
@@ -42,7 +42,8 @@ namespace NaturalSelection.Generics
             }
             else
             {
-                if (logUnspecified && logSpam) Script.Logger.LogInfo("/RoundManager/ request was Denied. Requested by " + EnemyAIPatch.DebugStringHead(instance) + " at " + Time.realtimeSinceStartup);
+                if (logUnspecified && logSpam && !instance.IsOwner) Script.Logger.LogDebug("/RoundManager/ request was Denied. Not owner of the instance.");
+                else if (logUnspecified && logSpam) Script.Logger.LogDebug("/RoundManager/ request was Denied. Requested by " + EnemyAIPatch.DebugStringHead(instance) + " at " + Time.realtimeSinceStartup);
                 return false;
             }
         }

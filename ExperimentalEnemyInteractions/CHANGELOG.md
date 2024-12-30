@@ -1,5 +1,9 @@
 <h1>Natural selection</h1>
 
+0.2.1 <br>
+	- Fixed giants always set on fire<br>
+	- Fixed Error spam on clients<br>
+	- Small changes to networking which fixes lag<br>
 0.2.0 <br>
 	- **Added networking** <br>
 	- - Fixes desync and network related issues, mainly enemy sounds not playing on non-host clients<br>

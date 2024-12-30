@@ -93,7 +93,7 @@ namespace NaturalSelection.EnemyPatches
 			{
 				RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 1), __instance), null, blacklist,__instance, false, true));
 			}
-			blobData.closestEnemy = EnemyAIPatch.FindClosestEnemy(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()], blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
+			if (__instance.IsOwner) blobData.closestEnemy = EnemyAIPatch.FindClosestEnemy(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()], blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
 
             BlobEatCorpseEvent(__instance).OnClientReceived += EventReceived;
 

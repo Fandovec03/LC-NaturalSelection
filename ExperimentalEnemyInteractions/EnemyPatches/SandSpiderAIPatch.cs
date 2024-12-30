@@ -16,18 +16,6 @@ namespace NaturalSelection.EnemyPatches
         public Dictionary<EnemyAI,float> enemiesInLOSDictionary = new Dictionary<EnemyAI, float>();   
     }
 
-    [HarmonyPatch]
-    class Reversepatch
-    {
-        [HarmonyReversePatch]
-        [HarmonyPatch(typeof(EnemyAI), "Update")]
-        public static void ReverseUpdate(SandSpiderAI instance)
-        {
-            //Script.Logger.LogInfo("Reverse patch triggered");
-        }
-    }
-
-
     [HarmonyPatch(typeof(SandSpiderAI))]
     class SandSpiderAIPatch
     {
@@ -65,7 +53,7 @@ namespace NaturalSelection.EnemyPatches
             {
                 RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance));
             }
-            spiderData.enemiesInLOSDictionary = EnemyAIPatch.GetEnemiesInLOS(__instance, NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()], 80f, 15, 2f);
+            if (__instance.IsOwner) spiderData.enemiesInLOSDictionary = EnemyAIPatch.GetEnemiesInLOS(__instance, NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()], 80f, 15, 2f);
 
             if (spiderData.enemiesInLOSDictionary.Count > 0)
             {
@@ -235,7 +223,7 @@ namespace NaturalSelection.EnemyPatches
 
             if (spiderData.targetEnemy != null && !__instance.targetPlayer && __instance.currentBehaviourStateIndex == 2)
             {
-                Reversepatch.ReverseUpdate(__instance);
+                ReversePatchAI.ReverseUpdate(__instance);
                 if (__instance.updateDestinationInterval >= 0)
                 {
                     __instance.updateDestinationInterval -= Time.deltaTime;

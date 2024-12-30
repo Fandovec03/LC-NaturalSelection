@@ -64,7 +64,7 @@ namespace NaturalSelection.EnemyPatches
                 {
                     RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance), beeList[__instance].enemyTypes, blacklist, __instance, true, Script.BoundingConfig.IgnoreImmortalEnemies.Value));
                 }
-                if (NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()].Contains(__instance))
+                if (__instance.IsOwner && NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()].Contains(__instance))
                 {
                     if (logBees && debugSpam) Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + " FOUND ITSELF IN THE EnemyList! Removing...");
                     NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()].Remove(__instance);
@@ -347,9 +347,9 @@ namespace NaturalSelection.EnemyPatches
             return LNetworkVariable<float>.Connect("NSSetOnFireMaxChance" + instance.NetworkObjectId);
         }
 
-        static LNetworkEvent NetworkSetGiantOnFire(ForestGiantAI forestGiantAI)
+        static LNetworkMessage<bool> NetworkSetGiantOnFire(ForestGiantAI forestGiantAI)
         {
-            return LNetworkEvent.Connect("NSSetGiantOnFire" + forestGiantAI.NetworkObjectId);
+            return LNetworkMessage<bool>.Connect("NSSetGiantOnFire" + forestGiantAI.NetworkObjectId);
         }
 
         public static void OnCustomEnemyCollision(RedLocustBees __instance, EnemyAI mainscript2)
@@ -381,7 +381,7 @@ namespace NaturalSelection.EnemyPatches
                         {
                             if (logBees) Script.Logger.LogMessage("Client not elligible to determine chance to set giant on fire");
                         }
-                        if (NSSetOnFireMaxChance(__instance).Value <= NSSetOnFireMaxChance(__instance).Value && __instance.IsOwner)
+                        if (NSSetOnFireChance(__instance).Value <= NSSetOnFireMaxChance(__instance).Value && __instance.IsOwner)
                         {
                             if (logBees) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "OnCustomEnemyCollision: SET GIANT ON FIRE! Random number: " + NSSetOnFireMaxChance(__instance).Value);
                             ForestGiantAI giant = (ForestGiantAI)mainscript2;
@@ -392,7 +392,7 @@ namespace NaturalSelection.EnemyPatches
                             giant.SwitchToBehaviourState(2);
                             Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + " /BeesCustomhit/ " + "isOwner: " + __instance.IsOwner + ", Giant isOwner: " + giant.IsOwner + ", set fire to false");
                             }*/
-                            NetworkSetGiantOnFire(giant).InvokeServer();
+                            NetworkSetGiantOnFire(giant).SendServer(true);
                         }
                     }
                 }

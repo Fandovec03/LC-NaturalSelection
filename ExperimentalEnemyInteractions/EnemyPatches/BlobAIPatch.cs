@@ -1,26 +1,41 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using GameNetcodeStuff;
 using HarmonyLib;
+using LethalNetworkAPI;
+using LethalNetworkAPI.Utils;
+using NaturalSelection.Generics;
+using Steamworks.Data;
+using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace NaturalSelection.EnemyPatches
 {
-
+	
 	class BlobData
 	{
-        public float timeSinceHittingLocalMonster = 0f;
+        public float timeSinceHittingLocalMonster = 0;
         public EnemyAI? closestEnemy = null;
+		public bool playSound = false;
     }
 
 	[HarmonyPatch(typeof(BlobAI))]
 	public class BlobAIPatch
 	{
-		static float CDtimer = 0.5f;
-		static List<EnemyAI> whiteList = new List<EnemyAI>();
 		static Dictionary<BlobAI, BlobData> slimeList = [];
 
 		static bool logBlob = Script.BoundingConfig.debugHygrodere.Value;
+        static List<string> blacklist = Script.BoundingConfig.blobBlacklist.Value.ToUpper().Split(",").ToList();
+        static LNetworkEvent BlobEatCorpseEvent(BlobAI instance)
+		{
+			//Script.Logger.LogMessage("BlobEatCorpseEvent: NetworkObjectID: " + instance.NetworkObjectId);
+			return LNetworkEvent.Connect("NSnetworkEvent" + instance.NetworkObjectId);
+        }
 
-		[HarmonyPatch("Start")]
+        [HarmonyPatch("Start")]
 		[HarmonyPrefix]
 		static void StartPatch(BlobAI __instance)
 		{
@@ -28,85 +43,89 @@ namespace NaturalSelection.EnemyPatches
 			{
 				slimeList.Add(__instance, new BlobData());
 			}
+			if (Script.BoundingConfig.blobAICantOpenDoors.Value)
+			{
+				__instance.openDoorSpeedMultiplier = 0f;
+			}
         }
-		/*
 		[HarmonyPatch("DoAIInterval")]
-		[HarmonyPostfix]
-		static void DoAIIntervalPrefixPatch(BlobAI __instance)
+		[HarmonyPrefix]
+		static bool DoAIIntervalPrefixPatch(BlobAI __instance)
 		{
             BlobData blobData = slimeList[__instance];
 
-            if (!blobData.closestEnemy.isEnemyDead && Vector3.Distance(__instance.transform.position,__instance.GetClosestPlayer().transform.position) < Vector3.Distance(__instance.transform.position, blobData.closestEnemy.transform.position))
+			if (Script.BoundingConfig.blobPathfind.Value == true)
 			{
-				__instance.StopSearch(__instance.searchForPlayers);
-				__instance.SetDestinationToPosition(blobData.closestEnemy.transform.position);
+				if (__instance.GetClosestPlayer() != null && (!__instance.PlayerIsTargetable(__instance.GetClosestPlayer()) || blobData.closestEnemy != null && Vector3.Distance(blobData.closestEnemy.transform.position, __instance.transform.position) < Vector3.Distance(__instance.GetClosestPlayer().transform.position, __instance.transform.position)) || __instance.GetClosestPlayer() == null)
+				{
+					if (__instance.moveTowardsDestination)
+					{
+						__instance.agent.SetDestination(__instance.destination);
+					}
+					__instance.SyncPositionToClients();
+
+					if (__instance.searchForPlayers.inProgress)
+					{
+						__instance.StopSearch(__instance.searchForPlayers);
+					}
+					if (blobData.closestEnemy != null) __instance.SetDestinationToPosition(blobData.closestEnemy.transform.position, true);
+					return false;
+				}
 			}
+			return true;
 		}
-		*/
+
         [HarmonyPatch("Update")]
 		[HarmonyPrefix]
 		static void BlobUpdatePatch(BlobAI __instance)
 		{
 			BlobData blobData = slimeList[__instance];
 
-            blobData.timeSinceHittingLocalMonster += Time.deltaTime;
-			if (CDtimer > 0)
+			void EventReceived()
 			{
-				CDtimer -= Time.deltaTime;
-			}
-			if (CDtimer <= 0)
-			{
-				List<EnemyAI> tempList = new List<EnemyAI>();
-
-				tempList = EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance);
-
-				for (int i = 0; i < tempList.Count; i++)
-				{
-					if (tempList[i] != IsEnemyImmortal.EnemyIsImmortal(tempList[i]))
-					{
-						if (tempList[i] is NutcrackerEnemyAI)
-						{
-							if (logBlob) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + tempList[i] + " is blacklisted!");
-						}
-						else
-						{
-							if (!whiteList.Contains(tempList[i]))
-							{
-								if (logBlob) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + " Added " + tempList[i] + " to whitelist");
-								whiteList.Add(tempList[i]);
-							}
-							if (whiteList.Contains(tempList[i]))
-							{
-								if (logBlob) Script.Logger.LogWarning(EnemyAIPatch.DebugStringHead(__instance) + tempList[i] + " is already in the whitelist");
-							}
-						}
-					}
-				}
-
-				for (int i = 0; i < whiteList.Count; i++)
-				{
-					if (whiteList[i] == null)
-					{
-						if (logBlob) Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + " found NULL enemz in whitelist. removing.");
-						whiteList.Remove(whiteList[i]);
-					}
-				}
-
-                CDtimer = 0.5f;
-
+                blobData.playSound = true;
+                //Script.Logger.LogMessage("Received event. Changed value to " + blobData.playSound + ", eventLimiter: " + eventLimiter);
             }
-		}
 
 
+            blobData.timeSinceHittingLocalMonster += Time.deltaTime;
+			if (RoundManagerPatch.RequestUpdate(__instance) == true)
+			{
+				RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 1), __instance), null, blacklist,__instance, false, true));
+			}
+			if (__instance.IsOwner) blobData.closestEnemy = EnemyAIPatch.FindClosestEnemy(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()], blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
+
+            BlobEatCorpseEvent(__instance).OnClientReceived += EventReceived;
+
+			if (blobData.playSound)
+			{
+                Script.Logger.LogMessage("Playing sound. NetworkObjectID: " + __instance.NetworkObjectId);
+                __instance.creatureVoice.PlayOneShot(__instance.killPlayerSFX);
+				blobData.playSound = false;
+			}
+        }
+		
 		public static void OnCustomEnemyCollision(BlobAI __instance, EnemyAI mainscript2)
 		{
-			if (slimeList.ContainsKey(__instance))
-			{
             BlobData blobData = slimeList[__instance];
 
             if (blobData.timeSinceHittingLocalMonster > 1.5f)
 			{
-					if (mainscript2 is not NutcrackerEnemyAI && mainscript2 is not CaveDwellerAI && !__instance.isEnemyDead)
+				if (mainscript2.isEnemyDead && IsEnemyImmortal.EnemyIsImmortal(mainscript2) == false && Vector3.Distance(__instance.transform.position, mainscript2.transform.position) <= 2.8f && Script.BoundingConfig.blobConsumesCorpses.Value)
+				{
+                    //__instance.creatureVoice.PlayOneShot(__instance.killPlayerSFX);
+
+                    if (__instance.IsOwner && mainscript2.thisNetworkObject.IsSpawned)
+					{
+                        BlobEatCorpseEvent(__instance).InvokeClients();
+                        Script.Logger.LogMessage("Send event");
+                        mainscript2.thisNetworkObject.Despawn(true);
+					}
+                    return;
+                }
+				if (!mainscript2.isEnemyDead)
+				{
+					if (mainscript2 is not NutcrackerEnemyAI && mainscript2 is not CaveDwellerAI)
 					{
 
 						blobData.timeSinceHittingLocalMonster = 0f;
@@ -124,7 +143,7 @@ namespace NaturalSelection.EnemyPatches
 								{
 									mainscript2.KillEnemyOnOwnerClient();
 								}
-
+								
 								flowermanAI.targetPlayer = null;
 								flowermanAI.movingTowardsTargetPlayer = false;
 								flowermanAI.isInAngerMode = false;
@@ -134,33 +153,30 @@ namespace NaturalSelection.EnemyPatches
 							}
 						}
 
-						else if (mainscript2 is HoarderBugAI)
+						if (mainscript2 is HoarderBugAI)
 						{
 							HoarderBugAI? hoarderBugAI = mainscript2 as HoarderBugAI;
 
 							if (hoarderBugAI != null)
 							{
-								HoarderBugPatch.CustomOnHit(1, __instance, true, hoarderBugAI);
+								HoarderBugPatch.CustomOnHit(1, __instance, false, hoarderBugAI);
 								if (mainscript2.enemyHP <= 0)
 								{
 									mainscript2.KillEnemyOnOwnerClient();
 								}
 							}
-						}
-
-						else
-						{
-							blobData.timeSinceHittingLocalMonster = 0f;
-							mainscript2.HitEnemy(1, null, playHitSFX: true);
-							if (mainscript2.enemyHP <= 0)
-							{
-								mainscript2.KillEnemyOnOwnerClient();
-							}
 							return;
 						}
+
+						blobData.timeSinceHittingLocalMonster = 0f;
+						mainscript2.HitEnemy(1, null, playHitSFX: true);
+						if (mainscript2.enemyHP <= 0)
+						{
+							mainscript2.KillEnemyOnOwnerClient();
+						}
 					}
-                }
+				}
             }
-		}
-	}
+        }
+    }
 }

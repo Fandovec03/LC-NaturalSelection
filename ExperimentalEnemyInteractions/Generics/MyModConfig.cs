@@ -7,44 +7,69 @@ using UnityEngine;
 namespace NaturalSelection.Generics;
     class MyModConfig
     {
-
+    //experimental fixes
+    public readonly ConfigEntry<bool> delayScriptsOnSpawn;
+    public readonly ConfigEntry<float> delay;
+    public readonly ConfigEntry<bool> sandwormCollisionOverride;
+    public readonly ConfigEntry<bool> blobAICantOpenDoors;
     //settings
-        public readonly ConfigEntry<bool> stableMode;
-        public readonly ConfigEntry<bool> spiderHuntHoardingbug;
-        public readonly ConfigEntry<float> agentRadiusModifier;
+    public readonly ConfigEntry<bool> stableMode;
+    public readonly ConfigEntry<bool> spiderHuntHoardingbug;
+    public readonly ConfigEntry<float> agentRadiusModifier;
+    public readonly ConfigEntry<bool> IgnoreImmortalEnemies;
     //enemy bools
-        public readonly ConfigEntry<bool> enableSpider;
-        public readonly ConfigEntry<bool> enableSlime;
-        public readonly ConfigEntry<bool> enableLeviathan;
-        public readonly ConfigEntry<bool> enableSporeLizard;
-        public readonly ConfigEntry<bool> enableRedBees;
-        public readonly ConfigEntry<bool> enableNutcrackers;
+    public readonly ConfigEntry<bool> enableSpider;
+    public readonly ConfigEntry<bool> enableSlime;
+    public readonly ConfigEntry<bool> enableLeviathan;
+    public readonly ConfigEntry<bool> enableSporeLizard;
+    public readonly ConfigEntry<bool> enableRedBees;
+    public readonly ConfigEntry<bool> enableNutcrackers;
+    //enemy settings
+    public readonly ConfigEntry<int> giantExtinguishChance;
+    public readonly ConfigEntry<float> beesSetGiantsOnFireMinChance;
+    public readonly ConfigEntry<float> beesSetGiantsOnFireMaxChance;
+    public readonly ConfigEntry<bool> blobConsumesCorpses;
+    public readonly ConfigEntry<bool> blobPathfindToCorpses;
+    public readonly ConfigEntry<bool> blobPathfind;
+    public readonly ConfigEntry<bool> sandwormDoNotEatPlayersInsideLeavingShip;
+    public readonly ConfigEntry<bool> sandwormFilterTypes;
+    //blacklists
+    public readonly ConfigEntry<string> beeBlacklist;
+    public readonly ConfigEntry<string> blobBlacklist;
+    public readonly ConfigEntry<string> sandwormBlacklist;
     //Load bools
-        public readonly ConfigEntry<bool> loadNutcrackers;
-        public readonly ConfigEntry<bool> loadSpiders;
-        public readonly ConfigEntry<bool> loadSandworms;
-        public readonly ConfigEntry<bool> loadGiants;
-        public readonly ConfigEntry<bool> loadHoardingBugs;
-        public readonly ConfigEntry<bool> loadBlob;
-        public readonly ConfigEntry<bool> LoadBees;
-        public readonly ConfigEntry<bool> loadSporeLizard;
+    public readonly ConfigEntry<bool> loadNutcrackers;
+    public readonly ConfigEntry<bool> loadSpiders;
+    public readonly ConfigEntry<bool> loadSandworms;
+    public readonly ConfigEntry<bool> loadGiants;
+    public readonly ConfigEntry<bool> loadHoardingBugs;
+    public readonly ConfigEntry<bool> loadBlob;
+    public readonly ConfigEntry<bool> LoadBees;
+    public readonly ConfigEntry<bool> loadSporeLizard;
     //debug
-        public readonly ConfigEntry<bool> debugBool;
-        public readonly ConfigEntry<bool> spammyLogs;
-        public readonly ConfigEntry<bool> debugTriggerFlags;
-        public readonly ConfigEntry<bool> debugRedBees;
-        public readonly ConfigEntry<bool> debugSandworms;
-        public readonly ConfigEntry<bool> debugHygrodere;
-        public readonly ConfigEntry<bool> debugNutcrackers;
-        public readonly ConfigEntry<bool> debugSpiders;
-        public readonly ConfigEntry<bool> debugGiants;
-        public readonly ConfigEntry<bool> debugUnspecified;
-        public MyModConfig(ConfigFile cfg)
-        {
+    public readonly ConfigEntry<bool> debugBool;
+    public readonly ConfigEntry<bool> spammyLogs;
+    public readonly ConfigEntry<bool> debugTriggerFlags;
+    public readonly ConfigEntry<bool> debugRedBees;
+    public readonly ConfigEntry<bool> debugSandworms;
+    public readonly ConfigEntry<bool> debugHygrodere;
+    public readonly ConfigEntry<bool> debugNutcrackers;
+    public readonly ConfigEntry<bool> debugSpiders;
+    public readonly ConfigEntry<bool> debugGiants;
+    public readonly ConfigEntry<bool> debugUnspecified;
+    public MyModConfig(ConfigFile cfg)
+    {
         cfg.SaveOnConfigSet = false;
         {
-            //settings
+            //experimental fixes
+            delayScriptsOnSpawn = cfg.Bind("Experimental Fixes", "Delay enemy scripts on spawn", false, "Delay enemy scripts from taking effect on enemy spawns. Might fix invisible bees");
+            delay = cfg.Bind("Experimental Fixes", "Delay", 0.2f, "Set the length of the delay");
+            sandwormCollisionOverride = cfg.Bind("Experimental Fixes", "Sandworm collision override", false, "Override vanilla sandworm collisions. May fix lag when sandworm collides with multiple enemies at once");
+            blobAICantOpenDoors = cfg.Bind("Experimental Fixes", "Blob cannot open doors", true, "Blob can't open doors.");
+            //general settings
             stableMode = cfg.Bind("General Settings", "Toggle stable mode", true, "When true, the mod will exlude patches that are WIP or are experimental from loading");
+            IgnoreImmortalEnemies = cfg.Bind("General Settings", "Ignore Immortal Enemies", false, "All immortal enemies will be ignored by majority of entities");
+            //WIP
             agentRadiusModifier = cfg.Bind("WIP", "Agent radius modifier", 0.6f, "Agent radius multiplier. Agent size is modified to make collisions more reliable. Lower multiplier makes final Agent radius smaller. \n \n [Values not between 0.1 and 1 are Clamped]");
             agentRadiusModifier.Value = Mathf.Clamp(agentRadiusModifier.Value, 0.1f, 1f);
             spiderHuntHoardingbug = cfg.Bind("WIP", "Spider hunts Hoarding bugs", false, "Bunker spider chases and hunts hoarding bugs. DEV ONLY");
@@ -55,6 +80,19 @@ namespace NaturalSelection.Generics;
             enableSporeLizard = cfg.Bind("WIP", "Enable SporeLizard", false, "Mod applies changes Spore lizard. It is now mortal!");
             enableRedBees = cfg.Bind("Entity settings", "Enable Red bees (Circuit bees)", true, "Mod applies changes red bees. They now defend nest from other mobs and kill everything in rampage!");
             enableNutcrackers = cfg.Bind("WIP", "Enable Nutcrackers", false, "Mod applies changes to nutcrackers. DEV ONLY");
+            //entity settings
+            giantExtinguishChance = cfg.Bind("Entity settings", "(Giant) Extinguish chance", 33, "[Accepts int values between 0 and 100] Chance of giants extinguishing themselves.");
+            beesSetGiantsOnFireMinChance = cfg.Bind("Entity settings", "(Bees) Ignite giants min chace", 1.5f, "[Accepts float values between 0 and 100]The minimum chance bees will set giant on fire on hit");
+            beesSetGiantsOnFireMaxChance = cfg.Bind("Entity settings", "(Bees) Ignite giants max chace", 8f, "[Accepts float values between 0 and 100]The minimum chance bees will set giant on fire on hit");
+            blobConsumesCorpses = cfg.Bind("Entity settings", "(Blob) Consume corpses", true, "Hydrogire consume enemy corpses");
+            blobPathfindToCorpses = cfg.Bind("Entity settings", "(Blob) Pathfind to corpses", true, "Hydrogire move towards corpses to consume");
+            blobPathfind = cfg.Bind("Entity settings", "(Blob) Pathfind", true, "Pathfind to other entities");
+            sandwormDoNotEatPlayersInsideLeavingShip = cfg.Bind("Entity settings", "(Sandworm) Do not eat players inside leaving ship", false, "Worms do not eat players inside ship leaving the moon.");
+            sandwormFilterTypes = cfg.Bind("Entity settings", "(Sandworm) Filter out enemy types", true, "Filter out enemies by the enemy type. Disabling this allows sandworms to attack other enemies. Blacklisting enemies is highly recommended when this setting is disabled.");
+            //blacklists
+            beeBlacklist = cfg.Bind("Blacklists", "Bees Blacklist", "", "Any enemy inside the blacklist will be ignored by others. \n \n [The ',' acts as a separator]");
+            blobBlacklist = cfg.Bind("Blacklists", "Blob Blacklist", "", "Any enemy inside the blacklist will be ignored by others. \n \n [The ',' acts as a separator]");
+            sandwormBlacklist = cfg.Bind("Blacklists", "Sandworm Blacklist", "", "Any enemy inside the blacklist will be ignored by others. \n \n [The ',' acts as a separator]");
             //load Entities
             loadSpiders = cfg.Bind("Initialization settings (Not recommended)", "Load spider patches", true, "Load the spider patches. Do not touch.");
             loadBlob = cfg.Bind("Initialization settings (Not recommended)", "Load slime patches", true, "Load the slime patches. Do not touch.");
@@ -79,11 +117,11 @@ namespace NaturalSelection.Generics;
         ClearOrphanedEntries(cfg);
         cfg.Save();
         cfg.SaveOnConfigSet = true;
-        }
-        public void ClearOrphanedEntries(ConfigFile cfg)
-        {
-        PropertyInfo orphanedEnriesProp = AccessTools.Property(typeof(ConfigFile), "OrphanedEntries");
-        var orphanedEntries = (Dictionary<ConfigDefinition, string>)orphanedEnriesProp.GetValue(cfg);
-        orphanedEntries.Clear();
-        }
     }
+    public void ClearOrphanedEntries(ConfigFile cfg)
+    {
+    PropertyInfo orphanedEnriesProp = AccessTools.Property(typeof(ConfigFile), "OrphanedEntries");
+    var orphanedEntries = (Dictionary<ConfigDefinition, string>)orphanedEnriesProp.GetValue(cfg);
+    orphanedEntries.Clear();
+    }
+}

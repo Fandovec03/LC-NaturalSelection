@@ -9,6 +9,7 @@ namespace NaturalSelection;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 [BepInDependency("fandovec03.NaturalSelectionLib", BepInDependency.DependencyFlags.HardDependency)]
+[BepInDependency("LethalNetworkAPI", BepInDependency.DependencyFlags.HardDependency)]
 public class Script : BaseUnityPlugin
 {
     public static Script Instance { get; private set; } = null!;
@@ -18,6 +19,7 @@ public class Script : BaseUnityPlugin
     internal static MyModConfig BoundingConfig { get; set; } = null!;
     internal static bool stableToggle;
     internal static float clampedAgentRadius;
+    internal static bool isExperimental;
     private void Awake()
     {
         Logger = base.Logger;
@@ -26,6 +28,7 @@ public class Script : BaseUnityPlugin
         BoundingConfig = new MyModConfig(base.Config);
         stableToggle = BoundingConfig.stableMode.Value;
         clampedAgentRadius = Mathf.Clamp(BoundingConfig.agentRadiusModifier.Value, 0.1f, 1f);
+        isExperimental = false;
 
         Patch();
 
@@ -37,18 +40,25 @@ public class Script : BaseUnityPlugin
         Harmony ??= new Harmony(MyPluginInfo.PLUGIN_GUID);
 
         Logger.LogInfo("Patching "+ MyPluginInfo.PLUGIN_NAME + " ...");
-
+        if (isExperimental)
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                Logger.LogError("LOADING EXPERIMENTAL " + MyPluginInfo.PLUGIN_NAME.ToUpper() + ", DOWNLOAD NATURAL SELECTION INSTEAD!");
+            }
+        }
         Harmony.PatchAll(typeof(AICollisionDetectPatch));
         Harmony.PatchAll(typeof(EnemyAIPatch));
         try
         {
             NaturalSelectionLib.NaturalSelectionLib.LibrarySetup(Logger, BoundingConfig.spammyLogs.Value, BoundingConfig.debugUnspecified.Value);
-            Logger.LogInfo("Library successfully setup!");
+            Logger.LogMessage("Library successfully setup! Version " + NaturalSelectionLib.MyPluginInfo.PLUGIN_VERSION);
         }
         catch
         {
             Logger.LogError("Failed to setup library!");
         }
+        Harmony.PatchAll(typeof(RoundManagerPatch));
         if (BoundingConfig.loadSandworms.Value)Harmony.PatchAll(typeof(SandWormAIPatch));
         if (BoundingConfig.loadBlob.Value)Harmony.PatchAll(typeof(BlobAIPatch));
         if (BoundingConfig.loadHoardingBugs.Value)Harmony.PatchAll(typeof(HoarderBugPatch));

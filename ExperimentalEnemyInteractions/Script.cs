@@ -49,9 +49,11 @@ public class Script : BaseUnityPlugin
         }
         Harmony.PatchAll(typeof(AICollisionDetectPatch));
         Harmony.PatchAll(typeof(EnemyAIPatch));
+        Harmony.PatchAll(typeof(Networking));
+        Harmony.PatchAll(typeof(NetworkingMethods));
         try
         {
-            NaturalSelectionLib.NaturalSelectionLib.LibrarySetup(Logger, BoundingConfig.spammyLogs.Value, BoundingConfig.debugUnspecified.Value);
+            NaturalSelectionLib.NaturalSelectionLib.LibrarySetup(Logger, BoundingConfig.spammyLogs.Value, BoundingConfig.debugTriggerFlags.Value);
             Logger.LogMessage("Library successfully setup! Version " + NaturalSelectionLib.MyPluginInfo.PLUGIN_VERSION);
         }
         catch

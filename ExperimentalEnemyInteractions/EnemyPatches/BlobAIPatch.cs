@@ -31,8 +31,8 @@ namespace NaturalSelection.EnemyPatches
         static List<string> blacklist = Script.BoundingConfig.blobBlacklist.Value.ToUpper().Split(",").ToList();
         static LNetworkEvent BlobEatCorpseEvent(BlobAI instance)
 		{
-			//Script.Logger.LogMessage("BlobEatCorpseEvent: NetworkObjectID: " + instance.NetworkObjectId);
-			return LNetworkEvent.Connect("NSnetworkEvent" + instance.NetworkObjectId);
+            string NWID = "NSSlimeEatEvent" + instance.NetworkObjectId;
+            return Networking.NSEnemyNetworkEvent(NWID);
         }
 
         [HarmonyPatch("Start")]
@@ -47,6 +47,16 @@ namespace NaturalSelection.EnemyPatches
 			{
 				__instance.openDoorSpeedMultiplier = 0f;
 			}
+
+            ///////////////////////////////////////Networking
+
+            BlobEatCorpseEvent(__instance).OnClientReceived += EventReceived;
+
+            void EventReceived()
+            {
+				slimeList[__instance].playSound = true;
+                //Script.Logger.LogMessage("Received event. Changed value to " + blobData.playSound + ", eventLimiter: " + eventLimiter);
+            }
         }
 		[HarmonyPatch("DoAIInterval")]
 		[HarmonyPrefix]
@@ -81,12 +91,12 @@ namespace NaturalSelection.EnemyPatches
 		{
 			BlobData blobData = slimeList[__instance];
 
-			void EventReceived()
+			/*void EventReceived()
 			{
                 blobData.playSound = true;
                 //Script.Logger.LogMessage("Received event. Changed value to " + blobData.playSound + ", eventLimiter: " + eventLimiter);
-            }
-
+            }*/
+			
 
             blobData.timeSinceHittingLocalMonster += Time.deltaTime;
 			if (RoundManagerPatch.RequestUpdate(__instance) == true)
@@ -95,7 +105,7 @@ namespace NaturalSelection.EnemyPatches
 			}
 			if (__instance.IsOwner) blobData.closestEnemy = EnemyAIPatch.FindClosestEnemy(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()], blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
 
-            BlobEatCorpseEvent(__instance).OnClientReceived += EventReceived;
+            //BlobEatCorpseEvent(__instance).OnClientReceived += EventReceived;
 
 			if (blobData.playSound)
 			{

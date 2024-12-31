@@ -5,6 +5,7 @@ using NaturalSelection.Generics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches
@@ -340,23 +341,26 @@ namespace NaturalSelection.EnemyPatches
 
         static LNetworkVariable<float> NSSetOnFireChance(RedLocustBees instance)
         {
-            return LNetworkVariable<float>.Connect("NSSetOnFireChance" + instance.NetworkObjectId);
+            string NWID = "NSSetOnFireChance" + instance.NetworkObjectId;
+            return Networking.NSEnemyNetworkVariableFloat(NWID);
         }
         static LNetworkVariable<float> NSSetOnFireMaxChance(RedLocustBees instance)
         {
-            return LNetworkVariable<float>.Connect("NSSetOnFireMaxChance" + instance.NetworkObjectId);
+            string NWID = "NSSetOnFireMaxChance" + instance.NetworkObjectId;
+            return Networking.NSEnemyNetworkVariableFloat(NWID);
         }
 
-        static LNetworkMessage<bool> NetworkSetGiantOnFire(ForestGiantAI forestGiantAI)
+        static LNetworkEvent NetworkSetGiantOnFire(ForestGiantAI forestGiantAI)
         {
-            return LNetworkMessage<bool>.Connect("NSSetGiantOnFire" + forestGiantAI.NetworkObjectId);
+            string NWID = "NSSetGiantOnFire" + forestGiantAI.NetworkObjectId;
+            return Networking.NSEnemyNetworkEvent(NWID);
         }
 
         public static void OnCustomEnemyCollision(RedLocustBees __instance, EnemyAI mainscript2)
         {
             if (beeList.ContainsKey(__instance))
             {
-                if (beeList[__instance].timeSinceHittingEnemy > 1.7f && __instance.currentBehaviourStateIndex > 0 || beeList[__instance].timeSinceHittingEnemy > 1.3f && __instance.currentBehaviourStateIndex == 2 && !mainscript2.isEnemyDead)
+                if (beeList[__instance].timeSinceHittingEnemy > 1.7f && __instance.currentBehaviourStateIndex > 0 && !mainscript2.isEnemyDead || beeList[__instance].timeSinceHittingEnemy > 1.3f && __instance.currentBehaviourStateIndex == 2 && !mainscript2.isEnemyDead)
                 {
                     mainscript2.HitEnemy(1, null, playHitSFX: true);
                     beeList[__instance].timeSinceHittingEnemy = 0f;
@@ -375,7 +379,7 @@ namespace NaturalSelection.EnemyPatches
                             {
                                 NSSetOnFireMaxChance(__instance).Value = Script.BoundingConfig.beesSetGiantsOnFireMaxChance.Value;
                             }
-                            if (logBees) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "OnCustomEnemyCollision: Giant hit. Chance to set on fire: " + NSSetOnFireMaxChance(__instance).Value);
+                            Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "OnCustomEnemyCollision: Giant hit. Chance to set on fire: " + NSSetOnFireMaxChance(__instance).Value + ", rolled " + NSSetOnFireChance(__instance));;
                         }
                         else
                         {
@@ -383,7 +387,7 @@ namespace NaturalSelection.EnemyPatches
                         }
                         if (NSSetOnFireChance(__instance).Value <= NSSetOnFireMaxChance(__instance).Value && __instance.IsOwner)
                         {
-                            if (logBees) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "OnCustomEnemyCollision: SET GIANT ON FIRE! Random number: " + NSSetOnFireMaxChance(__instance).Value);
+                            Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "OnCustomEnemyCollision: SET GIANT ON FIRE! Random number: " + NSSetOnFireChance(__instance).Value);
                             ForestGiantAI giant = (ForestGiantAI)mainscript2;
 
                             /*if (giant.IsOwner)
@@ -392,7 +396,7 @@ namespace NaturalSelection.EnemyPatches
                             giant.SwitchToBehaviourState(2);
                             Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + " /BeesCustomhit/ " + "isOwner: " + __instance.IsOwner + ", Giant isOwner: " + giant.IsOwner + ", set fire to false");
                             }*/
-                            NetworkSetGiantOnFire(giant).SendServer(true);
+                            NetworkSetGiantOnFire(giant).InvokeServer();
                         }
                     }
                 }

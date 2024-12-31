@@ -50,6 +50,7 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<bool> debugBool;
     public readonly ConfigEntry<bool> spammyLogs;
     public readonly ConfigEntry<bool> debugTriggerFlags;
+    public readonly ConfigEntry<bool> debugNetworking;
     public readonly ConfigEntry<bool> debugRedBees;
     public readonly ConfigEntry<bool> debugSandworms;
     public readonly ConfigEntry<bool> debugHygrodere;
@@ -105,6 +106,7 @@ namespace NaturalSelection.Generics;
             //debug
             debugBool = cfg.Bind("Debug","Debug mode",false,"Enables debug mode for more debug logs.");
             spammyLogs = cfg.Bind("Debug","Spammy logs",false,"Enables spammy logs for extra logs.");
+            debugNetworking = cfg.Bind("Debug", "Debug networking", false, "Enables debug logs for networking.");
             debugTriggerFlags = cfg.Bind("Debug","Trigger flags",false,"Enables logs with trigger flag.");
             debugRedBees = cfg.Bind("Debug","Log bees",false,"Enables logs for bees.");
             debugSandworms = cfg.Bind("Debug","Log sandworms",false,"Enables logs for sandowrms.");

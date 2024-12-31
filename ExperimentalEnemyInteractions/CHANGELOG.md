@@ -1,5 +1,9 @@
 <h1>Natural selection</h1>
 
+0.2.2 <br>
+	- Fixed shit Networking implementation causing massive lag (Credit to Robyn and Xilo on Discord for pointing it out!)<br>
+	- Updated logs<br>
+	- edited README<br>
 0.2.1 <br>
 	- Fixed giants always set on fire<br>
 	- Fixed Error spam on clients<br>

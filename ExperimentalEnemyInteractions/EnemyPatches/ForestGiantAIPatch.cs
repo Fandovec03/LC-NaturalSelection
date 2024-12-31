@@ -4,6 +4,7 @@ using UnityEngine;
 using LethalNetworkAPI;
 using Unity.Burst.CompilerServices;
 using LethalNetworkAPI.Utils;
+using NaturalSelection.Generics;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -20,19 +21,22 @@ namespace NaturalSelection.EnemyPatches
     {
         static Dictionary<ForestGiantAI, GiantData> giantDictionary = [];
 
-        static LNetworkMessage<bool> NetworkSetGiantOnFire(ForestGiantAI forestGiantAI)
+        static LNetworkEvent NetworkSetGiantOnFire(ForestGiantAI forestGiantAI)
         {
-            return LNetworkMessage<bool>.Connect("NSSetGiantOnFire" + forestGiantAI.NetworkObjectId);
+            string NWID = "NSSetGiantOnFire" + forestGiantAI.NetworkObjectId;
+            return Networking.NSEnemyNetworkEvent(NWID);
         }
 
-        static LNetworkMessage<bool> NetworkExtinguish(ForestGiantAI forestGiantAI)
+        static LNetworkEvent NetworkExtinguish(ForestGiantAI forestGiantAI)
         {
-            return LNetworkMessage<bool>.Connect("NSExtinguish" + forestGiantAI.NetworkObjectId);
+            string NWID = "NSExtinguish" + forestGiantAI.NetworkObjectId;
+            return Networking.NSEnemyNetworkEvent(NWID);
         }
 
         static LNetworkVariable<float> NetworkOwnerPostfixResult(ForestGiantAI forestGiantAI)
         {
-            return LNetworkVariable<float>.Connect("NSOwnerrealtimeSinceStartup" + forestGiantAI.NetworkObjectId);
+            string NWID = "NSOwnerrealtimeSinceStartup" + forestGiantAI.NetworkObjectId;
+            return Networking.NSEnemyNetworkVariableFloat(NWID);
         }
 
         [HarmonyPatch("Start")]
@@ -42,6 +46,32 @@ namespace NaturalSelection.EnemyPatches
             if (!giantDictionary.ContainsKey(__instance))
             {
                 giantDictionary.Add(__instance, new GiantData());
+            }
+            ////////////////////////////////////////////////////////////////////////////////////NETWORKING
+
+            NetworkSetGiantOnFire(__instance).OnServerReceived += UpdateSetGiantOnFireServer;
+            //NetworkSetGiantOnFire(__instance).OnClientReceived += UpdateSetGiantOnFire;
+
+            void UpdateSetGiantOnFireServer(ulong client)
+            {
+                //NetworkSetGiantOnFire(__instance).InvokeClients();
+                if (__instance.IsOwner)
+                {
+                    __instance.timeAtStartOfBurning = Time.realtimeSinceStartup;
+                    __instance.SwitchToBehaviourState(2);
+                    Script.Logger.LogInfo("Received UpdateSetGiantOnFire event");
+                }
+            }
+
+            NetworkExtinguish(__instance).OnClientReceived += ExtuinguishGiant;
+
+            void ExtuinguishGiant()
+            {
+                __instance.SwitchToBehaviourState(0);
+                __instance.burningParticlesContainer.SetActive(false);
+                __instance.giantBurningAudio.Stop();
+                __instance.creatureAnimator.SetBool("burning", false);
+                giantDictionary[__instance].extinguished = 1;
             }
         }
 
@@ -62,15 +92,16 @@ namespace NaturalSelection.EnemyPatches
         static bool UpdatePrefix(ForestGiantAI __instance)
         {
             GiantData giantData = giantDictionary[__instance];
-            bool receivedEvent = false;
+            //bool receivedEvent = false;
 
+            /*
             NetworkSetGiantOnFire(__instance).OnServerReceived += UpdateSetGiantOnFireServer;
             //NetworkSetGiantOnFire(__instance).OnClientReceived += UpdateSetGiantOnFire;
 
-            void UpdateSetGiantOnFireServer(bool i, ulong client)
+            void UpdateSetGiantOnFireServer(ulong client)
             {
                 //NetworkSetGiantOnFire(__instance).InvokeClients();
-                if (__instance.IsOwner && i)
+                if (__instance.IsOwner)
                 {
                     __instance.timeAtStartOfBurning = Time.realtimeSinceStartup;
                     __instance.SwitchToBehaviourState(2);
@@ -86,40 +117,26 @@ namespace NaturalSelection.EnemyPatches
                     __instance.SwitchToBehaviourState(2);
                     receivedEvent = true;
                 }
-            }*/
+            }
 
             if (receivedEvent)
             {
                 Script.Logger.LogInfo("Received UpdateSetGiantOnFire event");
             }
-
-            if (__instance.currentBehaviourStateIndex == 2 && Time.realtimeSinceStartup - __instance.timeAtStartOfBurning > 9.5f && __instance.enemyHP > 20 && giantData.extinguished == 0  && !__instance.isEnemyDead&& __instance.IsOwner)
+            */
+            if (__instance.currentBehaviourStateIndex == 2 && Time.realtimeSinceStartup - __instance.timeAtStartOfBurning > 9.5f && __instance.enemyHP > 20 && giantData.extinguished == 0  && !__instance.isEnemyDead && __instance.IsOwner)
             {
                 int randomNumber = Random.Range(0, 100);
 
                 if (randomNumber <= Script.BoundingConfig.giantExtinguishChance.Value)
                 {
-                    NetworkExtinguish(__instance).SendClients(true);
-                    if (giantData.logGiant) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + " successfully extinguished itself. Skipping Update. Rolled " + randomNumber);
+                    NetworkExtinguish(__instance).InvokeClients();
+                    Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + " successfully extinguished itself. Skipping Update. Rolled " + randomNumber);
                 }
                 else
                 {
-                    if (giantData.logGiant) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + " failed to extinguish itself. rolled " + randomNumber);
+                    Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + " failed to extinguish itself. rolled " + randomNumber);
                     giantData.extinguished = 2;
-                }
-            }
-
-            NetworkExtinguish(__instance).OnClientReceived += ExtuinguishGiant;
-
-            void ExtuinguishGiant(bool i)
-            {
-                if (i)
-                {
-                    __instance.SwitchToBehaviourState(0);
-                    __instance.burningParticlesContainer.SetActive(false);
-                    __instance.giantBurningAudio.Stop();
-                    __instance.creatureAnimator.SetBool("burning", false);
-                    giantData.extinguished = 1;
                 }
             }
 

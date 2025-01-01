@@ -72,6 +72,7 @@ public class Script : BaseUnityPlugin
         if (BoundingConfig.loadNutcrackers.Value)Harmony.PatchAll(typeof(NutcrackerAIPatch));
         if (BoundingConfig.loadSporeLizard.Value)Harmony.PatchAll(typeof(PufferAIPatch));
         if (BoundingConfig.loadSpiders.Value)Harmony.PatchAll(typeof(SandSpiderAIPatch));
+            Harmony.PatchAll(typeof(SandSpiderWebTrapPatch));
 
         Logger.LogInfo("Stable mode off. Loaded all patches.");
         }

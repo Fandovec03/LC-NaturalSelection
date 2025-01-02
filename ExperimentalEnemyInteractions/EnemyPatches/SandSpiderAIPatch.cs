@@ -344,6 +344,8 @@ namespace NaturalSelection.EnemyPatches
     class SpiderWebValues
     {
         public EnemyAI? trappedEnemy = null;
+        public EnemyAI? enemyReference = null;
+        public float enemyReferenceTimer = 0f;
     }
 
 
@@ -397,8 +399,14 @@ namespace NaturalSelection.EnemyPatches
 
                 if (Script.BoundingConfig.debugSpiders.Value) Script.Logger.LogInfo(__instance + " Collided with " + trippedEnemy);
 
-                trippedEnemy.agent.speed = enemyData[trippedEnemy].EnterAgentSpeed / 3;
-                trippedEnemy.creatureAnimator.speed = enemyData[trippedEnemy].EnterAnimationSpeed / 3;
+                if (trippedEnemy is HoarderBugAI)
+                {
+                    HoarderBugValues hoarderBugValues = HoarderBugPatch.ReturnEnemyValuesFromDictionary((HoarderBugAI)trippedEnemy);
+                    hoarderBugValues.limitSpeed = true;
+                    hoarderBugValues.limitedSpeed = enemyData[trippedEnemy].EnterAgentSpeed / (1 + enemyData[trippedEnemy].NumberOfTraps.Count);
+                }
+                else trippedEnemy.agent.speed = enemyData[trippedEnemy].EnterAgentSpeed / (1 + enemyData[trippedEnemy].NumberOfTraps.Count);
+                trippedEnemy.creatureAnimator.speed = enemyData[trippedEnemy].EnterAnimationSpeed / (1 + enemyData[trippedEnemy].NumberOfTraps.Count);
 
                 if (Script.BoundingConfig.debugSpiders.Value)
                 {
@@ -453,6 +461,14 @@ namespace NaturalSelection.EnemyPatches
                 __instance.rightBone.LookAt(__instance.centerOfWeb);
             }
             __instance.transform.localScale = Vector3.Lerp(__instance.transform.localScale, new Vector3(1f, 1f, __instance.zScale), 8f * Time.deltaTime);
+
+            if (webData.enemyReference != null && webData.enemyReference != webData.trappedEnemy && enemyData.ContainsKey(webData.enemyReference) && enemyData[webData.enemyReference].NumberOfTraps.Count <= 0)
+            {
+                    Script.Logger.LogInfo("Removing " + webData.enemyReference + " from NumberOfWebTraps " + enemyData[webData.enemyReference].NumberOfTraps.Count);
+                    enemyData.Remove(webData.enemyReference);
+                    webData.enemyReference = null;
+                    webData.enemyReferenceTimer = 0;
+            }
         }
 
         [HarmonyPatch("OnTriggerExit")]
@@ -471,10 +487,15 @@ namespace NaturalSelection.EnemyPatches
                     enemyData[trippedEnemy].NumberOfTraps.Remove(__instance);
                     Script.Logger.LogInfo("Removed instance to NumberOfWebTraps " + enemyData[trippedEnemy].NumberOfTraps.Count);
                 }
-
                 Script.Logger.LogInfo("Removing " + trippedEnemy);
-                trippedEnemy.agent.speed = enemyData[trippedEnemy].EnterAgentSpeed;
+                //trippedEnemy.agent.speed = enemyData[trippedEnemy].EnterAgentSpeed;
+                if (trippedEnemy is HoarderBugAI)
+                {
+                    HoarderBugValues hoarderBugValues = HoarderBugPatch.ReturnEnemyValuesFromDictionary((HoarderBugAI)trippedEnemy);
+                    hoarderBugValues.limitSpeed = false;
+                }
                 trippedEnemy.creatureAnimator.speed = enemyData[trippedEnemy].EnterAnimationSpeed;
+                webData.enemyReference = trippedEnemy;
                 webData.trappedEnemy = null;
                 __instance.webAudio.Stop();
             }

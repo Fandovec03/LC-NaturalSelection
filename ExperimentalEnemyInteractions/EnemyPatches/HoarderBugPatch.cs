@@ -10,7 +10,8 @@ namespace NaturalSelection.EnemyPatches
         public bool alertedByEnemy = false;
         public List<EnemyAI> enemies = new List<EnemyAI>();
         public List<EnemyAI> enemiesInLOS = new List<EnemyAI>();
-
+        public bool limitSpeed = false;
+        public float limitedSpeed = 0f;
     }
 
 
@@ -18,7 +19,10 @@ namespace NaturalSelection.EnemyPatches
     class HoarderBugPatch()
     {
         static Dictionary<HoarderBugAI, HoarderBugValues> hoarderBugList = [];
-
+        public static HoarderBugValues ReturnEnemyValuesFromDictionary(HoarderBugAI hoarderBug)
+        {
+            return hoarderBugList[hoarderBug];
+        }
         public static void CustomOnHit(int force, EnemyAI enemyWhoHit, bool playHitSFX, HoarderBugAI __instance)
         {
             __instance.enemyHP -= force;
@@ -38,7 +42,7 @@ namespace NaturalSelection.EnemyPatches
             }
         }
 
-        /*
+        
         [HarmonyPatch("Start")]
         [HarmonyPrefix]
         static void StartPatch(HoarderBugAI __instance)
@@ -48,16 +52,19 @@ namespace NaturalSelection.EnemyPatches
                 hoarderBugList.Add(__instance, new HoarderBugValues());
             }
         }
-        */ /*
+        
         [HarmonyPatch("Update")]
         [HarmonyPostfix]
         static void UpdatePostfix(HoarderBugAI __instance)
         {
             HoarderBugValues Bugvalues = hoarderBugList[__instance];
-
-            Bugvalues.enemiesInLOS = EnemyAIPatch.GetEnemiesInLOS(__instance, Bugvalues.enemies, 60f, 12, 3f).Keys.ToList();
+            if (Bugvalues.limitSpeed)
+            {
+                __instance.agent.speed = Bugvalues.limitedSpeed;
+            }
+            //Bugvalues.enemiesInLOS = EnemyAIPatch.GetEnemiesInLOS(__instance, Bugvalues.enemies, 60f, 12, 3f).Keys.ToList();
         }
-        */
+        
         /*
         [HarmonyPatch("DoAIInterval")]
         [HarmonyPrefix]

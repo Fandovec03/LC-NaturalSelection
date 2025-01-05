@@ -13,7 +13,6 @@ namespace NaturalSelection.EnemyPatches
     [HarmonyPatch(typeof(PufferAI))]
     class PufferAIPatch
     {
-        static bool enableSporeLizard = Script.BoundingConfig.enableSporeLizard.Value;
 
         static Dictionary<PufferAI, PufferData> pufferList = [];
 
@@ -63,7 +62,6 @@ namespace NaturalSelection.EnemyPatches
 
         public static void CustomOnHit(int force, EnemyAI enemyWhoHit, bool playHitSFX, PufferAI instance)
         {
-                if (enableSporeLizard != true) return;
                 PufferData pufferData = pufferList[instance];
                 instance.creatureAnimator.SetBool("alerted", true);
                 instance.enemyHP -= force;

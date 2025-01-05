@@ -23,7 +23,6 @@ namespace NaturalSelection.EnemyPatches
             if (debugSpam && debugUnspecified) Script.Logger.LogInfo("Called Setup library!");
             __instance.agent.radius = __instance.agent.radius * Script.clampedAgentRadius;
         }
-
         public static string DebugStringHead(EnemyAI? instance)
         {
             //if (debugSpam && debugTriggerFlag && debugUnspecified) Script.Logger.LogInfo("Called library!");

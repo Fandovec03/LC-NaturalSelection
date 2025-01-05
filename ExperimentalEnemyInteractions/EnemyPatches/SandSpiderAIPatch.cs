@@ -3,6 +3,7 @@ using HarmonyLib;
 using UnityEngine;
 using System.Linq;
 using NaturalSelection.Generics;
+using static NaturalSelection.EnemyPatches.SpiderWebValues;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -20,7 +21,6 @@ namespace NaturalSelection.EnemyPatches
     class SandSpiderAIPatch
     {
         static float refreshCDtimeSpider = 1f;
-        static bool enableSpider = Script.BoundingConfig.enableSpider.Value;
         static bool spiderHuntHoardingbug = Script.BoundingConfig.spiderHuntHoardingbug.Value;
 
         static Dictionary<SandSpiderAI, SpiderData> spiderList = [];
@@ -41,8 +41,6 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static bool UpdatePrefixPatch(SandSpiderAI __instance)
         {
-            if (!enableSpider) return true;
-
             SpiderData spiderData = spiderList[__instance];
 
             /* if (__instance.navigateMeshTowardsPosition && spiderData.targetEnemy != null)
@@ -342,24 +340,27 @@ namespace NaturalSelection.EnemyPatches
 
     class SpiderWebValues
     {
-        public struct EnemyInfo(EnemyAI enemy, float enterAgentSpeed, float enterAnimationSpeed)
-        {
-            internal EnemyAI enemyAI {get; set;} = enemy;
-            internal float enterAgentSpeed {get; set;} = enterAgentSpeed;
-            internal float enterAnimationSpeed {get; set;} = enterAnimationSpeed;
-        }
-         public Dictionary<EnemyAI, EnemyInfo> collidingEnemy = new Dictionary<EnemyAI, EnemyInfo>();
-
+        public EnemyAI? trappedEnemy = null;
+        public EnemyAI? enemyReference = null;
+        public float enemyReferenceTimer = 0f;
     }
 
 
     [HarmonyPatch(typeof(SandSpiderWebTrap))]
     class SandSpiderWebTrapPatch
     {
+        public struct EnemyInfo(EnemyAI enemy, float enterAgentSpeed, float enterAnimationSpeed)
+        {
+            internal EnemyAI EnemyAI { get; set; } = enemy;
+            internal float EnterAgentSpeed { get; set; } = enterAgentSpeed;
+            internal float EnterAnimationSpeed { get; set; } = enterAnimationSpeed;
+            internal List<SandSpiderWebTrap> NumberOfTraps { get; set; } = new List<SandSpiderWebTrap>();
+        }
 
-        static Dictionary<SandSpiderWebTrap, SpiderWebValues> spiderWebs = [];
+        static Dictionary<SandSpiderWebTrap, SpiderWebValues> spiderWebs = new Dictionary<SandSpiderWebTrap, SpiderWebValues>();
+        static Dictionary<EnemyAI, EnemyInfo> enemyData = new Dictionary<EnemyAI, EnemyInfo>();
 
-        [HarmonyPatch("Awake")]
+       [HarmonyPatch("Awake")]
         [HarmonyPostfix]
         static void AwakePostfix(SandSpiderWebTrap __instance)
         {
@@ -369,44 +370,50 @@ namespace NaturalSelection.EnemyPatches
             }
         }
 
-
-
-
-
-
         [HarmonyPatch("OnTriggerStay")]
         [HarmonyPostfix]
         static void OnTriggerStayPatch(Collider other, SandSpiderWebTrap __instance)
         {
-            SpiderWebValues webValues = spiderWebs[__instance];
-            EnemyAI trippedEnemy = other.gameObject.GetComponent<EnemyAI>();
-            if (Script.BoundingConfig.debugSpiders.Value) Script.Logger.LogInfo(__instance + " Triggered");
-            if(trippedEnemy == __instance.mainScript) return;
+            SpiderWebValues webData = spiderWebs[__instance];
+            EnemyAICollisionDetect? trippedEnemyCollision = other.GetComponent<EnemyAICollisionDetect>();
+            EnemyAI? trippedEnemy = null;
+            if (trippedEnemyCollision != null && trippedEnemyCollision.mainScript != __instance.mainScript) trippedEnemy = trippedEnemyCollision.mainScript;
+            if (trippedEnemy == __instance.mainScript) return;
+
             if (trippedEnemy != null)
             {
-                if (Script.BoundingConfig.debugSpiders.Value) Script.Logger.LogInfo(__instance + " Collided with " + trippedEnemy);
-                if (!webValues.collidingEnemy.ContainsKey(trippedEnemy))
-                {
-                    webValues.collidingEnemy.Add(trippedEnemy, new SpiderWebValues.EnemyInfo(trippedEnemy,trippedEnemy.agent.speed,trippedEnemy.creatureAnimator.speed));
-                    if (Script.BoundingConfig.debugSpiders.Value) Script.Logger.LogInfo(__instance + " Added " + trippedEnemy + " to collidingEnemy");
-                }
-                trippedEnemy.agent.speed = webValues.collidingEnemy[trippedEnemy].enterAgentSpeed / 3;
-                trippedEnemy.creatureAnimator.speed = webValues.collidingEnemy[trippedEnemy].enterAnimationSpeed / 3;
-                if (Script.BoundingConfig.debugSpiders.Value) Script.Logger.LogInfo(__instance + " Slowed down " + trippedEnemy);
+                webData.trappedEnemy = trippedEnemy;
 
+                if (!enemyData.ContainsKey(trippedEnemy))
+                {
+                    enemyData[trippedEnemy] = new EnemyInfo(trippedEnemy, trippedEnemy.agent.speed, trippedEnemy.creatureAnimator.speed);
+                }
+                if (!enemyData[trippedEnemy].NumberOfTraps.Contains(__instance))
+                {
+                    enemyData[trippedEnemy].NumberOfTraps.Add(__instance);
+                    Script.Logger.LogInfo("Added instance to NumberOfWebTraps " + enemyData[trippedEnemy].NumberOfTraps.Count);
+                }
+
+                if (Script.BoundingConfig.debugSpiders.Value) Script.Logger.LogInfo(__instance + " Collided with " + trippedEnemy);
+
+                if (trippedEnemy is HoarderBugAI)
+                {
+                    HoarderBugValues hoarderBugValues = HoarderBugPatch.ReturnEnemyValuesFromDictionary((HoarderBugAI)trippedEnemy);
+                    hoarderBugValues.limitSpeed = true;
+                    hoarderBugValues.limitedSpeed = enemyData[trippedEnemy].EnterAgentSpeed / (1 + enemyData[trippedEnemy].NumberOfTraps.Count);
+                }
+                else trippedEnemy.agent.speed = enemyData[trippedEnemy].EnterAgentSpeed / (1 + enemyData[trippedEnemy].NumberOfTraps.Count);
+                trippedEnemy.creatureAnimator.speed = enemyData[trippedEnemy].EnterAnimationSpeed / (1 + enemyData[trippedEnemy].NumberOfTraps.Count);
+
+                if (Script.BoundingConfig.debugSpiders.Value)
+                {
+                    Script.Logger.LogInfo(__instance + " Slowed down movement of " + trippedEnemy + " from " + enemyData[trippedEnemy].EnterAgentSpeed + " to " + trippedEnemy.agent.speed);
+                    Script.Logger.LogInfo(__instance + " Slowed down animation of " + trippedEnemy + " from " + enemyData[trippedEnemy].EnterAnimationSpeed + " to " + trippedEnemy.creatureAnimator.speed);
+                }
                 if (!__instance.webAudio.isPlaying)
                 {
                     __instance.webAudio.Play();
                     __instance.webAudio.PlayOneShot(__instance.mainScript.hitWebSFX);
-                }
-            }
-            if (trippedEnemy == null)
-            {
-                webValues.collidingEnemy.Clear();
-                if (Script.BoundingConfig.debugSpiders.Value) Script.Logger.LogInfo(__instance + " Cleared " + trippedEnemy + " from collidingEnemy");
-                if (__instance.webAudio.isPlaying && __instance.currentTrappedPlayer == null)
-                {
-                    __instance.webAudio.Stop();
                 }
             }
         }
@@ -415,13 +422,13 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static bool UpdatePrefix(SandSpiderWebTrap __instance, out bool __state)
         {
-            SpiderWebValues webValues = spiderWebs[__instance];
+            SpiderWebValues webData = spiderWebs[__instance];
             if (__instance.currentTrappedPlayer != null)
             {
                 __state = false;
                 return true;
             }
-            else if (webValues.collidingEnemy.Count > 0)
+            else if (webData.trappedEnemy != null)
             {
                 __state = true;
                 return false;
@@ -434,15 +441,16 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void UpdatePostfix(SandSpiderWebTrap __instance, bool __state)
         {
+            SpiderWebValues webData = spiderWebs[__instance];
             if (!__state)
             {
                 return;
             }
-            SpiderWebValues webValues = spiderWebs[__instance];
-            if (webValues.collidingEnemy.Count > 0)
+
+            if (webData.trappedEnemy != null)
             {
-                __instance.leftBone.LookAt(webValues.collidingEnemy.First().Key.transform.position);
-                __instance.rightBone.LookAt(webValues.collidingEnemy.First().Key.transform.position);
+                __instance.leftBone.LookAt(webData.trappedEnemy.transform.position);
+                __instance.rightBone.LookAt(webData.trappedEnemy.transform.position);
             }
             else
             {
@@ -450,8 +458,44 @@ namespace NaturalSelection.EnemyPatches
                 __instance.rightBone.LookAt(__instance.centerOfWeb);
             }
             __instance.transform.localScale = Vector3.Lerp(__instance.transform.localScale, new Vector3(1f, 1f, __instance.zScale), 8f * Time.deltaTime);
+
+            if (webData.enemyReference != null && webData.enemyReference != webData.trappedEnemy && enemyData.ContainsKey(webData.enemyReference) && enemyData[webData.enemyReference].NumberOfTraps.Count <= 0)
+            {
+                    Script.Logger.LogInfo("Removing " + webData.enemyReference + " from NumberOfWebTraps " + enemyData[webData.enemyReference].NumberOfTraps.Count);
+                    enemyData.Remove(webData.enemyReference);
+                    webData.enemyReference = null;
+                    webData.enemyReferenceTimer = 0;
+            }
+        }
+
+        [HarmonyPatch("OnTriggerExit")]
+        [HarmonyPostfix]
+        static void OnTriggerExitPatch(Collider other, SandSpiderWebTrap __instance)
+        {
+            SpiderWebValues webData = spiderWebs[__instance];
+            EnemyAICollisionDetect? trippedEnemyCollision = other.GetComponent<EnemyAICollisionDetect>();
+            EnemyAI? trippedEnemy = null;
+            if (trippedEnemyCollision != null && trippedEnemyCollision.mainScript != __instance.mainScript) trippedEnemy = trippedEnemyCollision.mainScript;
+
+            if (trippedEnemy != null)
+            {
+                if (enemyData[trippedEnemy].NumberOfTraps.Contains(__instance))
+                {
+                    enemyData[trippedEnemy].NumberOfTraps.Remove(__instance);
+                    Script.Logger.LogInfo("Removed instance to NumberOfWebTraps " + enemyData[trippedEnemy].NumberOfTraps.Count);
+                }
+                Script.Logger.LogInfo("Removing " + trippedEnemy);
+                //trippedEnemy.agent.speed = enemyData[trippedEnemy].EnterAgentSpeed;
+                if (trippedEnemy is HoarderBugAI)
+                {
+                    HoarderBugValues hoarderBugValues = HoarderBugPatch.ReturnEnemyValuesFromDictionary((HoarderBugAI)trippedEnemy);
+                    hoarderBugValues.limitSpeed = false;
+                }
+                trippedEnemy.creatureAnimator.speed = enemyData[trippedEnemy].EnterAnimationSpeed;
+                webData.enemyReference = trippedEnemy;
+                webData.trappedEnemy = null;
+                __instance.webAudio.Stop();
+            }
         }
     }
-
-
 }

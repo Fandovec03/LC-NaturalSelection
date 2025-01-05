@@ -1,18 +1,15 @@
 ﻿using HarmonyLib;
 using LethalNetworkAPI;
-using LethalNetworkAPI.Utils;
 using NaturalSelection.Generics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Netcode;
 using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches
 {
     class BeeValues
     {
-        public bool start = Script.BoundingConfig.delayScriptsOnSpawn.Value;
         public EnemyAI? closestEnemy = null;
         public EnemyAI? targetEnemy = null;
         public Vector3 lastKnownEnemyPosition = Vector3.zero;
@@ -30,7 +27,6 @@ namespace NaturalSelection.EnemyPatches
         static Dictionary<RedLocustBees, BeeValues> beeList = [];
         static bool logBees = Script.BoundingConfig.debugRedBees.Value;
         static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
-        static float UpdateTimer = Script.BoundingConfig.delay.Value;
         static List<string> blacklist = Script.BoundingConfig.beeBlacklist.Value.ToUpper().Split(",").ToList(); 
 
         [HarmonyPatch("Start")]
@@ -42,7 +38,7 @@ namespace NaturalSelection.EnemyPatches
                 beeList.Add(__instance, new BeeValues());
             }
             BeeValues beeData = beeList[__instance];
-
+            
             if (beeData.enemyTypes.Count < 1)
             {
                 beeData.enemyTypes.Add(typeof(DocileLocustBeesAI));
@@ -55,21 +51,9 @@ namespace NaturalSelection.EnemyPatches
         static void UpdatePatch(RedLocustBees __instance)
         {
             BeeValues beeData = beeList[__instance];
-            if (beeData.delayTimer > 0f)
+            if (RoundManagerPatch.RequestUpdate(__instance) == true)
             {
-                beeData.delayTimer -= Time.deltaTime;
-            }
-            else
-            {
-                if (RoundManagerPatch.RequestUpdate(__instance) == true)
-                {
-                    RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance), beeList[__instance].enemyTypes, blacklist, __instance, true, Script.BoundingConfig.IgnoreImmortalEnemies.Value));
-                }
-                if (__instance.IsOwner && NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()].Contains(__instance))
-                {
-                    if (logBees && debugSpam) Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance) + " FOUND ITSELF IN THE EnemyList! Removing...");
-                    NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()].Remove(__instance);
-                }
+                RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance), beeList[__instance].enemyTypes, blacklist, __instance, true, Script.BoundingConfig.IgnoreImmortalEnemies.Value));
             }
         }
         [HarmonyPatch("DoAIInterval")]

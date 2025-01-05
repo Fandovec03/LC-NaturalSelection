@@ -8,8 +8,6 @@ namespace NaturalSelection.Generics;
     class MyModConfig
     {
     //experimental fixes
-    public readonly ConfigEntry<bool> delayScriptsOnSpawn;
-    public readonly ConfigEntry<float> delay;
     public readonly ConfigEntry<bool> sandwormCollisionOverride;
     public readonly ConfigEntry<bool> blobAICantOpenDoors;
     //settings
@@ -23,7 +21,10 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<bool> enableLeviathan;
     public readonly ConfigEntry<bool> enableSporeLizard;
     public readonly ConfigEntry<bool> enableRedBees;
-    public readonly ConfigEntry<bool> enableNutcrackers;
+    public readonly ConfigEntry<bool> enableNutcracker;
+    public readonly ConfigEntry<bool> enableGiant;
+    public readonly ConfigEntry<bool> enableHoardingBug;
+
     //enemy settings
     public readonly ConfigEntry<int> giantExtinguishChance;
     public readonly ConfigEntry<float> beesSetGiantsOnFireMinChance;
@@ -37,15 +38,6 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<string> beeBlacklist;
     public readonly ConfigEntry<string> blobBlacklist;
     public readonly ConfigEntry<string> sandwormBlacklist;
-    //Load bools
-    public readonly ConfigEntry<bool> loadNutcrackers;
-    public readonly ConfigEntry<bool> loadSpiders;
-    public readonly ConfigEntry<bool> loadSandworms;
-    public readonly ConfigEntry<bool> loadGiants;
-    public readonly ConfigEntry<bool> loadHoardingBugs;
-    public readonly ConfigEntry<bool> loadBlob;
-    public readonly ConfigEntry<bool> LoadBees;
-    public readonly ConfigEntry<bool> loadSporeLizard;
     //debug
     public readonly ConfigEntry<bool> debugBool;
     public readonly ConfigEntry<bool> spammyLogs;
@@ -63,8 +55,6 @@ namespace NaturalSelection.Generics;
         cfg.SaveOnConfigSet = false;
         {
             //experimental fixes
-            delayScriptsOnSpawn = cfg.Bind("Experimental Fixes", "Delay enemy scripts on spawn", false, "Delay enemy scripts from taking effect on enemy spawns. Might fix invisible bees");
-            delay = cfg.Bind("Experimental Fixes", "Delay", 0.2f, "Set the length of the delay");
             sandwormCollisionOverride = cfg.Bind("Experimental Fixes", "Sandworm collision override", false, "Override vanilla sandworm collisions. May fix lag when sandworm collides with multiple enemies at once");
             blobAICantOpenDoors = cfg.Bind("Experimental Fixes", "Blob cannot open doors", true, "Blob can't open doors.");
             //general settings
@@ -75,12 +65,14 @@ namespace NaturalSelection.Generics;
             agentRadiusModifier.Value = Mathf.Clamp(agentRadiusModifier.Value, 0.1f, 1f);
             spiderHuntHoardingbug = cfg.Bind("WIP", "Spider hunts Hoarding bugs", false, "Bunker spider chases and hunts hoarding bugs. DEV ONLY");
             //enable entities
-            enableSpider = cfg.Bind("WIP", "Enable spider", false, "Mod applies changes Bunker Spider. DEV ONLY");
-            enableSlime = cfg.Bind("Entity settings", "Enable slime", true, "Mod applies changes Hygrodere. Slime now damages every entity it passes by.");
-            enableLeviathan = cfg.Bind("Entity settings", "Enable leviathan", true, "Mod applies changes Earth leviathan. Leviathan now targets other creatures aswell.");
-            enableSporeLizard = cfg.Bind("WIP", "Enable SporeLizard", false, "Mod applies changes Spore lizard. It is now mortal!");
-            enableRedBees = cfg.Bind("Entity settings", "Enable Red bees (Circuit bees)", true, "Mod applies changes red bees. They now defend nest from other mobs and kill everything in rampage!");
-            enableNutcrackers = cfg.Bind("WIP", "Enable Nutcrackers", false, "Mod applies changes to nutcrackers. DEV ONLY");
+            enableSpider = cfg.Bind("WIP", "Enable spider", false, "Enable changes to spider and modify it's behavior. DEV ONLY");
+            enableSlime = cfg.Bind("Entity settings", "Enable slime", true, "Enable changes to slime and modify it's behavior.");
+            enableLeviathan = cfg.Bind("Entity settings", "Enable leviathan", true, "Enable changes to leviathan and modify it's behavior.");
+            enableSporeLizard = cfg.Bind("WIP", "Enable SporeLizard", false, "Enable changes to spore lizard. DEV ONLY");
+            enableRedBees = cfg.Bind("Entity settings", "Enable Red bees (Circuit bees)", true, "Enable changes red bees and modify it's behavior.");
+            enableNutcracker = cfg.Bind("WIP", "Enable Nutcracker", false, "Enable changes to nutcracker and modify its behavior. DEV ONLY");
+            enableGiant = cfg.Bind("Entity settings", "Enable Giant", false, "Enable changes to forest giant.");
+            enableHoardingBug = cfg.Bind("WIP", "Enable Hoarding bug", false, "Enable changes to hoarding bug");
             //entity settings
             giantExtinguishChance = cfg.Bind("Entity settings", "(Giant) Extinguish chance", 33, "[Accepts int values between 0 and 100] Chance of giants extinguishing themselves.");
             beesSetGiantsOnFireMinChance = cfg.Bind("Entity settings", "(Bees) Ignite giants min chace", 1.5f, "[Accepts float values between 0 and 100]The minimum chance bees will set giant on fire on hit");
@@ -94,15 +86,6 @@ namespace NaturalSelection.Generics;
             beeBlacklist = cfg.Bind("Blacklists", "Bees Blacklist", "", "Any enemy inside the blacklist will be ignored by others. \n \n [The ',' acts as a separator]");
             blobBlacklist = cfg.Bind("Blacklists", "Blob Blacklist", "", "Any enemy inside the blacklist will be ignored by others. \n \n [The ',' acts as a separator]");
             sandwormBlacklist = cfg.Bind("Blacklists", "Sandworm Blacklist", "", "Any enemy inside the blacklist will be ignored by others. \n \n [The ',' acts as a separator]");
-            //load Entities
-            loadSpiders = cfg.Bind("Initialization settings (Not recommended)", "Load spider patches", true, "Load the spider patches. Do not touch.");
-            loadBlob = cfg.Bind("Initialization settings (Not recommended)", "Load slime patches", true, "Load the slime patches. Do not touch.");
-            loadSandworms = cfg.Bind("Initialization settings (Not recommended)", "Load leviathan patches", true, "Load the leviathan patches. Do not touch.");
-            loadGiants = cfg.Bind("Initialization settings (Not recommended)", "Load giant patches", true, "Load the giant patches. Do not touch.");
-            LoadBees = cfg.Bind("Initialization settings (Not recommended)", "Load circuit bees patches", true, "Load bees patches. Do not touch.");
-            loadNutcrackers = cfg.Bind("Initialization settings (Not recommended)", "Load nutcracker patches", true, "Load the nutcracker patches. Do not touch.");
-            loadHoardingBugs = cfg.Bind("Initialization settings (Not recommended)", "Load hoarding bugs patches", true, "Load the hoarding bug patches. Do not touch.");
-            loadSporeLizard = cfg.Bind("Initialization settings (Not recommended)", "Load spore lizards patches", true, "Load the spore lizard patches. Do not touch.");
             //debug
             debugBool = cfg.Bind("Debug","Debug mode",false,"Enables debug mode for more debug logs.");
             spammyLogs = cfg.Bind("Debug","Spammy logs",false,"Enables spammy logs for extra logs.");

@@ -20,7 +20,6 @@ namespace NaturalSelection.EnemyPatches
     {
         static List<EnemyAI> enemyList = new List<EnemyAI>();
         static Dictionary<NutcrackerEnemyAI, NutcrackerData> NutcrackerData = [];
-        static bool enableNucracker = Script.BoundingConfig.enableNutcrackers.Value;
         static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
         static bool debugNutcrackers = Script.BoundingConfig.debugNutcrackers.Value;
 
@@ -53,14 +52,11 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void NutcrackerUpdatePostfix(NutcrackerEnemyAI __instance)
         {
-            if (!enableNucracker) return;
             NutcrackerData data = NutcrackerData[__instance];
 
             enemyList = EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance),__instance);
-#pragma warning disable CS8604 // Possible null reference argument.
 
             data.closestEnemy = EnemyAIPatch.FindClosestEnemy(enemyList, data.closestEnemy, __instance);
-#pragma warning restore CS8604 // Possible null reference argument.
 
 
             if (__instance.currentBehaviourStateIndex == 1)
@@ -132,7 +128,6 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void DoAIIntervalPatch(NutcrackerEnemyAI __instance)
         {
-            if (!enableNucracker) return;
             NutcrackerData data = NutcrackerData[__instance];
 
             if (__instance.currentBehaviourStateIndex == 2)

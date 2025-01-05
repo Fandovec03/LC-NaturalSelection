@@ -4,6 +4,7 @@ using HarmonyLib;
 using NaturalSelection.Generics;
 using NaturalSelection.EnemyPatches;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace NaturalSelection;
 
@@ -28,7 +29,10 @@ public class Script : BaseUnityPlugin
         BoundingConfig = new MyModConfig(base.Config);
         stableToggle = BoundingConfig.stableMode.Value;
         clampedAgentRadius = Mathf.Clamp(BoundingConfig.agentRadiusModifier.Value, 0.1f, 1f);
-        isExperimental = false;
+        if (MyPluginInfo.PLUGIN_VERSION.Contains("99"))
+        {
+            isExperimental = true;
+        }
 
         Patch();
 
@@ -42,10 +46,7 @@ public class Script : BaseUnityPlugin
         Logger.LogInfo("Patching "+ MyPluginInfo.PLUGIN_NAME + " ...");
         if (isExperimental)
         {
-            for (int i = 0; i < 100; i++)
-            {
-                Logger.LogError("LOADING EXPERIMENTAL " + MyPluginInfo.PLUGIN_NAME.ToUpper() + ", DOWNLOAD NATURAL SELECTION INSTEAD!");
-            }
+            Logger.LogError("LOADING EXPERIMENTAL " + MyPluginInfo.PLUGIN_NAME.ToUpper() + ", DOWNLOAD STABLE NATURAL SELECTION INSTEAD!");
         }
         Harmony.PatchAll(typeof(AICollisionDetectPatch));
         Harmony.PatchAll(typeof(EnemyAIPatch));
@@ -61,17 +62,17 @@ public class Script : BaseUnityPlugin
             Logger.LogError("Failed to setup library!");
         }
         Harmony.PatchAll(typeof(RoundManagerPatch));
-        if (BoundingConfig.loadSandworms.Value)Harmony.PatchAll(typeof(SandWormAIPatch));
-        if (BoundingConfig.loadBlob.Value)Harmony.PatchAll(typeof(BlobAIPatch));
-        if (BoundingConfig.loadHoardingBugs.Value)Harmony.PatchAll(typeof(HoarderBugPatch));
-        if (BoundingConfig.LoadBees.Value)Harmony.PatchAll(typeof(BeeAIPatch));
-        if (BoundingConfig.loadGiants.Value)Harmony.PatchAll(typeof(ForestGiantPatch));
+        if (BoundingConfig.enableLeviathan.Value)Harmony.PatchAll(typeof(SandWormAIPatch));
+        if (BoundingConfig.enableSlime.Value)Harmony.PatchAll(typeof(BlobAIPatch));
+        if (BoundingConfig.enableHoardingBug.Value)Harmony.PatchAll(typeof(HoarderBugPatch));
+        if (BoundingConfig.enableRedBees.Value) Harmony.PatchAll(typeof(BeeAIPatch));
+        if (BoundingConfig.enableGiant.Value)Harmony.PatchAll(typeof(ForestGiantPatch));
 
         if (!stableToggle)
         {
-        if (BoundingConfig.loadNutcrackers.Value)Harmony.PatchAll(typeof(NutcrackerAIPatch));
-        if (BoundingConfig.loadSporeLizard.Value)Harmony.PatchAll(typeof(PufferAIPatch));
-        if (BoundingConfig.loadSpiders.Value)Harmony.PatchAll(typeof(SandSpiderAIPatch));
+        if (BoundingConfig.enableNutcracker.Value)Harmony.PatchAll(typeof(NutcrackerAIPatch));
+        if (BoundingConfig.enableSporeLizard.Value)Harmony.PatchAll(typeof(PufferAIPatch));
+        if (BoundingConfig.enableSpider.Value)Harmony.PatchAll(typeof(SandSpiderAIPatch));
             Harmony.PatchAll(typeof(SandSpiderWebTrapPatch));
 
         Logger.LogInfo("Stable mode off. Loaded all patches.");

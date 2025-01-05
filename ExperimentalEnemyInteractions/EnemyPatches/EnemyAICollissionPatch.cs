@@ -7,6 +7,8 @@ namespace NaturalSelection.EnemyPatches
     {
         static bool enableSpider = Script.BoundingConfig.enableSpider.Value;
         static bool enableSlime = Script.BoundingConfig.enableSlime.Value;
+        static bool enableBees = Script.BoundingConfig.enableRedBees.Value;
+
         static bool logUnspecified = Script.BoundingConfig.debugUnspecified.Value;
         static bool triggerFlag = Script.BoundingConfig.debugTriggerFlags.Value;
         static bool logSpider = Script.BoundingConfig.debugSpiders.Value;
@@ -62,7 +64,7 @@ namespace NaturalSelection.EnemyPatches
                    BlobAIPatch.OnCustomEnemyCollision((BlobAI)mainscript, mainscript2);
                 }
 
-                if (mainscript is RedLocustBees && mainscript2 is not RedLocustBees && mainscript2 != null)
+                if (mainscript is RedLocustBees && mainscript2 is not RedLocustBees && mainscript2 != null && enableBees)
                 {
                     BeeAIPatch.OnCustomEnemyCollision((RedLocustBees)mainscript, mainscript2);
                 }

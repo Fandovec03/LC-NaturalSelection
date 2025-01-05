@@ -1,5 +1,8 @@
 <h1>Natural selection</h1>
 
+0.2.3 <br>
+	- Fixed and simplified config enabling enemy changes
+	- Updated README
 0.2.2 <br>
 	- Fixed shit Networking implementation causing massive lag (Credit to Robyn and Xilo on Discord for pointing it out!)<br>
 	- Updated logs<br>

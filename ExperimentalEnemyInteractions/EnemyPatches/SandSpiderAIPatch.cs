@@ -21,7 +21,6 @@ namespace NaturalSelection.EnemyPatches
     class SandSpiderAIPatch
     {
         static float refreshCDtimeSpider = 1f;
-        static bool enableSpider = Script.BoundingConfig.enableSpider.Value;
         static bool spiderHuntHoardingbug = Script.BoundingConfig.spiderHuntHoardingbug.Value;
 
         static Dictionary<SandSpiderAI, SpiderData> spiderList = [];
@@ -42,8 +41,6 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static bool UpdatePrefixPatch(SandSpiderAI __instance)
         {
-            if (!enableSpider) return true;
-
             SpiderData spiderData = spiderList[__instance];
 
             /* if (__instance.navigateMeshTowardsPosition && spiderData.targetEnemy != null)

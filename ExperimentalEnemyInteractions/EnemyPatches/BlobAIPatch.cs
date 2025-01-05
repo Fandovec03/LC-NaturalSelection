@@ -26,7 +26,6 @@ namespace NaturalSelection.EnemyPatches
 	public class BlobAIPatch
 	{
 		static Dictionary<BlobAI, BlobData> slimeList = [];
-
 		static bool logBlob = Script.BoundingConfig.debugHygrodere.Value;
         static List<string> blacklist = Script.BoundingConfig.blobBlacklist.Value.ToUpper().Split(",").ToList();
         static LNetworkEvent BlobEatCorpseEvent(BlobAI instance)

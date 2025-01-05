@@ -10,26 +10,26 @@ Many config options to choose from!
 
 ### Red bees (Circuit bees)
 
-	They defend their hive from anything that gets too close. They're now deadly to every living being!
-	Small chance to set giants on fire
+They defend their hive from anything that gets too close. They're now deadly to every living being!<br>
+Small chance to set giants on fire<br>
 
 ### Hygrodere (Blob)
 
-	Damages creatures it has contact with it with an exception of Maneater. Non-organic and immortal entities are not affected.
+Damages creatures it has contact with it with an exception of Maneater. Non-organic and immortal entities are not affected.<br>
 
 ### Earth Leviathan (Sandworm)
-	Targets creatures that come near it. Ignores small creatures.
+Targets creatures that come near it. Ignores small creatures.<br>
 
 ## Modified enemies:
 ### Forest keeper:
-	Stays on fire for a while after death
-	Has a chance to extinguish itself
+Stays on fire for a while after death<br>
+Has a chance to extinguish itself<br>
 
 ## Currently worked on:
 ### Bunker Spider
     
-    Spider webs will slow down enemies and alert spider (WIP)
-    Spider hunts creatures that trigger its web or get in its LOS. Hoarding bugs are it's favorite meal (WIP)
+Spider webs will slow down enemies and alert spider (WIP)<br>
+Spider hunts creatures that trigger its web or get in its LOS. Hoarding bugs are it's favorite meal (WIP)<br>
 
 ## TODO:
 - Nutcracker
@@ -42,7 +42,7 @@ Many config options to choose from!
 
 ### Incompatible with:
 
-	LethalPerformance: The mod causes bees to become invisible
+LethalPerformance: The mod causes bees to become invisible
 
 ## Credits:
 - Zesa, TKronix, Swaggies: helping me figure out collision detection <br>

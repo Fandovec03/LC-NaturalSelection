@@ -52,16 +52,18 @@ namespace NaturalSelection.Generics
         [HarmonyPostfix]
         static void ResetGameValuesToDefaultPatch()
         {
-            Script.Logger.LogInfo("/Networking-ResetGameValuesToDefault/ Clearing all subscribtions in dictionary.");
+            Script.Logger.LogInfo("/Networking-ResetGameValuesToDefault/ Clearing all subscribtions and globalEnemyLists.");
             Networking.ClearSubscribtionsInDictionary();
+            NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists.Clear();
         }
 
         [HarmonyPatch(typeof(RoundManager), "ResetEnemyVariables")]
         [HarmonyPostfix]
         static void ResetEnemyVariablesPatch()
         {
-            Script.Logger.LogInfo("/Networking-ResetEnemyVariables/ Clearing all subscribtions in dictionary.");
+            Script.Logger.LogInfo("/Networking-ResetEnemyVariables/ Clearing all subscribtions and globalEnemyLists.");
             Networking.ClearSubscribtionsInDictionary();
+            NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists.Clear();
         }
     }
 }

@@ -54,7 +54,7 @@ namespace NaturalSelection.EnemyPatches
         {
             NutcrackerData data = NutcrackerData[__instance];
 
-            enemyList = EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance),__instance);
+            enemyList = EnemyAIPatch.GetInsideOrOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance),__instance);
 
             data.closestEnemy = EnemyAIPatch.FindClosestEnemy(enemyList, data.closestEnemy, __instance);
 

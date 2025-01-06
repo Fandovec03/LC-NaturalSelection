@@ -12,7 +12,7 @@ namespace NaturalSelection.Generics
     class RoundManagerPatch
     {
         static float nextUpdate = 0;
-        static Dictionary<Type, List<EnemyAI>> checkedTypes = new Dictionary<Type, List<EnemyAI>>();
+        static Dictionary<KeyValuePair<Type, bool>, List<EnemyAI>> checkedTypes = new Dictionary<KeyValuePair<Type, bool>, List<EnemyAI>>();
         public static float updateListInterval = 1f;
         static bool logSpam = Script.BoundingConfig.spammyLogs.Value;
         static bool logUnspecified = Script.BoundingConfig.debugUnspecified.Value;
@@ -23,9 +23,9 @@ namespace NaturalSelection.Generics
         {
             if (Time.realtimeSinceStartup >= nextUpdate)
             {
-                foreach (Type type in checkedTypes.Keys.ToList())
+                foreach (KeyValuePair<Type, bool> pair in checkedTypes.Keys.ToList())
                 {
-                    NaturalSelectionLib.NaturalSelectionLib.UpdateListInsideDictionrary(type, checkedTypes[type]);
+                    NaturalSelectionLib.NaturalSelectionLib.UpdateListInsideDictionrary(pair, checkedTypes[pair]);
                 }
                 checkedTypes.Clear();
                 nextUpdate = Time.realtimeSinceStartup + updateListInterval;
@@ -34,9 +34,9 @@ namespace NaturalSelection.Generics
 
         public static bool RequestUpdate(EnemyAI instance)
         {
-            if (!checkedTypes.ContainsKey(instance.GetType()) && instance.IsOwner)
+            if (!checkedTypes.ContainsKey(new KeyValuePair<Type, bool>(instance.GetType(), instance.isOutside)) && instance.IsOwner)
             {
-                checkedTypes.Add(instance.GetType(), new List<EnemyAI>());
+                checkedTypes.Add(new KeyValuePair<Type, bool>(instance.GetType(), instance.isOutside), new List<EnemyAI>());
                 if (logUnspecified && logSpam) Script.Logger.LogMessage("/RoundManager/ request was Accepted. Requested by " + EnemyAIPatch.DebugStringHead(instance) + " at " + Time.realtimeSinceStartup);
                 return true;
             }
@@ -50,14 +50,14 @@ namespace NaturalSelection.Generics
 
         public static void ScheduleGlobalListUpdate(EnemyAI instance, List<EnemyAI> list)
         {
-            if (checkedTypes.ContainsKey(instance.GetType()))
+            if (checkedTypes.ContainsKey(new KeyValuePair<Type, bool>(instance.GetType(), instance.isOutside)))
             {
-                checkedTypes[instance.GetType()] = list;
+                checkedTypes[new KeyValuePair<Type, bool>(instance.GetType(), instance.isOutside)] = list;
             }
-            if (!NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists.ContainsKey(instance.GetType()))
+            if (!NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists.ContainsKey(new KeyValuePair<Type, bool>(instance.GetType(), instance.isOutside)))
             {
                 Script.Logger.LogWarning(EnemyAIPatch.DebugStringHead(instance) + "global enemy list for this enemy does not exist! Creating a new one.");
-                NaturalSelectionLib.NaturalSelectionLib.UpdateListInsideDictionrary(instance.GetType(), checkedTypes[instance.GetType()]);
+                NaturalSelectionLib.NaturalSelectionLib.UpdateListInsideDictionrary(new KeyValuePair<Type, bool>(instance.GetType(), instance.isOutside), checkedTypes[new KeyValuePair<Type, bool>(instance.GetType(), instance.isOutside)]);
             }
         }
     }

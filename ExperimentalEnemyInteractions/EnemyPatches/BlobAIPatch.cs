@@ -89,20 +89,20 @@ namespace NaturalSelection.EnemyPatches
 		static void BlobUpdatePatch(BlobAI __instance)
 		{
 			BlobData blobData = slimeList[__instance];
-
-			/*void EventReceived()
+			KeyValuePair<Type, bool> pair = new KeyValuePair<Type, bool>(__instance.GetType(), __instance.isOutside);
+            /*void EventReceived()
 			{
                 blobData.playSound = true;
                 //Script.Logger.LogMessage("Received event. Changed value to " + blobData.playSound + ", eventLimiter: " + eventLimiter);
             }*/
-			
+
 
             blobData.timeSinceHittingLocalMonster += Time.deltaTime;
 			if (RoundManagerPatch.RequestUpdate(__instance) == true)
 			{
-				RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 1), __instance), null, blacklist,__instance, false, true));
+				RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetInsideOrOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 1), __instance), null, blacklist,__instance, false, true));
 			}
-			if (__instance.IsOwner) blobData.closestEnemy = EnemyAIPatch.FindClosestEnemy(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()], blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
+			if (__instance.IsOwner) blobData.closestEnemy = EnemyAIPatch.FindClosestEnemy(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[pair], blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
 
             //BlobEatCorpseEvent(__instance).OnClientReceived += EventReceived;
 

@@ -1,5 +1,10 @@
 <h1>Natural selection</h1>
 
+0.2.4 <br>
+	- Updated README
+	- Updated mod for newest Library version
+	- - Finally fixed invisible bees!
+	- Global enemy lists get cleared at the end of rounds or when client disconnects
 0.2.3 <br>
 	- Fixed and simplified config enabling enemy changes
 	- Updated README
@@ -45,6 +50,8 @@
 
 <h1>Experimental Enemy Interactions</h1>
 
+0.4.0 - <br>
+	- Prerelease of 0.2.4
 0.3.0 - <br>
 	- See 0.2.0 <br>
 	- NaturalSelectionLib 0.6.0 included <br>

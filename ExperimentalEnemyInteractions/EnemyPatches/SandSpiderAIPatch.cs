@@ -43,16 +43,17 @@ namespace NaturalSelection.EnemyPatches
         static bool UpdatePrefixPatch(SandSpiderAI __instance)
         {
             SpiderData spiderData = spiderList[__instance];
-            KeyValuePair<Type, bool> pair = new KeyValuePair<Type, bool>(__instance.GetType(), __instance.isOutside);
+            Type type = __instance.GetType();
             /* if (__instance.navigateMeshTowardsPosition && spiderData.targetEnemy != null)
              {
                  __instance.CalculateSpiderPathToPosition();
              }*/
             if (RoundManagerPatch.RequestUpdate(__instance) == true)
             {
-                RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.GetInsideOrOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance));
+                List<EnemyAI> tempList = EnemyAIPatch.GetInsideOrOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance).ToList();
+                RoundManagerPatch.ScheduleGlobalListUpdate(__instance, tempList);
             }
-            if (__instance.IsOwner) spiderData.enemiesInLOSDictionary = EnemyAIPatch.GetEnemiesInLOS(__instance, NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[pair], 80f, 15, 2f);
+            if (__instance.IsOwner) spiderData.enemiesInLOSDictionary = new Dictionary<EnemyAI, float>(EnemyAIPatch.GetEnemiesInLOS(__instance, NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type], 80f, 15, 2f));
 
             if (spiderData.enemiesInLOSDictionary.Count > 0)
             {

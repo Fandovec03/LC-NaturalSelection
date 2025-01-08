@@ -1,10 +1,12 @@
 <h1>Natural selection</h1>
 
 0.2.4 <br>
-	- Updated README
-	- Updated mod for newest Library version
-	- - Finally fixed invisible bees!
-	- Global enemy lists get cleared at the end of rounds or when client disconnects
+	- Updated README <br>
+	- Updated mod for newest Library version <br>
+	- - Finally fixed invisible bees!<br>
+	- - Enemies can now target enemies outside of their usual domain! Inside enemies can target outside enemies when outsise and vise versa<br>
+	- Fixed bees not returning to beehives after chasing/killing enemy<br>
+	- Global enemy lists get cleared at the end of rounds or when client disconnects<br>
 0.2.3 <br>
 	- Fixed and simplified config enabling enemy changes
 	- Updated README

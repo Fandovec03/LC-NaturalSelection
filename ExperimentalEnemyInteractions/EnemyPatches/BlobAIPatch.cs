@@ -20,6 +20,7 @@ namespace NaturalSelection.EnemyPatches
         public float timeSinceHittingLocalMonster = 0;
         public EnemyAI? closestEnemy = null;
 		public bool playSound = false;
+		public List<EnemyAI> localEnemyList = new List<EnemyAI>();
     }
 
 	[HarmonyPatch(typeof(BlobAI))]
@@ -89,7 +90,7 @@ namespace NaturalSelection.EnemyPatches
 		static void BlobUpdatePatch(BlobAI __instance)
 		{
 			BlobData blobData = slimeList[__instance];
-			KeyValuePair<Type, bool> pair = new KeyValuePair<Type, bool>(__instance.GetType(), __instance.isOutside);
+			Type type = __instance.GetType();
             /*void EventReceived()
 			{
                 blobData.playSound = true;
@@ -100,9 +101,14 @@ namespace NaturalSelection.EnemyPatches
             blobData.timeSinceHittingLocalMonster += Time.deltaTime;
 			if (RoundManagerPatch.RequestUpdate(__instance) == true)
 			{
-				RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetInsideOrOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 1), __instance), null, blacklist,__instance, false, true));
+				List<EnemyAI> tempList = EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 1), null, blacklist, __instance, false, true).ToList();
+                RoundManagerPatch.ScheduleGlobalListUpdate(__instance, tempList);
 			}
-			if (__instance.IsOwner) blobData.closestEnemy = EnemyAIPatch.FindClosestEnemy(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[pair], blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
+			if (__instance.IsOwner)
+			{
+				blobData.localEnemyList = EnemyAIPatch.GetInsideOrOutsideEnemyList(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type], __instance).ToList();
+				blobData.closestEnemy = EnemyAIPatch.FindClosestEnemy(blobData.localEnemyList, blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
+			}
 
             //BlobEatCorpseEvent(__instance).OnClientReceived += EventReceived;
 

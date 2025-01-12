@@ -50,6 +50,7 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<bool> debugSpiders;
     public readonly ConfigEntry<bool> debugGiants;
     public readonly ConfigEntry<bool> debugUnspecified;
+    public readonly ConfigEntry<bool> debugLibrary;
     public MyModConfig(ConfigFile cfg)
     {
         cfg.SaveOnConfigSet = false;
@@ -91,13 +92,14 @@ namespace NaturalSelection.Generics;
             spammyLogs = cfg.Bind("Debug","Spammy logs",false,"Enables spammy logs for extra logs.");
             debugNetworking = cfg.Bind("Debug", "Debug networking", false, "Enables debug logs for networking.");
             debugTriggerFlags = cfg.Bind("Debug","Trigger flags",false,"Enables logs with trigger flag.");
+            debugUnspecified = cfg.Bind("Debug", "Log unspecified", false, "Enables logs for unspecified.");
+            debugLibrary = cfg.Bind("Debug", "Log library", false, "Enables logs for the library.");
             debugRedBees = cfg.Bind("Debug","Log bees",false,"Enables logs for bees.");
             debugSandworms = cfg.Bind("Debug","Log sandworms",false,"Enables logs for sandowrms.");
             debugHygrodere = cfg.Bind("Debug","Log hydrogere",false,"Enables logs for hydrogere.");
             debugNutcrackers = cfg.Bind("Debug","Log nutcrackers",false,"Enables logs for nutcrackers.");
             debugSpiders = cfg.Bind("Debug","Log spiders",false,"Enables logs for spiders.");
             debugGiants = cfg.Bind("Debug", "Log giants", false, "Enables logs for giants.");
-            debugUnspecified = cfg.Bind("Debug","Log unspecified",false,"Enables logs for unspecified.");
         }
         ClearOrphanedEntries(cfg);
         cfg.Save();

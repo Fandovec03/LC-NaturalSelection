@@ -17,10 +17,10 @@ namespace NaturalSelection.EnemyPatches
 	
 	class BlobData
 	{
-        public float timeSinceHittingLocalMonster = 0;
         public EnemyAI? closestEnemy = null;
 		public bool playSound = false;
 		public List<EnemyAI> localEnemyList = new List<EnemyAI>();
+		public Dictionary<EnemyAI, float> hitRegistry = new Dictionary<EnemyAI, float>();
     }
 
 	[HarmonyPatch(typeof(BlobAI))]
@@ -97,8 +97,14 @@ namespace NaturalSelection.EnemyPatches
                 //Script.Logger.LogMessage("Received event. Changed value to " + blobData.playSound + ", eventLimiter: " + eventLimiter);
             }*/
 
-
-            blobData.timeSinceHittingLocalMonster += Time.deltaTime;
+			foreach(KeyValuePair<EnemyAI, float> enemy in new Dictionary<EnemyAI, float>(blobData.hitRegistry))
+			{
+				if (enemy.Value > 1.5f)
+				{
+					blobData.hitRegistry.Remove(enemy.Key); continue;
+				}
+				blobData.hitRegistry[enemy.Key] += Time.deltaTime;
+            }
 			if (RoundManagerPatch.RequestUpdate(__instance) == true)
 			{
 				List<EnemyAI> tempList = EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 1), null, blacklist, __instance, false, true).ToList();
@@ -124,7 +130,7 @@ namespace NaturalSelection.EnemyPatches
 		{
             BlobData blobData = slimeList[__instance];
 
-            if (blobData.timeSinceHittingLocalMonster > 1.5f)
+            if (!blobData.hitRegistry.ContainsKey(mainscript2))
 			{
 				if (mainscript2.isEnemyDead && IsEnemyImmortal.EnemyIsImmortal(mainscript2) == false && Vector3.Distance(__instance.transform.position, mainscript2.transform.position) <= 2.8f && Script.BoundingConfig.blobConsumesCorpses.Value)
 				{
@@ -143,7 +149,7 @@ namespace NaturalSelection.EnemyPatches
 					if (mainscript2 is not NutcrackerEnemyAI && mainscript2 is not CaveDwellerAI)
 					{
 
-						blobData.timeSinceHittingLocalMonster = 0f;
+                        blobData.hitRegistry.Add(mainscript2, 0);
 
 						if (mainscript2 is FlowermanAI)
 						{
@@ -183,8 +189,7 @@ namespace NaturalSelection.EnemyPatches
 							return;
 						}
 
-						blobData.timeSinceHittingLocalMonster = 0f;
-						mainscript2.HitEnemy(1, null, playHitSFX: true);
+                        mainscript2.HitEnemy(1, null, playHitSFX: true);
 						if (mainscript2.enemyHP <= 0)
 						{
 							mainscript2.KillEnemyOnOwnerClient();

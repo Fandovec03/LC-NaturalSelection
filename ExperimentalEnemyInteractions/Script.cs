@@ -54,7 +54,7 @@ public class Script : BaseUnityPlugin
         Harmony.PatchAll(typeof(NetworkingMethods));
         try
         {
-            NaturalSelectionLib.NaturalSelectionLib.LibrarySetup(Logger, BoundingConfig.spammyLogs.Value, BoundingConfig.debugTriggerFlags.Value);
+            NaturalSelectionLib.NaturalSelectionLib.LibrarySetup(Logger, BoundingConfig.spammyLogs.Value, BoundingConfig.debugLibrary.Value);
             Logger.LogMessage("Library successfully setup! Version " + NaturalSelectionLib.MyPluginInfo.PLUGIN_VERSION);
         }
         catch

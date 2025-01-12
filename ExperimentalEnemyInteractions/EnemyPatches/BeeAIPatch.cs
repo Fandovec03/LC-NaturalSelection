@@ -14,7 +14,7 @@ namespace NaturalSelection.EnemyPatches
         public EnemyAI? targetEnemy = null;
         public Vector3 lastKnownEnemyPosition = Vector3.zero;
         public int customBehaviorStateIndex = 0;
-        public float timeSinceHittingEnemy = 0f;
+        public Dictionary<EnemyAI, float> hitRegistry = new Dictionary<EnemyAI, float>();
         public float LostLOSOfEnemy = 0f;
         public List<Type> enemyTypes = new List<Type>();
         public float delayTimer = 0.2f;
@@ -57,6 +57,14 @@ namespace NaturalSelection.EnemyPatches
                 List<EnemyAI> tempList = EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetCompleteList(__instance), beeList[__instance].enemyTypes, blacklist, __instance, true, Script.BoundingConfig.IgnoreImmortalEnemies.Value).ToList();
                 RoundManagerPatch.ScheduleGlobalListUpdate(__instance, tempList);
             }
+            foreach (KeyValuePair<EnemyAI, float> enemy in new Dictionary<EnemyAI, float>(beeData.hitRegistry))
+            {
+                if (enemy.Value > 1.7f)
+                {
+                    beeData.hitRegistry.Remove(enemy.Key); continue;
+                }
+                beeData.hitRegistry[enemy.Key] += Time.deltaTime;
+            }
         }
         [HarmonyPatch("DoAIInterval")]
         [HarmonyPrefix]
@@ -95,8 +103,6 @@ namespace NaturalSelection.EnemyPatches
                     EnemyAI? LOSenemy = null;
                     if (enemiesInLOS.Count > 0)
                     {
-                        if (logBees) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "case0: Checked LOS for enemies. Enemy found: " + EnemyAIPatch.DebugStringHead(LOSenemy));
-                        if (logBees) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "case0: Checked LOS for enemies. Enemy found: " + EnemyAIPatch.DebugStringHead(LOSenemy));
                         foreach (KeyValuePair<EnemyAI, float> keyPair in new Dictionary<EnemyAI, float>(enemiesInLOS))
                         {
                             if (logBees && debugSpam) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(__instance) + " Checking the LOSList: " + EnemyAIPatch.DebugStringHead(keyPair.Key) + ", Distance: " + keyPair.Value);
@@ -118,7 +124,8 @@ namespace NaturalSelection.EnemyPatches
                                 enemiesInLOS.Remove(keyPair.Key);
                             }
                         }
-                        LOSenemy = enemiesInLOS.Keys.First();
+                        if (enemiesInLOS.Count > 0) LOSenemy = enemiesInLOS.Keys.First();
+                        if (logBees) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + "case0: Checked LOS for enemies. Enemy found: " + EnemyAIPatch.DebugStringHead(LOSenemy));
                     }
 
                     if (__instance.wasInChase)
@@ -342,10 +349,12 @@ namespace NaturalSelection.EnemyPatches
         {
             if (beeList.ContainsKey(__instance))
             {
-                if (beeList[__instance].timeSinceHittingEnemy > 1.7f && __instance.currentBehaviourStateIndex > 0 && !mainscript2.isEnemyDead || beeList[__instance].timeSinceHittingEnemy > 1.3f && __instance.currentBehaviourStateIndex == 2 && !mainscript2.isEnemyDead)
+                if ((!beeList[__instance].hitRegistry.ContainsKey(mainscript2) ||beeList[__instance].hitRegistry[mainscript2] > 1.7f) && __instance.currentBehaviourStateIndex > 0 && !mainscript2.isEnemyDead || (!beeList[__instance].hitRegistry.ContainsKey(mainscript2) || beeList[__instance].hitRegistry[mainscript2] > 1.2f) && __instance.currentBehaviourStateIndex == 2 && !mainscript2.isEnemyDead)
                 {
                     mainscript2.HitEnemy(1, null, playHitSFX: true);
-                    beeList[__instance].timeSinceHittingEnemy = 0f;
+
+                    if (!beeList[__instance].hitRegistry.ContainsKey(mainscript2)) beeList[__instance].hitRegistry.Add(mainscript2, 0);
+                    else beeList[__instance].hitRegistry[mainscript2] = 0;
 
                     if (mainscript2 is ForestGiantAI && mainscript2.currentBehaviourStateIndex != 2)
                     {
@@ -381,10 +390,6 @@ namespace NaturalSelection.EnemyPatches
                             NetworkSetGiantOnFire(giant).InvokeServer();
                         }
                     }
-                }
-                else
-                {
-                    beeList[__instance].timeSinceHittingEnemy += Time.deltaTime;
                 }
             }
         }

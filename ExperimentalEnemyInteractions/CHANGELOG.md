@@ -1,5 +1,15 @@
 <h1>Natural selection</h1>
 
+0.2.6<br>
+	- Fixed bees throwing error when every enemy in LOS is killed<br>
+	- Upgraded collision system. Bees and hygrodere now hit multiplle enemies they collide with<br>
+	- Added config to log the library<br>
+	- updated README<br>
+
+0.2.5 <br>
+	- Reupload because I forgot to upload a file. Woops<br>
+	- Updated README<br>
+
 0.2.4 <br>
 	- Updated README <br>
 	- Updated mod for newest Library version <br>
@@ -7,6 +17,7 @@
 	- - Enemies can now target enemies outside of their usual domain! Inside enemies can target outside enemies when outsise and vise versa<br>
 	- Fixed bees not returning to beehives after chasing/killing enemy<br>
 	- Global enemy lists get cleared at the end of rounds or when client disconnects<br>
+
 0.2.3 <br>
 	- Fixed and simplified config enabling enemy changes
 	- Updated README

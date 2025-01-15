@@ -8,19 +8,30 @@ using UnityEngine;
 namespace NaturalSelection.EnemyPatches
 {
 
+    class EnemyData
+    {
+        public float originalAgentRadius = 0f;
+        public SphereCollider sphereCollider = null;
+    }
+
     [HarmonyPatch(typeof(EnemyAI))]
     class EnemyAIPatch
     {
         static bool debugUnspecified = Script.BoundingConfig.debugUnspecified.Value;
         static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
         static bool debugTriggerFlag = Script.BoundingConfig.debugTriggerFlags.Value;
+        static Dictionary<EnemyAI, EnemyData> enemyData = [];
 
         [HarmonyPatch("Start")]
         [HarmonyPostfix]
         static void StartPostfix(EnemyAI __instance)
         {
 
-            if (debugSpam && debugUnspecified) Script.Logger.LogInfo("Called Setup library!");
+            if (!enemyData.ContainsKey(__instance)) enemyData.Add(__instance, new EnemyData());
+            enemyData[__instance].originalAgentRadius = __instance.agent.radius;
+            //enemyData[__instance].sphereCollider = __instance.gameObject.AddComponent<SphereCollider>();
+            //enemyData[__instance].sphereCollider.radius = enemyData[__instance].originalAgentRadius;
+            //enemyData[__instance].sphereCollider.isTrigger = true;
             __instance.agent.radius = __instance.agent.radius * Script.clampedAgentRadius;
         }
         public static string DebugStringHead(EnemyAI? instance)

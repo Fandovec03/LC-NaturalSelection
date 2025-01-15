@@ -373,7 +373,7 @@ namespace NaturalSelection.EnemyPatches
         }
 
         [HarmonyPatch("OnTriggerStay")]
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         static void OnTriggerStayPatch(Collider other, SandSpiderWebTrap __instance)
         {
             SpiderWebValues webData = spiderWebs[__instance];
@@ -471,7 +471,7 @@ namespace NaturalSelection.EnemyPatches
         }
 
         [HarmonyPatch("OnTriggerExit")]
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         static void OnTriggerExitPatch(Collider other, SandSpiderWebTrap __instance)
         {
             SpiderWebValues webData = spiderWebs[__instance];

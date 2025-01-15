@@ -93,7 +93,7 @@ namespace NaturalSelection.EnemyPatches
             BeeValues beeData = beeList[__instance];
             Type type = __instance.GetType();
 
-            beeData.localEnemyList = EnemyAIPatch.GetInsideOrOutsideEnemyList(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type], __instance).ToList();
+            beeData.localEnemyList = new List<EnemyAI>(EnemyAIPatch.GetInsideOrOutsideEnemyList(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type], __instance));
             Dictionary<EnemyAI, float> enemiesInLOS = new Dictionary<EnemyAI, float>(EnemyAIPatch.GetEnemiesInLOS(__instance, beeData.localEnemyList, 360f, 16, 1));
 
             switch (__instance.currentBehaviourStateIndex)

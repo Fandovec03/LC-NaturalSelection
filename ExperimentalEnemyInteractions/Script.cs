@@ -52,6 +52,7 @@ public class Script : BaseUnityPlugin
         Harmony.PatchAll(typeof(EnemyAIPatch));
         Harmony.PatchAll(typeof(Networking));
         Harmony.PatchAll(typeof(NetworkingMethods));
+        Harmony.PatchAll(typeof(InitializeGamePatch));
         try
         {
             NaturalSelectionLib.NaturalSelectionLib.LibrarySetup(Logger, BoundingConfig.spammyLogs.Value, BoundingConfig.debugLibrary.Value);
@@ -73,7 +74,7 @@ public class Script : BaseUnityPlugin
         if (BoundingConfig.enableNutcracker.Value)Harmony.PatchAll(typeof(NutcrackerAIPatch));
         if (BoundingConfig.enableSporeLizard.Value)Harmony.PatchAll(typeof(PufferAIPatch));
         if (BoundingConfig.enableSpider.Value)Harmony.PatchAll(typeof(SandSpiderAIPatch));
-            Harmony.PatchAll(typeof(SandSpiderWebTrapPatch));
+        if (BoundingConfig.enableSpiderWebs.Value) Harmony.PatchAll(typeof(SandSpiderWebTrapPatch));
 
         Logger.LogInfo("Stable mode off. Loaded all patches.");
         }

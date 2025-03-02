@@ -28,7 +28,7 @@ namespace NaturalSelection.EnemyPatches
 	{
 		static Dictionary<BlobAI, BlobData> slimeList = [];
 		static bool logBlob = Script.BoundingConfig.debugHygrodere.Value;
-        static List<string> blacklist = Script.BoundingConfig.blobBlacklist.Value.ToUpper().Split(",").ToList();
+        static List<string> blacklist = Script.BoundingConfig.blobBlacklist.Value.ToUpper().Split(",", StringSplitOptions.RemoveEmptyEntries).ToList();
         static LNetworkEvent BlobEatCorpseEvent(BlobAI instance)
 		{
             string NWID = "NSSlimeEatEvent" + instance.NetworkObjectId;
@@ -47,7 +47,6 @@ namespace NaturalSelection.EnemyPatches
 			{
 				__instance.openDoorSpeedMultiplier = 0f;
 			}
-
             ///////////////////////////////////////Networking
 
             BlobEatCorpseEvent(__instance).OnClientReceived += EventReceived;

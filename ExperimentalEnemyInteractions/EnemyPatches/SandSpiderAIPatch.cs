@@ -105,7 +105,7 @@ namespace NaturalSelection.EnemyPatches
                             if (debugSpider) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance)  + "Update Postfix: /case0/ Set " + spiderData.closestEnemy + " as TargetEnemy");
                             __instance.SwitchToBehaviourState(2);
                             if (debugSpider) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(__instance)  + "Update Postfix: /case0/ Set state to " + __instance.currentBehaviourStateIndex);
-                            __instance.chaseTimer = 12.5f;
+                            __instance.chaseTimer = 12.5f / 3;
                             __instance.watchFromDistance = Vector3.Distance(__instance.meshContainer.transform.position, spiderData.closestEnemy.transform.position) > 8f;
                         }
                         break;
@@ -333,7 +333,7 @@ namespace NaturalSelection.EnemyPatches
             {
                 ins.watchFromDistance = false;
                 spiderData.targetEnemy = target;
-                ins.chaseTimer = 12.5f;
+                ins.chaseTimer = 12.5f / 3;
                 ins.SwitchToBehaviourState(2);
                 if (debugSpider) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(ins)  + "ChaseEnemy: Switched state to: " + ins.currentBehaviourStateIndex);
             }
@@ -362,10 +362,16 @@ namespace NaturalSelection.EnemyPatches
         static Dictionary<SandSpiderWebTrap, SpiderWebValues> spiderWebs = new Dictionary<SandSpiderWebTrap, SpiderWebValues>();
         static Dictionary<EnemyAI, EnemyInfo> enemyData = new Dictionary<EnemyAI, EnemyInfo>();
 
+        static Dictionary<string, float> speedModifierDictionary = InitializeGamePatch.speedModifierDictionay;
+        static List<string> speedModifierBlacklist = Script.BoundingConfig.speedModifierBlacklist.Value.Split(",",StringSplitOptions.RemoveEmptyEntries).ToList();
+
+        static float debugCD = 0.0f;
+
        [HarmonyPatch("Awake")]
         [HarmonyPostfix]
         static void AwakePostfix(SandSpiderWebTrap __instance)
         {
+
             if (!spiderWebs.ContainsKey(__instance))
             {
                 spiderWebs.Add(__instance, new SpiderWebValues());
@@ -382,9 +388,20 @@ namespace NaturalSelection.EnemyPatches
             if (trippedEnemyCollision != null && trippedEnemyCollision.mainScript != __instance.mainScript) trippedEnemy = trippedEnemyCollision.mainScript;
             if (trippedEnemy == __instance.mainScript) return;
 
-            if (trippedEnemy != null)
+            if (trippedEnemy != null && !speedModifierBlacklist.Contains(trippedEnemy.enemyType.name))
             {
                 webData.trappedEnemy = trippedEnemy;
+                float SpeedModifier = 1f;
+
+
+                if (!speedModifierDictionary.Keys.Contains(trippedEnemy.enemyType.name))
+                {
+                    speedModifierDictionary.Add(trippedEnemy.enemyType.name, 1f);
+                }
+                else
+                {
+                    SpeedModifier = speedModifierDictionary[trippedEnemy.enemyType.name];
+                }
 
                 if (!enemyData.ContainsKey(trippedEnemy))
                 {
@@ -396,21 +413,23 @@ namespace NaturalSelection.EnemyPatches
                     Script.Logger.LogInfo("Added instance to NumberOfWebTraps " + enemyData[trippedEnemy].NumberOfTraps.Count);
                 }
 
-                if (Script.BoundingConfig.debugSpiders.Value) Script.Logger.LogInfo(__instance + " Collided with " + trippedEnemy);
+                if (Script.BoundingConfig.debugSpiderWebs.Value) Script.Logger.LogDebug(__instance + " Collided with " + trippedEnemy);
 
-                if (trippedEnemy is HoarderBugAI)
-                {
-                    HoarderBugValues hoarderBugValues = HoarderBugPatch.ReturnEnemyValuesFromDictionary((HoarderBugAI)trippedEnemy);
-                    hoarderBugValues.limitSpeed = true;
-                    hoarderBugValues.limitedSpeed = enemyData[trippedEnemy].EnterAgentSpeed / (1 + enemyData[trippedEnemy].NumberOfTraps.Count);
-                }
-                else trippedEnemy.agent.speed = enemyData[trippedEnemy].EnterAgentSpeed / (1 + enemyData[trippedEnemy].NumberOfTraps.Count);
-                trippedEnemy.creatureAnimator.speed = enemyData[trippedEnemy].EnterAnimationSpeed / (1 + enemyData[trippedEnemy].NumberOfTraps.Count);
+                trippedEnemy.agent.speed = (enemyData[trippedEnemy].EnterAgentSpeed / (1 + enemyData[trippedEnemy].NumberOfTraps.Count)) * SpeedModifier;
+                trippedEnemy.creatureAnimator.speed = (enemyData[trippedEnemy].EnterAnimationSpeed / (1 + enemyData[trippedEnemy].NumberOfTraps.Count)) * SpeedModifier;
 
-                if (Script.BoundingConfig.debugSpiders.Value)
+                if (Script.BoundingConfig.debugSpiderWebs.Value)
                 {
-                    Script.Logger.LogInfo(__instance + " Slowed down movement of " + trippedEnemy + " from " + enemyData[trippedEnemy].EnterAgentSpeed + " to " + trippedEnemy.agent.speed);
-                    Script.Logger.LogInfo(__instance + " Slowed down animation of " + trippedEnemy + " from " + enemyData[trippedEnemy].EnterAnimationSpeed + " to " + trippedEnemy.creatureAnimator.speed);
+                    if (debugCD <= 0)
+                    {
+                        Script.Logger.LogDebug(__instance + " Slowed down movement of " + trippedEnemy + " from " + enemyData[trippedEnemy].EnterAgentSpeed + " to " + trippedEnemy.agent.speed + " with Speed modifier " + SpeedModifier);
+                        Script.Logger.LogDebug(__instance + " Slowed down animation of " + trippedEnemy + " from " + enemyData[trippedEnemy].EnterAnimationSpeed + " to " + trippedEnemy.creatureAnimator.speed + " with Speed modifier " + SpeedModifier);
+                        debugCD = 0.2f;
+                    }
+                    else
+                    {
+                        debugCD -= Time.deltaTime;
+                    }
                 }
                 if (!__instance.webAudio.isPlaying)
                 {
@@ -479,7 +498,7 @@ namespace NaturalSelection.EnemyPatches
             EnemyAI? trippedEnemy = null;
             if (trippedEnemyCollision != null && trippedEnemyCollision.mainScript != __instance.mainScript) trippedEnemy = trippedEnemyCollision.mainScript;
 
-            if (trippedEnemy != null)
+            if (trippedEnemy != null && !speedModifierBlacklist.Contains(trippedEnemy.enemyType.name))
             {
                 if (enemyData[trippedEnemy].NumberOfTraps.Contains(__instance))
                 {

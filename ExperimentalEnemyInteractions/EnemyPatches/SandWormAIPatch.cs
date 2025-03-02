@@ -26,7 +26,7 @@ namespace NaturalSelection.EnemyPatches
         static bool debugSandworm = Script.BoundingConfig.debugSandworms.Value;
         static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
         static bool triggerFlag = Script.BoundingConfig.debugTriggerFlags.Value;
-        static List<string> blacklist = Script.BoundingConfig.sandwormBlacklist.Value.ToUpper().Split(",").ToList();
+        static List<string> blacklist = Script.BoundingConfig.sandwormBlacklist.Value.ToUpper().Split(",", StringSplitOptions.RemoveEmptyEntries).ToList();
         static LNetworkVariable<int> NetworkSandwormBehaviorState(SandWormAI instance)
         {
             return LNetworkVariable<int>.Connect("NSSandwormBehaviorState" + instance.NetworkObjectId);

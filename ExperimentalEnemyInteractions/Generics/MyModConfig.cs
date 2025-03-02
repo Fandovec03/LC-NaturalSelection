@@ -89,7 +89,7 @@ namespace NaturalSelection.Generics;
             blobPathfind = cfg.Bind("Entity settings", "(Blob) Pathfind", true, "Pathfind to other entities");
             sandwormDoNotEatPlayersInsideLeavingShip = cfg.Bind("Entity settings", "(Sandworm) Do not eat players inside leaving ship", false, "Worms do not eat players inside ship leaving the moon.");
             sandwormFilterTypes = cfg.Bind("Entity settings", "(Sandworm) Filter out enemy types", true, "Filter out enemies by the enemy type. Disabling this allows sandworms to attack other enemies. Blacklisting enemies is highly recommended when this setting is disabled.");
-            speedModifierList = cfg.Bind("Entity settings", "Web speed modifiers", "", "Modifies speed of enemy in web. \n \n [The ',' acts as a separator between each entry. Entry format: [EnemyName:Speed] ] \n Enemies caught by the webs will automatically be added to the list.");
+            speedModifierList = cfg.Bind("Entity settings", "Web speed modifiers", "", "Modifies speed of enemy in web. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:Speed ] \n This config generates automatically.");
             //blacklists
             beeBlacklist = cfg.Bind("Blacklists", "Bees Blacklist", "", "Any enemy inside the blacklist will be ignored by others. \n \n [The ',' acts as a separator]");
             blobBlacklist = cfg.Bind("Blacklists", "Blob Blacklist", "", "Any enemy inside the blacklist will be ignored by others. \n \n [The ',' acts as a separator]");

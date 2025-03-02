@@ -1,68 +1,10 @@
-<h1>Natural selection</h1>
-
-0.2.6<br>
-	- Fixed bees throwing error when every enemy in LOS is killed<br>
-	- Upgraded collision system. Bees and hygrodere now hit multiplle enemies they collide with<br>
-	- Added config to log the library<br>
-	- updated README<br>
-
-0.2.5 <br>
-	- Reupload because I forgot to upload a file. Woops<br>
-	- Updated README<br>
-
-0.2.4 <br>
-	- Updated README <br>
-	- Updated mod for newest Library version <br>
-	- - Finally fixed invisible bees!<br>
-	- - Enemies can now target enemies outside of their usual domain! Inside enemies can target outside enemies when outsise and vise versa<br>
-	- Fixed bees not returning to beehives after chasing/killing enemy<br>
-	- Global enemy lists get cleared at the end of rounds or when client disconnects<br>
-
-0.2.3 <br>
-	- Fixed and simplified config enabling enemy changes
-	- Updated README
-0.2.2 <br>
-	- Fixed shit Networking implementation causing massive lag (Credit to Robyn and Xilo on Discord for pointing it out!)<br>
-	- Updated logs<br>
-	- edited README<br>
-0.2.1 <br>
-	- Fixed giants always set on fire<br>
-	- Fixed Error spam on clients<br>
-	- Small changes to networking which fixes lag<br>
-0.2.0 <br>
-	- **Added networking** <br>
-	- - Fixes desync and network related issues, mainly enemy sounds not playing on non-host clients<br>
-	- Fixed sandworm eating non-host players inside the ship with the toggle on<br>
-	- Fixed giants not using the extinguish chance from config<br>
-	- Added __blacklists__ to config<br>
-	- Optimization on clients/server<br>
-0.1.5 <br>
-	- Fixed collisions returning NullReferenceException errors<br>
-	- Added config for sandworms to not eat players inside leaving ship<br>
-	- Updated logs and configs<br>
-0.1.4 <br>
-	- Fixed logs spamming you're on experimental version<br>
-	- Added option to override vanilla sandworm collisions to possibly fix the lag when colliding with multiple enemies at once<br>
-0.1.3 <br>
-	- Implemented global enemy list.<br>
-	- Fixed bees becoming invisible due to black magic (still dont know how).<br>
-	- The mod no longer sets all colliders on enemies to be triggers.<br>
-	- Hydrogires now move and consume dead corpses<br>
-	- Many more config options<br>
-0.1.2 <br>
-	- Fixed logs<br>
-	- Updated for NaturalSelectionLib 0.4.0<br>
-0.1.1 <br>
-	- Fixed NullReferenceException some logs<br>
-0.1.0 <br>
-	- Updated manifest, README and library integration<br>
-0.0.2 <br>
-	- Made less spammy logs <br>
-0.0.1 <br>
-	- Inital Upload<br>
-
 <h1>Experimental Enemy Interactions</h1>
 
+0.5.0 - <br>
+	- Updated blacklists to delete empty entries
+	- Added blacklist for spider webs
+	- Added web speed modifier config. Config generates automatically
+	- Spider webs can now be enabled with own toggle
 0.4.0 - <br>
 	- Prerelease of 0.2.4
 0.3.0 - <br>

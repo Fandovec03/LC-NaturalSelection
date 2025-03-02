@@ -19,10 +19,7 @@ namespace NaturalSelection.EnemyPatches
     class HoarderBugPatch()
     {
         static Dictionary<HoarderBugAI, HoarderBugValues> hoarderBugList = [];
-        public static HoarderBugValues ReturnEnemyValuesFromDictionary(HoarderBugAI hoarderBug)
-        {
-            return hoarderBugList[hoarderBug];
-        }
+
         public static void CustomOnHit(int force, EnemyAI enemyWhoHit, bool playHitSFX, HoarderBugAI __instance)
         {
             __instance.enemyHP -= force;

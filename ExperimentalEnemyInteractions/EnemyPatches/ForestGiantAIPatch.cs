@@ -131,11 +131,11 @@ namespace NaturalSelection.EnemyPatches
                 if (randomNumber <= Script.BoundingConfig.giantExtinguishChance.Value)
                 {
                     NetworkExtinguish(__instance).InvokeClients();
-                    Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + " successfully extinguished itself. Skipping Update. Rolled " + randomNumber);
+                    Script.Logger.LogInfo($"{EnemyAIPatch.DebugStringHead(__instance)} successfully extinguished itself. Skipping Update. Rolled {randomNumber}");
                 }
                 else
                 {
-                    Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance) + " failed to extinguish itself. rolled " + randomNumber);
+                    Script.Logger.LogInfo($"{EnemyAIPatch.DebugStringHead(__instance)} failed to extinguish itself. rolled {randomNumber}");
                     giantData.extinguished = 2;
                 }
             }

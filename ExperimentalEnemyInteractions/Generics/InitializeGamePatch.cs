@@ -30,7 +30,7 @@ namespace NaturalSelection.Generics
                         string itemName = item.Split(":")[0];
                         float itemSpeed = float.Parse(item.Split(":")[1].Replace(".", ","));
                         speedModifierDictionay.Add(itemName, itemSpeed);
-                        Script.Logger.LogDebug("Found " + itemName + ", " + itemSpeed);
+                        Script.Logger.LogDebug($"Found " + itemName + ", " + itemSpeed);
                     }
                     catch (Exception e)
                     {
@@ -46,10 +46,10 @@ namespace NaturalSelection.Generics
                 foreach (var item in loadedEnemyList)
                 {
                     string itemName = item.enemyType.enemyName;
-                    Script.Logger.LogInfo("Checking enemy: " + itemName);
+                    Script.Logger.LogInfo($"Checking enemy: {itemName}");
                     if (!speedModifierDictionay.Keys.Contains(itemName))
                     {
-                        Script.Logger.LogInfo("Generating web speed modifier for " + itemName);
+                        Script.Logger.LogInfo($"Generating web speed modifier for {itemName}");
                         speedModifierDictionay.Add(itemName, 1);
                     }
                 }

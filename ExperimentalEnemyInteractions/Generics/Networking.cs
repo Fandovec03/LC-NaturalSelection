@@ -17,6 +17,18 @@ namespace NaturalSelection.Generics
             return LNetworkVariable<float>.Connect(NWID);
         }
 
+        public static LNetworkVariable<int> NSEnemyNetworkVariableInt(string NWID)
+        {
+            if (!NetworkingDictionary.ContainsKey(NWID)) NetworkingDictionary.Add(NWID, 32);
+            return LNetworkVariable<int>.Connect(NWID);
+        }
+
+        public static LNetworkVariable<bool> NSEnemyNetworkVariableBool(string NWID)
+        {
+            if (!NetworkingDictionary.ContainsKey(NWID)) NetworkingDictionary.Add(NWID, 33);
+            return LNetworkVariable<bool>.Connect(NWID);
+        }
+
         public static LNetworkEvent NSEnemyNetworkEvent(string NWID)
         {
             if (!NetworkingDictionary.ContainsKey(NWID)) NetworkingDictionary.Add(NWID, 2);
@@ -31,12 +43,22 @@ namespace NaturalSelection.Generics
                 {
                     case 2:
                         {
-                            if (logNetworking) Script.Logger.LogDebug("Clearing subscriptions of event " + pair.Key);
+                            if (logNetworking) Script.Logger.LogDebug($"Clearing subscriptions of event {pair.Key}");
                             LNetworkEvent.Connect(pair.Key).ClearSubscriptions(); break;
                         }
                     case 31:
                         {
-                            if (logNetworking) Script.Logger.LogDebug("Disposing of network float " + pair.Key);
+                            if (logNetworking) Script.Logger.LogDebug($"Disposing of network float {pair.Key}");
+                            LNetworkVariable<float>.Connect(pair.Key).Dispose(); break;
+                        }
+                    case 32:
+                        {
+                            if (logNetworking) Script.Logger.LogDebug($"Disposing of network int {pair.Key}");
+                            LNetworkVariable<float>.Connect(pair.Key).Dispose(); break;
+                        }
+                    case 33:
+                        {
+                            if (logNetworking) Script.Logger.LogDebug($"Disposing of network bool {pair.Key}");
                             LNetworkVariable<float>.Connect(pair.Key).Dispose(); break;
                         }
                 }

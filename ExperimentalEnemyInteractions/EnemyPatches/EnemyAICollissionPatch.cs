@@ -17,7 +17,7 @@ namespace NaturalSelection.EnemyPatches
         public static void Collide(string text, EnemyAI? mainscript, EnemyAI? mainscript2)
         {
 
-            if (logUnspecified && debugSpam && triggerFlag) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(mainscript) + "Hit collider of " + EnemyAIPatch.DebugStringHead(mainscript2) + ", Tag: " + text);
+            if (logUnspecified && debugSpam && triggerFlag) Script.Logger.LogDebug($"{EnemyAIPatch.DebugStringHead(mainscript)} hit collider of {EnemyAIPatch.DebugStringHead(mainscript2)} Tag: {text}");
             if (mainscript != null && text == "Player")
             {
                 
@@ -27,7 +27,7 @@ namespace NaturalSelection.EnemyPatches
                 if (mainscript is SandSpiderAI && mainscript2 is not SandSpiderAI && mainscript2 != null && enableSpider)
                 {
                     SandSpiderAI spiderAI = (SandSpiderAI)mainscript;
-                    if (logSpider && triggerFlag) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(mainscript) + " timeSinceHittingPlayer: " + spiderAI.timeSinceHittingPlayer);
+                    if (logSpider && triggerFlag) Script.Logger.LogDebug($"{EnemyAIPatch.DebugStringHead(mainscript)} timeSinceHittingPlayer: {spiderAI.timeSinceHittingPlayer}");
                     if (spiderAI.timeSinceHittingPlayer > 1f)
                     {
                         spiderAI.timeSinceHittingPlayer = 0f;
@@ -55,7 +55,7 @@ namespace NaturalSelection.EnemyPatches
                                 PufferAIPatch.CustomOnHit(1, mainscript, playHitSFX: true, (PufferAI)mainscript2);
                             }
                         }
-                        if (logSpider && triggerFlag) Script.Logger.LogMessage(EnemyAIPatch.DebugStringHead(mainscript) + " Hit " + EnemyAIPatch.DebugStringHead(mainscript2)+ ", Tag: " + text);
+                        if (logSpider && triggerFlag) Script.Logger.LogMessage($"{EnemyAIPatch.DebugStringHead(mainscript)} hit {EnemyAIPatch.DebugStringHead(mainscript2)}, Tag: {text}");
                     }
                 }
 
@@ -96,7 +96,7 @@ namespace NaturalSelection.EnemyPatches
     {
         static bool Prefix(Collider other, EnemyAICollisionDetect __instance)
         {
-            if (other == null) { Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance.mainScript) + "Collider is null! Using original function..."); return true; }
+            if (other == null) { Script.Logger.LogError($"{EnemyAIPatch.DebugStringHead(__instance.mainScript)} Collider is null! Using original function..."); return true; }
             EnemyAICollisionDetect compoment2 = other.gameObject.GetComponent<EnemyAICollisionDetect>();
 
             if (__instance != null)

@@ -7,6 +7,9 @@
 - Updated strings to use interpolation
 - Updated sandworm's networking. It's network connections and variables will now be included for disposal
 
+#### Experimental
+- Added experimental hit registrer
+
 ## 0.5.0
 - Updated blacklists to delete empty entries
 - Added blacklist for spider webs

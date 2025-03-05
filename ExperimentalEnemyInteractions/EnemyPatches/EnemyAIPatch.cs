@@ -96,7 +96,21 @@ namespace NaturalSelection.EnemyPatches
                     .InstructionEnumeration();
             }
         }*/
+
+        [HarmonyPatch("HitEnemy")]
+        [HarmonyPostfix]
+        public static void HitEnemyPatch(EnemyAI __instance, int force, PlayerControllerB playerWhoHit, bool playHitSFX, int hitID)
+        {
+            string playerString = "unknown";
+            if (playerWhoHit != null)
+            {
+                playerString = $"{playerWhoHit.playerUsername}(SteamID: {playerWhoHit.playerSteamId}, playerClientID: {playerWhoHit.playerClientId})";
+            }
+            Script.Logger.LogInfo($"{DebugStringHead(__instance)} registered hit by {playerString} with force of {force}. playHitSFX:{playHitSFX}, hitID:{hitID}.");
+        }
     }
+
+
     [HarmonyPatch]
     public class ReversePatchAI
     {

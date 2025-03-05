@@ -5,6 +5,8 @@ using NaturalSelection.Generics;
 using NaturalSelection.EnemyPatches;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Reflection;
+using System;
 
 namespace NaturalSelection;
 
@@ -43,16 +45,17 @@ public class Script : BaseUnityPlugin
     {
         Harmony ??= new Harmony(MyPluginInfo.PLUGIN_GUID);
 
-        Logger.LogInfo("Patching "+ MyPluginInfo.PLUGIN_NAME + " ...");
+        Logger.LogInfo($"Patching {MyPluginInfo.PLUGIN_NAME}...");
         if (isExperimental)
         {
-            Logger.LogError("LOADING EXPERIMENTAL " + MyPluginInfo.PLUGIN_NAME.ToUpper() + ", DOWNLOAD STABLE NATURAL SELECTION INSTEAD!");
+            Logger.LogError($"LOADING EXPERIMENTAL {MyPluginInfo.PLUGIN_NAME.ToUpper()}, DOWNLOAD STABLE NATURAL SELECTION INSTEAD!");
         }
         Harmony.PatchAll(typeof(AICollisionDetectPatch));
         Harmony.PatchAll(typeof(EnemyAIPatch));
         Harmony.PatchAll(typeof(Networking));
         Harmony.PatchAll(typeof(NetworkingMethods));
         Harmony.PatchAll(typeof(InitializeGamePatch));
+
         try
         {
             NaturalSelectionLib.NaturalSelectionLib.LibrarySetup(Logger, BoundingConfig.spammyLogs.Value, BoundingConfig.debugLibrary.Value);

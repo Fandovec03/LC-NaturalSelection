@@ -124,7 +124,19 @@ namespace NaturalSelection.EnemyPatches
                                 __instance.updateDestinationInterval = __instance.AIIntervalTime + UnityEngine.Random.Range(-0.015f, 0.015f);
                             }
                         }
-                        ReversePatchAI.ReverseUpdate(__instance);
+
+                        //Script.Logger.LogMessage($"{EnemyAIPatch.DebugStringHead(__instance)} Invoking originalUpdate");
+                        try
+                        {
+                            ReversePatchAI.originalUpdate.Invoke(__instance);
+                            //Script.Logger.LogMessage("Succesfully invoked originalUpdate");
+                        }
+                        catch (Exception e)
+                        {
+                            Script.Logger.LogError("failed invoking originalUpdate.");
+                            Script.Logger.LogError(e);
+                        }
+
                         return false;
                     }
                     break;

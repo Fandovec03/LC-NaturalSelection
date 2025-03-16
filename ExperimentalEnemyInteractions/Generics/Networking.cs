@@ -54,12 +54,12 @@ namespace NaturalSelection.Generics
                     case 32:
                         {
                             if (logNetworking) Script.Logger.LogDebug($"Disposing of network int {pair.Key}");
-                            LNetworkVariable<float>.Connect(pair.Key).Dispose(); break;
+                            LNetworkVariable<int>.Connect(pair.Key).Dispose(); break;
                         }
                     case 33:
                         {
                             if (logNetworking) Script.Logger.LogDebug($"Disposing of network bool {pair.Key}");
-                            LNetworkVariable<float>.Connect(pair.Key).Dispose(); break;
+                            LNetworkVariable<bool>.Connect(pair.Key).Dispose(); break;
                         }
                 }
             }

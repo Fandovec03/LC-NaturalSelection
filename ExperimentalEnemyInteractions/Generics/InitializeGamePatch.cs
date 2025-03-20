@@ -45,12 +45,29 @@ namespace NaturalSelection.Generics
 
                 foreach (var item in loadedEnemyList)
                 {
-                    string itemName = item.enemyType.enemyName;
-                    Script.Logger.LogInfo($"Checking enemy: {itemName}");
-                    if (!speedModifierDictionay.Keys.Contains(itemName))
+                    try
                     {
-                        Script.Logger.LogInfo($"Generating web speed modifier for {itemName}");
-                        speedModifierDictionay.Add(itemName, 1);
+                        string itemName = string.Empty;
+                        try
+                        {
+                            itemName = item.enemyType.enemyName;
+                        }
+                        catch (Exception e)
+                        {
+                            Script.Logger.LogWarning($"Failed to get enemy name. Resorting using backup name.");
+                            itemName = item.name;
+                        }
+                        Script.Logger.LogInfo($"Checking enemy: {itemName}");
+                        if (!speedModifierDictionay.Keys.Contains(itemName))
+                        {
+                            Script.Logger.LogInfo($"Generating web speed modifier for {itemName}");
+                            speedModifierDictionay.Add(itemName, 1);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Script.Logger.LogError(e);
+                        continue;
                     }
                 }
 

@@ -246,6 +246,7 @@ namespace NaturalSelection.EnemyPatches
                                 NetworkSandwormBehaviorState(__instance).Value = 1;
                                 //__instance.SwitchToBehaviourState(1);
                                 SandwormData.targetEnemy = SandwormData.closestEnemy;
+                                EnemyAIPatch.addToAPModifier(SandwormData.targetEnemy);
                                 NetworkTargetingEntity(__instance).Value = true;
                                 __instance.chaseTimer = 0;
                                 if (debugSandworm) Script.Logger.LogInfo($"{EnemyAIPatch.DebugStringHead(__instance)} DoAIInterval: Set targetingEntity to {targetingEntity} and reset chaseTimer: {__instance.chaseTimer}");
@@ -271,6 +272,7 @@ namespace NaturalSelection.EnemyPatches
                         if (debugSandworm) Script.Logger.LogInfo($"{EnemyAIPatch.DebugStringHead(__instance)} DoAIInterval: Set {SandwormData.targetEnemy} as targetEnemy");
                         if (SandwormData.targetEnemy != null)
                         {
+                            EnemyAIPatch.addToAPModifier(SandwormData.targetEnemy);
                             if (Vector3.Distance(__instance.transform.position, SandwormData.targetEnemy.transform.position) > 19f)
                             {
                                 SandwormData.targetEnemy = null;

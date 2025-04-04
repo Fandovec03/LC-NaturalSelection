@@ -13,6 +13,8 @@ namespace NaturalSelection.EnemyPatches
     {
         public float originalAgentRadius = 0f;
         public SphereCollider sphereCollider = null;
+        public Dictionary<Type, int> targetedByEnemies = new Dictionary<Type, int>();
+        public int originalAP = 25;
     }
 
     [HarmonyPatch(typeof(EnemyAI))]
@@ -23,6 +25,27 @@ namespace NaturalSelection.EnemyPatches
         static bool debugTriggerFlag = Script.BoundingConfig.debugTriggerFlags.Value;
         static Dictionary<EnemyAI, EnemyData> enemyData = [];
 
+        public static int returnPriority(EnemyAI __instance)
+        {
+            return __instance.agent.avoidancePriority;
+        }
+
+        public static void addToAPModifier(EnemyAI __instance, int value = 1)
+        {
+            if (!enemyData[__instance].targetedByEnemies.ContainsKey(__instance.GetType())) enemyData[__instance].targetedByEnemies.Add(__instance.GetType(), value);
+        }
+
+        [HarmonyPatch("Update")]
+        [HarmonyPostfix]
+        static void UpdatePostfix(EnemyAI __instance)
+        {
+            if (__instance.IsOwner)
+            {
+                if (__instance.agent.avoidancePriority > 0 && __instance.agent.avoidancePriority < 100) __instance.agent.avoidancePriority = enemyData[__instance].originalAP - enemyData[__instance].targetedByEnemies.Count;
+                enemyData[__instance].targetedByEnemies.Clear();
+            }
+        }
+
         [HarmonyPatch("Start")]
         [HarmonyPostfix]
         static void StartPostfix(EnemyAI __instance)
@@ -30,10 +53,11 @@ namespace NaturalSelection.EnemyPatches
 
             if (!enemyData.ContainsKey(__instance)) enemyData.Add(__instance, new EnemyData());
             enemyData[__instance].originalAgentRadius = __instance.agent.radius;
+            enemyData[__instance].originalAP = __instance.agent.avoidancePriority;
             //enemyData[__instance].sphereCollider = __instance.gameObject.AddComponent<SphereCollider>();
             //enemyData[__instance].sphereCollider.radius = enemyData[__instance].originalAgentRadius;
             //enemyData[__instance].sphereCollider.isTrigger = true;
-            __instance.agent.radius = __instance.agent.radius * Script.clampedAgentRadius;
+            //__instance.agent.radius = __instance.agent.radius * Script.clampedAgentRadius;
         }
         public static string DebugStringHead(EnemyAI? instance)
         {

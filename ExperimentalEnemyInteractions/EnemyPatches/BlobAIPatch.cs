@@ -113,7 +113,8 @@ namespace NaturalSelection.EnemyPatches
 			{
 				blobData.localEnemyList = EnemyAIPatch.GetInsideOrOutsideEnemyList(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type], __instance).ToList();
 				blobData.closestEnemy = EnemyAIPatch.FindClosestEnemy(blobData.localEnemyList, blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
-			}
+                EnemyAIPatch.addToAPModifier(blobData.closestEnemy);
+            }
 
             //BlobEatCorpseEvent(__instance).OnClientReceived += EventReceived;
 

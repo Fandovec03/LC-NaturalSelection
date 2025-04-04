@@ -124,7 +124,11 @@ namespace NaturalSelection.EnemyPatches
                                 enemiesInLOS.Remove(keyPair.Key);
                             }
                         }
-                        if (enemiesInLOS.Count > 0) LOSenemy = enemiesInLOS.Keys.First();
+                        if (enemiesInLOS.Count > 0)
+                        {
+                            LOSenemy = enemiesInLOS.Keys.First();
+                            EnemyAIPatch.addToAPModifier(LOSenemy);
+                        }
                         if (logBees) Script.Logger.LogInfo($"{EnemyAIPatch.DebugStringHead(__instance)} case0: Checked LOS for enemies. Enemy found: {EnemyAIPatch.DebugStringHead(LOSenemy)}");
                     }
 
@@ -168,6 +172,7 @@ namespace NaturalSelection.EnemyPatches
                         if (enemiesInLOS.Count > 0)
                         {
                             closestToHive = enemiesInLOS.Keys.First();
+                            EnemyAIPatch.addToAPModifier(closestToHive);
                         }
 
                         if (logBees) Script.Logger.LogDebug($"{EnemyAIPatch.DebugStringHead(__instance)} case2: {closestToHive} is closest to hive.");
@@ -177,6 +182,7 @@ namespace NaturalSelection.EnemyPatches
                             flag = true;
                             __instance.wasInChase = false;
                             beeData.targetEnemy = closestToHive;
+                            EnemyAIPatch.addToAPModifier(beeData.targetEnemy);
                             __instance.SetDestinationToPosition(beeData.targetEnemy.transform.position, true);
                             __instance.StopSearch(__instance.searchForHive);
                             __instance.syncedLastKnownHivePosition = false;
@@ -189,7 +195,7 @@ namespace NaturalSelection.EnemyPatches
                         {
                             __instance.agent.acceleration = 16f;
                             if (!flag && enemiesInLOS.Count == 0)
-                                beeData.targetEnemy = null;
+                            beeData.targetEnemy = null;
                             __instance.wasInChase = false;
                             if (__instance.IsHiveMissing())
                             {
@@ -242,6 +248,7 @@ namespace NaturalSelection.EnemyPatches
                         }
                         if (enemyAI2 != null && Vector3.Distance(enemyAI2.transform.position, __instance.hive.transform.position) < (float)__instance.defenseDistance)
                         {
+                            EnemyAIPatch.addToAPModifier(enemyAI2);
                             __instance.SetDestinationToPosition(enemyAI2.transform.position, true);
                             if (logBees) Script.Logger.LogInfo($"{EnemyAIPatch.DebugStringHead(__instance)} case2: Moving towards: {enemyAI2}");
                             beeData.customBehaviorStateIndex = 1;
@@ -275,6 +282,7 @@ namespace NaturalSelection.EnemyPatches
                         flag = true;
                         __instance.wasInChase = false;
                         beeData.targetEnemy = closestToHive;
+                        EnemyAIPatch.addToAPModifier(beeData.targetEnemy);
                         __instance.SetDestinationToPosition(beeData.targetEnemy.transform.position, true);
                         __instance.StopSearch(__instance.searchForHive);
                         __instance.syncedLastKnownHivePosition = false;

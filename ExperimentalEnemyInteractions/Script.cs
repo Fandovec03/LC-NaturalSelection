@@ -21,7 +21,6 @@ public class Script : BaseUnityPlugin
 
     internal static MyModConfig BoundingConfig { get; set; } = null!;
     internal static bool stableToggle;
-    internal static float clampedAgentRadius;
     internal static bool isExperimental;
     private void Awake()
     {
@@ -30,7 +29,6 @@ public class Script : BaseUnityPlugin
 
         BoundingConfig = new MyModConfig(base.Config);
         stableToggle = BoundingConfig.stableMode.Value;
-        clampedAgentRadius = Mathf.Clamp(BoundingConfig.agentRadiusModifier.Value, 0.1f, 1f);
         if (MyPluginInfo.PLUGIN_VERSION.Contains("99"))
         {
             isExperimental = true;
@@ -59,7 +57,7 @@ public class Script : BaseUnityPlugin
         try
         {
             NaturalSelectionLib.NaturalSelectionLib.LibrarySetup(Logger, BoundingConfig.spammyLogs.Value, BoundingConfig.debugLibrary.Value);
-            Logger.LogMessage("Library successfully setup! Version " + NaturalSelectionLib.MyPluginInfo.PLUGIN_VERSION);
+            Logger.LogMessage($"Library successfully setup! Version {NaturalSelectionLib.NaturalSelectionLib.ReturnVersion()}");
         }
         catch
         {

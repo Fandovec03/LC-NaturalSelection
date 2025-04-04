@@ -6,10 +6,13 @@
 #### Internal changes
 - Updated strings to use interpolation
 - Updated sandworm's networking. It's network connections and variables will now be included for disposal
-- Replaced game's code from the mod
+- Removed game's code from the mod and replaced.
  
 #### Experimental
 - Added experimental hit registrer
+
+#### Fixes
+- Fixed edge case where missing enemy name results in solf lock the game while booting up.
 
 ## 0.5.0
 - Updated blacklists to delete empty entries

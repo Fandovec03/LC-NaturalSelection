@@ -14,7 +14,6 @@ namespace NaturalSelection.Generics;
     //settings
     public readonly ConfigEntry<bool> stableMode;
     public readonly ConfigEntry<bool> spiderHuntHoardingbug;
-    public readonly ConfigEntry<float> agentRadiusModifier;
     public readonly ConfigEntry<bool> IgnoreImmortalEnemies;
     //enemy bools
     public readonly ConfigEntry<bool> enableSpider;
@@ -66,8 +65,6 @@ namespace NaturalSelection.Generics;
             stableMode = cfg.Bind("General Settings", "Toggle stable mode", true, "When true, the mod will exlude patches that are WIP or are experimental from loading");
             IgnoreImmortalEnemies = cfg.Bind("General Settings", "Ignore Immortal Enemies", false, "All immortal enemies will be ignored by majority of entities");
             //WIP
-            agentRadiusModifier = cfg.Bind("WIP", "Agent radius modifier", 0.6f, "Agent radius multiplier. Agent size is modified to make collisions more reliable. Lower multiplier makes final Agent radius smaller. \n \n [Values not between 0.1 and 1 are Clamped]");
-            agentRadiusModifier.Value = Mathf.Clamp(agentRadiusModifier.Value, 0.1f, 1f);
             spiderHuntHoardingbug = cfg.Bind("WIP", "Spider hunts Hoarding bugs", false, "Bunker spider chases and hunts hoarding bugs. DEV ONLY");
             SpeedModifiers = cfg.Bind("WIP", "Speed modifier", "1", "Bunker spider chases and hunts hoarding bugs. DEV ONLY");
             //enable entities

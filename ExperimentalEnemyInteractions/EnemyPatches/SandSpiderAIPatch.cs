@@ -104,6 +104,7 @@ namespace NaturalSelection.EnemyPatches
                             if (spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f, __instance.eye) != false && !spiderData.closestEnemy.isEnemyDead)
                             {
                                 spiderData.targetEnemy = spiderData.closestEnemy;
+                                EnemyAIPatch.addToAPModifier(spiderData.closestEnemy);
                                 if (debugSpider) Script.Logger.LogInfo($"{EnemyAIPatch.DebugStringHead(__instance)} Update Postfix: /case0/ Set {spiderData.closestEnemy} as TargetEnemy");
                                 __instance.SwitchToBehaviourState(2);
                                 if (debugSpider) Script.Logger.LogDebug($"{EnemyAIPatch.DebugStringHead(__instance)} Update Postfix: /case0/ Set state to {__instance.currentBehaviourStateIndex}");
@@ -126,6 +127,7 @@ namespace NaturalSelection.EnemyPatches
                                 {
                                     spiderData.targetEnemy = spiderData.closestEnemy;
                                 }
+                                EnemyAIPatch.addToAPModifier(spiderData.targetEnemy);
                             }
 
 
@@ -347,6 +349,7 @@ namespace NaturalSelection.EnemyPatches
             {
                 ins.watchFromDistance = false;
                 spiderData.targetEnemy = target;
+                EnemyAIPatch.addToAPModifier(spiderData.targetEnemy);
                 ins.chaseTimer = 12.5f / 3;
                 ins.SwitchToBehaviourState(2);
                 if (debugSpider) Script.Logger.LogDebug($"{EnemyAIPatch.DebugStringHead(ins)} ChaseEnemy: Switched state to: {ins.currentBehaviourStateIndex}");

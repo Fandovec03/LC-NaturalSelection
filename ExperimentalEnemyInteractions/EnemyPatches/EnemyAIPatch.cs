@@ -14,7 +14,6 @@ namespace NaturalSelection.EnemyPatches
         public float originalAgentRadius = 0f;
         public SphereCollider sphereCollider = null;
         public Dictionary<Type, int> targetedByEnemies = new Dictionary<Type, int>();
-        public int originalAP = 25;
     }
 
     [HarmonyPatch(typeof(EnemyAI))]
@@ -25,27 +24,6 @@ namespace NaturalSelection.EnemyPatches
         static bool debugTriggerFlag = Script.BoundingConfig.debugTriggerFlags.Value;
         static Dictionary<EnemyAI, EnemyData> enemyData = [];
 
-        public static int returnPriority(EnemyAI __instance)
-        {
-            return __instance.agent.avoidancePriority;
-        }
-
-        public static void addToAPModifier(EnemyAI __instance, int value = 1)
-        {
-            if (!enemyData[__instance].targetedByEnemies.ContainsKey(__instance.GetType())) enemyData[__instance].targetedByEnemies.Add(__instance.GetType(), value);
-        }
-
-        [HarmonyPatch("Update")]
-        [HarmonyPostfix]
-        static void UpdatePostfix(EnemyAI __instance)
-        {
-            if (__instance.IsOwner)
-            {
-                if (__instance.agent.avoidancePriority > 0 && __instance.agent.avoidancePriority < 100) __instance.agent.avoidancePriority = enemyData[__instance].originalAP - enemyData[__instance].targetedByEnemies.Count;
-                enemyData[__instance].targetedByEnemies.Clear();
-            }
-        }
-
         [HarmonyPatch("Start")]
         [HarmonyPostfix]
         static void StartPostfix(EnemyAI __instance)
@@ -53,11 +31,8 @@ namespace NaturalSelection.EnemyPatches
 
             if (!enemyData.ContainsKey(__instance)) enemyData.Add(__instance, new EnemyData());
             enemyData[__instance].originalAgentRadius = __instance.agent.radius;
-            enemyData[__instance].originalAP = __instance.agent.avoidancePriority;
-            //enemyData[__instance].sphereCollider = __instance.gameObject.AddComponent<SphereCollider>();
-            //enemyData[__instance].sphereCollider.radius = enemyData[__instance].originalAgentRadius;
-            //enemyData[__instance].sphereCollider.isTrigger = true;
-            //__instance.agent.radius = __instance.agent.radius * Script.clampedAgentRadius;
+            __instance.agent.radius = __instance.agent.radius * Script.BoundingConfig.agentRadiusModifier.Value;
+            if (debugUnspecified) Script.Logger.LogMessage($"Modified agent radius. Original: {enemyData[__instance].originalAgentRadius}, Modified: {__instance.agent.radius}");
         }
         public static string DebugStringHead(EnemyAI? instance)
         {
@@ -107,21 +82,6 @@ namespace NaturalSelection.EnemyPatches
             return 0;
         }
 
-        /*[HarmonyPatch("KillEnemy")]
-        static void KillEnemyTranspiller()
-        {
-            static IEnumerable<CodeInstruction> Transpiller(IEnumerable<CodeInstruction> instructions)
-            {
-                return new CodeMatcher(instructions).MatchForward(false,
-                    new CodeMatch(OpCodes.Ldstr),
-                    new CodeMatch(OpCodes.Call, OpCodes.Call))
-                    .Repeat(matcher => matcher
-                    .RemoveInstructions(2)
-                    )
-                    .InstructionEnumeration();
-            }
-        }*/
-
         [HarmonyPatch("HitEnemy")]
         [HarmonyPostfix]
         public static void HitEnemyPatch(EnemyAI __instance, int force, PlayerControllerB playerWhoHit, bool playHitSFX, int hitID)
@@ -150,20 +110,5 @@ namespace NaturalSelection.EnemyPatches
 
             originalUpdate = (Action<EnemyAI>)dm.CreateDelegate(typeof(Action<EnemyAI>));
         }
-
-        /*public static readonly Action<EnemyAI> BaseInteractMethod;
-
-        static ReversePatchAI()
-        {
-            var method = AccessTools.Method(typeof(EnemyAI), nameof(EnemyAI.Update));
-            var dm = new DynamicMethod("Base.Update", null, [typeof(EnemyAI)], typeof(EnemyAI));
-            var gen = dm.GetILGenerator();
-            gen.Emit(OpCodes.Ldarg_0);
-            //gen.Emit(OpCodes.Ldarg_1);
-            gen.Emit(OpCodes.Call, method);
-            gen.Emit(OpCodes.Ret);
-
-            BaseInteractMethod = (Action<EnemyAI>)dm.CreateDelegate(typeof(Action<EnemyAI>));
-        }*/
     }
 }

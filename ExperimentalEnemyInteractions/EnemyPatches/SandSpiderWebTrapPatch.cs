@@ -31,7 +31,7 @@ namespace NaturalSelection.EnemyPatches
         static Dictionary<EnemyAI, EnemyInfo> enemyData = new Dictionary<EnemyAI, EnemyInfo>();
 
         static Dictionary<string, float> speedModifierDictionary = InitializeGamePatch.speedModifierDictionay;
-        static List<string> speedModifierBlacklist = Script.BoundingConfig.speedModifierBlacklist.Value.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList();
+        static List<string> spiderWebBlacklist = Script.BoundingConfig.spiderWebBlacklist.Value.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList();
 
         static float debugCD = 0.0f;
 
@@ -56,7 +56,7 @@ namespace NaturalSelection.EnemyPatches
             if (trippedEnemyCollision != null && trippedEnemyCollision.mainScript != __instance.mainScript) trippedEnemy = trippedEnemyCollision.mainScript;
             if (trippedEnemy == __instance.mainScript) return;
 
-            if (trippedEnemy != null && !speedModifierBlacklist.Contains(trippedEnemy.enemyType.name))
+            if (trippedEnemy != null && !spiderWebBlacklist.Contains(trippedEnemy.enemyType.name))
             {
                 webData.trappedEnemy = trippedEnemy;
                 float SpeedModifier = 1f;
@@ -166,7 +166,7 @@ namespace NaturalSelection.EnemyPatches
             EnemyAI? trippedEnemy = null;
             if (trippedEnemyCollision != null && trippedEnemyCollision.mainScript != __instance.mainScript) trippedEnemy = trippedEnemyCollision.mainScript;
 
-            if (trippedEnemy != null && !speedModifierBlacklist.Contains(trippedEnemy.enemyType.name))
+            if (trippedEnemy != null && !spiderWebBlacklist.Contains(trippedEnemy.enemyType.name))
             {
                 if (enemyData[trippedEnemy].NumberOfTraps.Contains(__instance))
                 {

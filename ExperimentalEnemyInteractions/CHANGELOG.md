@@ -1,5 +1,15 @@
 # Experimental Enemy Interactions
 
+## 0.5.2
+
+- Blacklists now generate automatically after booting up
+
+### Internal changes
+- Renamed speedModifierBlacklist to spiderWebBlacklist
+
+### Fixes
+- Fixed configs not generating with Code Rebirth
+
 ## 0.5.1
 - **Updated CHANGELOG Formatting**
 

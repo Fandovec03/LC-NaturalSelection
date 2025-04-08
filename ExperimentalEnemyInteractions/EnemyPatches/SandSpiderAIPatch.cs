@@ -5,6 +5,7 @@ using System.Linq;
 using NaturalSelection.Generics;
 using static NaturalSelection.EnemyPatches.SpiderWebValues;
 using System;
+using System.Net;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -23,6 +24,7 @@ namespace NaturalSelection.EnemyPatches
     {
         static float refreshCDtimeSpider = 1f;
         static bool spiderHuntHoardingbug = Script.BoundingConfig.spiderHuntHoardingbug.Value;
+        static float chaseModifier = Script.BoundingConfig.chaseAfterEnemiesModifier.Value;
 
         static Dictionary<SandSpiderAI, SpiderData> spiderList = [];
         static bool debugSpider = Script.BoundingConfig.debugSpiders.Value;
@@ -44,10 +46,7 @@ namespace NaturalSelection.EnemyPatches
         {
             SpiderData spiderData = spiderList[__instance];
             Type type = __instance.GetType();
-            /* if (__instance.navigateMeshTowardsPosition && spiderData.targetEnemy != null)
-             {
-                 __instance.CalculateSpiderPathToPosition();
-             }*/
+
             if (RoundManagerPatch.RequestUpdate(__instance) == true)
             {
                 List<EnemyAI> tempList = EnemyAIPatch.GetInsideOrOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance), __instance).ToList();
@@ -98,17 +97,15 @@ namespace NaturalSelection.EnemyPatches
                     case 0:
                         {
                             spiderData.closestEnemy = EnemyAIPatch.FindClosestEnemy(spiderData.knownEnemy, spiderData.closestEnemy, __instance);
-                            //if (debugSpider) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(__instance)  + "Update Postfix: /case0/ " + spiderData.closestEnemy + " is Closest enemy");
 
 
                             if (spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f, __instance.eye) != false && !spiderData.closestEnemy.isEnemyDead)
                             {
                                 spiderData.targetEnemy = spiderData.closestEnemy;
-                                EnemyAIPatch.addToAPModifier(spiderData.closestEnemy);
                                 if (debugSpider) Script.Logger.LogInfo($"{EnemyAIPatch.DebugStringHead(__instance)} Update Postfix: /case0/ Set {spiderData.closestEnemy} as TargetEnemy");
                                 __instance.SwitchToBehaviourState(2);
                                 if (debugSpider) Script.Logger.LogDebug($"{EnemyAIPatch.DebugStringHead(__instance)} Update Postfix: /case0/ Set state to {__instance.currentBehaviourStateIndex}");
-                                __instance.chaseTimer = 12.5f / 3;
+                                __instance.chaseTimer = 12.5f / chaseModifier;
                                 __instance.watchFromDistance = Vector3.Distance(__instance.meshContainer.transform.position, spiderData.closestEnemy.transform.position) > 8f;
                             }
                             break;
@@ -127,7 +124,6 @@ namespace NaturalSelection.EnemyPatches
                                 {
                                     spiderData.targetEnemy = spiderData.closestEnemy;
                                 }
-                                EnemyAIPatch.addToAPModifier(spiderData.targetEnemy);
                             }
 
 
@@ -349,8 +345,7 @@ namespace NaturalSelection.EnemyPatches
             {
                 ins.watchFromDistance = false;
                 spiderData.targetEnemy = target;
-                EnemyAIPatch.addToAPModifier(spiderData.targetEnemy);
-                ins.chaseTimer = 12.5f / 3;
+                ins.chaseTimer = 12.5f / chaseModifier;
                 ins.SwitchToBehaviourState(2);
                 if (debugSpider) Script.Logger.LogDebug($"{EnemyAIPatch.DebugStringHead(ins)} ChaseEnemy: Switched state to: {ins.currentBehaviourStateIndex}");
             }

@@ -15,6 +15,7 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<bool> stableMode;
     public readonly ConfigEntry<bool> spiderHuntHoardingbug;
     public readonly ConfigEntry<bool> IgnoreImmortalEnemies;
+    public readonly ConfigEntry<float> agentRadiusModifier;
     //enemy bools
     public readonly ConfigEntry<bool> enableSpider;
     public readonly ConfigEntry<bool> enableSlime;
@@ -35,11 +36,12 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<bool> sandwormFilterTypes;
     public readonly ConfigEntry<bool> enableSpiderWebs;
     public readonly ConfigEntry<string> speedModifierList;
+    public readonly ConfigEntry<float> chaseAfterEnemiesModifier;
     //blacklists
     public readonly ConfigEntry<string> beeBlacklist;
     public readonly ConfigEntry<string> blobBlacklist;
     public readonly ConfigEntry<string> sandwormBlacklist;
-    public readonly ConfigEntry<string> speedModifierBlacklist;
+    public readonly ConfigEntry<string> spiderWebBlacklist;
     //debug
     public readonly ConfigEntry<bool> debugBool;
     public readonly ConfigEntry<bool> spammyLogs;
@@ -64,6 +66,7 @@ namespace NaturalSelection.Generics;
             //general settings
             stableMode = cfg.Bind("General Settings", "Toggle stable mode", true, "When true, the mod will exlude patches that are WIP or are experimental from loading");
             IgnoreImmortalEnemies = cfg.Bind("General Settings", "Ignore Immortal Enemies", false, "All immortal enemies will be ignored by majority of entities");
+            agentRadiusModifier = cfg.Bind("General Settings", "Agent radius modifier", 0.50f, "Modifies agent radius of entities for more reliable collisions by set value.");
             //WIP
             spiderHuntHoardingbug = cfg.Bind("WIP", "Spider hunts Hoarding bugs", false, "Bunker spider chases and hunts hoarding bugs. DEV ONLY");
             SpeedModifiers = cfg.Bind("WIP", "Speed modifier", "1", "Bunker spider chases and hunts hoarding bugs. DEV ONLY");
@@ -86,12 +89,13 @@ namespace NaturalSelection.Generics;
             blobPathfind = cfg.Bind("Entity settings", "(Blob) Pathfind", true, "Pathfind to other entities");
             sandwormDoNotEatPlayersInsideLeavingShip = cfg.Bind("Entity settings", "(Sandworm) Do not eat players inside leaving ship", false, "Worms do not eat players inside ship leaving the moon.");
             sandwormFilterTypes = cfg.Bind("Entity settings", "(Sandworm) Filter out enemy types", true, "Filter out enemies by the enemy type. Disabling this allows sandworms to attack other enemies. Blacklisting enemies is highly recommended when this setting is disabled.");
+            chaseAfterEnemiesModifier = cfg.Bind("Entity settings", "Chase after enemies modifier", 3f, "Modifies long enemy chases after other entities. Enemy chases after enemies for 3x shorter time than players on default settings.");
             speedModifierList = cfg.Bind("Entity settings", "Web speed modifiers", "", "Modifies speed of enemy in web. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:Speed ] \n This config generates automatically.");
             //blacklists
-            beeBlacklist = cfg.Bind("Blacklists", "Bees Blacklist", "", "Any enemy inside the blacklist will be ignored by others. \n \n [The ',' acts as a separator]");
-            blobBlacklist = cfg.Bind("Blacklists", "Blob Blacklist", "", "Any enemy inside the blacklist will be ignored by others. \n \n [The ',' acts as a separator]");
-            sandwormBlacklist = cfg.Bind("Blacklists", "Sandworm Blacklist", "", "Any enemy inside the blacklist will be ignored by others. \n \n [The ',' acts as a separator]");
-            speedModifierBlacklist = cfg.Bind("Blacklists", "Web blacklist", "", "Any enemy inside the blacklist will be ignored by the webs. \n \n [The ',' acts as a separator]");
+            beeBlacklist = cfg.Bind("Blacklists", "Bees Blacklist", "", "Any enemy inside the blacklist will be ignored by others. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:True/False ] \n This config generates automatically.");
+            blobBlacklist = cfg.Bind("Blacklists", "Blob Blacklist", "", "Any enemy inside the blacklist will be ignored by others. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:True/False ] \n This config generates automatically.");
+            sandwormBlacklist = cfg.Bind("Blacklists", "Sandworm Blacklist", "", "Any enemy inside the blacklist will be ignored by others. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:True/False ] \n This config generates automatically.");
+            spiderWebBlacklist = cfg.Bind("Blacklists", "Web blacklist", "", "Any enemy inside the blacklist will be ignored by the webs. \n \n [The ',' acts as a separator]");
             //debug
             debugBool = cfg.Bind("Debug","Debug mode",false,"Enables debug mode for more debug logs.");
             spammyLogs = cfg.Bind("Debug","Spammy logs",false,"Enables spammy logs for extra logs.");

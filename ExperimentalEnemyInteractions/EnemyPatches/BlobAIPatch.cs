@@ -90,11 +90,6 @@ namespace NaturalSelection.EnemyPatches
 		{
 			BlobData blobData = slimeList[__instance];
 			Type type = __instance.GetType();
-            /*void EventReceived()
-			{
-                blobData.playSound = true;
-                //Script.Logger.LogMessage("Received event. Changed value to " + blobData.playSound + ", eventLimiter: " + eventLimiter);
-            }*/
 
 			foreach(KeyValuePair<EnemyAI, float> enemy in new Dictionary<EnemyAI, float>(blobData.hitRegistry))
 			{
@@ -113,10 +108,7 @@ namespace NaturalSelection.EnemyPatches
 			{
 				blobData.localEnemyList = EnemyAIPatch.GetInsideOrOutsideEnemyList(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type], __instance).ToList();
 				blobData.closestEnemy = EnemyAIPatch.FindClosestEnemy(blobData.localEnemyList, blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
-                EnemyAIPatch.addToAPModifier(blobData.closestEnemy);
             }
-
-            //BlobEatCorpseEvent(__instance).OnClientReceived += EventReceived;
 
 			if (blobData.playSound)
 			{
@@ -134,8 +126,6 @@ namespace NaturalSelection.EnemyPatches
 			{
 				if (mainscript2.isEnemyDead && IsEnemyImmortal.EnemyIsImmortal(mainscript2) == false && Vector3.Distance(__instance.transform.position, mainscript2.transform.position) <= 2.8f && Script.BoundingConfig.blobConsumesCorpses.Value)
 				{
-                    //__instance.creatureVoice.PlayOneShot(__instance.killPlayerSFX);
-
                     if (__instance.IsOwner && mainscript2.thisNetworkObject.IsSpawned)
 					{
                         BlobEatCorpseEvent(__instance).InvokeClients();

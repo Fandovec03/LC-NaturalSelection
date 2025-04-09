@@ -9,11 +9,10 @@ using UnityEngine;
 namespace NaturalSelection.EnemyPatches
 {
 
-    class EnemyData
+    struct EnemyData()
     {
-        public float originalAgentRadius = 0f;
-        public SphereCollider sphereCollider = null;
-        public Dictionary<Type, int> targetedByEnemies = new Dictionary<Type, int>();
+        internal float originalAgentRadius = 0f;
+        internal Dictionary<Type, int> targetedByEnemies = new Dictionary<Type, int>();
     }
 
     [HarmonyPatch(typeof(EnemyAI))]
@@ -30,7 +29,8 @@ namespace NaturalSelection.EnemyPatches
         {
 
             if (!enemyData.ContainsKey(__instance)) enemyData.Add(__instance, new EnemyData());
-            enemyData[__instance].originalAgentRadius = __instance.agent.radius;
+            EnemyData data = enemyData[__instance];
+            data.originalAgentRadius = __instance.agent.radius;
             __instance.agent.radius = __instance.agent.radius * Script.BoundingConfig.agentRadiusModifier.Value;
             if (debugUnspecified) Script.Logger.LogMessage($"Modified agent radius. Original: {enemyData[__instance].originalAgentRadius}, Modified: {__instance.agent.radius}");
         }
@@ -59,7 +59,15 @@ namespace NaturalSelection.EnemyPatches
         public static List<EnemyAI> FilterEnemyList(List<EnemyAI> importEnemyList, List<Type>? targetTypes, List<string>? blacklist, EnemyAI instance, bool inverseToggle = false, bool filterOutImmortal = true)
         {
             if (debugSpam && debugTriggerFlag && debugUnspecified) Script.Logger.LogInfo("Called library filterEnemyList!");
-            return NaturalSelectionLib.NaturalSelectionLib.FilterEnemyList(importEnemyList, targetTypes, blacklist, instance, inverseToggle, filterOutImmortal);
+            List<string> tempList = new List<string>();
+            if (blacklist != null)
+            {
+                foreach (var item in blacklist)
+                {
+                    tempList.Add(item.Split(":")[0]);
+                }
+            }
+            return NaturalSelectionLib.NaturalSelectionLib.FilterEnemyList(importEnemyList, targetTypes, tempList, instance, inverseToggle, filterOutImmortal);
         }
 
 

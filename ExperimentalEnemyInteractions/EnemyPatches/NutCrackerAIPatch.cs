@@ -5,14 +5,14 @@ using Vector3 = UnityEngine.Vector3;
 
 namespace NaturalSelection.EnemyPatches
 {
-    class NutcrackerData
+    struct NutcrackerData()
     {
-        public EnemyAI? closestEnemy = null;
-        public EnemyAI? targetEnemy = null;
-        public bool SeeMovingEnemy = false;
-        public Vector3 lastSeenEnemyPosition = UnityEngine.Vector3.zero;
-        public float TimeSinceSeeingMonster = 0f;
-        public float TimeSinceHittingMonster = 0f;
+        internal EnemyAI? closestEnemy = null;
+        internal EnemyAI? targetEnemy = null;
+        internal bool SeeMovingEnemy = false;
+        internal Vector3 lastSeenEnemyPosition = UnityEngine.Vector3.zero;
+        internal float TimeSinceSeeingMonster = 0f;
+        internal float TimeSinceHittingMonster = 0f;
     }
 
     [HarmonyPatch(typeof(NutcrackerEnemyAI))]

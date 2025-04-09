@@ -15,16 +15,16 @@ using UnityEngine.UIElements;
 namespace NaturalSelection.EnemyPatches
 {
 	
-	class BlobData
+	struct BlobData()
 	{
-        public EnemyAI? closestEnemy = null;
-		public bool playSound = false;
-		public List<EnemyAI> localEnemyList = new List<EnemyAI>();
-		public Dictionary<EnemyAI, float> hitRegistry = new Dictionary<EnemyAI, float>();
+        internal EnemyAI? closestEnemy = null;
+		internal bool playSound = false;
+		internal List<EnemyAI> localEnemyList = new List<EnemyAI>();
+		internal Dictionary<EnemyAI, float> hitRegistry = new Dictionary<EnemyAI, float>();
     }
 
 	[HarmonyPatch(typeof(BlobAI))]
-	public class BlobAIPatch
+	class BlobAIPatch
 	{
 		static Dictionary<BlobAI, BlobData> slimeList = [];
 		static bool logBlob = Script.BoundingConfig.debugHygrodere.Value;
@@ -47,13 +47,13 @@ namespace NaturalSelection.EnemyPatches
 			{
 				__instance.openDoorSpeedMultiplier = 0f;
 			}
-            ///////////////////////////////////////Networking
+            BlobData blobData = slimeList[__instance];
 
             BlobEatCorpseEvent(__instance).OnClientReceived += EventReceived;
 
             void EventReceived()
             {
-				slimeList[__instance].playSound = true;
+				blobData.playSound = true;
                 //Script.Logger.LogMessage("Received event. Changed value to " + blobData.playSound + ", eventLimiter: " + eventLimiter);
             }
         }

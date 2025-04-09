@@ -8,12 +8,12 @@ using NaturalSelection.Generics;
 
 namespace NaturalSelection.EnemyPatches
 {
-    class GiantData
+    struct GiantData()
     {
-        public bool logGiant = Script.BoundingConfig.debugGiants.Value;
-        static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
-        public int extinguished = 0;
-        public bool setFireOnKill = false;
+        internal bool logGiant = Script.BoundingConfig.debugGiants.Value;
+        internal static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
+        internal int extinguished = 0;
+        internal bool setFireOnKill = false;
     }
 
     [HarmonyPatch(typeof(ForestGiantAI))]
@@ -47,8 +47,7 @@ namespace NaturalSelection.EnemyPatches
             {
                 giantDictionary.Add(__instance, new GiantData());
             }
-            ////////////////////////////////////////////////////////////////////////////////////NETWORKING
-
+            GiantData data =giantDictionary[__instance];
             NetworkSetGiantOnFire(__instance).OnServerReceived += UpdateSetGiantOnFireServer;
             //NetworkSetGiantOnFire(__instance).OnClientReceived += UpdateSetGiantOnFire;
 
@@ -71,7 +70,7 @@ namespace NaturalSelection.EnemyPatches
                 __instance.burningParticlesContainer.SetActive(false);
                 __instance.giantBurningAudio.Stop();
                 __instance.creatureAnimator.SetBool("burning", false);
-                giantDictionary[__instance].extinguished = 1;
+                data.extinguished = 1;
             }
         }
 

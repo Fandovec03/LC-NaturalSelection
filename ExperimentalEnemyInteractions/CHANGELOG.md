@@ -1,5 +1,9 @@
 # Experimental Enemy Interactions
 
+## 0.5.3
+
+
+
 ## 0.5.2
 
 - Blacklists now generate automatically after booting up

@@ -8,17 +8,17 @@ using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches
 {
-    class BeeValues
+    struct BeeValues()
     {
-        public EnemyAI? closestEnemy = null;
-        public EnemyAI? targetEnemy = null;
-        public Vector3 lastKnownEnemyPosition = Vector3.zero;
-        public int customBehaviorStateIndex = 0;
-        public Dictionary<EnemyAI, float> hitRegistry = new Dictionary<EnemyAI, float>();
-        public float LostLOSOfEnemy = 0f;
-        public List<Type> enemyTypes = new List<Type>();
-        public float delayTimer = 0.2f;
-        public List<EnemyAI> localEnemyList = new List<EnemyAI>();
+        internal EnemyAI? closestEnemy = null;
+        internal EnemyAI? targetEnemy = null;
+        internal Vector3 lastKnownEnemyPosition = Vector3.zero;
+        internal int customBehaviorStateIndex = 0;
+        internal Dictionary<EnemyAI, float> hitRegistry = new Dictionary<EnemyAI, float>();
+        internal float LostLOSOfEnemy = 0f;
+        internal List<Type> enemyTypes = new List<Type>();
+        internal float delayTimer = 0.2f;
+        internal List<EnemyAI> localEnemyList = new List<EnemyAI>();
     }
 
 

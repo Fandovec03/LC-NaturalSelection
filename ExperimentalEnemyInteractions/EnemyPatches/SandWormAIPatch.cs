@@ -9,14 +9,14 @@ using System.Linq;
 
 namespace NaturalSelection.EnemyPatches
 {
-    class ExtendedSandWormAIData
+    struct ExtendedSandWormAIData()
     {
-        public float refreshCDtime = 0.5f;
-        public EnemyAI? closestEnemy = null;
-        public EnemyAI? targetEnemy = null;
+        internal float refreshCDtime = 0.5f;
+        internal EnemyAI? closestEnemy = null;
+        internal EnemyAI? targetEnemy = null;
         //public int targetingEntity = 0;
-        public float clearEnemiesTimer = 0f;
-        public List<EnemyAI> localEnemyList = new List<EnemyAI>();
+        internal float clearEnemiesTimer = 0f;
+        internal List<EnemyAI> localEnemyList = new List<EnemyAI>();
     }
 
     [HarmonyPatch(typeof(SandWormAI))]

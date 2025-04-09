@@ -9,14 +9,14 @@ using System.Net;
 
 namespace NaturalSelection.EnemyPatches
 {
-    class SpiderData
+    public struct SpiderData()
     {
-        public EnemyAI? closestEnemy = null;
-        public EnemyAI? targetEnemy = null;
-        public List<EnemyAI> knownEnemy = new List<EnemyAI>();
-        public List<EnemyAI> deadEnemyBodies = new List<EnemyAI>();
-        public float LookAtEnemyTimer = 0f;
-        public Dictionary<EnemyAI,float> enemiesInLOSDictionary = new Dictionary<EnemyAI, float>();   
+        internal EnemyAI? closestEnemy = null;
+        internal EnemyAI? targetEnemy = null;
+        internal List<EnemyAI> knownEnemy = new List<EnemyAI>();
+        internal List<EnemyAI> deadEnemyBodies = new List<EnemyAI>();
+        internal float LookAtEnemyTimer = 0f;
+        internal Dictionary<EnemyAI,float> enemiesInLOSDictionary = new Dictionary<EnemyAI, float>();   
     }
 
     [HarmonyPatch(typeof(SandSpiderAI))]
@@ -116,11 +116,11 @@ namespace NaturalSelection.EnemyPatches
 
                             if (spiderData.targetEnemy != spiderData.closestEnemy && spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f, __instance.eye))
                             {
-                                if (spiderData.targetEnemy is HoarderBugAI && spiderData.closestEnemy is not HoarderBugAI && (Vector3.Distance(__instance.meshContainer.position, spiderData.targetEnemy.transform.position) * 1.2f < Vector3.Distance(__instance.meshContainer.position, spiderData.closestEnemy.transform.position)))
+                                /*if (spiderData.targetEnemy is HoarderBugAI && spiderData.closestEnemy is not HoarderBugAI && (Vector3.Distance(__instance.meshContainer.position, spiderData.targetEnemy.transform.position) * 1.2f < Vector3.Distance(__instance.meshContainer.position, spiderData.closestEnemy.transform.position)))
                                 {
                                     spiderData.targetEnemy = spiderData.closestEnemy;
                                 }
-                                else
+                                else*/
                                 {
                                     spiderData.targetEnemy = spiderData.closestEnemy;
                                 }
@@ -295,7 +295,7 @@ namespace NaturalSelection.EnemyPatches
                         {
                             for (int i = 0; i < tempList.Count; i++)
                             {
-                                if (Vector3.Distance(Ins.meshContainer.position, tempList[i].transform.position) < 5f || tempList[i] is HoarderBugAI)
+                                if (Vector3.Distance(Ins.meshContainer.position, tempList[i].transform.position) < 5f /*|| tempList[i] is HoarderBugAI*/)
                                 {
                                     ChaseEnemy(__instance, tempList[i]);
                                     if (debugSpider) Script.Logger.LogDebug($"{EnemyAIPatch.DebugStringHead(__instance)} DoAIInterval Postfix: /case1/ Chasing enemy: {tempList[i]}");

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches
 {
-    public class OnCollideWithUniversal
+    class OnCollideWithUniversal
     {
         static bool enableSpider = Script.BoundingConfig.enableSpider.Value;
         static bool enableSlime = Script.BoundingConfig.enableSlime.Value;

@@ -3,15 +3,15 @@ using System.Collections.Generic;
 
 namespace NaturalSelection.EnemyPatches
 {
-    class HoarderBugValues
+    struct HoarderBugValues()
     {
-        public EnemyAI? targetEnemy = null;
-        public EnemyAI? closestEnemy = null;
-        public bool alertedByEnemy = false;
-        public List<EnemyAI> enemies = new List<EnemyAI>();
-        public List<EnemyAI> enemiesInLOS = new List<EnemyAI>();
-        public bool limitSpeed = false;
-        public float limitedSpeed = 0f;
+        internal EnemyAI? targetEnemy = null;
+        internal EnemyAI? closestEnemy = null;
+        internal bool alertedByEnemy = false;
+        internal List<EnemyAI> enemies = new List<EnemyAI>();
+        internal List<EnemyAI> enemiesInLOS = new List<EnemyAI>();
+        internal bool limitSpeed = false;
+        internal float limitedSpeed = 0f;
     }
 
 

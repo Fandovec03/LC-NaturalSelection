@@ -8,11 +8,11 @@ using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches
 {
-    class SpiderWebValues
+    struct SpiderWebValues()
     {
-        public EnemyAI? trappedEnemy = null;
-        public EnemyAI? enemyReference = null;
-        public float enemyReferenceTimer = 0f;
+        internal EnemyAI? trappedEnemy = null;
+        internal EnemyAI? enemyReference = null;
+        internal float enemyReferenceTimer = 0f;
     }
 
 
@@ -29,7 +29,8 @@ namespace NaturalSelection.EnemyPatches
 
         static Dictionary<SandSpiderWebTrap, SpiderWebValues> spiderWebs = new Dictionary<SandSpiderWebTrap, SpiderWebValues>();
         static Dictionary<EnemyAI, EnemyInfo> enemyData = new Dictionary<EnemyAI, EnemyInfo>();
-
+        static bool debugLogs = Script.BoundingConfig.debugBool.Value;
+        static bool debugWebs = Script.BoundingConfig.debugSpiderWebs.Value;
         static Dictionary<string, float> speedModifierDictionary = InitializeGamePatch.speedModifierDictionay;
         static List<string> spiderWebBlacklist = Script.BoundingConfig.spiderWebBlacklist.Value.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList();
 
@@ -78,10 +79,10 @@ namespace NaturalSelection.EnemyPatches
                 if (!enemyData[trippedEnemy].NumberOfTraps.Contains(__instance))
                 {
                     enemyData[trippedEnemy].NumberOfTraps.Add(__instance);
-                    Script.Logger.LogInfo($"Added instance to NumberOfWebTraps {enemyData[trippedEnemy].NumberOfTraps.Count}");
+                    if (debugLogs) Script.Logger.LogInfo($"Added instance to NumberOfWebTraps {enemyData[trippedEnemy].NumberOfTraps.Count}");
                 }
 
-                if (Script.BoundingConfig.debugSpiderWebs.Value) Script.Logger.LogDebug($"{__instance} Collided with {trippedEnemy}");
+                if (debugWebs) Script.Logger.LogDebug($"{__instance} Collided with {trippedEnemy}");
 
                 trippedEnemy.agent.speed = (enemyData[trippedEnemy].EnterAgentSpeed / (1 + enemyData[trippedEnemy].NumberOfTraps.Count)) * SpeedModifier;
                 trippedEnemy.creatureAnimator.speed = (enemyData[trippedEnemy].EnterAnimationSpeed / (1 + enemyData[trippedEnemy].NumberOfTraps.Count)) * SpeedModifier;
@@ -150,7 +151,7 @@ namespace NaturalSelection.EnemyPatches
 
             if (webData.enemyReference != null && webData.enemyReference != webData.trappedEnemy && enemyData.ContainsKey(webData.enemyReference) && enemyData[webData.enemyReference].NumberOfTraps.Count <= 0)
             {
-                Script.Logger.LogInfo($"Removing {webData.enemyReference} from NumberOfWebTraps {enemyData[webData.enemyReference].NumberOfTraps.Count}");
+                if(debugLogs) Script.Logger.LogInfo($"Removing {webData.enemyReference} from NumberOfWebTraps {enemyData[webData.enemyReference].NumberOfTraps.Count}");
                 enemyData.Remove(webData.enemyReference);
                 webData.enemyReference = null;
                 webData.enemyReferenceTimer = 0;
@@ -171,9 +172,9 @@ namespace NaturalSelection.EnemyPatches
                 if (enemyData[trippedEnemy].NumberOfTraps.Contains(__instance))
                 {
                     enemyData[trippedEnemy].NumberOfTraps.Remove(__instance);
-                    Script.Logger.LogInfo($"Removed instance to NumberOfWebTraps {enemyData[trippedEnemy].NumberOfTraps.Count}");
+                    if (debugLogs) Script.Logger.LogInfo($"Removed instance to NumberOfWebTraps {enemyData[trippedEnemy].NumberOfTraps.Count}");
                 }
-                Script.Logger.LogInfo($"Removing {trippedEnemy}");
+                if (debugLogs && debugWebs) Script.Logger.LogInfo($"Removing {trippedEnemy}");
                 //trippedEnemy.agent.speed = enemyData[trippedEnemy].EnterAgentSpeed;
 
                 trippedEnemy.creatureAnimator.speed = enemyData[trippedEnemy].EnterAnimationSpeed;

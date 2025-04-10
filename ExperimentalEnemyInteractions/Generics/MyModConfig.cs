@@ -42,6 +42,7 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<string> blobBlacklist;
     public readonly ConfigEntry<string> sandwormBlacklist;
     public readonly ConfigEntry<string> spiderWebBlacklist;
+    public readonly ConfigEntry<string> spiderBlacklist;
     //debug
     public readonly ConfigEntry<bool> debugBool;
     public readonly ConfigEntry<bool> spammyLogs;
@@ -92,10 +93,11 @@ namespace NaturalSelection.Generics;
             chaseAfterEnemiesModifier = cfg.Bind("Entity settings", "Chase after enemies modifier", 3f, "Modifies long enemy chases after other entities. Enemy chases after enemies for 3x shorter time than players on default settings.");
             speedModifierList = cfg.Bind("Entity settings", "Web speed modifiers", "", "Modifies speed of enemy in web. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:Speed ] \n This config generates automatically.");
             //blacklists
-            beeBlacklist = cfg.Bind("Blacklists", "Bees Blacklist", "", "Any enemy inside the blacklist will be ignored by others. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:True/False ] \n This config generates automatically.");
-            blobBlacklist = cfg.Bind("Blacklists", "Blob Blacklist", "", "Any enemy inside the blacklist will be ignored by others. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:True/False ] \n This config generates automatically.");
-            sandwormBlacklist = cfg.Bind("Blacklists", "Sandworm Blacklist", "", "Any enemy inside the blacklist will be ignored by others. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:True/False ] \n This config generates automatically.");
-            spiderWebBlacklist = cfg.Bind("Blacklists", "Web blacklist", "", "Any enemy inside the blacklist will be ignored by the webs. \n \n [The ',' acts as a separator]");
+            beeBlacklist = cfg.Bind("Blacklists", "Bees Blacklist", "", "Any enemy inside the blacklist will be ignored by circuit bees. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:True/False ] \n This config generates automatically.");
+            blobBlacklist = cfg.Bind("Blacklists", "Blob Blacklist", "", "Any enemy inside the blacklist will be ignored by hygroderes. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:True/False ] \n This config generates automatically.");
+            sandwormBlacklist = cfg.Bind("Blacklists", "Sandworm Blacklist", "", "Any enemy inside the blacklist will be ignored by sandworms. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:True/False ] \n This config generates automatically.");
+            spiderWebBlacklist = cfg.Bind("Blacklists", "Web blacklist", "", "Any enemy inside the blacklist will be ignored by webs. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:True/False ] \n This config generates automatically.");
+            spiderBlacklist = cfg.Bind("Blacklists", "Spider blacklist", "", "Any enemy inside the blacklist will be ignored by spider. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:True/False ] \n This config generates automatically.");
             //debug
             debugBool = cfg.Bind("Debug","Debug mode",false,"Enables debug mode for more debug logs.");
             spammyLogs = cfg.Bind("Debug","Spammy logs",false,"Enables spammy logs for extra logs.");

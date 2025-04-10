@@ -14,8 +14,8 @@ namespace NaturalSelection.Generics
         static float nextUpdate = 0;
         static Dictionary<Type, List<EnemyAI>> checkedTypes = new Dictionary<Type, List<EnemyAI>>();
         public static float updateListInterval = 1f;
-        static bool logSpam = Script.BoundingConfig.spammyLogs.Value;
-        static bool logUnspecified = Script.BoundingConfig.debugUnspecified.Value;
+        static bool logSpam = Script.spammyLogs;
+        static bool logUnspecified = Script.debugUnspecified;
 
         [HarmonyPatch("Update")]
         [HarmonyPrefix]
@@ -37,13 +37,13 @@ namespace NaturalSelection.Generics
             if (!checkedTypes.ContainsKey(instance.GetType()) && instance.IsOwner)
             {
                 checkedTypes.Add(instance.GetType(), new List<EnemyAI>());
-                if (logUnspecified && logSpam) Script.Logger.LogMessage($"/RoundManager/ request was Accepted. Requested by {EnemyAIPatch.DebugStringHead(instance)} at {Time.realtimeSinceStartup}");
+                if (logUnspecified && logSpam) Script.Logger.LogMessage($"/RoundManager/ request was Accepted. Requested by {LibraryCalls.DebugStringHead(instance)} at {Time.realtimeSinceStartup}");
                 return true;
             }
             else
             {
                 if (logUnspecified && logSpam && !instance.IsOwner) Script.Logger.LogDebug("/RoundManager/ request was Denied. Not owner of the instance.");
-                else if (logUnspecified && logSpam) Script.Logger.LogDebug($"/RoundManager/ request was Denied. Requested by {EnemyAIPatch.DebugStringHead(instance)} at {Time.realtimeSinceStartup}");
+                else if (logUnspecified && logSpam) Script.Logger.LogDebug($"/RoundManager/ request was Denied. Requested by {LibraryCalls.DebugStringHead(instance)} at {Time.realtimeSinceStartup}");
                 return false;
             }
         }
@@ -56,7 +56,7 @@ namespace NaturalSelection.Generics
             }
             if (!NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists.ContainsKey(instance.GetType()))
             {
-                Script.Logger.LogWarning(EnemyAIPatch.DebugStringHead(instance) + "global enemy list for this enemy does not exist! Creating a new one.");
+                Script.Logger.LogWarning(LibraryCalls.DebugStringHead(instance) + "global enemy list for this enemy does not exist! Creating a new one.");
                 NaturalSelectionLib.NaturalSelectionLib.UpdateListInsideDictionrary(instance.GetType(), checkedTypes[instance.GetType()]);
             }
         }

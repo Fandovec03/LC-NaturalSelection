@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Reflection.Emit;
 using GameNetcodeStuff;
 using HarmonyLib;
-using LethalNetworkAPI;
-using UnityEngine;
+using NaturalSelection.Generics;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -18,9 +17,7 @@ namespace NaturalSelection.EnemyPatches
     [HarmonyPatch(typeof(EnemyAI))]
     class EnemyAIPatch
     {
-        static bool debugUnspecified = Script.BoundingConfig.debugUnspecified.Value;
-        static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
-        static bool debugTriggerFlag = Script.BoundingConfig.debugTriggerFlags.Value;
+        static bool debugUnspecified = Script.debugUnspecified;
         static Dictionary<EnemyAI, EnemyData> enemyData = [];
 
         [HarmonyPatch("Start")]
@@ -34,6 +31,7 @@ namespace NaturalSelection.EnemyPatches
             __instance.agent.radius = __instance.agent.radius * Script.BoundingConfig.agentRadiusModifier.Value;
             if (debugUnspecified) Script.Logger.LogMessage($"Modified agent radius. Original: {enemyData[__instance].originalAgentRadius}, Modified: {__instance.agent.radius}");
         }
+        /*
         public static string DebugStringHead(EnemyAI? instance)
         {
             //if (debugSpam && debugTriggerFlag && debugUnspecified) Script.Logger.LogInfo("Called library!");
@@ -76,7 +74,7 @@ namespace NaturalSelection.EnemyPatches
             if (debugSpam && debugTriggerFlag && debugUnspecified) Script.Logger.LogInfo("Called library GetEnemiesInLOS!");
             return NaturalSelectionLib.NaturalSelectionLib.GetEnemiesInLOS(instance, importEnemyList, width, importRange, proximityAwareness);
         }
-
+        */
         static public int ReactToHit(int force = 0, EnemyAI? enemyAI = null, PlayerControllerB? player = null)
         {
             if (force > 0)
@@ -99,7 +97,7 @@ namespace NaturalSelection.EnemyPatches
             {
                 playerString = $"{playerWhoHit.playerUsername}(SteamID: {playerWhoHit.playerSteamId}, playerClientID: {playerWhoHit.playerClientId})";
             }
-            Script.Logger.LogInfo($"{DebugStringHead(__instance)} registered hit by {playerString} with force of {force}. playHitSFX:{playHitSFX}, hitID:{hitID}.");
+            Script.Logger.LogInfo($"{LibraryCalls.DebugStringHead(__instance)} registered hit by {playerString} with force of {force}. playHitSFX:{playHitSFX}, hitID:{hitID}.");
         }
     }
 

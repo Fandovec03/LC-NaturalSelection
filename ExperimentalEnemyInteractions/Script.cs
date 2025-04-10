@@ -21,7 +21,22 @@ public class Script : BaseUnityPlugin
 
     internal static MyModConfig BoundingConfig { get; set; } = null!;
     internal static bool stableToggle;
-    internal static bool isExperimental;
+    internal static bool isExperimental = false;
+
+    internal static bool debugBool = false;
+    internal static bool spammyLogs = false;
+    internal static bool debugNetworking = false;
+    internal static bool debugLibrary = false;
+    internal static bool debugTriggerFlags = false;
+    internal static bool debugGiants = false;
+    internal static bool debugHygrodere = false;
+    internal static bool debugNutcrackers = false;
+    internal static bool debugRedBees = false;
+    internal static bool debugSandworms = false;
+    internal static bool debugSpiders = false;
+    internal static bool debugSpiderWebs = false;
+    internal static bool debugUnspecified = false;
+
     private void Awake()
     {
         Logger = base.Logger;
@@ -29,6 +44,22 @@ public class Script : BaseUnityPlugin
 
         BoundingConfig = new MyModConfig(base.Config);
         stableToggle = BoundingConfig.stableMode.Value;
+
+        debugBool = BoundingConfig.debugBool.Value;
+        spammyLogs = BoundingConfig.spammyLogs.Value;
+        debugNetworking = BoundingConfig.debugNetworking.Value;
+        debugLibrary = BoundingConfig.debugLibrary.Value;
+        debugTriggerFlags = BoundingConfig.debugTriggerFlags.Value;
+        debugGiants = BoundingConfig.debugGiants.Value;
+        debugHygrodere = BoundingConfig.debugHygrodere.Value;
+        debugNutcrackers = BoundingConfig.debugNutcrackers.Value;
+        debugRedBees = BoundingConfig.debugRedBees.Value;
+        debugSandworms = BoundingConfig.debugSandworms.Value;
+        debugSpiders = BoundingConfig.debugSpiders.Value;
+        debugSpiderWebs = BoundingConfig.debugSpiderWebs.Value;
+        debugUnspecified = BoundingConfig.debugUnspecified.Value;
+
+
         if (MyPluginInfo.PLUGIN_VERSION.Contains("99"))
         {
             isExperimental = true;
@@ -56,7 +87,7 @@ public class Script : BaseUnityPlugin
 
         try
         {
-            NaturalSelectionLib.NaturalSelectionLib.LibrarySetup(Logger, BoundingConfig.spammyLogs.Value, BoundingConfig.debugLibrary.Value);
+            NaturalSelectionLib.NaturalSelectionLib.LibrarySetup(Logger, spammyLogs, debugLibrary);
             Logger.LogMessage($"Library successfully setup! Version {NaturalSelectionLib.NaturalSelectionLib.ReturnVersion()}");
         }
         catch

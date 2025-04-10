@@ -2,7 +2,26 @@
 
 ## 0.5.3
 
+- Updated README
+    - Added link to stable version
+- Added blacklist for bunker spider
 
+### Bug fixes
+
+- Fixed passing blacklist entries to library in unreadable format
+- Fixed variables getting blacklist entries from incorrect source
+- Few more bugs related to blacklists
+
+### Internal
+
+- Moved Calls to the library to its own class
+- Updated config generation
+    - Sorted code into functions
+    - Enemies are put into secondary list on failing to get their name for later 2nd attempt
+
+### Known issues
+
+- Spider web doesn't visually stick onto enemies
 
 ## 0.5.2
 

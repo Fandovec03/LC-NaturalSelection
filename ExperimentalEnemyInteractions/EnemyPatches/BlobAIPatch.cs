@@ -27,8 +27,8 @@ namespace NaturalSelection.EnemyPatches
 	class BlobAIPatch
 	{
 		static Dictionary<BlobAI, BlobData> slimeList = [];
-		static bool logBlob = Script.BoundingConfig.debugHygrodere.Value;
-        static List<string> blacklist = Script.BoundingConfig.blobBlacklist.Value.ToUpper().Split(",", StringSplitOptions.RemoveEmptyEntries).ToList();
+		static bool logBlob = Script.debugHygrodere;
+        static List<string> blacklist = InitializeGamePatch.blobBlacklistDictionay.Keys.ToList();
         static LNetworkEvent BlobEatCorpseEvent(BlobAI instance)
 		{
             string NWID = "NSSlimeEatEvent" + instance.NetworkObjectId;
@@ -101,13 +101,13 @@ namespace NaturalSelection.EnemyPatches
             }
 			if (RoundManagerPatch.RequestUpdate(__instance) == true)
 			{
-				List<EnemyAI> tempList = EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 1), null, blacklist, __instance, false, true).ToList();
+				List<EnemyAI> tempList = LibraryCalls.FilterEnemyList(LibraryCalls.GetCompleteList(__instance, true, 1), null, blacklist, __instance, false, true).ToList();
                 RoundManagerPatch.ScheduleGlobalListUpdate(__instance, tempList);
 			}
 			if (__instance.IsOwner)
 			{
-				blobData.localEnemyList = EnemyAIPatch.GetInsideOrOutsideEnemyList(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type], __instance).ToList();
-				blobData.closestEnemy = EnemyAIPatch.FindClosestEnemy(blobData.localEnemyList, blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
+				blobData.localEnemyList = LibraryCalls.GetInsideOrOutsideEnemyList(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type], __instance).ToList();
+				blobData.closestEnemy = LibraryCalls.FindClosestEnemy(blobData.localEnemyList, blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
             }
 
 			if (blobData.playSound)

@@ -10,8 +10,8 @@ namespace NaturalSelection.EnemyPatches
 {
     struct GiantData()
     {
-        internal bool logGiant = Script.BoundingConfig.debugGiants.Value;
-        internal static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
+        internal bool logGiant = Script.debugGiants;
+        internal static bool debugSpam = Script.spammyLogs;
         internal int extinguished = 0;
         internal bool setFireOnKill = false;
     }
@@ -83,7 +83,7 @@ namespace NaturalSelection.EnemyPatches
             {
                 __instance.burningParticlesContainer.SetActive(true);
             }
-            if (giantDaata.logGiant) Script.Logger.LogInfo(EnemyAIPatch.DebugStringHead(__instance));
+            if (giantDaata.logGiant) Script.Logger.LogInfo(LibraryCalls.DebugStringHead(__instance));
         }
 
         [HarmonyPatch("Update")]
@@ -130,11 +130,11 @@ namespace NaturalSelection.EnemyPatches
                 if (randomNumber <= Script.BoundingConfig.giantExtinguishChance.Value)
                 {
                     NetworkExtinguish(__instance).InvokeClients();
-                    Script.Logger.LogInfo($"{EnemyAIPatch.DebugStringHead(__instance)} successfully extinguished itself. Skipping Update. Rolled {randomNumber}");
+                    Script.Logger.LogInfo($"{LibraryCalls.DebugStringHead(__instance)} successfully extinguished itself. Skipping Update. Rolled {randomNumber}");
                 }
                 else
                 {
-                    Script.Logger.LogInfo($"{EnemyAIPatch.DebugStringHead(__instance)} failed to extinguish itself. rolled {randomNumber}");
+                    Script.Logger.LogInfo($"{LibraryCalls.DebugStringHead(__instance)} failed to extinguish itself. rolled {randomNumber}");
                     giantData.extinguished = 2;
                 }
             }

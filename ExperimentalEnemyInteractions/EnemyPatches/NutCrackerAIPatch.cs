@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
+using NaturalSelection.Generics;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -54,9 +55,9 @@ namespace NaturalSelection.EnemyPatches
         {
             NutcrackerData data = NutcrackerData[__instance];
 
-            enemyList = EnemyAIPatch.GetInsideOrOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance),__instance);
+            enemyList = LibraryCalls.GetInsideOrOutsideEnemyList(LibraryCalls.GetCompleteList(__instance),__instance);
 
-            data.closestEnemy = EnemyAIPatch.FindClosestEnemy(enemyList, data.closestEnemy, __instance);
+            data.closestEnemy = LibraryCalls.FindClosestEnemy(enemyList, data.closestEnemy, __instance);
 
 
             if (__instance.currentBehaviourStateIndex == 1)

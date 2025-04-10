@@ -9,7 +9,7 @@ namespace NaturalSelection.Generics
     public class Networking
     {
         public static Dictionary<string, int> NetworkingDictionary = new Dictionary<string, int>();
-        static bool logNetworking = Script.BoundingConfig.debugNetworking.Value;
+        static bool logNetworking = Script.debugNetworking;
 
         public static LNetworkVariable<float> NSEnemyNetworkVariableFloat(string NWID)
         {

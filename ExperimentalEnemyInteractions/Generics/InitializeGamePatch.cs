@@ -50,6 +50,9 @@ namespace NaturalSelection.Generics
                 WriteToConfigLists();
             }
 
+            LibraryCalls.SubscribeToConfigChanges();
+            Networking.SubscribeToConfigChanges();
+
             finishedLoading = true;
         }
 

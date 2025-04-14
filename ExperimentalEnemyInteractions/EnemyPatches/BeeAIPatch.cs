@@ -26,10 +26,27 @@ namespace NaturalSelection.EnemyPatches
     class BeeAIPatch
     {
         static Dictionary<RedLocustBees, BeeValues> beeList = [];
-        static bool logBees = Script.debugRedBees;
-        static bool debugSpam = Script.spammyLogs;
-        static bool debugTriggers = Script.debugTriggerFlags;
-        static List<string> beeBlacklist = InitializeGamePatch.beeBlacklistFinal; 
+        static bool logBees = Script.Bools["debugRedBees"];
+        static bool debugSpam = Script.Bools["spammyLogs"];
+        static bool debugTriggers = Script.Bools["debugTriggerFlags"];
+        static List<string> beeBlacklist = InitializeGamePatch.beeBlacklistFinal;
+
+        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        {
+            if (boolName == "debugRedBees")
+            {
+                logBees = newValue;
+            }
+            if (boolName == "spammyLogs")
+            {
+                debugSpam = newValue;
+            }
+            if (boolName == "debugTriggerFlags")
+            {
+                debugTriggers = newValue;
+            }
+            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+        }
 
         [HarmonyPatch("Start")]
         [HarmonyPostfix]
@@ -46,6 +63,8 @@ namespace NaturalSelection.EnemyPatches
                 beeData.enemyTypes.Add(typeof(DocileLocustBeesAI));
                 beeData.enemyTypes.Add(typeof(SandWormAI));
             }
+
+            Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
 
         [HarmonyPatch("Update")]
@@ -351,7 +370,7 @@ namespace NaturalSelection.EnemyPatches
 
         public static void OnCustomEnemyCollision(RedLocustBees __instance, EnemyAI mainscript2)
         {
-            if (beeList.ContainsKey(__instance))
+            if (beeList.ContainsKey(__instance) && !beeBlacklist.Contains(mainscript2.enemyType.enemyName))
             {
                 if ((!beeList[__instance].hitRegistry.ContainsKey(mainscript2) ||beeList[__instance].hitRegistry[mainscript2] > 1.7f) && __instance.currentBehaviourStateIndex > 0 && !mainscript2.isEnemyDead || (!beeList[__instance].hitRegistry.ContainsKey(mainscript2) || beeList[__instance].hitRegistry[mainscript2] > 1.2f) && __instance.currentBehaviourStateIndex == 2 && !mainscript2.isEnemyDead)
                 {

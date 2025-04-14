@@ -21,9 +21,9 @@ namespace NaturalSelection.EnemyPatches
     {
         static List<EnemyAI> enemyList = new List<EnemyAI>();
         static Dictionary<NutcrackerEnemyAI, NutcrackerData> NutcrackerData = [];
-        static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
-        static bool debugNutcrackers = Script.BoundingConfig.debugNutcrackers.Value;
-        static bool debugTriggerFlags = Script.debugTriggerFlags;
+        static bool debugSpam = Script.Bools["spammyLogs"];
+        static bool debugNutcrackers = Script.Bools["debugNutcrackers"];
+        static bool debugTriggerFlags = Script.Bools["debugTriggerFlags"];
 
         static public bool CheckLOSForMonsters(Vector3 monsterPosition, NutcrackerEnemyAI __instance, float width = 45f, int range = 60, int proximityAwareness = 60)
         {
@@ -38,7 +38,22 @@ namespace NaturalSelection.EnemyPatches
             return false;
         }
 
-
+        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        {
+            if (boolName == "debugNutcrackers")
+            {
+                debugNutcrackers = newValue;
+            }
+            if (boolName == "debugTriggerFlags")
+            {
+                debugTriggerFlags = newValue;
+            }
+            if (boolName == "spammyLogs")
+            {
+                debugSpam = newValue;
+            }
+            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+        }
 
         [HarmonyPatch("Start")]
         [HarmonyPostfix]
@@ -48,6 +63,7 @@ namespace NaturalSelection.EnemyPatches
             {
                 NutcrackerData.Add(__instance, new NutcrackerData());
             }
+            Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
 
         [HarmonyPatch("Update")]

@@ -19,7 +19,16 @@ namespace NaturalSelection.EnemyPatches
     class HoarderBugPatch()
     {
         static Dictionary<HoarderBugAI, HoarderBugValues> hoarderBugList = [];
-        static bool triggerFlag = Script.debugTriggerFlags;
+        static bool triggerFlag = Script.Bools["debugTriggerFlags"];
+
+        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        {
+            if (boolName == "debugTriggerFlags")
+            {
+                triggerFlag = newValue;
+            }
+            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+        }
 
         public static void CustomOnHit(int force, EnemyAI enemyWhoHit, bool playHitSFX, HoarderBugAI __instance)
         {
@@ -49,6 +58,8 @@ namespace NaturalSelection.EnemyPatches
             {
                 hoarderBugList.Add(__instance, new HoarderBugValues());
             }
+
+            Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
         
         [HarmonyPatch("Update")]

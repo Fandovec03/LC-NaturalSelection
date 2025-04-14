@@ -3,9 +3,7 @@ using HarmonyLib;
 using UnityEngine;
 using System.Linq;
 using NaturalSelection.Generics;
-using static NaturalSelection.EnemyPatches.SpiderWebValues;
 using System;
-using System.Net;
 using LethalNetworkAPI;
 
 namespace NaturalSelection.EnemyPatches
@@ -28,8 +26,9 @@ namespace NaturalSelection.EnemyPatches
         static float chaseModifier = Script.BoundingConfig.chaseAfterEnemiesModifier.Value;
 
         static Dictionary<SandSpiderAI, SpiderData> spiderList = [];
-        static bool debugSpider = Script.debugSpiders;
-        static bool debugSpam = Script.spammyLogs;
+        static bool debugSpider = Script.Bools["debugSpiders"];
+        static bool debugSpam = Script.Bools["spammyLogs"];
+        static bool debugTriggerFlag = Script.Bools["debugTriggerFlags"];
         static List<string> spiderBlacklist = InitializeGamePatch.spiderBlacklistFinal;
 
         static LNetworkVariable<int> NetworkSpiderBehaviorState(SandSpiderAI instance)
@@ -38,6 +37,23 @@ namespace NaturalSelection.EnemyPatches
             return Networking.NSEnemyNetworkVariableInt(NWID);
         }
 
+
+        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        {
+            if (boolName == "debugSpiders")
+            {
+                debugSpider = newValue;
+            }
+            if (boolName == "spammyLogs")
+            {
+                debugSpam = newValue;
+            }
+            if (boolName == "debugTriggerFlags")
+            {
+                debugTriggerFlag = newValue;
+            }
+            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+        }
 
         [HarmonyPatch("Start")]
         [HarmonyPrefix]
@@ -48,6 +64,8 @@ namespace NaturalSelection.EnemyPatches
                 spiderList.Add(__instance, new SpiderData());
                 SpiderData spiderData = spiderList[__instance];
             }
+
+            Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
         [HarmonyPatch("Update")]
         [HarmonyPrefix]
@@ -346,6 +364,30 @@ namespace NaturalSelection.EnemyPatches
                         }
                         break;
                     }
+            }
+        }
+        public static void OnCustomEnemyCollision(SandSpiderAI __instance, EnemyAI mainscript2)
+        {
+            if (spiderList.ContainsKey(__instance) && __instance.currentBehaviourStateIndex == 2 && !mainscript2.isEnemyDead && !spiderBlacklist.Contains(mainscript2.enemyType.enemyName))
+            {
+                if (debugSpider && debugTriggerFlag) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} timeSinceHittingPlayer: {__instance.timeSinceHittingPlayer}");
+                if (__instance.timeSinceHittingPlayer > 1f)
+                {
+                    __instance.timeSinceHittingPlayer = 0f;
+                    __instance.creatureSFX.PlayOneShot(__instance.attackSFX);
+
+                    if (mainscript2.enemyHP > 2)
+                    {
+                        mainscript2.HitEnemy(2, null, playHitSFX: true);
+
+                    }
+                    else if (mainscript2.enemyHP > 0)
+                    {
+                        mainscript2.HitEnemy(1, null, playHitSFX: true);
+                    }
+
+                    if (debugSpider && debugTriggerFlag) Script.Logger.LogMessage($"{LibraryCalls.DebugStringHead(__instance)} hit {LibraryCalls.DebugStringHead(mainscript2)}");
+                }
             }
         }
 

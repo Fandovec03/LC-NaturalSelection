@@ -29,23 +29,37 @@ namespace NaturalSelection.EnemyPatches
 
         static Dictionary<SandSpiderWebTrap, SpiderWebValues> spiderWebs = new Dictionary<SandSpiderWebTrap, SpiderWebValues>();
         static Dictionary<EnemyAI, EnemyInfo> enemyData = new Dictionary<EnemyAI, EnemyInfo>();
-        static bool debugLogs = Script.debugBool;
-        static bool debugWebs = Script.debugSpiderWebs;
+        static bool debugLogs = Script.Bools["debugBool"];
+        static bool debugWebs = Script.Bools["debugSpiderWebs"];
         static Dictionary<string, float> speedModifierDictionary = InitializeGamePatch.speedModifierDictionay;
         static List<string> spiderWebBlacklist = InitializeGamePatch.spiderWebBlacklistFinal;
         static float webStrenght = Script.BoundingConfig.webStrength.Value;
 
         static float debugCD = 0.0f;
 
+        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        {
+            if (boolName == "debugSpiderWebs")
+            {
+                debugWebs = newValue;
+            }
+            if (boolName == "debugBool")
+            {
+                debugLogs = newValue;
+            }
+            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+        }
+
         [HarmonyPatch("Awake")]
         [HarmonyPostfix]
         static void AwakePostfix(SandSpiderWebTrap __instance)
         {
-
             if (!spiderWebs.ContainsKey(__instance))
             {
                 spiderWebs.Add(__instance, new SpiderWebValues());
             }
+
+            Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
 
         [HarmonyPatch("OnTriggerStay")]

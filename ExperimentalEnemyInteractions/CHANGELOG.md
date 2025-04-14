@@ -1,5 +1,15 @@
 # Experimental Enemy Interactions
 
+## 0.5.5
+- Updated immortal enemies check to include enemies with set canDie bool to false
+- Enemies no longer collide with blacklisted enemies (with exception of Sandworm)
+- Updated description and README 
+
+### Config
+- **Debug bools now update whenever value is changed ingame**
+    - Csync not required!
+- Updated entries to use AcceptableRange
+
 ## 0.5.4
 
 - Updated Config 

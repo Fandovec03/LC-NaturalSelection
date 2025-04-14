@@ -17,9 +17,23 @@ namespace NaturalSelection.EnemyPatches
     [HarmonyPatch(typeof(EnemyAI))]
     class EnemyAIPatch
     {
-        static bool debugUnspecified = Script.debugUnspecified;
-        static bool debugTriggerFlags = Script.debugTriggerFlags;
+        static bool debugUnspecified = Script.Bools["debugUnspecified"];
+        static bool debugTriggerFlags = Script.Bools["debugTriggerFlags"];
         static Dictionary<EnemyAI, EnemyData> enemyData = [];
+
+        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+
+        {
+            if (boolName == "debugUnspecified")
+            {
+                debugUnspecified = newValue;
+            }
+            if (boolName == "debugTriggerFlags")
+            {
+                debugTriggerFlags = newValue;
+            }
+            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+        }
 
         [HarmonyPatch("Start")]
         [HarmonyPostfix]
@@ -31,6 +45,7 @@ namespace NaturalSelection.EnemyPatches
             data.originalAgentRadius = __instance.agent.radius;
             __instance.agent.radius = __instance.agent.radius * Script.BoundingConfig.agentRadiusModifier.Value;
             if (debugUnspecified && debugTriggerFlags) Script.Logger.LogMessage($"Modified agent radius. Original: {enemyData[__instance].originalAgentRadius}, Modified: {__instance.agent.radius}");
+            Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
 
         static public int ReactToHit(int force = 0, EnemyAI? enemyAI = null, PlayerControllerB? player = null)

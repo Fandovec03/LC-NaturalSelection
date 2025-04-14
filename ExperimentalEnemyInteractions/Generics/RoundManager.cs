@@ -14,9 +14,28 @@ namespace NaturalSelection.Generics
         static float nextUpdate = 0;
         static Dictionary<Type, List<EnemyAI>> checkedTypes = new Dictionary<Type, List<EnemyAI>>();
         public static float updateListInterval = 1f;
-        static bool logSpam = Script.spammyLogs;
-        static bool logUnspecified = Script.debugUnspecified;
+        static bool logSpam = Script.Bools["spammyLogs"];
+        static bool logUnspecified = Script.Bools["debugUnspecified"];
 
+        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        {
+            if (boolName == "spammyLogs")
+            {
+                logSpam = newValue;
+            }
+            if (boolName == "debugUnspecified")
+            {
+                logUnspecified = newValue;
+            }
+            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+        }
+
+        [HarmonyPatch("Awake")]
+        [HarmonyPostfix]
+        static void AwakePostfixPatch()
+        {
+            Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
+        }
         [HarmonyPatch("Update")]
         [HarmonyPrefix]
         static void UpdatePatch()

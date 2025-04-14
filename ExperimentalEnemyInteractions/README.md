@@ -2,7 +2,7 @@
 
 Aimed to make the game's ecosystem feel more alive, immersive and semi-realistic.
 
-The mod adds plenty of interactions between entities by modifying their behaviors, adding some and rewamping entities to make them feel more like an actual living organisms rather than just another dangerous liveforms trying to have a piece of you.
+The mod adds plenty of interactions between entities by modifying their behaviors, adding some and rewamping entities to make them feel more like an actual living organisms rather than just another dangerous liveforms trying to have a piece of you. Or if you just want enemies to kill eachother you can!
 
 Many config options to choose from!
 

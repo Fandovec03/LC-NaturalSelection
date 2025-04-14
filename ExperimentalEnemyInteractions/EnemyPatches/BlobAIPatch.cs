@@ -27,14 +27,28 @@ namespace NaturalSelection.EnemyPatches
 	class BlobAIPatch
 	{
 		static Dictionary<BlobAI, BlobData> slimeList = [];
-		static bool logBlob = Script.debugHygrodere;
-		static bool triggerFlag = Script.debugTriggerFlags;
+		static bool logBlob = Script.Bools["debugHygrodere"];
+		static bool triggerFlag = Script.Bools["debugTriggerFlags"];
         static List<string> blobBlacklist = InitializeGamePatch.blobBlacklistFinal;
         static LNetworkEvent BlobEatCorpseEvent(BlobAI instance)
 		{
             string NWID = "NSSlimeEatEvent" + instance.NetworkObjectId;
             return Networking.NSEnemyNetworkEvent(NWID);
         }
+
+        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        {
+            if (boolName == "debugHygrodere")
+            {
+                logBlob = newValue;
+            }
+            if (boolName == "debugTriggerFlags")
+            {
+                triggerFlag = newValue;
+            }
+            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+        }
+
 
         [HarmonyPatch("Start")]
 		[HarmonyPrefix]
@@ -57,6 +71,8 @@ namespace NaturalSelection.EnemyPatches
 				blobData.playSound = true;
                 //Script.Logger.LogMessage("Received event. Changed value to " + blobData.playSound + ", eventLimiter: " + eventLimiter);
             }
+
+			Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
 		[HarmonyPatch("DoAIInterval")]
 		[HarmonyPrefix]
@@ -123,7 +139,7 @@ namespace NaturalSelection.EnemyPatches
 		{
             BlobData blobData = slimeList[__instance];
 
-            if (!blobData.hitRegistry.ContainsKey(mainscript2))
+            if (!blobData.hitRegistry.ContainsKey(mainscript2) && !blobBlacklist.Contains(mainscript2.enemyType.enemyName))
 			{
 				if (mainscript2.isEnemyDead && IsEnemyImmortal.EnemyIsImmortal(mainscript2) == false && Vector3.Distance(__instance.transform.position, mainscript2.transform.position) <= 2.8f && Script.BoundingConfig.blobConsumesCorpses.Value)
 				{

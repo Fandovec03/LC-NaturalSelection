@@ -5,8 +5,26 @@ namespace NaturalSelection.Generics;
 
 public class LibraryCalls
 {
-    static bool debugSpam = Script.spammyLogs;
-    static bool debugTriggerFlag = Script.debugTriggerFlags;
+    static bool debugSpam = Script.Bools["spammyLogs"];
+    static bool debugTriggerFlag = Script.Bools["debugTriggerFlags"];
+
+    static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+    {
+        if (boolName == "spammyLogs")
+        {
+            debugSpam = newValue;
+        }
+        if (boolName == "debugTriggerFlags")
+        {
+            debugTriggerFlag = newValue;
+        }
+        Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+    }
+    public static void SubscribeToConfigChanges()
+    {
+        Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
+    }
+
     public static string DebugStringHead(EnemyAI? instance, bool shortFormat = true)
     {
         if (debugSpam && debugTriggerFlag) Script.Logger.LogInfo("Called library DebugStringHead!");
@@ -35,10 +53,10 @@ public class LibraryCalls
         return NaturalSelectionLib.NaturalSelectionLib.FilterEnemyList(importEnemyList, targetTypes, blacklist, instance, inverseToggle, filterOutImmortal);
     }
 
-
     static public Dictionary<EnemyAI, float> GetEnemiesInLOS(EnemyAI instance, List<EnemyAI> importEnemyList, float width = 45f, int importRange = 0, float proximityAwareness = -1)
     {
         if (debugSpam && debugTriggerFlag) Script.Logger.LogInfo("Called library GetEnemiesInLOS!");
         return NaturalSelectionLib.NaturalSelectionLib.GetEnemiesInLOS(instance, importEnemyList, width, importRange, proximityAwareness);
     }
+    
 }

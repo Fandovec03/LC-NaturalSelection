@@ -23,9 +23,9 @@ namespace NaturalSelection.EnemyPatches
     class SandWormAIPatch
     {
         static List<Type> targetedTypes = new List<Type>();
-        static bool debugSandworm = Script.debugSandworms;
-        static bool debugSpam = Script.spammyLogs;
-        static bool triggerFlag = Script.debugTriggerFlags;
+        static bool debugSandworm = Script.Bools["debugSandworms"];
+        static bool debugSpam = Script.Bools["spammyLogs"];
+        static bool triggerFlag = Script.Bools["debugTriggerFlags"];
         static List<string> sandwormBlacklist = InitializeGamePatch.sandwormBlacklistFinal;
         static LNetworkVariable<int> NetworkSandwormBehaviorState(SandWormAI instance)
         {
@@ -47,6 +47,23 @@ namespace NaturalSelection.EnemyPatches
 
         static Dictionary<SandWormAI, ExtendedSandWormAIData> sandworms = [];
 
+        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        {
+            if (boolName == "debugSandworms")
+            {
+                debugSandworm = newValue;
+            }
+            if (boolName == "spammyLogs")
+            {
+                debugSpam = newValue;
+            }
+            if (boolName == "debugTriggerFlags")
+            {
+                triggerFlag = newValue;
+            }
+            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+        }
+
         [HarmonyPatch("Start")]
         [HarmonyPrefix]
         static void SandWormStartPatch(SandWormAI __instance)
@@ -64,6 +81,8 @@ namespace NaturalSelection.EnemyPatches
                     targetedTypes.Add(typeof(RadMechAI));
                 }
             }
+
+            Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
 
         [HarmonyPatch("Update")]

@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.UIElements.UIR;
 
 namespace NaturalSelection.Generics;
     class MyModConfig
@@ -53,23 +54,25 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<string> spiderWebBlacklist;
     public readonly ConfigEntry<string> spiderBlacklist;
     //debug
-    public readonly ConfigEntry<bool> debugBool;
-    public readonly ConfigEntry<bool> spammyLogs;
-    public readonly ConfigEntry<bool> debugTriggerFlags;
-    public readonly ConfigEntry<bool> debugNetworking;
-    public readonly ConfigEntry<bool> debugRedBees;
-    public readonly ConfigEntry<bool> debugSandworms;
-    public readonly ConfigEntry<bool> debugHygrodere;
-    public readonly ConfigEntry<bool> debugNutcrackers;
-    public readonly ConfigEntry<bool> debugSpiders;
-    public readonly ConfigEntry<bool> debugGiants;
-    public readonly ConfigEntry<bool> debugUnspecified;
-    public readonly ConfigEntry<bool> debugLibrary;
-    public readonly ConfigEntry<bool> debugSpiderWebs;
+    public ConfigEntry<bool> debugBool;
+    public ConfigEntry<bool> spammyLogs;
+    public ConfigEntry<bool> debugTriggerFlags;
+    public ConfigEntry<bool> debugNetworking;
+    public ConfigEntry<bool> debugRedBees;
+    public ConfigEntry<bool> debugSandworms;
+    public ConfigEntry<bool> debugHygrodere;
+    public ConfigEntry<bool> debugNutcrackers;
+    public ConfigEntry<bool> debugSpiders;
+    public ConfigEntry<bool> debugGiants;
+    public ConfigEntry<bool> debugUnspecified;
+    public ConfigEntry<bool> debugLibrary;
+    public ConfigEntry<bool> debugSpiderWebs;
+    public Dictionary<string,ConfigEntry<bool>> debugEntries = new Dictionary<string, ConfigEntry<bool>>();
 
     public MyModConfig(ConfigFile cfg)
     {
         cfg.SaveOnConfigSet = false;
+
         {
             //experimental fixes
             sandwormCollisionOverride = cfg.Bind("Experimental Fixes", "Sandworm collision override", false, "Override vanilla sandworm collisions. May fix lag when sandworm collides with multiple enemies at once");
@@ -92,9 +95,9 @@ namespace NaturalSelection.Generics;
             enableSpiderWebs = cfg.Bind("Entity settings", "Enable Spider Webs", false, "Enables changes to spider webs. Webs now stick to and slow down enemies");
             //entity settings
             //Giant
-            giantExtinguishChance = cfg.Bind("Entity settings | Giant", "Extinguish chance", 33, "[Accepts int values between 0 and 100] Chance of giants extinguishing themselves.");
-            beesSetGiantsOnFireMinChance = cfg.Bind("Entity settings | Giant", "Ignite giants min chace", 1.5f, "[Accepts float values between 0 and 100]The minimum chance bees will set giant on fire on hit");
-            beesSetGiantsOnFireMaxChance = cfg.Bind("Entity settings | Giant", "Ignite giants max chace", 8f, "[Accepts float values between 0 and 100]The minimum chance bees will set giant on fire on hit");
+            giantExtinguishChance = cfg.Bind("Entity settings | Giant", "Extinguish chance", 33, new ConfigDescription("Chance of giants extinguishing themselves.", new AcceptableValueRange<int>(0,100)));
+            beesSetGiantsOnFireMinChance = cfg.Bind("Entity settings | Giant", "Ignite giants min chace", 1.5f, new ConfigDescription("The minimum chance bees will set giant on fire on hit", new AcceptableValueRange<float>(0f,100f)));
+            beesSetGiantsOnFireMaxChance = cfg.Bind("Entity settings | Giant", "Ignite giants max chace", 8f, new ConfigDescription("The minimum chance bees will set giant on fire on hit", new AcceptableValueRange<float>(0f,100f)));
             //Hygrodere
             blobConsumesCorpses = cfg.Bind("Entity settings | Hygrodere", "Consume corpses", true, "Hygrodere consume enemy corpses");
             blobPathfindToCorpses = cfg.Bind("Entity settings | Hygrodere", "Pathfind to corpses", true, "Hygrodere move towards corpses to consume");
@@ -108,25 +111,25 @@ namespace NaturalSelection.Generics;
             webStrength = cfg.Bind("Entity settings | Spider/Spider Web", "Spider Web Strenght", 1.3f, "Strength of spider webs. Stronger spider web slows enemies more.");
             spiderHuntHoardingbug = cfg.Bind("Entity settings/WIP | Spider/Spider Web", "Spider hunts Hoarding bugs", false, "Bunker spider chases and hunts hoarding bugs. DEV ONLY");
             //blacklists
-            beeBlacklist = cfg.Bind("Blacklists", "Bees Blacklist", "", "Any enemy inside the blacklist will be ignored by circuit bees. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:True/False ] \n This config generates automatically.");
+            beeBlacklist = cfg.Bind("Blacklists", "Bees Blacklist", "", "Any enemy insid e the blacklist will be ignored by circuit bees. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:True/False ] \n This config generates automatically.");
             blobBlacklist = cfg.Bind("Blacklists", "Blob Blacklist", "", "Any enemy inside the blacklist will be ignored by hygroderes. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:True/False ] \n This config generates automatically.");
             sandwormBlacklist = cfg.Bind("Blacklists", "Sandworm Blacklist", "", "Any enemy inside the blacklist will be ignored by sandworms. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:True/False ] \n This config generates automatically.");
             spiderWebBlacklist = cfg.Bind("Blacklists", "Web blacklist", "", "Any enemy inside the blacklist will be ignored by webs. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:True/False ] \n This config generates automatically.");
             spiderBlacklist = cfg.Bind("Blacklists", "Spider blacklist", "", "Any enemy inside the blacklist will be ignored by spider. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:True/False ] \n This config generates automatically.");
             //debug
-            debugBool = cfg.Bind("Debug","Debug mode",false,"Enables debug mode for more debug logs.");
-            spammyLogs = cfg.Bind("Debug","Spammy logs",false,"Enables spammy logs for extra logs.");
-            debugNetworking = cfg.Bind("Debug", "Debug networking", false, "Enables debug logs for networking.");
-            debugTriggerFlags = cfg.Bind("Debug","Trigger flags",false,"Enables logs with trigger flag.");
-            debugUnspecified = cfg.Bind("Debug", "Log unspecified", false, "Enables logs for unspecified.");
-            debugLibrary = cfg.Bind("Debug", "Log library", false, "Enables logs for the library.");
-            debugRedBees = cfg.Bind("Debug","Log bees",false,"Enables logs for bees.");
-            debugSandworms = cfg.Bind("Debug","Log sandworms",false,"Enables logs for sandowrms.");
-            debugHygrodere = cfg.Bind("Debug","Log hydrogere",false,"Enables logs for hydrogere.");
-            debugNutcrackers = cfg.Bind("Debug","Log nutcrackers",false,"Enables logs for nutcrackers.");
-            debugSpiders = cfg.Bind("Debug","Log spiders",false,"Enables logs for spiders.");
-            debugGiants = cfg.Bind("Debug", "Log giants", false, "Enables logs for giants.");
-            debugSpiderWebs = cfg.Bind("Debug", "Log spider webs", false, "Enables logs for spider webs.");
+            debugBool = cfg.Bind("Debug","Debug mode",false,"Enables debug mode for more debug logs."); debugEntries.Add(nameof(debugBool), debugBool);
+            spammyLogs = cfg.Bind("Debug","Spammy logs",false,"Enables spammy logs for extra logs."); debugEntries.Add(nameof(spammyLogs), spammyLogs);
+            debugNetworking = cfg.Bind("Debug", "Debug networking", false, "Enables debug logs for networking."); debugEntries.Add(nameof(debugNetworking), debugNetworking);
+            debugTriggerFlags = cfg.Bind("Debug","Trigger flags",false,"Enables logs with trigger flag."); debugEntries.Add(nameof(debugTriggerFlags), debugTriggerFlags);
+            debugUnspecified = cfg.Bind("Debug", "Log unspecified", false, "Enables logs for unspecified."); debugEntries.Add(nameof(debugUnspecified), debugUnspecified);
+            debugLibrary = cfg.Bind("Debug", "Log library", false, "Enables logs for the library."); debugEntries.Add(nameof(debugLibrary), debugLibrary);
+            debugRedBees = cfg.Bind("Debug","Log bees",false,"Enables logs for bees."); debugEntries.Add(nameof(debugRedBees), debugRedBees);
+            debugSandworms = cfg.Bind("Debug","Log sandworms",false,"Enables logs for sandowrms."); debugEntries.Add(nameof(debugSandworms), debugSandworms);
+            debugHygrodere = cfg.Bind("Debug","Log hydrogere",false,"Enables logs for hydrogere."); debugEntries.Add(nameof(debugHygrodere), debugHygrodere);
+            debugNutcrackers = cfg.Bind("Debug","Log nutcrackers",false,"Enables logs for nutcrackers."); debugEntries.Add(nameof(debugNutcrackers), debugNutcrackers);
+            debugSpiders = cfg.Bind("Debug","Log spiders",false,"Enables logs for spiders."); debugEntries.Add(nameof(debugSpiders), debugSpiders);
+            debugGiants = cfg.Bind("Debug", "Log giants", false, "Enables logs for giants."); debugEntries.Add(nameof(debugGiants), debugGiants);
+            debugSpiderWebs = cfg.Bind("Debug", "Log spider webs", false, "Enables logs for spider webs."); debugEntries.Add(nameof(debugSpiderWebs), debugSpiderWebs);
 
             
         }

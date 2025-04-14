@@ -16,6 +16,19 @@ namespace NaturalSelection.EnemyPatches
 
         static Dictionary<PufferAI, PufferData> pufferList = [];
 
+        /*static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        {
+            if (boolName == "debugUnspecified")
+            {
+                debugUnspecified = newValue;
+            }
+            if (boolName == "debugTriggerFlags")
+            {
+                debugTriggerFlags = newValue;
+            }
+            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+        }*/
+
         [HarmonyPatch("Start")]
         [HarmonyPostfix]
         static void StartPostfix(PufferAI __instance)

@@ -10,8 +10,6 @@ namespace NaturalSelection.EnemyPatches
 {
     class GiantData()
     {
-        internal bool logGiant = Script.debugGiants;
-        internal static bool debugSpam = Script.spammyLogs;
         internal int extinguished = 0;
         internal bool setFireOnKill = false;
     }
@@ -20,7 +18,8 @@ namespace NaturalSelection.EnemyPatches
     class ForestGiantPatch
     {
         static Dictionary<ForestGiantAI, GiantData> giantDictionary = [];
-
+        static bool logGiant = Script.Bools["debugGiants"];
+        static bool debugSpam = Script.Bools["spammyLogs"];
         static LNetworkEvent NetworkSetGiantOnFire(ForestGiantAI forestGiantAI)
         {
             string NWID = "NSSetGiantOnFire" + forestGiantAI.NetworkObjectId;
@@ -37,6 +36,19 @@ namespace NaturalSelection.EnemyPatches
         {
             string NWID = "NSOwnerrealtimeSinceStartup" + forestGiantAI.NetworkObjectId;
             return Networking.NSEnemyNetworkVariableFloat(NWID);
+        }
+
+        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        {
+            if (boolName == "debugGiants")
+            {
+                logGiant = newValue;
+            }
+            if (boolName == "spammyLogs")
+            {
+                debugSpam = newValue;
+            }
+            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
         }
 
         [HarmonyPatch("Start")]
@@ -72,6 +84,8 @@ namespace NaturalSelection.EnemyPatches
                 __instance.creatureAnimator.SetBool("burning", false);
                 data.extinguished = 1;
             }
+
+            Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
 
         [HarmonyPatch("KillEnemy")]
@@ -83,7 +97,7 @@ namespace NaturalSelection.EnemyPatches
             {
                 __instance.burningParticlesContainer.SetActive(true);
             }
-            if (giantDaata.logGiant) Script.Logger.LogInfo(LibraryCalls.DebugStringHead(__instance));
+            if (logGiant) Script.Logger.LogInfo(LibraryCalls.DebugStringHead(__instance));
         }
 
         [HarmonyPatch("Update")]
@@ -91,38 +105,7 @@ namespace NaturalSelection.EnemyPatches
         static bool UpdatePrefix(ForestGiantAI __instance)
         {
             GiantData giantData = giantDictionary[__instance];
-            //bool receivedEvent = false;
 
-            /*
-            NetworkSetGiantOnFire(__instance).OnServerReceived += UpdateSetGiantOnFireServer;
-            //NetworkSetGiantOnFire(__instance).OnClientReceived += UpdateSetGiantOnFire;
-
-            void UpdateSetGiantOnFireServer(ulong client)
-            {
-                //NetworkSetGiantOnFire(__instance).InvokeClients();
-                if (__instance.IsOwner)
-                {
-                    __instance.timeAtStartOfBurning = Time.realtimeSinceStartup;
-                    __instance.SwitchToBehaviourState(2);
-                    receivedEvent = true;
-                }
-            }
-
-           /* void UpdateSetGiantOnFire()
-            {
-                if (__instance.IsOwner)
-                {
-                    __instance.timeAtStartOfBurning = Time.realtimeSinceStartup;
-                    __instance.SwitchToBehaviourState(2);
-                    receivedEvent = true;
-                }
-            }
-
-            if (receivedEvent)
-            {
-                Script.Logger.LogInfo("Received UpdateSetGiantOnFire event");
-            }
-            */
             if (__instance.currentBehaviourStateIndex == 2 && Time.realtimeSinceStartup - __instance.timeAtStartOfBurning > 9.5f && __instance.enemyHP > 20 && giantData.extinguished == 0  && !__instance.isEnemyDead && __instance.IsOwner)
             {
                 int randomNumber = Random.Range(0, 100);

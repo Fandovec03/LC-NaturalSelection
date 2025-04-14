@@ -9,7 +9,21 @@ namespace NaturalSelection.Generics
     public class Networking
     {
         public static Dictionary<string, int> NetworkingDictionary = new Dictionary<string, int>();
-        static bool logNetworking = Script.debugNetworking;
+        static bool logNetworking = Script.Bools["debugNetworking"];
+
+        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        {
+            if (boolName == "debugNetworking")
+            {
+                logNetworking = newValue;
+            }
+            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+        }
+        public static void SubscribeToConfigChanges()
+        {
+            Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
+        }
+
 
         public static LNetworkVariable<float> NSEnemyNetworkVariableFloat(string NWID)
         {

@@ -1,5 +1,6 @@
 ﻿using BepInEx.Configuration;
 using HarmonyLib;
+using JetBrains.Annotations;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -10,7 +11,6 @@ namespace NaturalSelection.Generics;
     //experimental fixes
     public readonly ConfigEntry<bool> sandwormCollisionOverride;
     public readonly ConfigEntry<bool> blobAICantOpenDoors;
-    public readonly ConfigEntry<string> SpeedModifiers;
     //settings
     public readonly ConfigEntry<bool> stableMode;
     public readonly ConfigEntry<bool> spiderHuntHoardingbug;
@@ -25,18 +25,27 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<bool> enableNutcracker;
     public readonly ConfigEntry<bool> enableGiant;
     public readonly ConfigEntry<bool> enableHoardingBug;
-    //enemy settings
-    public readonly ConfigEntry<int> giantExtinguishChance;
+
+    ////enemy settings
+    
+    //Giant
     public readonly ConfigEntry<float> beesSetGiantsOnFireMinChance;
     public readonly ConfigEntry<float> beesSetGiantsOnFireMaxChance;
+    public readonly ConfigEntry<int> giantExtinguishChance;
+    //Hygrodere
     public readonly ConfigEntry<bool> blobConsumesCorpses;
     public readonly ConfigEntry<bool> blobPathfindToCorpses;
     public readonly ConfigEntry<bool> blobPathfind;
+    //Sandworm
     public readonly ConfigEntry<bool> sandwormDoNotEatPlayersInsideLeavingShip;
     public readonly ConfigEntry<bool> sandwormFilterTypes;
+    //Spider web
     public readonly ConfigEntry<bool> enableSpiderWebs;
     public readonly ConfigEntry<string> speedModifierList;
+    public readonly ConfigEntry<float> webStrength;
+    //Spider
     public readonly ConfigEntry<float> chaseAfterEnemiesModifier;
+
     //blacklists
     public readonly ConfigEntry<string> beeBlacklist;
     public readonly ConfigEntry<string> blobBlacklist;
@@ -57,6 +66,7 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<bool> debugUnspecified;
     public readonly ConfigEntry<bool> debugLibrary;
     public readonly ConfigEntry<bool> debugSpiderWebs;
+
     public MyModConfig(ConfigFile cfg)
     {
         cfg.SaveOnConfigSet = false;
@@ -64,34 +74,39 @@ namespace NaturalSelection.Generics;
             //experimental fixes
             sandwormCollisionOverride = cfg.Bind("Experimental Fixes", "Sandworm collision override", false, "Override vanilla sandworm collisions. May fix lag when sandworm collides with multiple enemies at once");
             blobAICantOpenDoors = cfg.Bind("Experimental Fixes", "Blob cannot open doors", true, "Blob can't open doors.");
+
             //general settings
             stableMode = cfg.Bind("General Settings", "Toggle stable mode", true, "When true, the mod will exlude patches that are WIP or are experimental from loading");
             IgnoreImmortalEnemies = cfg.Bind("General Settings", "Ignore Immortal Enemies", false, "All immortal enemies will be ignored by majority of entities");
-            agentRadiusModifier = cfg.Bind("General Settings", "Agent radius modifier", 0.50f, "Modifies agent radius of entities for more reliable collisions by set value.");
-            //WIP
-            spiderHuntHoardingbug = cfg.Bind("WIP", "Spider hunts Hoarding bugs", false, "Bunker spider chases and hunts hoarding bugs. DEV ONLY");
-            SpeedModifiers = cfg.Bind("WIP", "Speed modifier", "1", "Bunker spider chases and hunts hoarding bugs. DEV ONLY");
+            agentRadiusModifier = cfg.Bind("General Settings", "Agent radius modifier", 0.50f, "Modifies agent radius of entities for more reliable collisions.");
+
             //enable entities
-            enableSpider = cfg.Bind("WIP", "Enable spider", false, "Enable changes to spider and modify it's behavior. DEV ONLY");
+            enableSpider = cfg.Bind("Entity settings/WIP", "Enable spider", false, "Enable changes to spider and modify it's behavior. DEV ONLY");
             enableSlime = cfg.Bind("Entity settings", "Enable slime", true, "Enable changes to slime and modify it's behavior.");
             enableLeviathan = cfg.Bind("Entity settings", "Enable leviathan", true, "Enable changes to leviathan and modify it's behavior.");
-            enableSporeLizard = cfg.Bind("WIP", "Enable SporeLizard", false, "Enable changes to spore lizard. DEV ONLY");
+            enableSporeLizard = cfg.Bind("Entity settings/WIP", "Enable SporeLizard", false, "Enable changes to spore lizard. DEV ONLY");
             enableRedBees = cfg.Bind("Entity settings", "Enable Red bees (Circuit bees)", true, "Enable changes red bees and modify it's behavior.");
-            enableNutcracker = cfg.Bind("WIP", "Enable Nutcracker", false, "Enable changes to nutcracker and modify its behavior. DEV ONLY");
+            enableNutcracker = cfg.Bind("Entity settings/WIP", "Enable Nutcracker", false, "Enable changes to nutcracker and modify its behavior. DEV ONLY");
             enableGiant = cfg.Bind("Entity settings", "Enable Giant", false, "Enable changes to forest giant.");
-            enableHoardingBug = cfg.Bind("WIP", "Enable Hoarding bug", false, "Enable changes to hoarding bug");
-            enableSpiderWebs = cfg.Bind("Entity settings", "(Spider) enable changes to Spider webs", false, "Enables changes to spider webs. Webs now stick to and slow down enemies");
+            enableHoardingBug = cfg.Bind("Entity settings/WIP", "Enable Hoarding bug", false, "Enable changes to hoarding bug");
+            enableSpiderWebs = cfg.Bind("Entity settings", "Enable Spider Webs", false, "Enables changes to spider webs. Webs now stick to and slow down enemies");
             //entity settings
-            giantExtinguishChance = cfg.Bind("Entity settings", "(Giant) Extinguish chance", 33, "[Accepts int values between 0 and 100] Chance of giants extinguishing themselves.");
-            beesSetGiantsOnFireMinChance = cfg.Bind("Entity settings", "(Bees) Ignite giants min chace", 1.5f, "[Accepts float values between 0 and 100]The minimum chance bees will set giant on fire on hit");
-            beesSetGiantsOnFireMaxChance = cfg.Bind("Entity settings", "(Bees) Ignite giants max chace", 8f, "[Accepts float values between 0 and 100]The minimum chance bees will set giant on fire on hit");
-            blobConsumesCorpses = cfg.Bind("Entity settings", "(Blob) Consume corpses", true, "Hydrogire consume enemy corpses");
-            blobPathfindToCorpses = cfg.Bind("Entity settings", "(Blob) Pathfind to corpses", true, "Hydrogire move towards corpses to consume");
-            blobPathfind = cfg.Bind("Entity settings", "(Blob) Pathfind", true, "Pathfind to other entities");
-            sandwormDoNotEatPlayersInsideLeavingShip = cfg.Bind("Entity settings", "(Sandworm) Do not eat players inside leaving ship", false, "Worms do not eat players inside ship leaving the moon.");
-            sandwormFilterTypes = cfg.Bind("Entity settings", "(Sandworm) Filter out enemy types", true, "Filter out enemies by the enemy type. Disabling this allows sandworms to attack other enemies. Blacklisting enemies is highly recommended when this setting is disabled.");
-            chaseAfterEnemiesModifier = cfg.Bind("Entity settings", "Chase after enemies modifier", 3f, "Modifies long enemy chases after other entities. Enemy chases after enemies for 3x shorter time than players on default settings.");
-            speedModifierList = cfg.Bind("Entity settings", "Web speed modifiers", "", "Modifies speed of enemy in web. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:Speed ] \n This config generates automatically.");
+            //Giant
+            giantExtinguishChance = cfg.Bind("Entity settings | Giant", "Extinguish chance", 33, "[Accepts int values between 0 and 100] Chance of giants extinguishing themselves.");
+            beesSetGiantsOnFireMinChance = cfg.Bind("Entity settings | Giant", "Ignite giants min chace", 1.5f, "[Accepts float values between 0 and 100]The minimum chance bees will set giant on fire on hit");
+            beesSetGiantsOnFireMaxChance = cfg.Bind("Entity settings | Giant", "Ignite giants max chace", 8f, "[Accepts float values between 0 and 100]The minimum chance bees will set giant on fire on hit");
+            //Hygrodere
+            blobConsumesCorpses = cfg.Bind("Entity settings | Hygrodere", "Consume corpses", true, "Hygrodere consume enemy corpses");
+            blobPathfindToCorpses = cfg.Bind("Entity settings | Hygrodere", "Pathfind to corpses", true, "Hygrodere move towards corpses to consume");
+            blobPathfind = cfg.Bind("Entity settings | Hygrodere", "Pathfind", true, "Pathfind to other entities");
+            //Sandworm
+            sandwormDoNotEatPlayersInsideLeavingShip = cfg.Bind("Entity settings | Sandworm", "Do not eat players inside leaving ship", false, "Worms do not eat players inside ship leaving the moon.");
+            sandwormFilterTypes = cfg.Bind("Entity settings | Sandworm", "Filter out enemy types", true, "Filter out enemies by the enemy type. Disabling this allows sandworms to attack other enemies. Blacklisting enemies is highly recommended when this setting is disabled.");
+            //Spider/Spider Web
+            chaseAfterEnemiesModifier = cfg.Bind("Entity settings | Spider/Spider Web", "Chase after enemies modifier", 3f, "Modifies long enemy chases after other entities. Enemy chases after enemies for 3x shorter time than players on default settings.");
+            speedModifierList = cfg.Bind("Entity settings | Spider/Spider Web", "Web speed modifiers", "", "Modifies speed of enemy in web. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:Speed ] \n This config generates automatically.");
+            webStrength = cfg.Bind("Entity settings | Spider/Spider Web", "Spider Web Strenght", 1.3f, "Strength of spider webs. Stronger spider web slows enemies more.");
+            spiderHuntHoardingbug = cfg.Bind("Entity settings/WIP | Spider/Spider Web", "Spider hunts Hoarding bugs", false, "Bunker spider chases and hunts hoarding bugs. DEV ONLY");
             //blacklists
             beeBlacklist = cfg.Bind("Blacklists", "Bees Blacklist", "", "Any enemy inside the blacklist will be ignored by circuit bees. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:True/False ] \n This config generates automatically.");
             blobBlacklist = cfg.Bind("Blacklists", "Blob Blacklist", "", "Any enemy inside the blacklist will be ignored by hygroderes. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:True/False ] \n This config generates automatically.");
@@ -112,6 +127,8 @@ namespace NaturalSelection.Generics;
             debugSpiders = cfg.Bind("Debug","Log spiders",false,"Enables logs for spiders.");
             debugGiants = cfg.Bind("Debug", "Log giants", false, "Enables logs for giants.");
             debugSpiderWebs = cfg.Bind("Debug", "Log spider webs", false, "Enables logs for spider webs.");
+
+            
         }
         ClearOrphanedEntries(cfg);
         cfg.Save();

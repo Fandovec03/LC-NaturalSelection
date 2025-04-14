@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace NaturalSelection.EnemyPatches
 {
-    struct HoarderBugValues()
+    class HoarderBugValues()
     {
         internal EnemyAI? targetEnemy = null;
         internal EnemyAI? closestEnemy = null;
@@ -19,11 +19,12 @@ namespace NaturalSelection.EnemyPatches
     class HoarderBugPatch()
     {
         static Dictionary<HoarderBugAI, HoarderBugValues> hoarderBugList = [];
+        static bool triggerFlag = Script.debugTriggerFlags;
 
         public static void CustomOnHit(int force, EnemyAI enemyWhoHit, bool playHitSFX, HoarderBugAI __instance)
         {
             __instance.enemyHP -= force;
-            Script.Logger.LogDebug("Hoarderbug CustomHit Triggered");
+            if (triggerFlag) Script.Logger.LogDebug("Hoarderbug CustomHit Triggered");
             if (playHitSFX)
             {
                 WalkieTalkie.TransmitOneShotAudio(__instance.creatureVoice, __instance.enemyType.hitBodySFX);

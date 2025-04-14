@@ -8,7 +8,7 @@ using NaturalSelection.Generics;
 namespace NaturalSelection.EnemyPatches
 {
 
-    struct EnemyData()
+    class EnemyData()
     {
         internal float originalAgentRadius = 0f;
         internal Dictionary<Type, int> targetedByEnemies = new Dictionary<Type, int>();
@@ -18,6 +18,7 @@ namespace NaturalSelection.EnemyPatches
     class EnemyAIPatch
     {
         static bool debugUnspecified = Script.debugUnspecified;
+        static bool debugTriggerFlags = Script.debugTriggerFlags;
         static Dictionary<EnemyAI, EnemyData> enemyData = [];
 
         [HarmonyPatch("Start")]
@@ -29,52 +30,9 @@ namespace NaturalSelection.EnemyPatches
             EnemyData data = enemyData[__instance];
             data.originalAgentRadius = __instance.agent.radius;
             __instance.agent.radius = __instance.agent.radius * Script.BoundingConfig.agentRadiusModifier.Value;
-            if (debugUnspecified) Script.Logger.LogMessage($"Modified agent radius. Original: {enemyData[__instance].originalAgentRadius}, Modified: {__instance.agent.radius}");
-        }
-        /*
-        public static string DebugStringHead(EnemyAI? instance)
-        {
-            //if (debugSpam && debugTriggerFlag && debugUnspecified) Script.Logger.LogInfo("Called library!");
-            return NaturalSelectionLib.NaturalSelectionLib.DebugStringHead(instance);
-        }
-        public static List<EnemyAI> GetCompleteList(EnemyAI instance, bool FilterThemselves = true, int includeOrReturnThedDead = 0)
-        {
-            if (debugSpam && debugTriggerFlag && debugUnspecified) Script.Logger.LogInfo("Called library GetCompleteList!");
-            return NaturalSelectionLib.NaturalSelectionLib.GetCompleteList(instance, FilterThemselves, includeOrReturnThedDead);
+            if (debugUnspecified && debugTriggerFlags) Script.Logger.LogMessage($"Modified agent radius. Original: {enemyData[__instance].originalAgentRadius}, Modified: {__instance.agent.radius}");
         }
 
-        public static List<EnemyAI> GetInsideOrOutsideEnemyList(List<EnemyAI> importEnemyList, EnemyAI instance)
-        {
-            if (debugSpam && debugTriggerFlag && debugUnspecified) Script.Logger.LogInfo("Called library GetInsideOrOutsideEnemyList!");
-            return NaturalSelectionLib.NaturalSelectionLib.GetInsideOrOutsideEnemyList(importEnemyList, instance);
-        }
-
-        public static EnemyAI? FindClosestEnemy(List<EnemyAI> importEnemyList, EnemyAI? importClosestEnemy, EnemyAI instance, bool includeTheDead = false)
-        {
-            if (debugSpam && debugTriggerFlag && debugUnspecified) Script.Logger.LogInfo("Called library findClosestEnemy!");
-            return NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemy(importEnemyList, importClosestEnemy, instance, includeTheDead);
-        }
-        public static List<EnemyAI> FilterEnemyList(List<EnemyAI> importEnemyList, List<Type>? targetTypes, List<string>? blacklist, EnemyAI instance, bool inverseToggle = false, bool filterOutImmortal = true)
-        {
-            if (debugSpam && debugTriggerFlag && debugUnspecified) Script.Logger.LogInfo("Called library filterEnemyList!");
-            List<string> tempList = new List<string>();
-            if (blacklist != null)
-            {
-                foreach (var item in blacklist)
-                {
-                    tempList.Add(item.Split(":")[0]);
-                }
-            }
-            return NaturalSelectionLib.NaturalSelectionLib.FilterEnemyList(importEnemyList, targetTypes, tempList, instance, inverseToggle, filterOutImmortal);
-        }
-
-
-        static public Dictionary<EnemyAI, float> GetEnemiesInLOS(EnemyAI instance, List<EnemyAI> importEnemyList, float width = 45f, int importRange = 0, float proximityAwareness = -1)
-        {
-            if (debugSpam && debugTriggerFlag && debugUnspecified) Script.Logger.LogInfo("Called library GetEnemiesInLOS!");
-            return NaturalSelectionLib.NaturalSelectionLib.GetEnemiesInLOS(instance, importEnemyList, width, importRange, proximityAwareness);
-        }
-        */
         static public int ReactToHit(int force = 0, EnemyAI? enemyAI = null, PlayerControllerB? player = null)
         {
             if (force > 0)
@@ -97,7 +55,7 @@ namespace NaturalSelection.EnemyPatches
             {
                 playerString = $"{playerWhoHit.playerUsername}(SteamID: {playerWhoHit.playerSteamId}, playerClientID: {playerWhoHit.playerClientId})";
             }
-            Script.Logger.LogInfo($"{LibraryCalls.DebugStringHead(__instance)} registered hit by {playerString} with force of {force}. playHitSFX:{playHitSFX}, hitID:{hitID}.");
+            if (debugTriggerFlags) Script.Logger.LogInfo($"{LibraryCalls.DebugStringHead(__instance)} registered hit by {playerString} with force of {force}. playHitSFX:{playHitSFX}, hitID:{hitID}.");
         }
     }
 

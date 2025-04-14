@@ -1,5 +1,19 @@
 # Experimental Enemy Interactions
 
+## 0.5.4
+
+- Updated Config 
+- Updated Logs.
+    - Some logs were put behind debugTriggerFlag bool.
+
+### Bug fixes
+- Fixed enemies not working
+- multiple bug fixes for blacklists
+
+### Library
+- Updated to work with current build
+- Added short form for DebugStringHead
+
 ## 0.5.3
 
 - Updated README

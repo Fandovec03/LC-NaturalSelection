@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches
 {
-    public struct SpiderWebValues()
+    class SpiderWebValues()
     {
         internal EnemyAI? trappedEnemy = null;
         internal EnemyAI? enemyReference = null;
@@ -19,7 +19,7 @@ namespace NaturalSelection.EnemyPatches
     [HarmonyPatch(typeof(SandSpiderWebTrap))]
     class SandSpiderWebTrapPatch
     {
-        public struct EnemyInfo(EnemyAI enemy, float enterAgentSpeed, float enterAnimationSpeed)
+        class EnemyInfo(EnemyAI enemy, float enterAgentSpeed, float enterAnimationSpeed)
         {
             internal EnemyAI EnemyAI { get; set; } = enemy;
             internal float EnterAgentSpeed { get; set; } = enterAgentSpeed;
@@ -32,7 +32,8 @@ namespace NaturalSelection.EnemyPatches
         static bool debugLogs = Script.debugBool;
         static bool debugWebs = Script.debugSpiderWebs;
         static Dictionary<string, float> speedModifierDictionary = InitializeGamePatch.speedModifierDictionay;
-        static Dictionary<string, bool> spiderWebBlacklist = InitializeGamePatch.spiderWebBlacklistDictionay;
+        static List<string> spiderWebBlacklist = InitializeGamePatch.spiderWebBlacklistFinal;
+        static float webStrenght = Script.BoundingConfig.webStrength.Value;
 
         static float debugCD = 0.0f;
 
@@ -57,7 +58,7 @@ namespace NaturalSelection.EnemyPatches
             if (trippedEnemyCollision != null && trippedEnemyCollision.mainScript != __instance.mainScript) trippedEnemy = trippedEnemyCollision.mainScript;
             if (trippedEnemy == __instance.mainScript) return;
 
-            if (trippedEnemy != null && !spiderWebBlacklist[trippedEnemy.enemyType.enemyName])
+            if (trippedEnemy != null && !spiderWebBlacklist.Contains(trippedEnemy.enemyType.enemyName))
             {
                 webData.trappedEnemy = trippedEnemy;
                 float SpeedModifier = 1f;
@@ -76,8 +77,8 @@ namespace NaturalSelection.EnemyPatches
 
                 if (debugWebs) Script.Logger.LogDebug($"{__instance} Collided with {trippedEnemy}");
 
-                trippedEnemy.agent.speed = (enemyData[trippedEnemy].EnterAgentSpeed / (1 + enemyData[trippedEnemy].NumberOfTraps.Count)) * SpeedModifier;
-                trippedEnemy.creatureAnimator.speed = (enemyData[trippedEnemy].EnterAnimationSpeed / (1 + enemyData[trippedEnemy].NumberOfTraps.Count)) * SpeedModifier;
+                trippedEnemy.agent.speed = (enemyData[trippedEnemy].EnterAgentSpeed / ((1 + enemyData[trippedEnemy].NumberOfTraps.Count) * webStrenght)) * SpeedModifier;
+                trippedEnemy.creatureAnimator.speed = (enemyData[trippedEnemy].EnterAnimationSpeed / ((1 + enemyData[trippedEnemy].NumberOfTraps.Count) * webStrenght)) * SpeedModifier;
 
                 if (Script.BoundingConfig.debugSpiderWebs.Value)
                 {
@@ -159,7 +160,7 @@ namespace NaturalSelection.EnemyPatches
             EnemyAI? trippedEnemy = null;
             if (trippedEnemyCollision != null && trippedEnemyCollision.mainScript != __instance.mainScript) trippedEnemy = trippedEnemyCollision.mainScript;
 
-            if (trippedEnemy != null && !spiderWebBlacklist[trippedEnemy.enemyType.enemyName])
+            if (trippedEnemy != null && !spiderWebBlacklist.Contains(trippedEnemy.enemyType.enemyName))
             {
                 if (enemyData[trippedEnemy].NumberOfTraps.Contains(__instance))
                 {

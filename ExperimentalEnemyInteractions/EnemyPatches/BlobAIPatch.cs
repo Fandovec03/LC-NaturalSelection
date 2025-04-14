@@ -14,8 +14,8 @@ using UnityEngine.UIElements;
 
 namespace NaturalSelection.EnemyPatches
 {
-	
-	struct BlobData()
+
+    class BlobData()
 	{
         internal EnemyAI? closestEnemy = null;
 		internal bool playSound = false;
@@ -28,7 +28,8 @@ namespace NaturalSelection.EnemyPatches
 	{
 		static Dictionary<BlobAI, BlobData> slimeList = [];
 		static bool logBlob = Script.debugHygrodere;
-        static List<string> blacklist = InitializeGamePatch.blobBlacklistDictionay.Keys.ToList();
+		static bool triggerFlag = Script.debugTriggerFlags;
+        static List<string> blobBlacklist = InitializeGamePatch.blobBlacklistFinal;
         static LNetworkEvent BlobEatCorpseEvent(BlobAI instance)
 		{
             string NWID = "NSSlimeEatEvent" + instance.NetworkObjectId;
@@ -101,7 +102,7 @@ namespace NaturalSelection.EnemyPatches
             }
 			if (RoundManagerPatch.RequestUpdate(__instance) == true)
 			{
-				List<EnemyAI> tempList = LibraryCalls.FilterEnemyList(LibraryCalls.GetCompleteList(__instance, true, 1), null, blacklist, __instance, false, true).ToList();
+				List<EnemyAI> tempList = LibraryCalls.FilterEnemyList(LibraryCalls.GetCompleteList(__instance, true, 1), null, blobBlacklist, __instance, false, true).ToList();
                 RoundManagerPatch.ScheduleGlobalListUpdate(__instance, tempList);
 			}
 			if (__instance.IsOwner)

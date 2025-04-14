@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches
 {
-    struct BeeValues()
+    class BeeValues()
     {
         internal EnemyAI? closestEnemy = null;
         internal EnemyAI? targetEnemy = null;
@@ -28,7 +28,8 @@ namespace NaturalSelection.EnemyPatches
         static Dictionary<RedLocustBees, BeeValues> beeList = [];
         static bool logBees = Script.debugRedBees;
         static bool debugSpam = Script.spammyLogs;
-        static List<string> blacklist = InitializeGamePatch.beeBlacklistrDictionay.Keys.ToList(); 
+        static bool debugTriggers = Script.debugTriggerFlags;
+        static List<string> beeBlacklist = InitializeGamePatch.beeBlacklistFinal; 
 
         [HarmonyPatch("Start")]
         [HarmonyPostfix]
@@ -54,7 +55,7 @@ namespace NaturalSelection.EnemyPatches
             BeeValues beeData = beeList[__instance];
             if (RoundManagerPatch.RequestUpdate(__instance) == true)
             {
-                List<EnemyAI> tempList = LibraryCalls.FilterEnemyList(LibraryCalls.GetCompleteList(__instance), beeList[__instance].enemyTypes, blacklist, __instance, true, Script.BoundingConfig.IgnoreImmortalEnemies.Value).ToList();
+                List<EnemyAI> tempList = LibraryCalls.FilterEnemyList(LibraryCalls.GetCompleteList(__instance), beeList[__instance].enemyTypes, beeBlacklist, __instance, true, Script.BoundingConfig.IgnoreImmortalEnemies.Value).ToList();
                 RoundManagerPatch.ScheduleGlobalListUpdate(__instance, tempList);
             }
             foreach (KeyValuePair<EnemyAI, float> enemy in new Dictionary<EnemyAI, float>(beeData.hitRegistry))
@@ -74,7 +75,7 @@ namespace NaturalSelection.EnemyPatches
         
         if (beeData.targetEnemy != null && __instance.movingTowardsTargetPlayer == false && __instance.currentBehaviourStateIndex != 0)
         {
-            if (logBees && debugSpam) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: Prefix triggered false");
+            if (logBees && debugSpam && debugTriggers) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: Prefix triggered false");
 
             if (__instance.moveTowardsDestination)
             {
@@ -83,7 +84,7 @@ namespace NaturalSelection.EnemyPatches
             __instance.SyncPositionToClients();
             return false;
         }
-        if (logBees && debugSpam) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: Prefix triggered true");
+        if (logBees && debugSpam && debugTriggers) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: Prefix triggered true");
         return true;
         }
         [HarmonyPatch("DoAIInterval")]

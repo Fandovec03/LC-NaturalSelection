@@ -6,17 +6,18 @@ using NaturalSelection.Generics;
 using static NaturalSelection.EnemyPatches.SpiderWebValues;
 using System;
 using System.Net;
+using LethalNetworkAPI;
 
 namespace NaturalSelection.EnemyPatches
 {
-    public struct SpiderData()
+    class SpiderData()
     {
         internal EnemyAI? closestEnemy = null;
         internal EnemyAI? targetEnemy = null;
         internal List<EnemyAI> knownEnemy = new List<EnemyAI>();
         internal List<EnemyAI> deadEnemyBodies = new List<EnemyAI>();
         internal float LookAtEnemyTimer = 0f;
-        internal Dictionary<EnemyAI,float> enemiesInLOSDictionary = new Dictionary<EnemyAI, float>();   
+        internal Dictionary<EnemyAI,float> enemiesInLOSDictionary = new Dictionary<EnemyAI, float>();
     }
 
     [HarmonyPatch(typeof(SandSpiderAI))]
@@ -29,7 +30,14 @@ namespace NaturalSelection.EnemyPatches
         static Dictionary<SandSpiderAI, SpiderData> spiderList = [];
         static bool debugSpider = Script.debugSpiders;
         static bool debugSpam = Script.spammyLogs;
-        static List<string> spiderBlacklist = InitializeGamePatch.spiderWebBlacklistDictionay.Keys.ToList();
+        static List<string> spiderBlacklist = InitializeGamePatch.spiderBlacklistFinal;
+
+        static LNetworkVariable<int> NetworkSpiderBehaviorState(SandSpiderAI instance)
+        {
+            string NWID = "NSSpiderBehaviorState" + instance.NetworkObjectId;
+            return Networking.NSEnemyNetworkVariableInt(NWID);
+        }
+
 
         [HarmonyPatch("Start")]
         [HarmonyPrefix]
@@ -48,9 +56,11 @@ namespace NaturalSelection.EnemyPatches
             SpiderData spiderData = spiderList[__instance];
             Type type = __instance.GetType();
 
+            int TargetingState = NetworkSpiderBehaviorState(__instance).Value;
+
             if (RoundManagerPatch.RequestUpdate(__instance) == true)
             {
-                List<EnemyAI> tempList = LibraryCalls.FilterEnemyList(LibraryCalls.GetInsideOrOutsideEnemyList(LibraryCalls.GetCompleteList(__instance), __instance), null, spiderBlacklist,__instance).ToList();
+                List<EnemyAI> tempList = LibraryCalls.FilterEnemyList(LibraryCalls.GetInsideOrOutsideEnemyList(LibraryCalls.GetCompleteList(__instance), __instance), null, spiderBlacklist, __instance).ToList();
                 RoundManagerPatch.ScheduleGlobalListUpdate(__instance, tempList);
             }
             if (__instance.IsOwner) spiderData.enemiesInLOSDictionary = new Dictionary<EnemyAI, float>(LibraryCalls.GetEnemiesInLOS(__instance, NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type], 80f, 15, 2f));
@@ -107,7 +117,7 @@ namespace NaturalSelection.EnemyPatches
                                 __instance.SwitchToBehaviourState(2);
                                 if (debugSpider) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} Update Postfix: /case0/ Set state to {__instance.currentBehaviourStateIndex}");
                                 __instance.chaseTimer = 12.5f / chaseModifier;
-                                __instance.watchFromDistance = Vector3.Distance(__instance.meshContainer.transform.position, spiderData.closestEnemy.transform.position) > 8f;
+                                __instance.watchFromDistance = Vector3.Distance(__instance.meshContainer.transform.position, spiderData.closestEnemy.transform.position) > 5f;
                             }
                             break;
                         }
@@ -117,11 +127,11 @@ namespace NaturalSelection.EnemyPatches
 
                             if (spiderData.targetEnemy != spiderData.closestEnemy && spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f, __instance.eye))
                             {
-                                /*if (spiderData.targetEnemy is HoarderBugAI && spiderData.closestEnemy is not HoarderBugAI && (Vector3.Distance(__instance.meshContainer.position, spiderData.targetEnemy.transform.position) * 1.2f < Vector3.Distance(__instance.meshContainer.position, spiderData.closestEnemy.transform.position)))
+                                if (spiderData.targetEnemy is HoarderBugAI && spiderData.closestEnemy is not HoarderBugAI && (Vector3.Distance(__instance.meshContainer.position, spiderData.targetEnemy.transform.position) * 1.2f < Vector3.Distance(__instance.meshContainer.position, spiderData.closestEnemy.transform.position)))
                                 {
                                     spiderData.targetEnemy = spiderData.closestEnemy;
                                 }
-                                else*/
+                                else
                                 {
                                     spiderData.targetEnemy = spiderData.closestEnemy;
                                 }
@@ -256,11 +266,11 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static bool DoAIIntervalPrefix(SandSpiderAI __instance)
         {
-            if (!spiderHuntHoardingbug) return true;
+            //if (!spiderHuntHoardingbug) return true;
             SpiderData spiderData = spiderList[__instance];
             SandSpiderAI Ins = __instance;
 
-        if (spiderData.targetEnemy != null && !__instance.targetPlayer && __instance.currentBehaviourStateIndex == 2)
+            if (spiderData.targetEnemy != null && !__instance.targetPlayer && __instance.currentBehaviourStateIndex == 2)
             {
                 if (__instance.moveTowardsDestination)
                 {

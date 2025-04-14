@@ -1,5 +1,6 @@
 using HarmonyLib;
 using Mono.Cecil;
+using NaturalSelection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,12 +22,19 @@ namespace NaturalSelection.Generics
         static List<string> speedModifierList = Script.BoundingConfig.speedModifierList.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
         static List<string> spiderBlacklistList = Script.BoundingConfig.spiderBlacklist.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
 
-        public static Dictionary<string, bool> beeBlacklistrDictionay = new Dictionary<string, bool>();
-        public static Dictionary<string, bool> blobBlacklistDictionay = new Dictionary<string, bool>();
-        public static Dictionary<string, bool> sandwormBlacklistDictionay = new Dictionary<string, bool>();
-        public static Dictionary<string, bool> spiderWebBlacklistDictionay = new Dictionary<string, bool>();
+        static Dictionary<string, bool> beeBlacklistrDictionay = new Dictionary<string, bool>();
+        static Dictionary<string, bool> blobBlacklistDictionay = new Dictionary<string, bool>();
+        static Dictionary<string, bool> sandwormBlacklistDictionay = new Dictionary<string, bool>();
+        static Dictionary<string, bool> spiderWebBlacklistDictionay = new Dictionary<string, bool>();
         public static Dictionary<string, float> speedModifierDictionay = new Dictionary<string, float>();
-        public static Dictionary<string, bool> spiderBlacklistDictionay = new Dictionary<string, bool>();
+        static Dictionary<string, bool> spiderBlacklistDictionay = new Dictionary<string, bool>();
+
+        public static List<string> beeBlacklistFinal = new List<string>();
+        public static List<string> blobBlacklistFinal = new List<string>();
+        public static List<string> sandwormBlacklistFinal = new List<string>();
+        public static List<string> spiderWebBlacklistFinal = new List<string>();
+        public static List<string> speedModifierFinal = new List<string>();
+        public static List<string> spiderBlacklistFinal = new List<string>();
 
         public static List<EnemyAI> tryFindLater = new List<EnemyAI>();
 
@@ -134,6 +142,7 @@ namespace NaturalSelection.Generics
                 {
                     string itemName = item.Split(":")[0];
                     bool itemValue = bool.Parse(item.Split(":")[1]);
+                    if (itemValue == true) sandwormBlacklistFinal.Add(itemName);
                     sandwormBlacklistDictionay.Add(itemName, itemValue);
                     Script.Logger.LogDebug($"Found {itemName}, {itemValue}");
                 }
@@ -154,6 +163,7 @@ namespace NaturalSelection.Generics
                 {
                     string itemName = item.Split(":")[0];
                     bool itemValue = bool.Parse(item.Split(":")[1]);
+                    if (itemValue == true) spiderWebBlacklistFinal.Add(itemName);
                     spiderWebBlacklistDictionay.Add(itemName, itemValue);
                     Script.Logger.LogDebug($"Found {itemName}, {itemValue}");
                 }
@@ -174,6 +184,7 @@ namespace NaturalSelection.Generics
                 {
                     string itemName = item.Split(":")[0];
                     bool itemValue = bool.Parse(item.Split(":")[1]);
+                    if (itemValue == true) spiderBlacklistFinal.Add(itemName);
                     spiderBlacklistDictionay.Add(itemName, itemValue);
                     Script.Logger.LogDebug($"Found {itemName}, {itemValue}");
                 }
@@ -241,6 +252,29 @@ namespace NaturalSelection.Generics
                 {
                     Script.Logger.LogDebug($"Generating new spider blacklist entry for {itemName}");
                     spiderBlacklistDictionay.Add(itemName, false);
+                }
+            }
+            if (Script.BoundingConfig.debugBool.Value == true)
+            {
+                foreach(var item in beeBlacklistFinal)
+                {
+                    Script.Logger.LogDebug($"checking final blacklist {nameof(beeBlacklistFinal)} -> {item}");
+                }
+                foreach (var item in sandwormBlacklistFinal)
+                {
+                    Script.Logger.LogDebug($"checking final blacklist {nameof(sandwormBlacklistFinal)} -> {item}");
+                }
+                foreach (var item in spiderWebBlacklistFinal)
+                {
+                    Script.Logger.LogDebug($"checking final blacklist {nameof(spiderWebBlacklistFinal)} -> {item}");
+                }
+                foreach (var item in speedModifierFinal)
+                {
+                    Script.Logger.LogDebug($"checking final blacklist {nameof(speedModifierFinal)} -> {item}");
+                }
+                foreach (var item in spiderBlacklistFinal)
+                {
+                    Script.Logger.LogDebug($"checking final blacklist {nameof(spiderBlacklistFinal)} -> {item}");
                 }
             }
         }

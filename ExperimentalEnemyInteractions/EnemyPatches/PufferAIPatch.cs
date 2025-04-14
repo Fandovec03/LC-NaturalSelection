@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches
 {
-    struct PufferData()
+    class PufferData()
     {
         internal int reactionToHit = 0;
         internal EnemyAI? targetEnemy = null;

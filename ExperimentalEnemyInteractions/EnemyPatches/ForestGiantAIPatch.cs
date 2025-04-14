@@ -8,7 +8,7 @@ using NaturalSelection.Generics;
 
 namespace NaturalSelection.EnemyPatches
 {
-    struct GiantData()
+    class GiantData()
     {
         internal bool logGiant = Script.debugGiants;
         internal static bool debugSpam = Script.spammyLogs;

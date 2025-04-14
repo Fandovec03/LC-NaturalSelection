@@ -100,13 +100,13 @@ public class Script : BaseUnityPlugin
         if (BoundingConfig.enableHoardingBug.Value)Harmony.PatchAll(typeof(HoarderBugPatch));
         if (BoundingConfig.enableRedBees.Value) Harmony.PatchAll(typeof(BeeAIPatch));
         if (BoundingConfig.enableGiant.Value)Harmony.PatchAll(typeof(ForestGiantPatch));
+        if (BoundingConfig.enableSpiderWebs.Value) Harmony.PatchAll(typeof(SandSpiderWebTrapPatch));
 
         if (!stableToggle)
         {
         if (BoundingConfig.enableNutcracker.Value)Harmony.PatchAll(typeof(NutcrackerAIPatch));
         if (BoundingConfig.enableSporeLizard.Value)Harmony.PatchAll(typeof(PufferAIPatch));
         if (BoundingConfig.enableSpider.Value)Harmony.PatchAll(typeof(SandSpiderAIPatch));
-        if (BoundingConfig.enableSpiderWebs.Value) Harmony.PatchAll(typeof(SandSpiderWebTrapPatch));
 
         Logger.LogInfo("Stable mode off. Loaded all patches.");
         }

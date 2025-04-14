@@ -6,7 +6,7 @@ using NaturalSelection.Generics;
 
 namespace NaturalSelection.EnemyPatches
 {
-    struct NutcrackerData()
+    class NutcrackerData()
     {
         internal EnemyAI? closestEnemy = null;
         internal EnemyAI? targetEnemy = null;
@@ -23,6 +23,7 @@ namespace NaturalSelection.EnemyPatches
         static Dictionary<NutcrackerEnemyAI, NutcrackerData> NutcrackerData = [];
         static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
         static bool debugNutcrackers = Script.BoundingConfig.debugNutcrackers.Value;
+        static bool debugTriggerFlags = Script.debugTriggerFlags;
 
         static public bool CheckLOSForMonsters(Vector3 monsterPosition, NutcrackerEnemyAI __instance, float width = 45f, int range = 60, int proximityAwareness = 60)
         {

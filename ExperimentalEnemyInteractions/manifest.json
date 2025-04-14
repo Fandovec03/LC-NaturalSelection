@@ -1,6 +1,6 @@
 {
   "name": "ExperimentalEnemyInteractions",
-  "version_number": "0.5.4",
+  "version_number": "0.5.5",
   "website_url": "https://github.com/Fandovec03/LC-NaturalSelection",
   "description": "Rewamps the ecosystem to feel more alive and immersive. Creatures will fight each other and hunt for survival.",
   "dependencies": [

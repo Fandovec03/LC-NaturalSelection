@@ -53,4 +53,4 @@ Many config options to choose from!
 - TheShyestGuy: Bug reports
 - Robyn and Xilophor: Pointing out flawed networking
 - DiFFoZ: Finding the problem causing bees to turn invisible
-- 
+- Quain808: Bug reports

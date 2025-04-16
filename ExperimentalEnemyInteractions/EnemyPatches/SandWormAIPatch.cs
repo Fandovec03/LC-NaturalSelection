@@ -47,21 +47,12 @@ namespace NaturalSelection.EnemyPatches
 
         static Dictionary<SandWormAI, ExtendedSandWormAIData> sandworms = [];
 
-        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
-            if (boolName == "debugSandworms")
-            {
-                debugSandworm = newValue;
-            }
-            if (boolName == "spammyLogs")
-            {
-                debugSpam = newValue;
-            }
-            if (boolName == "debugTriggerFlags")
-            {
-                triggerFlag = newValue;
-            }
-            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+            if (entryKey == "debugSandworms") debugSandworm = value;
+            if (entryKey == "spammyLogs") debugSpam = value;
+            if (entryKey == "debugTriggerFlags") triggerFlag = value;
+            Script.Logger.LogMessage($"Earth Leviathan received event. debugSandworm = {debugSandworm}, debugSpam = {debugSpam}");
         }
 
         [HarmonyPatch("Start")]

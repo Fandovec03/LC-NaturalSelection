@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "NaturalSelection": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    }
+  }
+}

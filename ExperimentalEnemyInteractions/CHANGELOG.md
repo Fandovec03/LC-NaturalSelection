@@ -1,5 +1,18 @@
 # Experimental Enemy Interactions
 
+## 0.5.6
+- ~~Updated immortal enemies check to include enemies with set canDie bool to false~~ Reverted
+
+### Config
+- Updated descriptions to be more clear
+- Orphaned entries will be printed out in console before clearing
+- Updated debug bools update event
+- Updated Credits
+
+### Fixes
+- Fixed bees and blob blacklists not adding entries into internal blacklists
+
+
 ## 0.5.5
 - Updated immortal enemies check to include enemies with set canDie bool to false
 - Enemies no longer collide with blacklisted enemies (with exception of Sandworm)

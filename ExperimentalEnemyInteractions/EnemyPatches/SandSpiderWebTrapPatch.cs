@@ -37,17 +37,11 @@ namespace NaturalSelection.EnemyPatches
 
         static float debugCD = 0.0f;
 
-        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
-            if (boolName == "debugSpiderWebs")
-            {
-                debugWebs = newValue;
-            }
-            if (boolName == "debugBool")
-            {
-                debugLogs = newValue;
-            }
-            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+            if (entryKey == "debugBool") debugLogs = value;
+            if (entryKey == "debugSpiderWebs") debugWebs = value;
+            Script.Logger.LogMessage($"Bunker Spider web received event. debugBool = {debugLogs}, debugSpiderWebs = {debugWebs}");
         }
 
         [HarmonyPatch("Awake")]

@@ -38,21 +38,12 @@ namespace NaturalSelection.EnemyPatches
             return false;
         }
 
-        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
-            if (boolName == "debugNutcrackers")
-            {
-                debugNutcrackers = newValue;
-            }
-            if (boolName == "debugTriggerFlags")
-            {
-                debugTriggerFlags = newValue;
-            }
-            if (boolName == "spammyLogs")
-            {
-                debugSpam = newValue;
-            }
-            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+            if (entryKey == "debugNutcrackers") debugNutcrackers = value;
+            if (entryKey == "spammyLogs") debugSpam = value;
+            if (entryKey == "debugTriggerFlags") debugTriggerFlags = value;
+            Script.Logger.LogMessage($"Nutcracker received event. debugNutcrackers = {debugNutcrackers}, debugSpam = {debugSpam}, debugTriggerFlags = {debugTriggerFlags},");
         }
 
         [HarmonyPatch("Start")]

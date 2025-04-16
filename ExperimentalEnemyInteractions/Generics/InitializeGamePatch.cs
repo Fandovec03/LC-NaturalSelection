@@ -33,9 +33,7 @@ namespace NaturalSelection.Generics
         public static List<string> blobBlacklistFinal = new List<string>();
         public static List<string> sandwormBlacklistFinal = new List<string>();
         public static List<string> spiderWebBlacklistFinal = new List<string>();
-        public static List<string> speedModifierFinal = new List<string>();
         public static List<string> spiderBlacklistFinal = new List<string>();
-
         public static List<EnemyAI> tryFindLater = new List<EnemyAI>();
 
         [HarmonyPatch(typeof(InitializeGame), nameof(InitializeGame.Start))]
@@ -105,6 +103,7 @@ namespace NaturalSelection.Generics
                 {
                     string itemName = item.Split(":")[0];
                     bool itemValue = bool.Parse(item.Split(":")[1]);
+                    if (itemValue == true) beeBlacklistFinal.Add(itemName);
                     beeBlacklistrDictionay.Add(itemName, itemValue);
                     Script.Logger.LogDebug($"Found {itemName}, {itemValue}");
                 }
@@ -125,6 +124,7 @@ namespace NaturalSelection.Generics
                 {
                     string itemName = item.Split(":")[0];
                     bool itemValue = bool.Parse(item.Split(":")[1]);
+                    if (itemValue == true) blobBlacklistFinal.Add(itemName);
                     blobBlacklistDictionay.Add(itemName, itemValue);
                     Script.Logger.LogDebug($"Found {itemName}, {itemValue}");
                 }
@@ -271,13 +271,13 @@ namespace NaturalSelection.Generics
                 {
                     Script.Logger.LogDebug($"checking final blacklist {nameof(spiderWebBlacklistFinal)} -> {item}");
                 }
-                foreach (var item in speedModifierFinal)
-                {
-                    Script.Logger.LogDebug($"checking final blacklist {nameof(speedModifierFinal)} -> {item}");
-                }
                 foreach (var item in spiderBlacklistFinal)
                 {
                     Script.Logger.LogDebug($"checking final blacklist {nameof(spiderBlacklistFinal)} -> {item}");
+                }
+                foreach (var item in speedModifierDictionay)
+                {
+                    Script.Logger.LogDebug($"checking final speed modifier list {nameof(speedModifierDictionay)} -> {item.Key}, {item.Value}");
                 }
             }
         }

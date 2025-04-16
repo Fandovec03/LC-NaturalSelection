@@ -31,21 +31,12 @@ namespace NaturalSelection.EnemyPatches
         static bool debugTriggers = Script.Bools["debugTriggerFlags"];
         static List<string> beeBlacklist = InitializeGamePatch.beeBlacklistFinal;
 
-        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
-            if (boolName == "debugRedBees")
-            {
-                logBees = newValue;
-            }
-            if (boolName == "spammyLogs")
-            {
-                debugSpam = newValue;
-            }
-            if (boolName == "debugTriggerFlags")
-            {
-                debugTriggers = newValue;
-            }
-            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+            if (entryKey == "debugRedBees") logBees = value;
+            if (entryKey == "spammyLogs") debugSpam = value;
+            if (entryKey == "debugTriggerFlags") debugTriggers = value;
+            Script.Logger.LogMessage($"Curcuit received event. logBees = {logBees}, debugSpam = {debugSpam}, debugTriggers = {debugTriggers}");
         }
 
         [HarmonyPatch("Start")]
@@ -74,7 +65,7 @@ namespace NaturalSelection.EnemyPatches
             BeeValues beeData = beeList[__instance];
             if (RoundManagerPatch.RequestUpdate(__instance) == true)
             {
-                List<EnemyAI> tempList = LibraryCalls.FilterEnemyList(LibraryCalls.GetCompleteList(__instance), beeList[__instance].enemyTypes, beeBlacklist, __instance, true, Script.BoundingConfig.IgnoreImmortalEnemies.Value).ToList();
+                List<EnemyAI> tempList = new List<EnemyAI>(LibraryCalls.FilterEnemyList(LibraryCalls.GetCompleteList(__instance), beeList[__instance].enemyTypes, beeBlacklist, __instance, true, Script.BoundingConfig.IgnoreImmortalEnemies.Value));
                 RoundManagerPatch.ScheduleGlobalListUpdate(__instance, tempList);
             }
             foreach (KeyValuePair<EnemyAI, float> enemy in new Dictionary<EnemyAI, float>(beeData.hitRegistry))

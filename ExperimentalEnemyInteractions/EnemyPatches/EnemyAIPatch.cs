@@ -21,18 +21,12 @@ namespace NaturalSelection.EnemyPatches
         static bool debugTriggerFlags = Script.Bools["debugTriggerFlags"];
         static Dictionary<EnemyAI, EnemyData> enemyData = [];
 
-        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        static void Event_OnConfigSettingChanged(string entryKey, bool value)
 
         {
-            if (boolName == "debugUnspecified")
-            {
-                debugUnspecified = newValue;
-            }
-            if (boolName == "debugTriggerFlags")
-            {
-                debugTriggerFlags = newValue;
-            }
-            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+            if (entryKey == "debugUnspecified") debugUnspecified = value;
+            if (entryKey == "debugTriggerFlags") debugTriggerFlags = value;
+            Script.Logger.LogMessage($"EnemyAI received event. debugUnspecified = {debugUnspecified}, debugTriggerFlags = {debugTriggerFlags}");
         }
 
         [HarmonyPatch("Start")]

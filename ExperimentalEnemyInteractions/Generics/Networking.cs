@@ -11,13 +11,10 @@ namespace NaturalSelection.Generics
         public static Dictionary<string, int> NetworkingDictionary = new Dictionary<string, int>();
         static bool logNetworking = Script.Bools["debugNetworking"];
 
-        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
-            if (boolName == "debugNetworking")
-            {
-                logNetworking = newValue;
-            }
-            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+            if (entryKey == "debugNetworking") logNetworking = value;
+            Script.Logger.LogMessage($"Networking received event. logNetworking = {logNetworking}");
         }
         public static void SubscribeToConfigChanges()
         {

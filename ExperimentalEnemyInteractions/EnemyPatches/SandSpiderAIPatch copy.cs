@@ -8,19 +8,11 @@ using LethalNetworkAPI;
 
 namespace NaturalSelection.EnemyPatches
 {
-    class SpiderData()
-    {
-        internal EnemyAI? closestEnemy = null;
-        internal EnemyAI? targetEnemy = null;
-        internal List<EnemyAI> knownEnemy = new List<EnemyAI>();
-        internal List<EnemyAI> deadEnemyBodies = new List<EnemyAI>();
-        internal float LookAtEnemyTimer = 0f;
-        internal Dictionary<EnemyAI,float> enemiesInLOSDictionary = new Dictionary<EnemyAI, float>();
-    }
-
     [HarmonyPatch(typeof(SandSpiderAI))]
-    class SandSpiderAIPatch
+    class SandSpider2AIPatch
     {
+
+        EnemyBehaviourState customState = new EnemyBehaviourState();
         static float refreshCDtimeSpider = 1f;
         static float chaseModifier = Script.BoundingConfig.chaseAfterEnemiesModifier.Value;
 

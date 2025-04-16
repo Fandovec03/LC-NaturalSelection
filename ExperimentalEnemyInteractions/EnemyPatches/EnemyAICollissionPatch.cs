@@ -19,21 +19,12 @@ namespace NaturalSelection.EnemyPatches
         static bool triggerFlag = Script.Bools["debugTriggerFlags"];
         static bool debugSpam = Script.Bools["spammyLogs"];
 
-        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        static void Event_OnConfigSettingChanged()
         {
-            if (boolName == "debugUnspecified")
-            {
-                logUnspecified = newValue;
-            }
-            if (boolName == "spammyLogs")
-            {
-                debugSpam = newValue;
-            }
-            if (boolName == "debugTriggerFlags")
-            {
-                triggerFlag = newValue;
-            }
-            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+            logUnspecified = Script.Bools["debugUnspecified"];
+            debugSpam = Script.Bools["spammyLogs"];
+            triggerFlag = Script.Bools["debugTriggerFlags"];
+            Script.Logger.LogMessage($"EnemYAICollision received event. logUnspecified = {logUnspecified}, debugSpam = {debugSpam}, triggetFlag = {triggerFlag}");
         }
 
         public static void Collide(string text, EnemyAI? mainscript, EnemyAI? mainscript2)
@@ -150,10 +141,6 @@ namespace NaturalSelection.EnemyPatches
                     return true;
                 }
                 if (instance is ButlerBeesEnemyAI)
-                {
-                    return true;
-                }
-                if (!instance.enemyType.canDie)
                 {
                     return true;
                 }

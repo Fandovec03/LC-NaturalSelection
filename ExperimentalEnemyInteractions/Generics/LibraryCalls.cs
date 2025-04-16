@@ -8,17 +8,11 @@ public class LibraryCalls
     static bool debugSpam = Script.Bools["spammyLogs"];
     static bool debugTriggerFlag = Script.Bools["debugTriggerFlags"];
 
-    static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+    static void Event_OnConfigSettingChanged(string entryKey, bool value)
     {
-        if (boolName == "spammyLogs")
-        {
-            debugSpam = newValue;
-        }
-        if (boolName == "debugTriggerFlags")
-        {
-            debugTriggerFlag = newValue;
-        }
-        Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+            if (entryKey == "debugTriggerFlags") debugTriggerFlag = value;
+            if (entryKey == "spammyLogs") debugSpam = value;
+            Script.Logger.LogMessage($"LibraryCalls received event. debugTriggerFlag = {debugTriggerFlag}, debugSpam = {debugSpam}");
     }
     public static void SubscribeToConfigChanges()
     {

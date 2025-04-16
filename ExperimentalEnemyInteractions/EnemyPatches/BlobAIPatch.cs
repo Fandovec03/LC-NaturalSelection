@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using GameNetcodeStuff;
 using HarmonyLib;
@@ -36,17 +37,11 @@ namespace NaturalSelection.EnemyPatches
             return Networking.NSEnemyNetworkEvent(NWID);
         }
 
-        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
-            if (boolName == "debugHygrodere")
-            {
-                logBlob = newValue;
-            }
-            if (boolName == "debugTriggerFlags")
-            {
-                triggerFlag = newValue;
-            }
-            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+            if (entryKey == "debugHygrodere") logBlob = value;
+            if (entryKey == "debugTriggerFlags") triggerFlag = value;
+			Script.Logger.LogMessage($"Hygrodere received event. logBlob = {logBlob}, triggerFlag = {triggerFlag}");
         }
 
 

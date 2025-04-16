@@ -20,15 +20,14 @@ namespace NaturalSelection;
 
 public class Script : BaseUnityPlugin
 {
-    public delegate void OnConfigSettingChangedArgs(string boolName, bool newValue);
-
     public static Script Instance { get; private set; } = null!;
     internal new static ManualLogSource Logger { get; private set; } = null!;
     internal static Harmony? Harmony { get; set; }
 
     internal static MyModConfig BoundingConfig { get; set; } = null!;
     internal static bool stableToggle;
-    internal static bool isExperimental = false;
+    private static bool isExperimental = false;
+    private static bool isPrerelease = false;
 
     private static bool debugBool = false;
     private static bool spammyLogs = false;
@@ -45,11 +44,11 @@ public class Script : BaseUnityPlugin
     private static bool debugUnspecified = false;
     internal static Dictionary<string,bool> Bools = new Dictionary<string, bool>();
 
-    public static event OnConfigSettingChangedArgs? OnConfigSettingChanged;
+    public static Action<string, bool>? OnConfigSettingChanged;
 
     static void SubscribeDebugConfigBools(ConfigEntry<bool> entryKey,bool boolParam, string entry)
     {
-        entryKey.SettingChanged += (obj, arg) => { boolParam = entryKey.Value; Logger.LogMessage($"Updating with entry.Value {entryKey.Value}. Result: {boolParam}"); OnConfigSettingChanged?.Invoke(entry, entryKey.Value); };
+        entryKey.SettingChanged += (obj, args) => { boolParam = entryKey.Value; Logger.LogMessage($"Updating with entry.Value {entryKey.Value}. Result: {boolParam}"); OnConfigSettingChanged?.Invoke(entry, entryKey.Value); };
     }
 
     private void Awake()
@@ -99,6 +98,7 @@ public class Script : BaseUnityPlugin
             }
             else Logger.LogError($"Failed to find bool for config entry {entry.Key}");
         }
+
         /*
         BoundingConfig.debugNetworking.SettingChanged += (call, arg) => debugNetworking = BoundingConfig.debugNetworking.Value;
         BoundingConfig.debugLibrary.SettingChanged += (call, arg) => debugLibrary = BoundingConfig.debugLibrary.Value;
@@ -113,10 +113,11 @@ public class Script : BaseUnityPlugin
         BoundingConfig.debugUnspecified.SettingChanged += (call, arg) => debugUnspecified = BoundingConfig.debugUnspecified.Value;
         */
         char[] chars = MyPluginInfo.PLUGIN_VERSION.ToCharArray();
-        if (chars[0] == '9' && chars[1] == '9')
+        if (chars[0] == '9' && chars[1] == '9' || chars[0] == '8' && chars[1] == '8')
         {
+            if (chars[0] == '9' && chars[1] == '9') isExperimental = true;
+            if(chars[0] == '8' && chars[1] == '8') isPrerelease = true;
             chars[0] = '0'; chars[1] = '0';
-            isExperimental = true;
         }
         Patch();
         Logger.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{chars} has loaded!");
@@ -127,10 +128,10 @@ public class Script : BaseUnityPlugin
         Harmony ??= new Harmony(MyPluginInfo.PLUGIN_GUID);
 
         Logger.LogInfo($"Patching {MyPluginInfo.PLUGIN_NAME}...");
-        if (isExperimental)
-        {
-            Logger.LogError($"LOADING EXPERIMENTAL {MyPluginInfo.PLUGIN_NAME.ToUpper()}, DOWNLOAD STABLE NATURAL SELECTION INSTEAD!");
-        }
+
+        if (isExperimental) Logger.LogFatal($"LOADING EXPERIMENTAL BUILD OF {MyPluginInfo.PLUGIN_NAME.ToUpper()}, DOWNLOAD NATURAL SELECTION INSTEAD FOR MORE STABLE EXPERIENCE!");
+        if (isPrerelease) Logger.LogWarning($"LOADING PRERELASE BUILD OF {MyPluginInfo.PLUGIN_NAME.ToUpper()}, DOWNLOAD NATURAL SELECTION INSTEAD FOR MORE STABLE EXPERIENCE!");
+
         Harmony.PatchAll(typeof(AICollisionDetectPatch));
         Harmony.PatchAll(typeof(EnemyAIPatch));
         Harmony.PatchAll(typeof(Networking));
@@ -152,7 +153,7 @@ public class Script : BaseUnityPlugin
         if (BoundingConfig.enableHoardingBug.Value)Harmony.PatchAll(typeof(HoarderBugPatch));
         if (BoundingConfig.enableRedBees.Value) Harmony.PatchAll(typeof(BeeAIPatch));
         if (BoundingConfig.enableGiant.Value)Harmony.PatchAll(typeof(ForestGiantPatch));
-        if (BoundingConfig.enableSpiderWebs.Value) Harmony.PatchAll(typeof(SandSpiderWebTrapPatch));
+        if (BoundingConfig.enableSpiderWebs.Value)Harmony.PatchAll(typeof(SandSpiderWebTrapPatch));
 
         if (!stableToggle)
         {

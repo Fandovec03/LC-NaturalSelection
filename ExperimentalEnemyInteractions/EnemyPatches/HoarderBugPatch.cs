@@ -21,13 +21,10 @@ namespace NaturalSelection.EnemyPatches
         static Dictionary<HoarderBugAI, HoarderBugValues> hoarderBugList = [];
         static bool triggerFlag = Script.Bools["debugTriggerFlags"];
 
-        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
-            if (boolName == "debugTriggerFlags")
-            {
-                triggerFlag = newValue;
-            }
-            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+            if (entryKey == "debugTriggerFlags") triggerFlag = value;
+            Script.Logger.LogMessage($"Hoarder bug received event. triggerFlag = {triggerFlag}");
         }
 
         public static void CustomOnHit(int force, EnemyAI enemyWhoHit, bool playHitSFX, HoarderBugAI __instance)

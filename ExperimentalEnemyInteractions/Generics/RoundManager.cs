@@ -17,17 +17,11 @@ namespace NaturalSelection.Generics
         static bool logSpam = Script.Bools["spammyLogs"];
         static bool logUnspecified = Script.Bools["debugUnspecified"];
 
-        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
-            if (boolName == "spammyLogs")
-            {
-                logSpam = newValue;
-            }
-            if (boolName == "debugUnspecified")
-            {
-                logUnspecified = newValue;
-            }
-            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+            if (entryKey == "debugUnspecified") logUnspecified = value;
+            if (entryKey == "spammyLogs") logSpam = value;
+            Script.Logger.LogMessage($"RoundManager received event. logUnspecified = {logUnspecified}, logSpam = {logSpam}");
         }
 
         [HarmonyPatch("Awake")]

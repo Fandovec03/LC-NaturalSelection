@@ -38,17 +38,11 @@ namespace NaturalSelection.EnemyPatches
             return Networking.NSEnemyNetworkVariableFloat(NWID);
         }
 
-        static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
-            if (boolName == "debugGiants")
-            {
-                logGiant = newValue;
-            }
-            if (boolName == "spammyLogs")
-            {
-                debugSpam = newValue;
-            }
-            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+            if (entryKey == "debugGiants") logGiant = value;
+            if (entryKey == "spammyLogs") debugSpam = value;
+            Script.Logger.LogMessage($"Forest Keeper received event. logGiant = {logGiant}, debugSpam = {debugSpam}");
         }
 
         [HarmonyPatch("Start")]

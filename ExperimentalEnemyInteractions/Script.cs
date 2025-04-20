@@ -22,7 +22,7 @@ namespace NaturalSelection;
 public class Script : BaseUnityPlugin
 {
     public static Script Instance { get; private set; } = null!;
-    internal new static ManualLogSource Logger { get; private set; } = null!;
+
     internal new static ManualLogSource Logger = null!;
     internal static Harmony? Harmony { get; set; }
 

@@ -68,7 +68,10 @@ namespace NaturalSelection.Generics;
     public ConfigEntry<bool> debugLibrary;
     public ConfigEntry<bool> debugSpiderWebs;
     public Dictionary<string,ConfigEntry<bool>> debugEntries = new Dictionary<string, ConfigEntry<bool>>();
-
+    //Compatibility overrides
+    public ConfigEntry<bool> enhancedMonstersCompToggle;
+    public ConfigEntry<bool> sellBodiesFixedCompToggle;
+    public ConfigEntry<bool> ReXuvinationCompToggle;
     public MyModConfig(ConfigFile cfg)
     {
         cfg.SaveOnConfigSet = false;
@@ -90,9 +93,9 @@ namespace NaturalSelection.Generics;
             enableSporeLizard = cfg.Bind("Entity settings/WIP", "Enable SporeLizard", false, "Enable changes to apply to to spore lizard. \n\n Early build. DEV ONLY");
             enableRedBees = cfg.Bind("Entity settings", "Enable Red bees (Circuit bees)", true, "Enable changes to apply to red bees and modify it's behavior.");
             enableNutcracker = cfg.Bind("Entity settings/WIP", "Enable Nutcracker", false, "Enable changes to nutcracker to apply to and modify its behavior. \n\n Early build. DEV ONLY");
-            enableGiant = cfg.Bind("Entity settings", "Enable Giant", false, "Enable changes to apply to to forest giant.");
+            enableGiant = cfg.Bind("Entity settings", "Enable Giant", true, "Enable changes to apply to to forest giant.");
             enableHoardingBug = cfg.Bind("Entity settings/WIP", "Enable Hoarding bug", false, "Enable changes to apply to to hoarding bug");
-            enableSpiderWebs = cfg.Bind("Entity settings", "Enable Spider Webs", false, "Enables changes to apply to to spider webs. Webs will stick to and slow down enemies.");
+            enableSpiderWebs = cfg.Bind("Entity settings", "Enable Spider Webs", true, "Enables changes to apply to to spider webs. Webs will stick to and slow down enemies.");
             //entity settings
             //Giant
             giantExtinguishChance = cfg.Bind("Entity settings | Giant", "Extinguish chance", 33, new ConfigDescription("Chance of giants extinguishing themselves in percent.", new AcceptableValueRange<int>(0,100)));
@@ -130,7 +133,10 @@ namespace NaturalSelection.Generics;
             debugGiants = cfg.Bind("Debug", "Log giants", false, "Enables logs for giants. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugGiants), debugGiants);
             debugSpiderWebs = cfg.Bind("Debug", "Log spider webs", false, "Enables logs for spider webs. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugSpiderWebs), debugSpiderWebs);
 
-            
+            //Compatibility overrides
+            ReXuvinationCompToggle = cfg.Bind("Compatibility toggles", "ReXuvination compatibility", false, "Manually toggles compatibility patches for ReXuvination.");
+            enhancedMonstersCompToggle = cfg.Bind("WIP", "Enhanced monsters compatibility", false, "Manually toggles compatibility patches for Enhanced monsters.");
+            sellBodiesFixedCompToggle = cfg.Bind("WIP", "Sellbodiesfixed compatibility", false, "Manually toggles compatibility patches for Sellbodiesfixed.");
         }
         ClearOrphanedEntries(cfg);
         cfg.Save();

@@ -5,7 +5,7 @@
         <AssemblyName>fandovec03.NaturalSelection</AssemblyName>
         <Product>NaturalSelection</Product>
         <!-- Change to whatever version you're currently on. -->
-        <Version>880.2.7</Version>
+        <Version>0.3.0</Version>
     </PropertyGroup>
 
     <!-- Project Properties -->
@@ -25,7 +25,6 @@
     <PropertyGroup>
         <RestoreAdditionalProjectSources>
             https://api.nuget.org/v3/index.json;
-            https://nuget.bepinex.dev/v3/index.json
         </RestoreAdditionalProjectSources>
     </PropertyGroup>
 
@@ -64,9 +63,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Reference Include="TEMP\SellBodies.dll" Publicize="true" PrivateAssets="all">
+      <Reference Include="TEMP\ReXuvination.dll" Publicize="true">
       </Reference>
       <Reference Include="TEMP\EnhancedMonsters.dll">
+      </Reference>
+      <Reference Include="TEMP\SellBodies.dll" Publicize="true">
       </Reference>
     </ItemGroup>
 </Project>

@@ -12,6 +12,8 @@ using BepInEx.Configuration;
 using System.Linq;
 using Unity.Burst.CompilerServices;
 using JetBrains.Annotations;
+using System.Text;
+using BepInEx.Bootstrap;
 
 namespace NaturalSelection;
 
@@ -45,8 +47,9 @@ public class Script : BaseUnityPlugin
     private static bool debugSpiderWebs = false;
     private static bool debugUnspecified = false;
     //Compatibilities
-    private static bool enhancedMonstersPresent = false;
-    private static bool sellBodiesPresent = false;
+    internal static bool enhancedMonstersPresent = false;
+    internal static bool sellBodiesPresent = false;
+    internal static bool rexuvinationPresent = false;
 
     internal static Dictionary<string,bool> Bools = new Dictionary<string, bool>();
 
@@ -98,7 +101,11 @@ public class Script : BaseUnityPlugin
             chars[0] = '0'; chars[1] = '0';
         }
         Patch();
-        Logger.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{chars.ToString()} has loaded!");
+
+        StringBuilder version = new StringBuilder();
+
+        version.Append(chars);
+        Logger.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{version} has loaded!");
     }
 
     internal static void Patch()
@@ -107,18 +114,21 @@ public class Script : BaseUnityPlugin
 
         Logger.LogInfo($"Patching {MyPluginInfo.PLUGIN_NAME}...");
 
-        if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.velddev.enhancedmonsters"))
+        if (Chainloader.PluginInfos.ContainsKey("com.velddev.enhancedmonsters") || BoundingConfig.enhancedMonstersCompToggle.Value)
         {
             enhancedMonstersPresent = true;
             Logger.LogDebug("Enhanced Monsters is present");
         }
-        if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("Entity378.sellbodies"))
+        if (Chainloader.PluginInfos.ContainsKey("Entity378.sellbodies") || BoundingConfig.sellBodiesFixedCompToggle.Value)
         {
             sellBodiesPresent = true;
             Logger.LogDebug("SellbodiesFixed is present");
         }
-
-
+        if (Chainloader.PluginInfos.ContainsKey("XuuXiaolan.ReXuvination") || BoundingConfig.ReXuvinationCompToggle.Value)
+        {
+            rexuvinationPresent = true;
+            Logger.LogDebug("ReXuvination is present");
+        }
 
         if (isExperimental) Logger.LogFatal($"LOADING EXPERIMENTAL BUILD OF {MyPluginInfo.PLUGIN_NAME.ToUpper()}, DOWNLOAD NATURAL SELECTION INSTEAD FOR MORE STABLE EXPERIENCE!");
         if (isPrerelease) Logger.LogWarning($"LOADING PRERELASE BUILD OF {MyPluginInfo.PLUGIN_NAME.ToUpper()}, DOWNLOAD NATURAL SELECTION INSTEAD FOR MORE STABLE EXPERIENCE!");

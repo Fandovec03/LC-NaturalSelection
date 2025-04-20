@@ -13,6 +13,7 @@ namespace NaturalSelection.EnemyPatches
         internal EnemyAI? trappedEnemy = null;
         internal EnemyAI? enemyReference = null;
         internal float enemyReferenceTimer = 0f;
+        internal bool patchedCollisionLayer = false;
     }
 
 
@@ -46,11 +47,31 @@ namespace NaturalSelection.EnemyPatches
 
         [HarmonyPatch("Awake")]
         [HarmonyPostfix]
+        [HarmonyAfter("XuuXiaolan.ReXuvination")]
         static void AwakePostfix(SandSpiderWebTrap __instance)
         {
             if (!spiderWebs.ContainsKey(__instance))
             {
                 spiderWebs.Add(__instance, new SpiderWebValues());
+            }
+
+
+            if (Script.rexuvinationPresent && !spiderWebs[__instance].patchedCollisionLayer)
+            {
+                Collider[] colliders = __instance.gameObject.GetComponents<Collider>();
+                int patched = 0;
+                foreach (Collider collider in colliders)
+                {
+                    if (!collider.isTrigger) continue;
+                    Script.Logger.LogMessage($"awake found  {collider.excludeLayers.value}");
+                    Script.Logger.LogMessage($"awake expected {~(StartOfRound.Instance.playersMask ^ LayerMask.GetMask("Enemies"))}");
+                    collider.excludeLayers = ~(StartOfRound.Instance.playersMask ^ LayerMask.GetMask("Enemies"));
+                    patched++;
+                }
+                if (patched > 0)
+                {
+                    spiderWebs[__instance].patchedCollisionLayer = true;
+                }
             }
 
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
@@ -114,6 +135,25 @@ namespace NaturalSelection.EnemyPatches
         static bool UpdatePrefix(SandSpiderWebTrap __instance, out bool __state)
         {
             SpiderWebValues webData = spiderWebs[__instance];
+
+            if (Script.rexuvinationPresent && !webData.patchedCollisionLayer)
+            {
+                Collider[] colliders = __instance.gameObject.GetComponents<Collider>();
+                int patched = 0;
+                foreach (Collider collider in colliders)
+                {
+                    if (!collider.isTrigger) continue;
+                    Script.Logger.LogMessage($"found  {collider.excludeLayers.value}");
+                    Script.Logger.LogMessage($"expected {~(StartOfRound.Instance.playersMask ^ LayerMask.GetMask("Enemies"))}");
+                    collider.excludeLayers = ~(StartOfRound.Instance.playersMask ^ LayerMask.GetMask("Enemies"));
+                    patched++;
+                }
+                if (patched > 0)
+                {
+                    webData.patchedCollisionLayer = true;
+                }
+            }
+
             if (__instance.currentTrappedPlayer != null)
             {
                 __state = false;

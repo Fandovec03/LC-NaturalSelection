@@ -24,7 +24,7 @@ namespace NaturalSelection.EnemyPatches
         static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
             if (entryKey == "debugTriggerFlags") triggerFlag = value;
-            Script.Logger.LogMessage($"Hoarder bug received event. triggerFlag = {triggerFlag}");
+            //Script.Logger.LogMessage($"Hoarder bug received event. triggerFlag = {triggerFlag}");
         }
 
         public static void CustomOnHit(int force, EnemyAI enemyWhoHit, bool playHitSFX, HoarderBugAI __instance)

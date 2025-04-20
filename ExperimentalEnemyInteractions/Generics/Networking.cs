@@ -14,7 +14,7 @@ namespace NaturalSelection.Generics
         static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
             if (entryKey == "debugNetworking") logNetworking = value;
-            Script.Logger.LogMessage($"Networking received event. logNetworking = {logNetworking}");
+            //Script.Logger.LogMessage($"Networking received event. logNetworking = {logNetworking}");
         }
         public static void SubscribeToConfigChanges()
         {

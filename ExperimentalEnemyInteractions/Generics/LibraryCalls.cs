@@ -12,7 +12,7 @@ public class LibraryCalls
     {
             if (entryKey == "debugTriggerFlags") debugTriggerFlag = value;
             if (entryKey == "spammyLogs") debugSpam = value;
-            Script.Logger.LogMessage($"LibraryCalls received event. debugTriggerFlag = {debugTriggerFlag}, debugSpam = {debugSpam}");
+            //Script.Logger.LogMessage($"LibraryCalls received event. debugTriggerFlag = {debugTriggerFlag}, debugSpam = {debugSpam}");
     }
     public static void SubscribeToConfigChanges()
     {

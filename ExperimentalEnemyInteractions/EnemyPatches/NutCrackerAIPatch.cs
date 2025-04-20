@@ -43,7 +43,7 @@ namespace NaturalSelection.EnemyPatches
             if (entryKey == "debugNutcrackers") debugNutcrackers = value;
             if (entryKey == "spammyLogs") debugSpam = value;
             if (entryKey == "debugTriggerFlags") debugTriggerFlags = value;
-            Script.Logger.LogMessage($"Nutcracker received event. debugNutcrackers = {debugNutcrackers}, debugSpam = {debugSpam}, debugTriggerFlags = {debugTriggerFlags},");
+            //Script.Logger.LogMessage($"Nutcracker received event. debugNutcrackers = {debugNutcrackers}, debugSpam = {debugSpam}, debugTriggerFlags = {debugTriggerFlags},");
         }
 
         [HarmonyPatch("Start")]

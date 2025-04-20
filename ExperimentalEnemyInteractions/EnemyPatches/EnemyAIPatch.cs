@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection.Emit;
 using GameNetcodeStuff;
 using HarmonyLib;
 using NaturalSelection.Generics;
+using Unity.Netcode;
+using UnityEngine.UIElements;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -26,7 +29,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (entryKey == "debugUnspecified") debugUnspecified = value;
             if (entryKey == "debugTriggerFlags") debugTriggerFlags = value;
-            Script.Logger.LogMessage($"EnemyAI received event. debugUnspecified = {debugUnspecified}, debugTriggerFlags = {debugTriggerFlags}");
+            //Script.Logger.LogMessage($"EnemyAI received event. debugUnspecified = {debugUnspecified}, debugTriggerFlags = {debugTriggerFlags}");
         }
 
         [HarmonyPatch("Start")]
@@ -66,6 +69,69 @@ namespace NaturalSelection.EnemyPatches
             }
             if (debugTriggerFlags) Script.Logger.LogInfo($"{LibraryCalls.DebugStringHead(__instance)} registered hit by {playerString} with force of {force}. playHitSFX:{playHitSFX}, hitID:{hitID}.");
         }
+        /*
+        static bool CheckEnemyTypeForOverride(EnemyAI enemy)
+        {
+            if (enemy is ForestGiantAI)
+            {
+                ForestGiantAI giant = (ForestGiantAI)enemy;
+                if (giant.currentBehaviourStateIndex == 2 && giant.burningParticlesContainer.activeSelf == true)
+                {
+                    ForestGiantPatch.RollToExtinguish(giant);
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        [HarmonyTranspiler]
+        [HarmonyPatch(typeof(EnemyAI),nameof(EnemyAI.KillEnemyOnOwnerClient))]
+        static IEnumerable<CodeInstruction> KillEnemyOnOwnerCLientT(IEnumerable<CodeInstruction> instructions)
+        {
+            Script.Logger.LogWarning("Fired Transpiller for EnemyAI.KillEnemyOnOwnerClient");
+            CodeMatcher matcher = new CodeMatcher(instructions);
+
+            matcher.MatchForward(false,
+                new CodeMatch(OpCodes.Ldarg_0),
+                new CodeMatch(OpCodes.Call),
+                new CodeMatch(OpCodes.Brtrue),
+                new CodeMatch(OpCodes.Ret)
+            )
+            .ThrowIfInvalid("Could not find match for EnemyAI.KillEnemyOnOwnerClient")
+            .Advance(4)
+            .InsertAndAdvance(new CodeInstruction(OpCodes.Ldarg_0))
+            .InsertAndAdvance(new CodeInstruction(OpCodes.Call, AccessTools.Method(typeof(EnemyAIPatch), nameof(EnemyAIPatch.CheckEnemyTypeForOverride), [typeof(EnemyAI)])))
+            .InsertAndAdvance(new CodeInstruction(OpCodes.Brtrue, instructions.ToList()[4].labels.First()))
+            .Insert(new CodeInstruction(OpCodes.Ret))
+            ;
+
+            int offset = 0;
+
+            for (int i = 0; i < instructions.ToList().Count; i++)
+            {
+                //if (!debug) break;
+                try
+                {
+                    if (matcher.Instructions().ToList()[i].ToString() != instructions.ToList()[i - offset].ToString())
+                    {
+                        Script.Logger.LogError($"{matcher.Instructions().ToList()[i]} : {instructions.ToList()[i - offset]}");
+
+                        if (matcher.Instructions().ToList()[i].ToString() != instructions.ToList()[i - offset].ToString())
+                        {
+                            offset++;
+                        }
+                    }
+                    else Script.Logger.LogInfo(instructions.ToList()[i]);
+                }
+                catch
+                {
+                    Script.Logger.LogError("Failed to read instructions");
+                }
+            }
+
+            return matcher.Instructions();
+        }*/
+
     }
 
     public class ReversePatchAI

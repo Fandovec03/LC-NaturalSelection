@@ -3,6 +3,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 using NaturalSelection.Generics;
 using NaturalSelection.EnemyPatches;
+using NaturalSelection.Experimental;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Reflection;
@@ -22,6 +23,7 @@ public class Script : BaseUnityPlugin
 {
     public static Script Instance { get; private set; } = null!;
     internal new static ManualLogSource Logger { get; private set; } = null!;
+    internal new static ManualLogSource Logger = null!;
     internal static Harmony? Harmony { get; set; }
 
     internal static MyModConfig BoundingConfig { get; set; } = null!;
@@ -42,6 +44,10 @@ public class Script : BaseUnityPlugin
     private static bool debugSpiders = false;
     private static bool debugSpiderWebs = false;
     private static bool debugUnspecified = false;
+    //Compatibilities
+    private static bool enhancedMonstersPresent = false;
+    private static bool sellBodiesPresent = false;
+
     internal static Dictionary<string,bool> Bools = new Dictionary<string, bool>();
 
     public static Action<string, bool>? OnConfigSettingChanged;
@@ -59,34 +65,19 @@ public class Script : BaseUnityPlugin
         BoundingConfig = new MyModConfig(base.Config);
         stableToggle = BoundingConfig.stableMode.Value;
 
-        //debugBool = BoundingConfig.debugBool.Value;
         Bools.Add(nameof(debugBool),debugBool);
-        //spammyLogs = BoundingConfig.spammyLogs.Value;
         Bools.Add(nameof(spammyLogs),spammyLogs);
-        //debugNetworking = BoundingConfig.debugNetworking.Value;
         Bools.Add(nameof(debugNetworking),debugNetworking);
-        //debugLibrary = BoundingConfig.debugLibrary.Value;
         Bools.Add(nameof(debugLibrary),debugLibrary);
-        //debugTriggerFlags = BoundingConfig.debugTriggerFlags.Value;
         Bools.Add(nameof(debugTriggerFlags),debugTriggerFlags);
-        //debugGiants = BoundingConfig.debugGiants.Value;
         Bools.Add(nameof(debugGiants),debugGiants);
-        //debugHygrodere = BoundingConfig.debugHygrodere.Value;
         Bools.Add(nameof(debugHygrodere),debugHygrodere);
-        //debugNutcrackers = BoundingConfig.debugNutcrackers.Value;
         Bools.Add(nameof(debugNutcrackers),debugNutcrackers);
-        //debugRedBees = BoundingConfig.debugRedBees.Value;
         Bools.Add(nameof(debugRedBees),debugRedBees);
-        //debugSandworms = BoundingConfig.debugSandworms.Value;
         Bools.Add(nameof(debugSandworms),debugSandworms);
-        //debugSpiders = BoundingConfig.debugSpiders.Value;
         Bools.Add(nameof(debugSpiders),debugSpiders);
-        //debugSpiderWebs = BoundingConfig.debugSpiderWebs.Value;
         Bools.Add(nameof(debugSpiderWebs),debugSpiderWebs);
-        //debugUnspecified = BoundingConfig.debugUnspecified.Value;
         Bools.Add(nameof(debugUnspecified),debugUnspecified);
-
-        //BoundingConfig.debugBool.SettingChanged += (call, arg) => debugBool = BoundingConfig.debugBool.Value;
 
         foreach(var entry in BoundingConfig.debugEntries)
         {
@@ -94,24 +85,11 @@ public class Script : BaseUnityPlugin
             {
                 Bools[entry.Key] = entry.Value.Value;
                 SubscribeDebugConfigBools(entry.Value, Bools[entry.Key], entry.Key);
-                Logger.LogMessage($" entry.Key>{entry.Key} found with value entry.Value.Value>{entry.Value.Value} to Bools[entry.Key]>{Bools[entry.Key]}");
+                //Logger.LogMessage($" {entry.Key} found with value {entry.Value.Value} to {Bools[entry.Key]}");
             }
             else Logger.LogError($"Failed to find bool for config entry {entry.Key}");
         }
 
-        /*
-        BoundingConfig.debugNetworking.SettingChanged += (call, arg) => debugNetworking = BoundingConfig.debugNetworking.Value;
-        BoundingConfig.debugLibrary.SettingChanged += (call, arg) => debugLibrary = BoundingConfig.debugLibrary.Value;
-        BoundingConfig.debugTriggerFlags.SettingChanged += (call, arg) => debugTriggerFlags = BoundingConfig.debugTriggerFlags.Value;
-        BoundingConfig.debugGiants.SettingChanged += (call, arg) => debugGiants = BoundingConfig.debugGiants.Value;
-        BoundingConfig.debugHygrodere.SettingChanged += (call, arg) => debugHygrodere = BoundingConfig.debugHygrodere.Value;
-        BoundingConfig.debugNutcrackers.SettingChanged += (call, arg) => debugNutcrackers = BoundingConfig.debugNutcrackers.Value;
-        BoundingConfig.debugRedBees.SettingChanged += (call, arg) => debugRedBees = BoundingConfig.debugRedBees.Value;
-        BoundingConfig.debugSandworms.SettingChanged += (call, arg) => debugSandworms = BoundingConfig.debugSandworms.Value;
-        BoundingConfig.debugSpiders.SettingChanged += (call, arg) => debugSpiders = BoundingConfig.debugSpiders.Value;
-        BoundingConfig.debugSpiderWebs.SettingChanged += (call, arg) => debugSpiderWebs = BoundingConfig.debugSpiderWebs.Value;
-        BoundingConfig.debugUnspecified.SettingChanged += (call, arg) => debugUnspecified = BoundingConfig.debugUnspecified.Value;
-        */
         char[] chars = MyPluginInfo.PLUGIN_VERSION.ToCharArray();
         if (chars[0] == '9' && chars[1] == '9' || chars[0] == '8' && chars[1] == '8')
         {
@@ -120,7 +98,7 @@ public class Script : BaseUnityPlugin
             chars[0] = '0'; chars[1] = '0';
         }
         Patch();
-        Logger.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{chars} has loaded!");
+        Logger.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{chars.ToString()} has loaded!");
     }
 
     internal static void Patch()
@@ -128,6 +106,19 @@ public class Script : BaseUnityPlugin
         Harmony ??= new Harmony(MyPluginInfo.PLUGIN_GUID);
 
         Logger.LogInfo($"Patching {MyPluginInfo.PLUGIN_NAME}...");
+
+        if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("com.velddev.enhancedmonsters"))
+        {
+            enhancedMonstersPresent = true;
+            Logger.LogDebug("Enhanced Monsters is present");
+        }
+        if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("Entity378.sellbodies"))
+        {
+            sellBodiesPresent = true;
+            Logger.LogDebug("SellbodiesFixed is present");
+        }
+
+
 
         if (isExperimental) Logger.LogFatal($"LOADING EXPERIMENTAL BUILD OF {MyPluginInfo.PLUGIN_NAME.ToUpper()}, DOWNLOAD NATURAL SELECTION INSTEAD FOR MORE STABLE EXPERIENCE!");
         if (isPrerelease) Logger.LogWarning($"LOADING PRERELASE BUILD OF {MyPluginInfo.PLUGIN_NAME.ToUpper()}, DOWNLOAD NATURAL SELECTION INSTEAD FOR MORE STABLE EXPERIENCE!");
@@ -155,12 +146,15 @@ public class Script : BaseUnityPlugin
         if (BoundingConfig.enableGiant.Value)Harmony.PatchAll(typeof(ForestGiantPatch));
         if (BoundingConfig.enableSpiderWebs.Value)Harmony.PatchAll(typeof(SandSpiderWebTrapPatch));
 
+        //Compatibilities
+        //if (enhancedMonstersPresent) Harmony.PatchAll(typeof(EnhancedMonstersPatch));
+        //if (sellBodiesPresent) SellBodiesFixedPatch.AddTracerScriptToPrefabs();
+
         if (!stableToggle)
         {
         if (BoundingConfig.enableNutcracker.Value)Harmony.PatchAll(typeof(NutcrackerAIPatch));
         if (BoundingConfig.enableSporeLizard.Value)Harmony.PatchAll(typeof(PufferAIPatch));
         if (BoundingConfig.enableSpider.Value)Harmony.PatchAll(typeof(SandSpiderAIPatch));
-
         Logger.LogInfo("Stable mode off. Loaded all patches.");
         }
         else

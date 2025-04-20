@@ -41,7 +41,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (entryKey == "debugBool") debugLogs = value;
             if (entryKey == "debugSpiderWebs") debugWebs = value;
-            Script.Logger.LogMessage($"Bunker Spider web received event. debugBool = {debugLogs}, debugSpiderWebs = {debugWebs}");
+            //Script.Logger.LogMessage($"Bunker Spider web received event. debugBool = {debugLogs}, debugSpiderWebs = {debugWebs}");
         }
 
         [HarmonyPatch("Awake")]

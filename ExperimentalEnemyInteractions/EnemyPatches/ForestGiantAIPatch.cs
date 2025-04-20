@@ -14,6 +14,9 @@ namespace NaturalSelection.EnemyPatches
         internal bool setFireOnKill = false;
     }
 
+
+
+
     [HarmonyPatch(typeof(ForestGiantAI))]
     class ForestGiantPatch
     {
@@ -26,7 +29,7 @@ namespace NaturalSelection.EnemyPatches
             return Networking.NSEnemyNetworkEvent(NWID);
         }
 
-        static LNetworkEvent NetworkExtinguish(ForestGiantAI forestGiantAI)
+        internal static LNetworkEvent NetworkExtinguish(ForestGiantAI forestGiantAI)
         {
             string NWID = "NSExtinguish" + forestGiantAI.NetworkObjectId;
             return Networking.NSEnemyNetworkEvent(NWID);
@@ -42,7 +45,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (entryKey == "debugGiants") logGiant = value;
             if (entryKey == "spammyLogs") debugSpam = value;
-            Script.Logger.LogMessage($"Forest Keeper received event. logGiant = {logGiant}, debugSpam = {debugSpam}");
+            //Script.Logger.LogMessage($"Forest Keeper received event. logGiant = {logGiant}, debugSpam = {debugSpam}");
         }
 
         [HarmonyPatch("Start")]
@@ -146,5 +149,25 @@ namespace NaturalSelection.EnemyPatches
                 __instance.burningParticlesContainer.SetActive(false);
             }
         }
+        /*
+        public static void RollToExtinguish(ForestGiantAI __instance)
+        {
+            GiantData giantData = giantDictionary[__instance];
+            if (__instance.enemyHP > 20 && giantData.extinguished == 0  && !__instance.isEnemyDead && __instance.IsOwner)
+            {
+                int randomNumber = Random.Range(0, 100);
+
+                if (randomNumber <= Script.BoundingConfig.giantExtinguishChance.Value)
+                {
+                    NetworkExtinguish(__instance).InvokeClients();
+                    Script.Logger.LogInfo($"{LibraryCalls.DebugStringHead(__instance)} successfully extinguished itself. Skipping Update. Rolled {randomNumber}");
+                }
+                else
+                {
+                    Script.Logger.LogInfo($"{LibraryCalls.DebugStringHead(__instance)} failed to extinguish itself. rolled {randomNumber}");
+                    giantData.extinguished = 2;
+                }
+            }
+        }*/
     }
 } 

@@ -52,7 +52,7 @@ namespace NaturalSelection.EnemyPatches
             if (entryKey == "debugSandworms") debugSandworm = value;
             if (entryKey == "spammyLogs") debugSpam = value;
             if (entryKey == "debugTriggerFlags") triggerFlag = value;
-            Script.Logger.LogMessage($"Earth Leviathan received event. debugSandworm = {debugSandworm}, debugSpam = {debugSpam}");
+            //Script.Logger.LogMessage($"Earth Leviathan received event. debugSandworm = {debugSandworm}, debugSpam = {debugSpam}");
         }
 
         [HarmonyPatch("Start")]

@@ -42,7 +42,7 @@ namespace NaturalSelection.EnemyPatches
             if (entryKey == "debugSpiders") debugSpider = value;
             if (entryKey == "spammyLogs") debugSpam = value;
             if (entryKey == "debugTriggerFlags") debugTriggerFlag = value;
-            Script.Logger.LogMessage($"Bunker Spider received event. debugSpider = {debugSpider}, debugSpam = {debugSpam}, debugTriggetFlag = {debugTriggerFlag}");
+            //Script.Logger.LogMessage($"Bunker Spider received event. debugSpider = {debugSpider}, debugSpam = {debugSpam}, debugTriggetFlag = {debugTriggerFlag}");
         }
 
         [HarmonyPatch("Start")]

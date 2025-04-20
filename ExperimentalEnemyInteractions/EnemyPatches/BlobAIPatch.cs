@@ -41,7 +41,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (entryKey == "debugHygrodere") logBlob = value;
             if (entryKey == "debugTriggerFlags") triggerFlag = value;
-			Script.Logger.LogMessage($"Hygrodere received event. logBlob = {logBlob}, triggerFlag = {triggerFlag}");
+			//Script.Logger.LogMessage($"Hygrodere received event. logBlob = {logBlob}, triggerFlag = {triggerFlag}");
         }
 
 

@@ -36,7 +36,7 @@ namespace NaturalSelection.EnemyPatches
             if (entryKey == "debugRedBees") logBees = value;
             if (entryKey == "spammyLogs") debugSpam = value;
             if (entryKey == "debugTriggerFlags") debugTriggers = value;
-            Script.Logger.LogMessage($"Curcuit received event. logBees = {logBees}, debugSpam = {debugSpam}, debugTriggers = {debugTriggers}");
+            //Script.Logger.LogMessage($"Curcuit received event. logBees = {logBees}, debugSpam = {debugSpam}, debugTriggers = {debugTriggers}");
         }
 
         [HarmonyPatch("Start")]

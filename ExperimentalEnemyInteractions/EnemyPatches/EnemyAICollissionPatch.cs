@@ -24,7 +24,7 @@ namespace NaturalSelection.EnemyPatches
             logUnspecified = Script.Bools["debugUnspecified"];
             debugSpam = Script.Bools["spammyLogs"];
             triggerFlag = Script.Bools["debugTriggerFlags"];
-            Script.Logger.LogMessage($"EnemYAICollision received event. logUnspecified = {logUnspecified}, debugSpam = {debugSpam}, triggetFlag = {triggerFlag}");
+            //Script.Logger.LogMessage($"EnemYAICollision received event. logUnspecified = {logUnspecified}, debugSpam = {debugSpam}, triggetFlag = {triggerFlag}");
         }
 
         public static void Collide(string text, EnemyAI? mainscript, EnemyAI? mainscript2)

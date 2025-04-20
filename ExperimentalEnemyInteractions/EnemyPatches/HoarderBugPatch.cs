@@ -3,15 +3,15 @@ using System.Collections.Generic;
 
 namespace NaturalSelection.EnemyPatches
 {
-    class HoarderBugValues
+    class HoarderBugValues()
     {
-        public EnemyAI? targetEnemy = null;
-        public EnemyAI? closestEnemy = null;
-        public bool alertedByEnemy = false;
-        public List<EnemyAI> enemies = new List<EnemyAI>();
-        public List<EnemyAI> enemiesInLOS = new List<EnemyAI>();
-        public bool limitSpeed = false;
-        public float limitedSpeed = 0f;
+        internal EnemyAI? targetEnemy = null;
+        internal EnemyAI? closestEnemy = null;
+        internal bool alertedByEnemy = false;
+        internal List<EnemyAI> enemies = new List<EnemyAI>();
+        internal List<EnemyAI> enemiesInLOS = new List<EnemyAI>();
+        internal bool limitSpeed = false;
+        internal float limitedSpeed = 0f;
     }
 
 
@@ -19,14 +19,18 @@ namespace NaturalSelection.EnemyPatches
     class HoarderBugPatch()
     {
         static Dictionary<HoarderBugAI, HoarderBugValues> hoarderBugList = [];
-        public static HoarderBugValues ReturnEnemyValuesFromDictionary(HoarderBugAI hoarderBug)
+        static bool triggerFlag = Script.Bools["debugTriggerFlags"];
+
+        static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
-            return hoarderBugList[hoarderBug];
+            if (entryKey == "debugTriggerFlags") triggerFlag = value;
+            //Script.Logger.LogMessage($"Hoarder bug received event. triggerFlag = {triggerFlag}");
         }
+
         public static void CustomOnHit(int force, EnemyAI enemyWhoHit, bool playHitSFX, HoarderBugAI __instance)
         {
             __instance.enemyHP -= force;
-            Script.Logger.LogDebug("Hoarderbug CustomHit Triggered");
+            if (triggerFlag) Script.Logger.LogDebug("Hoarderbug CustomHit Triggered");
             if (playHitSFX)
             {
                 WalkieTalkie.TransmitOneShotAudio(__instance.creatureVoice, __instance.enemyType.hitBodySFX);
@@ -51,6 +55,8 @@ namespace NaturalSelection.EnemyPatches
             {
                 hoarderBugList.Add(__instance, new HoarderBugValues());
             }
+
+            Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
         
         [HarmonyPatch("Update")]

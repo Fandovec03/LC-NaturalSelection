@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using GameNetcodeStuff;
 using HarmonyLib;
@@ -14,25 +15,35 @@ using UnityEngine.UIElements;
 
 namespace NaturalSelection.EnemyPatches
 {
-	
-	class BlobData
+
+    class BlobData()
 	{
-        public float timeSinceHittingLocalMonster = 0;
-        public EnemyAI? closestEnemy = null;
-		public bool playSound = false;
+        internal EnemyAI? closestEnemy = null;
+		internal bool playSound = false;
+		internal List<EnemyAI> localEnemyList = new List<EnemyAI>();
+		internal Dictionary<EnemyAI, float> hitRegistry = new Dictionary<EnemyAI, float>();
     }
 
 	[HarmonyPatch(typeof(BlobAI))]
-	public class BlobAIPatch
+	class BlobAIPatch
 	{
 		static Dictionary<BlobAI, BlobData> slimeList = [];
-		static bool logBlob = Script.BoundingConfig.debugHygrodere.Value;
-        static List<string> blacklist = Script.BoundingConfig.blobBlacklist.Value.ToUpper().Split(",").ToList();
+		static bool logBlob = Script.Bools["debugHygrodere"];
+		static bool triggerFlag = Script.Bools["debugTriggerFlags"];
+        static List<string> blobBlacklist = InitializeGamePatch.blobBlacklistFinal;
         static LNetworkEvent BlobEatCorpseEvent(BlobAI instance)
 		{
             string NWID = "NSSlimeEatEvent" + instance.NetworkObjectId;
             return Networking.NSEnemyNetworkEvent(NWID);
         }
+
+        static void Event_OnConfigSettingChanged(string entryKey, bool value)
+        {
+            if (entryKey == "debugHygrodere") logBlob = value;
+            if (entryKey == "debugTriggerFlags") triggerFlag = value;
+			//Script.Logger.LogMessage($"Hygrodere received event. logBlob = {logBlob}, triggerFlag = {triggerFlag}");
+        }
+
 
         [HarmonyPatch("Start")]
 		[HarmonyPrefix]
@@ -46,16 +57,17 @@ namespace NaturalSelection.EnemyPatches
 			{
 				__instance.openDoorSpeedMultiplier = 0f;
 			}
-
-            ///////////////////////////////////////Networking
+            BlobData blobData = slimeList[__instance];
 
             BlobEatCorpseEvent(__instance).OnClientReceived += EventReceived;
 
             void EventReceived()
             {
-				slimeList[__instance].playSound = true;
+				blobData.playSound = true;
                 //Script.Logger.LogMessage("Received event. Changed value to " + blobData.playSound + ", eventLimiter: " + eventLimiter);
             }
+
+			Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
 		[HarmonyPatch("DoAIInterval")]
 		[HarmonyPrefix]
@@ -89,22 +101,26 @@ namespace NaturalSelection.EnemyPatches
 		static void BlobUpdatePatch(BlobAI __instance)
 		{
 			BlobData blobData = slimeList[__instance];
+			Type type = __instance.GetType();
 
-			/*void EventReceived()
+			foreach(KeyValuePair<EnemyAI, float> enemy in new Dictionary<EnemyAI, float>(blobData.hitRegistry))
 			{
-                blobData.playSound = true;
-                //Script.Logger.LogMessage("Received event. Changed value to " + blobData.playSound + ", eventLimiter: " + eventLimiter);
-            }*/
-			
-
-            blobData.timeSinceHittingLocalMonster += Time.deltaTime;
+				if (enemy.Value > 1.5f)
+				{
+					blobData.hitRegistry.Remove(enemy.Key); continue;
+				}
+				blobData.hitRegistry[enemy.Key] += Time.deltaTime;
+            }
 			if (RoundManagerPatch.RequestUpdate(__instance) == true)
 			{
-				RoundManagerPatch.ScheduleGlobalListUpdate(__instance, EnemyAIPatch.FilterEnemyList(EnemyAIPatch.GetInsideEnemyList(EnemyAIPatch.GetCompleteList(__instance, true, 1), __instance), null, blacklist,__instance, false, true));
+				List<EnemyAI> tempList = LibraryCalls.FilterEnemyList(LibraryCalls.GetCompleteList(__instance, true, 1), null, blobBlacklist, __instance, false, true).ToList();
+                RoundManagerPatch.ScheduleGlobalListUpdate(__instance, tempList);
 			}
-			if (__instance.IsOwner) blobData.closestEnemy = EnemyAIPatch.FindClosestEnemy(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[__instance.GetType()], blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
-
-            //BlobEatCorpseEvent(__instance).OnClientReceived += EventReceived;
+			if (__instance.IsOwner)
+			{
+				blobData.localEnemyList = LibraryCalls.GetInsideOrOutsideEnemyList(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type], __instance).ToList();
+				blobData.closestEnemy = LibraryCalls.FindClosestEnemy(blobData.localEnemyList, blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
+            }
 
 			if (blobData.playSound)
 			{
@@ -118,12 +134,10 @@ namespace NaturalSelection.EnemyPatches
 		{
             BlobData blobData = slimeList[__instance];
 
-            if (blobData.timeSinceHittingLocalMonster > 1.5f)
+            if (!blobData.hitRegistry.ContainsKey(mainscript2) && !blobBlacklist.Contains(mainscript2.enemyType.enemyName))
 			{
 				if (mainscript2.isEnemyDead && IsEnemyImmortal.EnemyIsImmortal(mainscript2) == false && Vector3.Distance(__instance.transform.position, mainscript2.transform.position) <= 2.8f && Script.BoundingConfig.blobConsumesCorpses.Value)
 				{
-                    //__instance.creatureVoice.PlayOneShot(__instance.killPlayerSFX);
-
                     if (__instance.IsOwner && mainscript2.thisNetworkObject.IsSpawned)
 					{
                         BlobEatCorpseEvent(__instance).InvokeClients();
@@ -137,7 +151,7 @@ namespace NaturalSelection.EnemyPatches
 					if (mainscript2 is not NutcrackerEnemyAI && mainscript2 is not CaveDwellerAI)
 					{
 
-						blobData.timeSinceHittingLocalMonster = 0f;
+                        blobData.hitRegistry.Add(mainscript2, 0);
 
 						if (mainscript2 is FlowermanAI)
 						{
@@ -177,8 +191,7 @@ namespace NaturalSelection.EnemyPatches
 							return;
 						}
 
-						blobData.timeSinceHittingLocalMonster = 0f;
-						mainscript2.HitEnemy(1, null, playHitSFX: true);
+                        mainscript2.HitEnemy(1, null, playHitSFX: true);
 						if (mainscript2.enemyHP <= 0)
 						{
 							mainscript2.KillEnemyOnOwnerClient();

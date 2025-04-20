@@ -2,17 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
+using NaturalSelection.Generics;
 
 namespace NaturalSelection.EnemyPatches
 {
-    class NutcrackerData
+    class NutcrackerData()
     {
-        public EnemyAI? closestEnemy = null;
-        public EnemyAI? targetEnemy = null;
-        public bool SeeMovingEnemy = false;
-        public Vector3 lastSeenEnemyPosition = UnityEngine.Vector3.zero;
-        public float TimeSinceSeeingMonster = 0f;
-        public float TimeSinceHittingMonster = 0f;
+        internal EnemyAI? closestEnemy = null;
+        internal EnemyAI? targetEnemy = null;
+        internal bool SeeMovingEnemy = false;
+        internal Vector3 lastSeenEnemyPosition = UnityEngine.Vector3.zero;
+        internal float TimeSinceSeeingMonster = 0f;
+        internal float TimeSinceHittingMonster = 0f;
     }
 
     [HarmonyPatch(typeof(NutcrackerEnemyAI))]
@@ -20,8 +21,9 @@ namespace NaturalSelection.EnemyPatches
     {
         static List<EnemyAI> enemyList = new List<EnemyAI>();
         static Dictionary<NutcrackerEnemyAI, NutcrackerData> NutcrackerData = [];
-        static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
-        static bool debugNutcrackers = Script.BoundingConfig.debugNutcrackers.Value;
+        static bool debugSpam = Script.Bools["spammyLogs"];
+        static bool debugNutcrackers = Script.Bools["debugNutcrackers"];
+        static bool debugTriggerFlags = Script.Bools["debugTriggerFlags"];
 
         static public bool CheckLOSForMonsters(Vector3 monsterPosition, NutcrackerEnemyAI __instance, float width = 45f, int range = 60, int proximityAwareness = 60)
         {
@@ -36,7 +38,13 @@ namespace NaturalSelection.EnemyPatches
             return false;
         }
 
-
+        static void Event_OnConfigSettingChanged(string entryKey, bool value)
+        {
+            if (entryKey == "debugNutcrackers") debugNutcrackers = value;
+            if (entryKey == "spammyLogs") debugSpam = value;
+            if (entryKey == "debugTriggerFlags") debugTriggerFlags = value;
+            //Script.Logger.LogMessage($"Nutcracker received event. debugNutcrackers = {debugNutcrackers}, debugSpam = {debugSpam}, debugTriggerFlags = {debugTriggerFlags},");
+        }
 
         [HarmonyPatch("Start")]
         [HarmonyPostfix]
@@ -46,6 +54,7 @@ namespace NaturalSelection.EnemyPatches
             {
                 NutcrackerData.Add(__instance, new NutcrackerData());
             }
+            Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
 
         [HarmonyPatch("Update")]
@@ -54,9 +63,9 @@ namespace NaturalSelection.EnemyPatches
         {
             NutcrackerData data = NutcrackerData[__instance];
 
-            enemyList = EnemyAIPatch.GetOutsideEnemyList(EnemyAIPatch.GetCompleteList(__instance),__instance);
+            enemyList = LibraryCalls.GetInsideOrOutsideEnemyList(LibraryCalls.GetCompleteList(__instance),__instance);
 
-            data.closestEnemy = EnemyAIPatch.FindClosestEnemy(enemyList, data.closestEnemy, __instance);
+            data.closestEnemy = LibraryCalls.FindClosestEnemy(enemyList, data.closestEnemy, __instance);
 
 
             if (__instance.currentBehaviourStateIndex == 1)

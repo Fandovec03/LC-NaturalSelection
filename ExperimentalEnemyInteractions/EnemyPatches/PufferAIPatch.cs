@@ -4,10 +4,10 @@ using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches
 {
-    class PufferData
+    class PufferData()
     {
-        public int reactionToHit = 0;
-        public EnemyAI? targetEnemy = null;
+        internal int reactionToHit = 0;
+        internal EnemyAI? targetEnemy = null;
     }
 
     [HarmonyPatch(typeof(PufferAI))]
@@ -15,6 +15,19 @@ namespace NaturalSelection.EnemyPatches
     {
 
         static Dictionary<PufferAI, PufferData> pufferList = [];
+
+        /*static void Event_OnConfigSettingChanged(string boolName, bool newValue)
+        {
+            if (boolName == "debugUnspecified")
+            {
+                debugUnspecified = newValue;
+            }
+            if (boolName == "debugTriggerFlags")
+            {
+                debugTriggerFlags = newValue;
+            }
+            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+        }*/
 
         [HarmonyPatch("Start")]
         [HarmonyPostfix]
@@ -77,14 +90,15 @@ namespace NaturalSelection.EnemyPatches
         public static void HitEnemyTest(int force, EnemyAI enemyWhoHit, bool playHitSFX, PufferAI instance)
         {
             int reactionINT = EnemyAIPatch.ReactToHit(force);
+            PufferData data = pufferList[instance];
 
             if (enemyWhoHit is SandSpiderAI)
             {
-                pufferList[instance].reactionToHit = 2;
+                data.reactionToHit = 2;
             }
             else
             {
-                pufferList[instance].reactionToHit = 1;
+                data.reactionToHit = 1;
             }
         }
     }

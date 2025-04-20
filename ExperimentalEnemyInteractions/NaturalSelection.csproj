@@ -5,7 +5,7 @@
         <AssemblyName>fandovec03.NaturalSelection</AssemblyName>
         <Product>NaturalSelection</Product>
         <!-- Change to whatever version you're currently on. -->
-        <Version>0.2.3</Version>
+        <Version>0.3.0</Version>
     </PropertyGroup>
 
     <!-- Project Properties -->
@@ -25,7 +25,6 @@
     <PropertyGroup>
         <RestoreAdditionalProjectSources>
             https://api.nuget.org/v3/index.json;
-            https://nuget.bepinex.dev/v3/index.json
         </RestoreAdditionalProjectSources>
     </PropertyGroup>
 
@@ -47,8 +46,12 @@
         <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" PrivateAssets="all" />
         <PackageReference Include="LethalCompany.GameLibs.Steam" Version="*-*" PrivateAssets="all" />
         <PackageReference Include="UnityEngine.Modules" Version="2022.3.9" IncludeAssets="compile" PrivateAssets="all" />
-		<PackageReference Include="fandovec03.NaturalSelectionLib" Version="0.6.0" />
-		<PackageReference Include="Xilophor.LethalNetworkAPI" Version="3.3.1" PrivateAssets="all" />
+		<PackageReference Include="fandovec03.NaturalSelectionLib" Version="0.6.7" />
+		<PackageReference Include="Xilophor.LethalNetworkAPI" Version="3.3.2" PrivateAssets="all" />
+		<PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+		</PackageReference>
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
@@ -57,5 +60,14 @@
 
     <ItemGroup>
       <Folder Include="DLLs\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Reference Include="TEMP\ReXuvination.dll" Publicize="true">
+      </Reference>
+      <Reference Include="TEMP\EnhancedMonsters.dll">
+      </Reference>
+      <Reference Include="TEMP\SellBodies.dll" Publicize="true">
+      </Reference>
     </ItemGroup>
 </Project>

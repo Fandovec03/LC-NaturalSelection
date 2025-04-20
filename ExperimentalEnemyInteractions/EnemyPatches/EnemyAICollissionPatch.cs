@@ -1,67 +1,50 @@
 using HarmonyLib;
+using NaturalSelection.Generics;
 using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches
 {
-    public class OnCollideWithUniversal
+    class OnCollideWithUniversal
     {
+        class EnemyCollisionData
+        {
+            internal bool subscribed = false;
+        }
+
         static bool enableSpider = Script.BoundingConfig.enableSpider.Value;
         static bool enableSlime = Script.BoundingConfig.enableSlime.Value;
         static bool enableBees = Script.BoundingConfig.enableRedBees.Value;
 
-        static bool logUnspecified = Script.BoundingConfig.debugUnspecified.Value;
-        static bool triggerFlag = Script.BoundingConfig.debugTriggerFlags.Value;
-        static bool logSpider = Script.BoundingConfig.debugSpiders.Value;
-        static bool debugSpam = Script.BoundingConfig.spammyLogs.Value;
+        static bool logUnspecified = Script.Bools["debugUnspecified"];
+        static bool triggerFlag = Script.Bools["debugTriggerFlags"];
+        static bool debugSpam = Script.Bools["spammyLogs"];
+
+        static void Event_OnConfigSettingChanged()
+        {
+            logUnspecified = Script.Bools["debugUnspecified"];
+            debugSpam = Script.Bools["spammyLogs"];
+            triggerFlag = Script.Bools["debugTriggerFlags"];
+            //Script.Logger.LogMessage($"EnemYAICollision received event. logUnspecified = {logUnspecified}, debugSpam = {debugSpam}, triggetFlag = {triggerFlag}");
+        }
 
         public static void Collide(string text, EnemyAI? mainscript, EnemyAI? mainscript2)
         {
 
-            if (logUnspecified && debugSpam && triggerFlag) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(mainscript) + "Hit collider of " + EnemyAIPatch.DebugStringHead(mainscript2) + ", Tag: " + text);
+            if (logUnspecified && debugSpam && triggerFlag) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(mainscript)} hit collider of {LibraryCalls.DebugStringHead(mainscript2)} Tag: {text}");
             if (mainscript != null && text == "Player")
             {
-                
+
             }
             if (mainscript != null && mainscript2 != null)
             {
                 if (mainscript is SandSpiderAI && mainscript2 is not SandSpiderAI && mainscript2 != null && enableSpider)
                 {
-                    SandSpiderAI spiderAI = (SandSpiderAI)mainscript;
-                    if (logSpider && triggerFlag) Script.Logger.LogDebug(EnemyAIPatch.DebugStringHead(mainscript) + " timeSinceHittingPlayer: " + spiderAI.timeSinceHittingPlayer);
-                    if (spiderAI.timeSinceHittingPlayer > 1f)
-                    {
-                        spiderAI.timeSinceHittingPlayer = 0f;
-                        spiderAI.creatureSFX.PlayOneShot(spiderAI.attackSFX);
-                        if (mainscript2 is HoarderBugAI)
-                        {
-                            if (mainscript2.enemyHP > 2)
-                            {
-                                mainscript2.HitEnemy(2, null, playHitSFX: true);
-
-                            }
-                            else if (mainscript2.enemyHP > 0)
-                            {
-                                mainscript2.HitEnemy(1, null, playHitSFX: true);
-                            }
-                        }
-                        if (mainscript2 is PufferAI)
-                        {
-                            if (mainscript2.enemyHP > 2)
-                            {
-                                PufferAIPatch.CustomOnHit(2, mainscript, playHitSFX: true, (PufferAI)mainscript2);      
-                            }
-                            else if (mainscript2.enemyHP > 0)
-                            {
-                                PufferAIPatch.CustomOnHit(1, mainscript, playHitSFX: true, (PufferAI)mainscript2);
-                            }
-                        }
-                        if (logSpider && triggerFlag) Script.Logger.LogMessage(EnemyAIPatch.DebugStringHead(mainscript) + " Hit " + EnemyAIPatch.DebugStringHead(mainscript2)+ ", Tag: " + text);
-                    }
+                    SandSpiderAIPatch.OnCustomEnemyCollision((SandSpiderAI)mainscript, mainscript2);
                 }
 
                 if (mainscript is BlobAI && mainscript2 is not BlobAI && mainscript2 != null && enableSlime)
                 {
-                   BlobAIPatch.OnCustomEnemyCollision((BlobAI)mainscript, mainscript2);
+                    BlobAIPatch.OnCustomEnemyCollision((BlobAI)mainscript, mainscript2);
                 }
 
                 if (mainscript is RedLocustBees && mainscript2 is not RedLocustBees && mainscript2 != null && enableBees)
@@ -88,31 +71,43 @@ namespace NaturalSelection.EnemyPatches
                     }
                 }*/
             }
-        } 
+        }
     }
-
-    [HarmonyPatch(typeof(EnemyAICollisionDetect), "OnTriggerStay")]
+    [HarmonyPatch(typeof(EnemyAICollisionDetect))]
     public class AICollisionDetectPatch
     {
-        static bool Prefix(Collider other, EnemyAICollisionDetect __instance)
+        [HarmonyPatch(nameof(EnemyAICollisionDetect.OnTriggerStay))]
+        [HarmonyPrefix]
+        static bool OnTriggerStayPrefix(Collider other, EnemyAICollisionDetect __instance)
         {
-            if (other == null) { Script.Logger.LogError(EnemyAIPatch.DebugStringHead(__instance.mainScript) + "Collider is null! Using original function..."); return true; }
-            EnemyAICollisionDetect compoment2 = other.gameObject.GetComponent<EnemyAICollisionDetect>();
+
+
+            if (other == null) { Script.Logger.LogError($"{LibraryCalls.DebugStringHead(__instance.mainScript)} Collider is null! Using original function..."); return true; }
+            EnemyAICollisionDetect? compoment2 = other.gameObject.GetComponent<EnemyAICollisionDetect>();
 
             if (__instance != null)
             {
-#pragma warning disable CS8602 // P��stup p�es ukazatel k mo�n�mu odkazu s hodnotou null
+                EnemyAI? hitEnemy = null;
                 if (other.CompareTag("Player") && __instance.mainScript.isEnemyDead == false)
                 {
                     OnCollideWithUniversal.Collide("Player", null, null);
                     return true;
                 }
-#pragma warning restore CS8602 // P��stup p�es ukazatel k mo�n�mu odkazu s hodnotou null
-#pragma warning disable CS8602 // P��stup p�es ukazatel k mo�n�mu odkazu s hodnotou null
-                if (other.CompareTag("Enemy") && compoment2 != null && compoment2.mainScript != __instance.mainScript && IsEnemyImmortal.EnemyIsImmortal(compoment2.mainScript) == false && !__instance.mainScript.isEnemyDead)
+                if (compoment2 != null)
                 {
-                    OnCollideWithUniversal.Collide("Enemy", __instance.mainScript, compoment2.mainScript);
-                    return true;
+                    if (compoment2?.mainScript == null)
+                    {
+                        hitEnemy = compoment2?.mainScript;
+                    }
+                    else
+                    {
+                        hitEnemy = other.gameObject.GetComponentInParent<EnemyAI>();
+                    }
+                    if (other.CompareTag("Enemy") && hitEnemy != null && hitEnemy != __instance.mainScript && !IsEnemyImmortal.EnemyIsImmortal(hitEnemy) && !__instance.mainScript.isEnemyDead)
+                    {
+                        OnCollideWithUniversal.Collide("Enemy", __instance.mainScript, hitEnemy);
+                        return true;
+                    }
                 }
             }
             return true;

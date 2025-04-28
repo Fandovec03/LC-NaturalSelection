@@ -162,10 +162,19 @@ public class Script : BaseUnityPlugin
 
         if (!stableToggle)
         {
-        if (BoundingConfig.enableNutcracker.Value)Harmony.PatchAll(typeof(NutcrackerAIPatch));
-        if (BoundingConfig.enableSporeLizard.Value)Harmony.PatchAll(typeof(PufferAIPatch));
         if (BoundingConfig.enableSpider.Value)Harmony.PatchAll(typeof(SandSpiderAIPatch));
-        Logger.LogInfo("Stable mode off. Loaded all patches.");
+
+        if (isExperimental)
+        {
+            if (BoundingConfig.enableNutcracker.Value) Harmony.PatchAll(typeof(NutcrackerAIPatch));
+            if (BoundingConfig.enableSporeLizard.Value) Harmony.PatchAll(typeof(PufferAIPatch));
+        }
+        else
+        {
+                Logger.LogWarning("Limited access. Some patches cannot be enabled in stable branch.");
+        }
+
+            Logger.LogInfo("Stable mode off. Loaded all patches.");
         }
         else
         {

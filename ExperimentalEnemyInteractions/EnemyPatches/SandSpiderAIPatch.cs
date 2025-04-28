@@ -8,6 +8,13 @@ using LethalNetworkAPI;
 
 namespace NaturalSelection.EnemyPatches
 {
+    enum SpiderAlertStatus
+    {
+        Unaware,
+        Investigating,
+        Alerted
+    }
+
     class SpiderData()
     {
         internal EnemyAI? closestEnemy = null;
@@ -16,6 +23,8 @@ namespace NaturalSelection.EnemyPatches
         internal List<EnemyAI> deadEnemyBodies = new List<EnemyAI>();
         internal float LookAtEnemyTimer = 0f;
         internal Dictionary<EnemyAI,float> enemiesInLOSDictionary = new Dictionary<EnemyAI, float>();
+        internal SandSpiderWebTrap? investigateTrap;
+        internal float investigateTrapTimer = 0f;
     }
 
     [HarmonyPatch(typeof(SandSpiderAI))]
@@ -121,16 +130,50 @@ namespace NaturalSelection.EnemyPatches
                             if (spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f, __instance.eye) != false && !spiderData.closestEnemy.isEnemyDead)
                             {
                                 spiderData.targetEnemy = spiderData.closestEnemy;
+                                spiderData.investigateTrap = null;
                                 if (debugSpider) Script.Logger.LogInfo($"{LibraryCalls.DebugStringHead(__instance)} Update Postfix: /case0/ Set {spiderData.closestEnemy} as TargetEnemy");
                                 __instance.SwitchToBehaviourState(2);
                                 if (debugSpider) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} Update Postfix: /case0/ Set state to {__instance.currentBehaviourStateIndex}");
                                 __instance.chaseTimer = 12.5f / chaseModifier;
                                 __instance.watchFromDistance = Vector3.Distance(__instance.meshContainer.transform.position, spiderData.closestEnemy.transform.position) > 5f;
+                                break;
+                            }
+
+                            if (spiderData.investigateTrap != null)
+                            {
+                                if (!__instance.CheckLineOfSightForPosition(spiderData.investigateTrap.transform.position, 80f, 15, 2f, __instance.eye) || Vector3.Distance(__instance.transform.position, spiderData.investigateTrap.transform.position) > 2f)
+                                {
+                                    __instance.SetDestinationToPosition(spiderData.investigateTrap.transform.position, true);
+                                }
+                                else
+                                {
+                                    if (__instance.agent.speed != 0)
+                                    {
+                                        __instance.agent.speed = 0;
+                                        spiderData.investigateTrapTimer = 5f;
+                                    }
+
+                                    if (spiderData.investigateTrapTimer > 0f)
+                                    {
+                                        spiderData.investigateTrapTimer -= Time.deltaTime;
+                                    }
+                                    else spiderData.investigateTrap = null;
+                                }
+                            }
+                            break;
+                        }
+                    case 1:
+                        {
+                            if (spiderData.investigateTrap != null)
+                            {
+                                __instance.SwitchToBehaviourState(0);
+                                __instance.SetDestinationToPosition(spiderData.investigateTrap.transform.position, true);
                             }
                             break;
                         }
                     case 2:
                         {
+                            if (spiderData.investigateTrap != null) spiderData.investigateTrap = null;
                             if (__instance.targetPlayer != null) break;
 
                             if (spiderData.targetEnemy != spiderData.closestEnemy && spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f, __instance.eye))
@@ -240,7 +283,7 @@ namespace NaturalSelection.EnemyPatches
                     refreshCDtimeSpider -= Time.deltaTime;
                 }
 
-                if (spiderData.targetEnemy != null && !__instance.targetPlayer && __instance.currentBehaviourStateIndex == 2)
+                if ((spiderData.targetEnemy != null && __instance.currentBehaviourStateIndex == 2 || spiderData.investigateTrap != null) && !__instance.targetPlayer)
                 {
                     //Script.Logger.LogMessage($"{LibraryCalls.DebugStringHead(__instance)} Invoking originalUpdate");
                     try
@@ -264,6 +307,24 @@ namespace NaturalSelection.EnemyPatches
                         __instance.DoAIInterval();
                     }
                     __instance.timeSinceHittingPlayer += Time.deltaTime;
+
+
+                    switch (__instance.currentBehaviourStateIndex)
+                    {
+                        case 0:
+                            __instance.setDestinationToHomeBase = false;
+                            __instance.lookingForWallPosition = false;
+                            __instance.movingTowardsTargetPlayer = false;
+                            __instance.overrideSpiderLookRotation = false;
+                            break;
+                        case 2:
+                            __instance.setDestinationToHomeBase = false;
+                            __instance.reachedWallPosition = false;
+                            __instance.lookingForWallPosition = false;
+                            __instance.waitOnWallTimer = 11f;
+                            break;
+                    }
+
                     return false;
                 }
             }
@@ -314,7 +375,7 @@ namespace NaturalSelection.EnemyPatches
                         {
                             for (int i = 0; i < tempList.Count; i++)
                             {
-                                if (Vector3.Distance(Ins.meshContainer.position, tempList[i].transform.position) < 5f /*|| tempList[i] is HoarderBugAI*/)
+                                if (Vector3.Distance(Ins.meshContainer.position, tempList[i].transform.position) < 5f )
                                 {
                                     ChaseEnemy(__instance, tempList[i]);
                                     if (debugSpider) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval Postfix: /case1/ Chasing enemy: {tempList[i]}");
@@ -358,6 +419,7 @@ namespace NaturalSelection.EnemyPatches
         }
         public static void OnCustomEnemyCollision(SandSpiderAI __instance, EnemyAI mainscript2)
         {
+            if (mainscript2.GetType() == typeof(SandSpiderAI)) return;
             if (spiderList.ContainsKey(__instance) && __instance.currentBehaviourStateIndex == 2 && !mainscript2.isEnemyDead && !spiderBlacklist.Contains(mainscript2.enemyType.enemyName))
             {
                 if (debugSpider && debugTriggerFlag) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} timeSinceHittingPlayer: {__instance.timeSinceHittingPlayer}");
@@ -391,6 +453,20 @@ namespace NaturalSelection.EnemyPatches
                 ins.chaseTimer = 12.5f / chaseModifier;
                 ins.SwitchToBehaviourState(2);
                 if (debugSpider) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(ins)} ChaseEnemy: Switched state to: {ins.currentBehaviourStateIndex}");
+            }
+        }
+
+        public static void AlertSpider(SandSpiderAI owner, SandSpiderWebTrap triggeredTrap)
+        {
+            if (!Script.BoundingConfig.enableSpider.Value) return;
+
+            SpiderData spiderData = spiderList[owner];
+
+            if ((spiderData.investigateTrap == null || Vector3.Distance(owner.transform.position, triggeredTrap.centerOfWeb.transform.position) < Vector3.Distance(owner.transform.position, spiderData.investigateTrap.centerOfWeb.transform.position)) && owner.currentBehaviourStateIndex != 2)
+            {
+                spiderData.investigateTrap = triggeredTrap;
+                if (debugSpider || debugTriggerFlag) Script.Logger.LogInfo($"Spider trap {triggeredTrap.trapID} alerted its owner {LibraryCalls.DebugStringHead(owner)}");
+                return;
             }
         }
     }

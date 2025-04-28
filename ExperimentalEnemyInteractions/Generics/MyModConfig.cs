@@ -87,14 +87,14 @@ namespace NaturalSelection.Generics;
             agentRadiusModifier = cfg.Bind("General Settings", "Agent radius modifier", 0.50f, "Modifies agent radius of entities for more reliable collisions.");
 
             //enable entities
-            enableSpider = cfg.Bind("Entity settings/WIP", "Enable spider", false, "Enable changes to apply to to spider and modify it's behavior. Unfinished.");
+            enableSpider = cfg.Bind("DEV", "Enable spider", false, "Enable changes to apply to to spider and modify it's behavior. Unfinished.");
             enableSlime = cfg.Bind("Entity settings", "Enable slime", true, "Enable changes to apply to to slime and modify it's behavior.");
             enableLeviathan = cfg.Bind("Entity settings", "Enable leviathan", true, "Enable changes to apply to to leviathan and modify it's behavior.");
-            enableSporeLizard = cfg.Bind("Entity settings/WIP", "Enable SporeLizard", false, "Enable changes to apply to to spore lizard. \n\n Early build. DEV ONLY");
+            enableSporeLizard = cfg.Bind("DEV", "Enable SporeLizard", false, "Enable changes to apply to to spore lizard. \n\n Early build. DEV ONLY");
             enableRedBees = cfg.Bind("Entity settings", "Enable Red bees (Circuit bees)", true, "Enable changes to apply to red bees and modify it's behavior.");
-            enableNutcracker = cfg.Bind("Entity settings/WIP", "Enable Nutcracker", false, "Enable changes to nutcracker to apply to and modify its behavior. \n\n Early build. DEV ONLY");
+            enableNutcracker = cfg.Bind("DEV", "Enable Nutcracker", false, "Enable changes to nutcracker to apply to and modify its behavior. \n\n Early build. DEV ONLY");
             enableGiant = cfg.Bind("Entity settings", "Enable Giant", true, "Enable changes to apply to to forest giant.");
-            enableHoardingBug = cfg.Bind("Entity settings/WIP", "Enable Hoarding bug", false, "Enable changes to apply to to hoarding bug");
+            enableHoardingBug = cfg.Bind("DEV", "Enable Hoarding bug", false, "Enable changes to apply to to hoarding bug");
             enableSpiderWebs = cfg.Bind("Entity settings", "Enable Spider Webs", true, "Enables changes to apply to to spider webs. Webs will stick to and slow down enemies.");
             //entity settings
             //Giant
@@ -135,8 +135,8 @@ namespace NaturalSelection.Generics;
 
             //Compatibility overrides
             ReXuvinationCompToggle = cfg.Bind("Compatibility toggles", "ReXuvination compatibility", false, "Manually toggles compatibility patches for ReXuvination.");
-            enhancedMonstersCompToggle = cfg.Bind("WIP", "Enhanced monsters compatibility", false, "Manually toggles compatibility patches for Enhanced monsters.");
-            sellBodiesFixedCompToggle = cfg.Bind("WIP", "Sellbodiesfixed compatibility", false, "Manually toggles compatibility patches for Sellbodiesfixed.");
+            enhancedMonstersCompToggle = cfg.Bind("DEV", "Enhanced monsters compatibility", false, "Manually toggles compatibility patches for Enhanced monsters.");
+            sellBodiesFixedCompToggle = cfg.Bind("DEV", "Sellbodiesfixed compatibility", false, "Manually toggles compatibility patches for Sellbodiesfixed.");
         }
         ClearOrphanedEntries(cfg);
         cfg.Save();

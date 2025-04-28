@@ -361,6 +361,7 @@ namespace NaturalSelection.EnemyPatches
 
         public static void OnCustomEnemyCollision(RedLocustBees __instance, EnemyAI mainscript2)
         {
+            if (mainscript2.GetType() == typeof(RedLocustBees)) return;
             if (beeList.ContainsKey(__instance) && !beeBlacklist.Contains(mainscript2.enemyType.enemyName))
             {
                 if ((!beeList[__instance].hitRegistry.ContainsKey(mainscript2) ||beeList[__instance].hitRegistry[mainscript2] > 1.7f) && __instance.currentBehaviourStateIndex > 0 && !mainscript2.isEnemyDead || (!beeList[__instance].hitRegistry.ContainsKey(mainscript2) || beeList[__instance].hitRegistry[mainscript2] > 1.2f) && __instance.currentBehaviourStateIndex == 2 && !mainscript2.isEnemyDead)

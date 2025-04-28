@@ -89,6 +89,9 @@ namespace NaturalSelection.EnemyPatches
 					{
 						__instance.StopSearch(__instance.searchForPlayers);
 					}
+
+
+
 					if (blobData.closestEnemy != null) __instance.SetDestinationToPosition(blobData.closestEnemy.transform.position, true);
 					return false;
 				}
@@ -132,6 +135,7 @@ namespace NaturalSelection.EnemyPatches
 		
 		public static void OnCustomEnemyCollision(BlobAI __instance, EnemyAI mainscript2)
 		{
+			if (mainscript2.GetType() == typeof(BlobAI)) return;
             BlobData blobData = slimeList[__instance];
 
             if (!blobData.hitRegistry.ContainsKey(mainscript2) && !blobBlacklist.Contains(mainscript2.enemyType.enemyName))

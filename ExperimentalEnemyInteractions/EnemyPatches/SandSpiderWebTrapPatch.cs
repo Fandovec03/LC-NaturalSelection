@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using LethalNetworkAPI;
 using NaturalSelection.Generics;
 using System;
 using System.Collections.Generic;
@@ -14,12 +15,24 @@ namespace NaturalSelection.EnemyPatches
         internal EnemyAI? enemyReference = null;
         internal float enemyReferenceTimer = 0f;
         internal bool patchedCollisionLayer = false;
+        //internal bool playSound = false;
     }
-
 
     [HarmonyPatch(typeof(SandSpiderWebTrap))]
     class SandSpiderWebTrapPatch
     {
+        /*static LNetworkEvent NetworkEnemyTripTrapEnter(SandSpiderWebTrap instance)
+        {
+            string NWID = "NSSpiderTripTrapEnter" + instance.trapID;
+            return Networking.NSEnemyNetworkEvent(NWID);
+        }
+
+        static LNetworkEvent NetworkEnemyTripTrapExit(SandSpiderWebTrap instance)
+        {
+            string NWID = "NSSpiderTripTrapExit" + instance.trapID;
+            return Networking.NSEnemyNetworkEvent(NWID);
+        }*/
+
         class EnemyInfo(EnemyAI enemy, float enterAgentSpeed, float enterAnimationSpeed)
         {
             internal EnemyAI EnemyAI { get; set; } = enemy;
@@ -74,6 +87,22 @@ namespace NaturalSelection.EnemyPatches
                 }
             }
 
+            /*NetworkEnemyTripTrapEnter(__instance).OnClientReceived += EnemyTripTrapEnter;
+            NetworkEnemyTripTrapExit(__instance).OnClientReceived += EnemyTripTrapExit;
+
+            void EnemyTripTrapEnter()
+            {
+                Script.Logger.LogMessage($"Received networkEventEnter for web {__instance.trapID}");
+                __instance.webAudio.Play();
+                __instance.webAudio.PlayOneShot(__instance.mainScript.hitWebSFX);
+            }
+
+            void EnemyTripTrapExit()
+            {
+                Script.Logger.LogMessage($"Received networkEventExit for web {__instance.trapID}");
+                __instance.webAudio.Stop();
+            }*/
+
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
 
@@ -101,6 +130,7 @@ namespace NaturalSelection.EnemyPatches
                 if (!enemyData[trippedEnemy].NumberOfTraps.Contains(__instance))
                 {
                     enemyData[trippedEnemy].NumberOfTraps.Add(__instance);
+                    SandSpiderAIPatch.AlertSpider(__instance.mainScript, __instance);
                     if (debugLogs) Script.Logger.LogInfo($"Added instance to NumberOfWebTraps {enemyData[trippedEnemy].NumberOfTraps.Count}");
                 }
 
@@ -122,10 +152,12 @@ namespace NaturalSelection.EnemyPatches
                         debugCD -= Time.deltaTime;
                     }
                 }
+
                 if (!__instance.webAudio.isPlaying)
                 {
                     __instance.webAudio.Play();
                     __instance.webAudio.PlayOneShot(__instance.mainScript.hitWebSFX);
+                    //NetworkEnemyTripTrapEnter(__instance).InvokeClients();
                 }
             }
         }
@@ -135,24 +167,6 @@ namespace NaturalSelection.EnemyPatches
         static bool UpdatePrefix(SandSpiderWebTrap __instance, out bool __state)
         {
             SpiderWebValues webData = spiderWebs[__instance];
-
-            if (Script.rexuvinationPresent && !webData.patchedCollisionLayer)
-            {
-                Collider[] colliders = __instance.gameObject.GetComponents<Collider>();
-                int patched = 0;
-                foreach (Collider collider in colliders)
-                {
-                    if (!collider.isTrigger) continue;
-                    Script.Logger.LogMessage($"found  {collider.excludeLayers.value}");
-                    Script.Logger.LogMessage($"expected {~(StartOfRound.Instance.playersMask ^ LayerMask.GetMask("Enemies"))}");
-                    collider.excludeLayers = ~(StartOfRound.Instance.playersMask ^ LayerMask.GetMask("Enemies"));
-                    patched++;
-                }
-                if (patched > 0)
-                {
-                    webData.patchedCollisionLayer = true;
-                }
-            }
 
             if (__instance.currentTrappedPlayer != null)
             {
@@ -221,7 +235,13 @@ namespace NaturalSelection.EnemyPatches
                 trippedEnemy.creatureAnimator.speed = enemyData[trippedEnemy].EnterAnimationSpeed;
                 webData.enemyReference = trippedEnemy;
                 webData.trappedEnemy = null;
-                __instance.webAudio.Stop();
+
+                if (__instance.webAudio.isPlaying)
+                {
+                    __instance.webAudio.Stop();
+                    //NetworkEnemyTripTrapExit(__instance).InvokeClients();
+                }
+                //__instance.webAudio.Stop();
             }
         }
     }

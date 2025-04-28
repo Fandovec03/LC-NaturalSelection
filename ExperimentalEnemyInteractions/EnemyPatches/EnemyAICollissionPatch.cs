@@ -37,17 +37,17 @@ namespace NaturalSelection.EnemyPatches
             }
             if (mainscript != null && mainscript2 != null)
             {
-                if (mainscript is SandSpiderAI && mainscript2 is not SandSpiderAI && mainscript2 != null && enableSpider)
+                if (mainscript is SandSpiderAI && mainscript2 != null && enableSpider)
                 {
                     SandSpiderAIPatch.OnCustomEnemyCollision((SandSpiderAI)mainscript, mainscript2);
                 }
 
-                if (mainscript is BlobAI && mainscript2 is not BlobAI && mainscript2 != null && enableSlime)
+                if (mainscript is BlobAI && mainscript2 != null && enableSlime)
                 {
                     BlobAIPatch.OnCustomEnemyCollision((BlobAI)mainscript, mainscript2);
                 }
 
-                if (mainscript is RedLocustBees && mainscript2 is not RedLocustBees && mainscript2 != null && enableBees)
+                if (mainscript is RedLocustBees && mainscript2 != null && enableBees)
                 {
                     BeeAIPatch.OnCustomEnemyCollision((RedLocustBees)mainscript, mainscript2);
                 }

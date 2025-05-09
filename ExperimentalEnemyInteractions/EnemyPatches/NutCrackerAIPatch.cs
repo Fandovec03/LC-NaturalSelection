@@ -61,11 +61,13 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void NutcrackerUpdatePostfix(NutcrackerEnemyAI __instance)
         {
+            if (__instance.isEnemyDead) return;
             NutcrackerData data = NutcrackerData[__instance];
 
-            enemyList = LibraryCalls.GetInsideOrOutsideEnemyList(LibraryCalls.GetCompleteList(__instance),__instance);
+            enemyList = LibraryCalls.GetCompleteList(__instance);
+            LibraryCalls.GetInsideOrOutsideEnemyList(ref enemyList, __instance);
 
-            data.closestEnemy = LibraryCalls.FindClosestEnemy(enemyList, data.closestEnemy, __instance);
+            data.closestEnemy = LibraryCalls.FindClosestEnemy(ref enemyList, data.closestEnemy, __instance);
 
 
             if (__instance.currentBehaviourStateIndex == 1)

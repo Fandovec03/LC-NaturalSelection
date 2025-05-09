@@ -73,6 +73,7 @@ namespace NaturalSelection.EnemyPatches
 		[HarmonyPrefix]
 		static bool DoAIIntervalPrefixPatch(BlobAI __instance)
 		{
+            if (__instance.isEnemyDead) return true;
             BlobData blobData = slimeList[__instance];
 
 			if (Script.BoundingConfig.blobPathfind.Value == true)
@@ -103,7 +104,8 @@ namespace NaturalSelection.EnemyPatches
 		[HarmonyPrefix]
 		static void BlobUpdatePatch(BlobAI __instance)
 		{
-			BlobData blobData = slimeList[__instance];
+            if (__instance.isEnemyDead) return;
+            BlobData blobData = slimeList[__instance];
 			Type type = __instance.GetType();
 
 			foreach(KeyValuePair<EnemyAI, float> enemy in new Dictionary<EnemyAI, float>(blobData.hitRegistry))
@@ -116,13 +118,16 @@ namespace NaturalSelection.EnemyPatches
             }
 			if (RoundManagerPatch.RequestUpdate(__instance) == true)
 			{
-				List<EnemyAI> tempList = LibraryCalls.FilterEnemyList(LibraryCalls.GetCompleteList(__instance, true, 1), null, blobBlacklist, __instance, false, true).ToList();
+				List<EnemyAI> tempList = LibraryCalls.GetCompleteList(__instance, true, 1);
+                LibraryCalls.FilterEnemyList(ref tempList, null, blobBlacklist, __instance, false, true);
                 RoundManagerPatch.ScheduleGlobalListUpdate(__instance, tempList);
 			}
 			if (__instance.IsOwner)
 			{
-				blobData.localEnemyList = LibraryCalls.GetInsideOrOutsideEnemyList(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type], __instance).ToList();
-				blobData.closestEnemy = LibraryCalls.FindClosestEnemy(blobData.localEnemyList, blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
+				List<EnemyAI> temp = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
+                LibraryCalls.GetInsideOrOutsideEnemyList(ref temp, __instance);
+				blobData.localEnemyList = temp;
+				blobData.closestEnemy = LibraryCalls.FindClosestEnemy(ref blobData.localEnemyList, blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
             }
 
 			if (blobData.playSound)
@@ -135,7 +140,7 @@ namespace NaturalSelection.EnemyPatches
 		
 		public static void OnCustomEnemyCollision(BlobAI __instance, EnemyAI mainscript2)
 		{
-			if (mainscript2.GetType() == typeof(BlobAI)) return;
+			if (mainscript2.GetType() == typeof(BlobAI) || __instance.isEnemyDead) return;
             BlobData blobData = slimeList[__instance];
 
             if (!blobData.hitRegistry.ContainsKey(mainscript2) && !blobBlacklist.Contains(mainscript2.enemyType.enemyName))

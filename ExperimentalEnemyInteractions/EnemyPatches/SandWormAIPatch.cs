@@ -54,7 +54,7 @@ namespace NaturalSelection.EnemyPatches
             if (entryKey == "debugTriggerFlags") triggerFlag = value;
             //Script.Logger.LogMessage($"Earth Leviathan received event. debugSandworm = {debugSandworm}, debugSpam = {debugSpam}");
         }
-
+        
         [HarmonyPatch("Start")]
         [HarmonyPrefix]
         static void SandWormStartPatch(SandWormAI __instance)
@@ -80,6 +80,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static bool SandWormPrefixUpdatePatch(SandWormAI __instance)
         {
+            if (__instance.isEnemyDead) return true;
             ExtendedSandWormAIData SandwormData = sandworms[__instance];
             Type type = __instance.GetType();
 
@@ -92,14 +93,17 @@ namespace NaturalSelection.EnemyPatches
             {
                 if (RoundManagerPatch.RequestUpdate(__instance) == true)
                 {
-                    List<EnemyAI> tempList = LibraryCalls.FilterEnemyList(LibraryCalls.GetCompleteList(__instance, true, 0), targetedTypes, sandwormBlacklist, __instance).ToList();
+                    List<EnemyAI> tempList = LibraryCalls.GetCompleteList(__instance, true, 0);
+                    LibraryCalls.FilterEnemyList(ref tempList, targetedTypes, sandwormBlacklist, __instance);
                     RoundManagerPatch.ScheduleGlobalListUpdate(__instance, tempList);
                     //NaturalSelectionLib.NaturalSelectionLib.UpdateListInsideDictionrary(__instance.GetType(), LibraryCalls.FilterEnemyList(LibraryCalls.GetOutsideEnemyList(LibraryCalls.GetCompleteList(__instance, true, 0), __instance), targetedTypes, __instance));
                 }
                 if (__instance.IsOwner)
                 {
-                    SandwormData.localEnemyList = LibraryCalls.GetInsideOrOutsideEnemyList(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type], __instance).ToList();
-                    SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type], SandwormData.closestEnemy, __instance);
+                    List<EnemyAI> tempList = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
+                    LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
+                    SandwormData.localEnemyList = tempList;
+                    SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, SandwormData.closestEnemy, __instance);
                 }
                 SandwormData.refreshCDtime = 0.2f;
             }
@@ -160,6 +164,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void SandWormPostfixUpdatePatch(SandWormAI __instance)
         {
+            if (__instance.isEnemyDead) return;
             ExtendedSandWormAIData SandwormData = sandworms[__instance];
             int targetingEntity = NetworkSandwormBehaviorState(__instance).Value;
             bool networkMovingTowardsPlayer = NetworkMovingTowardsPlayer(__instance).Value;
@@ -234,7 +239,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static bool SandWormDoAIIntervalPrefix(SandWormAI __instance)
         {
-            //if (Script.BoundingConfig.enableLeviathan.Value != true) return true;
+            if (__instance.isEnemyDead) return true;
             ExtendedSandWormAIData SandwormData = sandworms[__instance];
             Type type = __instance.GetType();
             int targetingEntity = NetworkSandwormBehaviorState(__instance).Value;
@@ -246,7 +251,7 @@ namespace NaturalSelection.EnemyPatches
                     {
                         if (!__instance.emerged && !__instance.inEmergingState)
                         {
-                            SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(SandwormData.localEnemyList, SandwormData.closestEnemy, __instance);
+                            SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(ref SandwormData.localEnemyList, SandwormData.closestEnemy, __instance);
                             __instance.agent.speed = 4f;
                             if (debugSandworm) Script.Logger.LogInfo($"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: assigned {SandwormData.closestEnemy} as closestEnemy");
                             if (SandwormData.closestEnemy != null && Vector3.Distance(__instance.transform.position, SandwormData.closestEnemy.transform.position) < 15f)

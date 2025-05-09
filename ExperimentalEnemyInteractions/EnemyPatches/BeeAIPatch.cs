@@ -62,10 +62,16 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void UpdatePatch(RedLocustBees __instance)
         {
+            if (__instance.isEnemyDead) return;
             BeeValues beeData = beeList[__instance];
             if (RoundManagerPatch.RequestUpdate(__instance) == true)
             {
-                List<EnemyAI> tempList = new List<EnemyAI>(LibraryCalls.FilterEnemyList(LibraryCalls.GetCompleteList(__instance), beeList[__instance].enemyTypes, beeBlacklist, __instance, true, Script.BoundingConfig.IgnoreImmortalEnemies.Value));
+                List<EnemyAI> tempList = LibraryCalls.GetCompleteList(__instance);
+
+                LibraryCalls.FilterEnemyList(ref tempList, beeList[__instance].enemyTypes, beeBlacklist, __instance, true, Script.BoundingConfig.IgnoreImmortalEnemies.Value);
+
+
+
                 RoundManagerPatch.ScheduleGlobalListUpdate(__instance, tempList);
             }
             foreach (KeyValuePair<EnemyAI, float> enemy in new Dictionary<EnemyAI, float>(beeData.hitRegistry))
@@ -81,6 +87,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static bool DoAIIntervalPrefixPatch(RedLocustBees __instance)
         {
+        if (__instance.isEnemyDead) return true;
         BeeValues beeData = beeList[__instance];
         
         if (beeData.targetEnemy != null && __instance.movingTowardsTargetPlayer == false && __instance.currentBehaviourStateIndex != 0)
@@ -101,11 +108,14 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void DoAIIntervalPostfixPatch(RedLocustBees __instance)
         {
+            if (__instance.isEnemyDead) return;
             BeeValues beeData = beeList[__instance];
             Type type = __instance.GetType();
 
-            beeData.localEnemyList = new List<EnemyAI>(LibraryCalls.GetInsideOrOutsideEnemyList(NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type], __instance));
-            Dictionary<EnemyAI, float> enemiesInLOS = new Dictionary<EnemyAI, float>(LibraryCalls.GetEnemiesInLOS(__instance, beeData.localEnemyList, 360f, 16, 1));
+            beeData.localEnemyList = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
+            LibraryCalls.GetInsideOrOutsideEnemyList(ref beeData.localEnemyList, __instance);
+
+            Dictionary<EnemyAI, float> enemiesInLOS = new Dictionary<EnemyAI, float>(LibraryCalls.GetEnemiesInLOS(__instance, ref beeData.localEnemyList, 360f, 16, 1));
 
             switch (__instance.currentBehaviourStateIndex)
             {

@@ -38,9 +38,11 @@ namespace NaturalSelection.Generics
         {
             if (Time.realtimeSinceStartup >= nextUpdate)
             {
+                List<EnemyAI> listChecked;
                 foreach (Type type in checkedTypes.Keys.ToList())
                 {
-                    NaturalSelectionLib.NaturalSelectionLib.UpdateListInsideDictionrary(type, checkedTypes[type]);
+                    listChecked = checkedTypes[type];
+                    NaturalSelectionLib.NaturalSelectionLib.UpdateListInsideDictionrary(type, ref listChecked);
                 }
                 checkedTypes.Clear();
                 nextUpdate = Time.realtimeSinceStartup + updateListInterval;
@@ -99,7 +101,8 @@ namespace NaturalSelection.Generics
             if (!NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists.ContainsKey(instance.GetType()))
             {
                 Script.Logger.LogWarning(LibraryCalls.DebugStringHead(instance) + "global enemy list for this enemy does not exist! Creating a new one.");
-                NaturalSelectionLib.NaturalSelectionLib.UpdateListInsideDictionrary(instance.GetType(), checkedTypes[instance.GetType()]);
+                List<EnemyAI> tempList = checkedTypes[instance.GetType()];
+                NaturalSelectionLib.NaturalSelectionLib.UpdateListInsideDictionrary(instance.GetType(), ref tempList);
             }
         }
     }

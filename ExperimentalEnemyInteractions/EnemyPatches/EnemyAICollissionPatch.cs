@@ -1,5 +1,6 @@
 using HarmonyLib;
 using NaturalSelection.Generics;
+using System;
 using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches

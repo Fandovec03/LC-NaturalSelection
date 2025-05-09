@@ -114,20 +114,55 @@ public class Script : BaseUnityPlugin
 
         Logger.LogInfo($"Patching {MyPluginInfo.PLUGIN_NAME}...");
 
-        if (Chainloader.PluginInfos.ContainsKey("com.velddev.enhancedmonsters") || BoundingConfig.enhancedMonstersCompToggle.Value)
+        foreach (var item in Chainloader.PluginInfos)
         {
-            enhancedMonstersPresent = true;
-            Logger.LogDebug("Enhanced Monsters is present");
+            //Logger.LogInfo($"GUID in Metadata> {item.Value.Metadata.GUID} : GUID in Key> {item.Key}");
+            string comment = "";
+
+            switch (item.Key)
+            {
+                case "com.velddev.enhancedmonsters":
+                    {
+                        enhancedMonstersPresent = true;
+                        comment = "Enhanced Monsters is present";
+                        break;
+                    }
+                case "Entity378.sellbodies":
+                    {
+                        sellBodiesPresent = true;
+                        comment = "SellbodiesFixed is present";
+                        break;
+                    }
+                case "XuuXiaolan.ReXuvination":
+                    {
+                        rexuvinationPresent = true;
+                        comment = "ReXuvination is present";
+                        break;
+                    }
+            }
+            if (comment != "") Logger.LogInfo(comment);
         }
-        if (Chainloader.PluginInfos.ContainsKey("Entity378.sellbodies") || BoundingConfig.sellBodiesFixedCompToggle.Value)
+
+        foreach (var item in BoundingConfig.CompatibilityEntries)
         {
-            sellBodiesPresent = true;
-            Logger.LogDebug("SellbodiesFixed is present");
-        }
-        if (Chainloader.PluginInfos.ContainsKey("XuuXiaolan.ReXuvination") || BoundingConfig.ReXuvinationCompToggle.Value)
-        {
-            rexuvinationPresent = true;
-            Logger.LogDebug("ReXuvination is present");
+            string comment = "";
+            if (item.Value.Value == true)
+            {
+                switch (item.Key)
+                {
+                    case "com.velddev.enhancedmonsters":
+                        enhancedMonstersPresent = true;
+                        break;
+                    case "Entity378.sellbodies":
+                        sellBodiesPresent = true;
+                        break;
+                    case "XuuXiaolan.ReXuvination":
+                        rexuvinationPresent = true;
+                        break;
+                }
+                comment = $"Forcefully enabling compatibility for {item.Key}";
+            }
+            if (comment != "") Logger.LogInfo(comment);
         }
 
         if (isExperimental) Logger.LogFatal($"LOADING EXPERIMENTAL BUILD OF {MyPluginInfo.PLUGIN_NAME.ToUpper()}, DOWNLOAD NATURAL SELECTION INSTEAD FOR MORE STABLE EXPERIENCE!");

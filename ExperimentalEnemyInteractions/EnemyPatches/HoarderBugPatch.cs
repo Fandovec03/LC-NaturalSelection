@@ -63,6 +63,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void UpdatePostfix(HoarderBugAI __instance)
         {
+            if (__instance.isEnemyDead) return;
             HoarderBugValues Bugvalues = hoarderBugList[__instance];
             if (Bugvalues.limitSpeed)
             {

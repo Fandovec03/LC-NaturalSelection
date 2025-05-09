@@ -43,6 +43,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static bool PrefixAIInterval(PufferAI __instance)
         {
+            if (__instance.isEnemyDead) return true;
             PufferData pufferData = pufferList[__instance];
 
             if (__instance.currentBehaviourStateIndex == 2 && pufferData.targetEnemy != null && (Vector3.Distance(__instance.closestSeenPlayer.transform.position, __instance.transform.position) < Vector3.Distance(pufferData.targetEnemy.transform.position, __instance.transform.position)))
@@ -61,6 +62,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void PostfixAIInterval(PufferAI __instance)
         {
+            if (__instance.isEnemyDead) return;
             PufferData pufferData = pufferList[__instance];
 
             if (__instance.currentBehaviourStateIndex == 2 && pufferData.targetEnemy != null && (Vector3.Distance(__instance.closestSeenPlayer.transform.position, __instance.transform.position) < Vector3.Distance(pufferData.targetEnemy.transform.position, __instance.transform.position)))

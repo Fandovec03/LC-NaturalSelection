@@ -3,6 +3,7 @@ using Dissonance;
 using HarmonyLib;
 using JetBrains.Annotations;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UIElements.UIR;
@@ -68,6 +69,7 @@ namespace NaturalSelection.Generics;
     public ConfigEntry<bool> debugLibrary;
     public ConfigEntry<bool> debugSpiderWebs;
     public Dictionary<string,ConfigEntry<bool>> debugEntries = new Dictionary<string, ConfigEntry<bool>>();
+    public Dictionary<string, ConfigEntry<bool>> CompatibilityEntries = new Dictionary<string, ConfigEntry<bool>>();
     //Compatibility overrides
     public ConfigEntry<bool> enhancedMonstersCompToggle;
     public ConfigEntry<bool> sellBodiesFixedCompToggle;
@@ -134,9 +136,9 @@ namespace NaturalSelection.Generics;
             debugSpiderWebs = cfg.Bind("Debug", "Log spider webs", false, "Enables logs for spider webs. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugSpiderWebs), debugSpiderWebs);
 
             //Compatibility overrides
-            ReXuvinationCompToggle = cfg.Bind("Compatibility toggles", "ReXuvination compatibility", false, "Manually toggles compatibility patches for ReXuvination.");
-            enhancedMonstersCompToggle = cfg.Bind("DEV", "Enhanced monsters compatibility", false, "Manually toggles compatibility patches for Enhanced monsters.");
-            sellBodiesFixedCompToggle = cfg.Bind("DEV", "Sellbodiesfixed compatibility", false, "Manually toggles compatibility patches for Sellbodiesfixed.");
+            ReXuvinationCompToggle = cfg.Bind("Compatibility toggles", "ReXuvination compatibility", false, "Manually toggles compatibility patches for ReXuvination."); CompatibilityEntries.Add("XuuXiaolan.ReXuvination", ReXuvinationCompToggle);
+            enhancedMonstersCompToggle = cfg.Bind("DEV", "Enhanced monsters compatibility", false, "Manually toggles compatibility patches for Enhanced monsters."); CompatibilityEntries.Add("com.velddev.enhancedmonsters", enhancedMonstersCompToggle);
+            sellBodiesFixedCompToggle = cfg.Bind("DEV", "Sellbodiesfixed compatibility", false, "Manually toggles compatibility patches for Sellbodiesfixed."); CompatibilityEntries.Add("Entity378.sellbodies", sellBodiesFixedCompToggle);
         }
         ClearOrphanedEntries(cfg);
         cfg.Save();

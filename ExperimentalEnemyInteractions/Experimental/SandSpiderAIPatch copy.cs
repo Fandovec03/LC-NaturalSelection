@@ -60,10 +60,16 @@ namespace NaturalSelection.EnemyPatches
 
             if (RoundManagerPatch.RequestUpdate(__instance) == true)
             {
-                List<EnemyAI> tempList = LibraryCalls.FilterEnemyList(LibraryCalls.GetInsideOrOutsideEnemyList(LibraryCalls.GetCompleteList(__instance), __instance), null, spiderBlacklist, __instance).ToList();
+                List<EnemyAI> tempList = LibraryCalls.GetCompleteList(__instance);
+                LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
+                LibraryCalls.FilterEnemyList(ref tempList, null, spiderBlacklist, __instance);
                 RoundManagerPatch.ScheduleGlobalListUpdate(__instance, tempList);
             }
-            if (__instance.IsOwner) spiderData.enemiesInLOSDictionary = new Dictionary<EnemyAI, float>(LibraryCalls.GetEnemiesInLOS(__instance, NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type], 80f, 15, 2f));
+            if (__instance.IsOwner)
+            {
+                List<EnemyAI> temp = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
+                spiderData.enemiesInLOSDictionary = new Dictionary<EnemyAI, float>(LibraryCalls.GetEnemiesInLOS(__instance, ref temp, 80f, 15, 2f));
+            }
 
             if (spiderData.enemiesInLOSDictionary.Count > 0)
             {
@@ -107,7 +113,7 @@ namespace NaturalSelection.EnemyPatches
                 {
                     case 0:
                         {
-                            spiderData.closestEnemy = LibraryCalls.FindClosestEnemy(spiderData.knownEnemy, spiderData.closestEnemy, __instance);
+                            spiderData.closestEnemy = LibraryCalls.FindClosestEnemy(ref spiderData.knownEnemy, spiderData.closestEnemy, __instance);
 
 
                             if (spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f, __instance.eye) != false && !spiderData.closestEnemy.isEnemyDead)

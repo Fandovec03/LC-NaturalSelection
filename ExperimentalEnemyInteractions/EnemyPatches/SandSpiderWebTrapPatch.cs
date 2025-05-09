@@ -41,7 +41,7 @@ namespace NaturalSelection.EnemyPatches
             internal List<SandSpiderWebTrap> NumberOfTraps { get; set; } = new List<SandSpiderWebTrap>();
         }
 
-        static Dictionary<SandSpiderWebTrap, SpiderWebValues> spiderWebs = new Dictionary<SandSpiderWebTrap, SpiderWebValues>();
+        public static Dictionary<SandSpiderWebTrap, SpiderWebValues> spiderWebs = new Dictionary<SandSpiderWebTrap, SpiderWebValues>();
         static Dictionary<EnemyAI, EnemyInfo> enemyData = new Dictionary<EnemyAI, EnemyInfo>();
         static bool debugLogs = Script.Bools["debugBool"];
         static bool debugWebs = Script.Bools["debugSpiderWebs"];

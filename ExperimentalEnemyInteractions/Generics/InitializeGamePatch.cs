@@ -1,3 +1,4 @@
+using BepInEx.Logging;
 using HarmonyLib;
 using Mono.Cecil;
 using NaturalSelection;

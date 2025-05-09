@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 using NaturalSelection.Generics;
+using BepInEx.Logging;
 
 namespace NaturalSelection.EnemyPatches
 {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using LethalNetworkAPI;
 using HarmonyLib;
+using BepInEx.Logging;
 
 namespace NaturalSelection.Generics
 {

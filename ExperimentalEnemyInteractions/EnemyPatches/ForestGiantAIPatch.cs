@@ -5,6 +5,7 @@ using LethalNetworkAPI;
 using Unity.Burst.CompilerServices;
 using LethalNetworkAPI.Utils;
 using NaturalSelection.Generics;
+using BepInEx.Logging;
 
 namespace NaturalSelection.EnemyPatches
 {

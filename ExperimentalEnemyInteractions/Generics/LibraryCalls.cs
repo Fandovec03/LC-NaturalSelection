@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using BepInEx.Logging;
 
 namespace NaturalSelection.Generics;
 
@@ -38,7 +39,7 @@ public class LibraryCalls
 
     public static EnemyAI? FindClosestEnemy(ref List<EnemyAI> importEnemyList, EnemyAI? importClosestEnemy, EnemyAI instance, bool includeTheDead = false)
     {
-        if (debugSpam && debugTriggerFlag) Script.Logger.LogInfo("Called library findClosestEnemy!");
+        if (debugSpam && debugTriggerFlag) Script.Logger.Log(LogLevel.Info,"Called library findClosestEnemy!");
         return NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemy(ref importEnemyList, importClosestEnemy, instance, includeTheDead);
     }
     public static void FilterEnemyList(ref List<EnemyAI> importEnemyList, List<Type>? targetTypes, List<string>? blacklist, EnemyAI instance, bool inverseToggle = false, bool filterOutImmortal = true)
@@ -50,6 +51,7 @@ public class LibraryCalls
 
     static public Dictionary<EnemyAI, float> GetEnemiesInLOS(EnemyAI instance, ref List<EnemyAI> importEnemyList, float width = 45f, int importRange = 0, float proximityAwareness = -1)
     {
+        if (debugSpam && debugTriggerFlag) Script.Logger.Log(LogLevel.Info,"Called library GetEnemiesInLOS!");
         return NaturalSelectionLib.NaturalSelectionLib.GetEnemiesInLOS(instance, ref importEnemyList, width, importRange, proximityAwareness);
     }
     

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BepInEx.Logging;
 using HarmonyLib;
 using NaturalSelection.EnemyPatches;
 using NaturalSelection.Experimental;

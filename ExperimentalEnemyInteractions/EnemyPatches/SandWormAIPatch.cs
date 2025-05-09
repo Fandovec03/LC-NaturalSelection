@@ -6,6 +6,7 @@ using NaturalSelection.Generics;
 using UnityEngine;
 using LethalNetworkAPI;
 using System.Linq;
+using BepInEx.Logging;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -36,6 +37,7 @@ namespace NaturalSelection.EnemyPatches
         static LNetworkVariable<bool> NetworkTargetingEntity(SandWormAI instance)
         {
             string NWID = "NSSandwormTargetingEntity" + instance.NetworkObjectId;
+            return Networking.NSEnemyNetworkVariable<bool>(NWID);
         }
 
         static LNetworkVariable<bool> NetworkMovingTowardsPlayer(SandWormAI instance)

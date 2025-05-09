@@ -5,6 +5,7 @@ using System.Linq;
 using NaturalSelection.Generics;
 using System;
 using LethalNetworkAPI;
+using BepInEx.Logging;
 
 namespace NaturalSelection.EnemyPatches
 {

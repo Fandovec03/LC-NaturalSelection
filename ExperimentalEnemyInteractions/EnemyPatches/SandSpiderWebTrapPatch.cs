@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using LethalNetworkAPI;
+﻿using BepInEx.Logging;
 using NaturalSelection.Generics;
 using System;
 using System.Collections.Generic;

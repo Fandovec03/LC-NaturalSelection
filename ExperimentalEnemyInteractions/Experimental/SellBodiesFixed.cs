@@ -11,7 +11,7 @@ using UnityEngine;
 using System.Reflection.Emit;
 using CleaningCompany.Monos;
 
-namespace NaturalSelection.Experimental
+namespace NaturalSelection.Compatibility
 {
 
     internal class SellBodiesTraceScript : MonoBehaviour
@@ -26,7 +26,7 @@ namespace NaturalSelection.Experimental
         private void Awake()
         {
             instance = this.gameObject;
-            Script.Logger.LogMessage($"Successfully added SellBodiesTraceScript of {instance.name}");
+            Script.Logger.Log(LogLevel.Message,$"Successfully added SellBodiesTraceScript of {instance.name}");
 
             if (!SellBodiesFixedPatch.deadEnemyBodies.Contains(instance))
             {
@@ -36,7 +36,7 @@ namespace NaturalSelection.Experimental
 
         private void OnDestroy()
         {
-            Script.Logger.LogMessage($"Removing SellBodiesTraceScript {instance.name} from list");
+            Script.Logger.Log(LogLevel.Message,$"Removing SellBodiesTraceScript {instance.name} from list");
             SellBodiesFixedPatch.deadEnemyBodies.Remove(instance);
         }
     }
@@ -54,7 +54,7 @@ namespace NaturalSelection.Experimental
 
                 item.spawnPrefab.gameObject.AddComponent<SellBodiesTraceScript>();
 
-                Script.Logger.LogMessage($"Added SellBodiesTracerScript to {pair.Value} at {pair.Key}");
+                Script.Logger.Log(LogLevel.Message,$"Added SellBodiesTracerScript to {pair.Value} at {pair.Key}");
 
             }
         }
@@ -66,7 +66,7 @@ namespace NaturalSelection.Experimental
         {
             if (test.Count > 0)
             {
-                Script.Logger.LogMessage("Found BodySyncer in list");
+                Script.Logger.Log(LogLevel.Message,"Found BodySyncer in list");
             }
             foreach (var bodySyncer in test)
             {

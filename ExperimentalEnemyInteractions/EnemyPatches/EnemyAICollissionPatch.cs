@@ -25,13 +25,13 @@ namespace NaturalSelection.EnemyPatches
             logUnspecified = Script.Bools["debugUnspecified"];
             debugSpam = Script.Bools["spammyLogs"];
             triggerFlag = Script.Bools["debugTriggerFlags"];
-            //Script.Logger.LogMessage($"EnemYAICollision received event. logUnspecified = {logUnspecified}, debugSpam = {debugSpam}, triggetFlag = {triggerFlag}");
+            //Script.NSLog(LogLevel.Message,$"EnemYAICollision received event. logUnspecified = {logUnspecified}, debugSpam = {debugSpam}, triggetFlag = {triggerFlag}");
         }
 
         public static void Collide(string text, EnemyAI? mainscript, EnemyAI? mainscript2)
         {
 
-            if (logUnspecified && debugSpam && triggerFlag) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(mainscript)} hit collider of {LibraryCalls.DebugStringHead(mainscript2)} Tag: {text}");
+            if (logUnspecified && debugSpam && triggerFlag) Script.NSLog(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(mainscript)} hit collider of {LibraryCalls.DebugStringHead(mainscript2)} Tag: {text}");
             if (mainscript != null && text == "Player")
             {
 
@@ -83,7 +83,7 @@ namespace NaturalSelection.EnemyPatches
         {
 
 
-            if (other == null) { Script.Logger.LogError($"{LibraryCalls.DebugStringHead(__instance.mainScript)} Collider is null! Using original function..."); return true; }
+            if (other == null) { Script.Logger.Log(LogLevel.Error,$"{LibraryCalls.DebugStringHead(__instance.mainScript)} Collider is null! Using original function..."); return true; }
             EnemyAICollisionDetect? compoment2 = other.gameObject.GetComponent<EnemyAICollisionDetect>();
 
             if (__instance != null)

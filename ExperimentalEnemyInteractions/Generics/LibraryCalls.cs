@@ -12,7 +12,7 @@ public class LibraryCalls
     {
             if (entryKey == "debugTriggerFlags") debugTriggerFlag = value;
             if (entryKey == "spammyLogs") debugSpam = value;
-            //Script.Logger.LogMessage($"LibraryCalls received event. debugTriggerFlag = {debugTriggerFlag}, debugSpam = {debugSpam}");
+            //Script.Logger.Log(LogLevel.Message,$"LibraryCalls received event. debugTriggerFlag = {debugTriggerFlag}, debugSpam = {debugSpam}");
     }
     public static void SubscribeToConfigChanges()
     {
@@ -21,18 +21,18 @@ public class LibraryCalls
 
     public static string DebugStringHead(EnemyAI? instance, bool shortFormat = true)
     {
-        if (debugSpam && debugTriggerFlag) Script.Logger.LogInfo("Called library DebugStringHead!");
+        if (debugSpam && debugTriggerFlag) Script.Logger.Log(LogLevel.Info,"Called library DebugStringHead!");
         return NaturalSelectionLib.NaturalSelectionLib.DebugStringHead(instance, shortFormat);
     }
     public static List<EnemyAI> GetCompleteList(EnemyAI instance, bool FilterThemselves = true, int includeOrReturnThedDead = 0)
     {
-        if (debugSpam && debugTriggerFlag) Script.Logger.LogInfo("Called library GetCompleteList!");
+        if (debugSpam && debugTriggerFlag) Script.Logger.Log(LogLevel.Info,"Called library GetCompleteList!");
         return NaturalSelectionLib.NaturalSelectionLib.GetCompleteList(instance, FilterThemselves, includeOrReturnThedDead);
     }
 
     public static void GetInsideOrOutsideEnemyList(ref List<EnemyAI> importEnemyList, EnemyAI instance)
     {
-        if (debugSpam && debugTriggerFlag) Script.Logger.LogInfo("Called library GetInsideOrOutsideEnemyList!");
+        if (debugSpam && debugTriggerFlag) Script.Logger.Log(LogLevel.Info,"Called library GetInsideOrOutsideEnemyList!");
         NaturalSelectionLib.NaturalSelectionLib.GetInsideOrOutsideEnemyList(ref importEnemyList, instance);
     }
 
@@ -44,12 +44,12 @@ public class LibraryCalls
     public static void FilterEnemyList(ref List<EnemyAI> importEnemyList, List<Type>? targetTypes, List<string>? blacklist, EnemyAI instance, bool inverseToggle = false, bool filterOutImmortal = true)
     {
         if (debugSpam && debugTriggerFlag) Script.Logger.LogInfo("Called library filterEnemyList!");
+        if (debugSpam && debugTriggerFlag) Script.Logger.Log(LogLevel.Info,"Called library filterEnemyList!");
         NaturalSelectionLib.NaturalSelectionLib.FilterEnemyList(ref importEnemyList, targetTypes, blacklist, instance, inverseToggle, filterOutImmortal);
     }
 
     static public Dictionary<EnemyAI, float> GetEnemiesInLOS(EnemyAI instance, ref List<EnemyAI> importEnemyList, float width = 45f, int importRange = 0, float proximityAwareness = -1)
     {
-        if (debugSpam && debugTriggerFlag) Script.Logger.LogInfo("Called library GetEnemiesInLOS!");
         return NaturalSelectionLib.NaturalSelectionLib.GetEnemiesInLOS(instance, ref importEnemyList, width, importRange, proximityAwareness);
     }
     

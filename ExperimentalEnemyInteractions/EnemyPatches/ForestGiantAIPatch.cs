@@ -38,14 +38,14 @@ namespace NaturalSelection.EnemyPatches
         static LNetworkVariable<float> NetworkOwnerPostfixResult(ForestGiantAI forestGiantAI)
         {
             string NWID = "NSOwnerrealtimeSinceStartup" + forestGiantAI.NetworkObjectId;
-            return Networking.NSEnemyNetworkVariableFloat(NWID);
+            return Networking.NSEnemyNetworkVariable<float>(NWID);
         }
 
         static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
             if (entryKey == "debugGiants") logGiant = value;
             if (entryKey == "spammyLogs") debugSpam = value;
-            //Script.Logger.LogMessage($"Forest Keeper received event. logGiant = {logGiant}, debugSpam = {debugSpam}");
+            //Script.Logger.Log(LogLevel.Message,$"Forest Keeper received event. logGiant = {logGiant}, debugSpam = {debugSpam}");
         }
 
         [HarmonyPatch("Start")]
@@ -67,7 +67,7 @@ namespace NaturalSelection.EnemyPatches
                 {
                     __instance.timeAtStartOfBurning = Time.realtimeSinceStartup;
                     __instance.SwitchToBehaviourState(2);
-                    Script.Logger.LogInfo("Received UpdateSetGiantOnFire event");
+                    Script.Logger.Log(LogLevel.Info,"Received UpdateSetGiantOnFire event");
                 }
             }
 
@@ -94,7 +94,7 @@ namespace NaturalSelection.EnemyPatches
             {
                 __instance.burningParticlesContainer.SetActive(true);
             }
-            if (logGiant) Script.Logger.LogInfo(LibraryCalls.DebugStringHead(__instance));
+            if (logGiant) Script.Logger.Log(LogLevel.Info,LibraryCalls.DebugStringHead(__instance));
         }
 
         [HarmonyPatch("Update")]
@@ -110,11 +110,11 @@ namespace NaturalSelection.EnemyPatches
                 if (randomNumber <= Script.BoundingConfig.giantExtinguishChance.Value)
                 {
                     NetworkExtinguish(__instance).InvokeClients();
-                    Script.Logger.LogInfo($"{LibraryCalls.DebugStringHead(__instance)} successfully extinguished itself. Skipping Update. Rolled {randomNumber}");
+                    Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} successfully extinguished itself. Skipping Update. Rolled {randomNumber}");
                 }
                 else
                 {
-                    Script.Logger.LogInfo($"{LibraryCalls.DebugStringHead(__instance)} failed to extinguish itself. rolled {randomNumber}");
+                    Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} failed to extinguish itself. rolled {randomNumber}");
                     giantData.extinguished = 2;
                 }
             }
@@ -160,11 +160,11 @@ namespace NaturalSelection.EnemyPatches
                 if (randomNumber <= Script.BoundingConfig.giantExtinguishChance.Value)
                 {
                     NetworkExtinguish(__instance).InvokeClients();
-                    Script.Logger.LogInfo($"{LibraryCalls.DebugStringHead(__instance)} successfully extinguished itself. Skipping Update. Rolled {randomNumber}");
+                    Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} successfully extinguished itself. Skipping Update. Rolled {randomNumber}");
                 }
                 else
                 {
-                    Script.Logger.LogInfo($"{LibraryCalls.DebugStringHead(__instance)} failed to extinguish itself. rolled {randomNumber}");
+                    Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} failed to extinguish itself. rolled {randomNumber}");
                     giantData.extinguished = 2;
                 }
             }

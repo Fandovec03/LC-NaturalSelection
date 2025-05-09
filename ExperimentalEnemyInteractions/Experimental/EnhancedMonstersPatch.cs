@@ -10,7 +10,7 @@ using UnityEngine;
 using System.Reflection.Emit;
 using BepInEx.Logging;
 
-namespace NaturalSelection.Experimental
+namespace NaturalSelection.Compatibility
 {
     public class EnhancedMonstersPatch()
     {

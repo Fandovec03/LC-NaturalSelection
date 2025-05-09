@@ -90,9 +90,6 @@ namespace NaturalSelection.EnemyPatches
 					{
 						__instance.StopSearch(__instance.searchForPlayers);
 					}
-
-
-
 					if (blobData.closestEnemy != null) __instance.SetDestinationToPosition(blobData.closestEnemy.transform.position, true);
 					return false;
 				}
@@ -132,7 +129,7 @@ namespace NaturalSelection.EnemyPatches
 
 			if (blobData.playSound)
 			{
-                Script.Logger.LogMessage("Playing sound. NetworkObjectID: " + __instance.NetworkObjectId);
+                Script.Logger.Log(LogLevel.Message,"Playing sound. NetworkObjectID: " + __instance.NetworkObjectId);
                 __instance.creatureVoice.PlayOneShot(__instance.killPlayerSFX);
 				blobData.playSound = false;
 			}
@@ -140,7 +137,6 @@ namespace NaturalSelection.EnemyPatches
 		
 		public static void OnCustomEnemyCollision(BlobAI __instance, EnemyAI mainscript2)
 		{
-			if (mainscript2.GetType() == typeof(BlobAI) || __instance.isEnemyDead) return;
             BlobData blobData = slimeList[__instance];
 
             if (!blobData.hitRegistry.ContainsKey(mainscript2) && !blobBlacklist.Contains(mainscript2.enemyType.enemyName))
@@ -150,7 +146,7 @@ namespace NaturalSelection.EnemyPatches
                     if (__instance.IsOwner && mainscript2.thisNetworkObject.IsSpawned)
 					{
                         BlobEatCorpseEvent(__instance).InvokeClients();
-                        Script.Logger.LogMessage("Send event");
+                        Script.Logger.Log(LogLevel.Message,"Send event");
                         mainscript2.thisNetworkObject.Despawn(true);
 					}
                     return;

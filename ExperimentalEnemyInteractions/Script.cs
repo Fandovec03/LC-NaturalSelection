@@ -14,6 +14,7 @@ using Unity.Burst.CompilerServices;
 using JetBrains.Annotations;
 using System.Text;
 using BepInEx.Bootstrap;
+using NaturalSelection.Compatibility;
 
 namespace NaturalSelection;
 
@@ -51,8 +52,9 @@ public class Script : BaseUnityPlugin
     internal static bool sellBodiesPresent = false;
     internal static bool rexuvinationPresent = false;
 
-    internal static Dictionary<string,bool> Bools = new Dictionary<string, bool>();
 
+    internal static Dictionary<string,bool> Bools = new Dictionary<string, bool>();
+    internal static List<EnemyAI> loadedEnemyList = new List<EnemyAI>();
     public static Action<string, bool>? OnConfigSettingChanged;
 
     static void SubscribeDebugConfigBools(ConfigEntry<bool> entryKey,bool boolParam, string entry)

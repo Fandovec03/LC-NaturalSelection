@@ -38,7 +38,7 @@ namespace NaturalSelection.EnemyPatches
         static LNetworkVariable<int> NetworkSpiderBehaviorState(SandSpiderAI instance)
         {
             string NWID = "NSSpiderBehaviorState" + instance.NetworkObjectId;
-            return Networking.NSEnemyNetworkVariableInt(NWID);
+            return Networking.NSEnemyNetworkVariable<int>(NWID);
         }
 
 
@@ -47,7 +47,7 @@ namespace NaturalSelection.EnemyPatches
             if (entryKey == "debugSpiders") debugSpider = value;
             if (entryKey == "spammyLogs") debugSpam = value;
             if (entryKey == "debugTriggerFlags") debugTriggerFlag = value;
-            //Script.Logger.LogMessage($"Bunker Spider received event. debugSpider = {debugSpider}, debugSpam = {debugSpam}, debugTriggetFlag = {debugTriggerFlag}");
+            //Script.Logger.Log(LogLevel.Message,$"Bunker Spider received event. debugSpider = {debugSpider}, debugSpam = {debugSpam}, debugTriggetFlag = {debugTriggerFlag}");
         }
 
         [HarmonyPatch("Start")]
@@ -90,22 +90,22 @@ namespace NaturalSelection.EnemyPatches
                 {
                     if (enemy.Key.isEnemyDead)
                     {
-                        if (debugSpider) Script.Logger.LogWarning($"{LibraryCalls.DebugStringHead(__instance)} Update Postfix: {enemy.Key} is Dead! Checking deadEnemyBodies list and skipping...");
+                        if (debugSpider) Script.Logger.Log(LogLevel.Warning,$"{LibraryCalls.DebugStringHead(__instance)} Update Postfix: {enemy.Key} is Dead! Checking deadEnemyBodies list and skipping...");
 
                         if (!spiderData.deadEnemyBodies.Contains(enemy.Key))
                         {
                             spiderData.deadEnemyBodies.Add(enemy.Key);
-                            if (debugSpider) Script.Logger.LogWarning($"{LibraryCalls.DebugStringHead(__instance)} Update Postfix: {enemy.Key} added to deadEnemyBodies list");
+                            if (debugSpider) Script.Logger.Log(LogLevel.Warning,$"{LibraryCalls.DebugStringHead(__instance)} Update Postfix: {enemy.Key} added to deadEnemyBodies list");
                         }
                         continue;
                     }
                     if (spiderData.knownEnemy.Contains(enemy.Key))
                     {
-                        if (debugSpider && debugSpam) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} Update Postfix: {enemy.Key} is already in knownEnemyList");
+                        if (debugSpider && debugSpam) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} Update Postfix: {enemy.Key} is already in knownEnemyList");
                     }
                     else
                     {
-                        if (debugSpider) Script.Logger.LogInfo($"{LibraryCalls.DebugStringHead(__instance)}  Update Postfix: Adding {enemy.Key} to knownEnemyList");
+                        if (debugSpider) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)}  Update Postfix: Adding {enemy.Key} to knownEnemyList");
                         spiderData.knownEnemy.Add(enemy.Key);
                     }
                 }
@@ -113,7 +113,7 @@ namespace NaturalSelection.EnemyPatches
                 {
                     if (spiderData.knownEnemy[i].isEnemyDead)
                     {
-                        if (debugSpider) Script.Logger.LogWarning($"{LibraryCalls.DebugStringHead(__instance)}  Update Postfix: Removed {spiderData.knownEnemy[i]} from knownEnemyList");
+                        if (debugSpider) Script.Logger.Log(LogLevel.Warning,$"{LibraryCalls.DebugStringHead(__instance)}  Update Postfix: Removed {spiderData.knownEnemy[i]} from knownEnemyList");
                         spiderData.knownEnemy.Remove(spiderData.knownEnemy[i]);
                     }
                 }
@@ -273,10 +273,10 @@ namespace NaturalSelection.EnemyPatches
                 {
                     if (debugSpider && debugSpam)
                     {
-                        Script.Logger.LogInfo(LibraryCalls.DebugStringHead(__instance) + "watchFromDistance: " + __instance.watchFromDistance);
-                        Script.Logger.LogInfo(LibraryCalls.DebugStringHead(__instance) + "overrideSpiderLookRotation: " + __instance.overrideSpiderLookRotation);
-                        Script.Logger.LogInfo(LibraryCalls.DebugStringHead(__instance) + "moveTowardsDestination: " + __instance.moveTowardsDestination);
-                        Script.Logger.LogInfo(LibraryCalls.DebugStringHead(__instance) + "movingTowardsTargetPlayer: " + __instance.movingTowardsTargetPlayer);
+                        Script.Logger.Log(LogLevel.Info,LibraryCalls.DebugStringHead(__instance) + "watchFromDistance: " + __instance.watchFromDistance);
+                        Script.Logger.Log(LogLevel.Info,LibraryCalls.DebugStringHead(__instance) + "overrideSpiderLookRotation: " + __instance.overrideSpiderLookRotation);
+                        Script.Logger.Log(LogLevel.Info,LibraryCalls.DebugStringHead(__instance) + "moveTowardsDestination: " + __instance.moveTowardsDestination);
+                        Script.Logger.Log(LogLevel.Info,LibraryCalls.DebugStringHead(__instance) + "movingTowardsTargetPlayer: " + __instance.movingTowardsTargetPlayer);
                     }
                     refreshCDtimeSpider = 0.5f;
                 }
@@ -287,16 +287,16 @@ namespace NaturalSelection.EnemyPatches
 
                 if ((spiderData.targetEnemy != null && __instance.currentBehaviourStateIndex == 2 || spiderData.investigateTrap != null) && !__instance.targetPlayer)
                 {
-                    //Script.Logger.LogMessage($"{LibraryCalls.DebugStringHead(__instance)} Invoking originalUpdate");
+                    //Script.Logger.Log(LogLevel.Message,$"{LibraryCalls.DebugStringHead(__instance)} Invoking originalUpdate");
                     try
                     {
                         ReversePatchAI.originalUpdate.Invoke(__instance);
-                        //Script.Logger.LogMessage("Succesfully invoked originalUpdate");
+                        //Script.Logger.Log(LogLevel.Message,"Succesfully invoked originalUpdate");
                     }
                     catch (Exception e)
                     {
-                        Script.Logger.LogError("failed invoking originalUpdate.");
-                        Script.Logger.LogError(e);
+                        Script.Logger.Log(LogLevel.Error,"failed invoking originalUpdate.");
+                        Script.Logger.Log(LogLevel.Error,e);
                     }
 
                     if (__instance.updateDestinationInterval >= 0)
@@ -351,10 +351,10 @@ namespace NaturalSelection.EnemyPatches
                 }
                 __instance.SyncPositionToClients();
 
-                if (debugSpider && debugSpam) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval Prefix: false");
+                if (debugSpider && debugSpam) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval Prefix: false");
                 return false;
             }
-            if (debugSpider && debugSpam) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval Prefix: true");
+            if (debugSpider && debugSpam) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval Prefix: true");
             return true;
         }
         [HarmonyPatch("DoAIInterval")]
@@ -369,21 +369,21 @@ namespace NaturalSelection.EnemyPatches
             {
                 case 0:
                     {
-                        if (debugSpider && debugSpam) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval Postfix: /case0/ nothing");
+                        if (debugSpider && debugSpam) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval Postfix: /case0/ nothing");
                         break;
                     }
                 case 1:
                     {
-                        if (debugSpider && debugSpam) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval Postfix: /case1/");
+                        if (debugSpider && debugSpam) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval Postfix: /case1/");
                         List<EnemyAI> tempList = spiderData.enemiesInLOSDictionary.Keys.ToList();
                         if (Ins.reachedWallPosition)
                         {
                             for (int i = 0; i < tempList.Count; i++)
                             {
-                                if (Vector3.Distance(Ins.meshContainer.position, tempList[i].transform.position) < 5f )
+                                if (Vector3.Distance(Ins.meshContainer.position, tempList[i].transform.position) < 5f /*|| tempList[i] is HoarderBugAI*/)
                                 {
                                     ChaseEnemy(__instance, tempList[i]);
-                                    if (debugSpider) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval Postfix: /case1/ Chasing enemy: {tempList[i]}");
+                                    if (debugSpider) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval Postfix: /case1/ Chasing enemy: {tempList[i]}");
                                     break;
                                 }
                                 if (Vector3.Distance(Ins.meshContainer.position, tempList[i].transform.position) < 10f)
@@ -393,7 +393,7 @@ namespace NaturalSelection.EnemyPatches
                                     Vector3 forward = position - wallnumb * Ins.wallNormal;
                                     Ins.meshContainerTargetRotation = Quaternion.LookRotation(forward, Ins.wallNormal);
                                     Ins.overrideSpiderLookRotation = true;
-                                    if (debugSpider) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval Postfix: /case1/ Moving off-wall to enemy: {tempList[i]}");
+                                    if (debugSpider) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval Postfix: /case1/ Moving off-wall to enemy: {tempList[i]}");
                                     break;
                                 }
                             }
@@ -407,7 +407,7 @@ namespace NaturalSelection.EnemyPatches
                         {
                             if (spiderData.targetEnemy.isEnemyDead)
                             {
-                                if (debugSpider) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval Postfix: /case2/ Stopping chasing: {spiderData.targetEnemy}");
+                                if (debugSpider) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval Postfix: /case2/ Stopping chasing: {spiderData.targetEnemy}");
                                 spiderData.targetEnemy = null;
                                 Ins.StopChasing();
                                 break;
@@ -415,7 +415,7 @@ namespace NaturalSelection.EnemyPatches
                             if (Ins.watchFromDistance)
                             {
                                 Ins.SetDestinationToPosition(Ins.ChooseClosestNodeToPosition(spiderData.targetEnemy.transform.position, avoidLineOfSight: false, 4).transform.position);
-                                if (debugSpider) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval Postfix: /case2/ Set destination to: {spiderData.targetEnemy}");
+                                if (debugSpider) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval Postfix: /case2/ Set destination to: {spiderData.targetEnemy}");
                             }
                         }
                         break;
@@ -427,7 +427,7 @@ namespace NaturalSelection.EnemyPatches
             if (mainscript2.GetType() == typeof(SandSpiderAI)) return;
             if (spiderList.ContainsKey(__instance) && __instance.currentBehaviourStateIndex == 2 && !mainscript2.isEnemyDead && !spiderBlacklist.Contains(mainscript2.enemyType.enemyName))
             {
-                if (debugSpider && debugTriggerFlag) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} timeSinceHittingPlayer: {__instance.timeSinceHittingPlayer}");
+                if (debugSpider && debugTriggerFlag) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} timeSinceHittingPlayer: {__instance.timeSinceHittingPlayer}");
                 if (__instance.timeSinceHittingPlayer > 1f)
                 {
                     __instance.timeSinceHittingPlayer = 0f;
@@ -443,7 +443,7 @@ namespace NaturalSelection.EnemyPatches
                         mainscript2.HitEnemy(1, null, playHitSFX: true);
                     }
 
-                    if (debugSpider && debugTriggerFlag) Script.Logger.LogMessage($"{LibraryCalls.DebugStringHead(__instance)} hit {LibraryCalls.DebugStringHead(mainscript2)}");
+                    if (debugSpider && debugTriggerFlag) Script.Logger.Log(LogLevel.Message,$"{LibraryCalls.DebugStringHead(__instance)} hit {LibraryCalls.DebugStringHead(mainscript2)}");
                 }
             }
         }
@@ -457,7 +457,6 @@ namespace NaturalSelection.EnemyPatches
                 spiderData.targetEnemy = target;
                 ins.chaseTimer = 12.5f / chaseModifier;
                 ins.SwitchToBehaviourState(2);
-                if (debugSpider) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(ins)} ChaseEnemy: Switched state to: {ins.currentBehaviourStateIndex}");
             }
         }
 
@@ -482,6 +481,7 @@ namespace NaturalSelection.EnemyPatches
                 spiderData.investigateTrapTimer = 5f;
                 if (debugSpider || debugTriggerFlag) Script.Logger.LogInfo($"Spider trap {triggeredTrap.trapID} alerted its owner {LibraryCalls.DebugStringHead(owner)}");
                 return;
+                if (debugSpider) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(ins)} ChaseEnemy: Switched state to: {ins.currentBehaviourStateIndex}");
             }
         }
     }

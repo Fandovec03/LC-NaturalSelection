@@ -26,7 +26,7 @@ namespace NaturalSelection.EnemyPatches
             {
                 debugTriggerFlags = newValue;
             }
-            Script.Logger.LogMessage($"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
+            Script.Logger.Log(LogLevel.Message,$"Successfully invoked event. boolName = {boolName}, newValue = {newValue}");
         }*/
 
         [HarmonyPatch("Start")]
@@ -80,7 +80,7 @@ namespace NaturalSelection.EnemyPatches
                 PufferData pufferData = pufferList[instance];
                 instance.creatureAnimator.SetBool("alerted", true);
                 instance.enemyHP -= force;
-                Script.Logger.LogDebug("SpodeLizard CustomHit Triggered");
+                Script.Logger.Log(LogLevel.Debug,"SpodeLizard CustomHit Triggered");
                 HitEnemyTest(force, enemyWhoHit, playHitSFX, instance);
                 instance.SwitchToBehaviourState(2);
                 if (instance.enemyHP <= 0)

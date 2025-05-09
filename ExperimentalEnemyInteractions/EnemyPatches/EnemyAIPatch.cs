@@ -29,19 +29,18 @@ namespace NaturalSelection.EnemyPatches
         {
             if (entryKey == "debugUnspecified") debugUnspecified = value;
             if (entryKey == "debugTriggerFlags") debugTriggerFlags = value;
-            //Script.Logger.LogMessage($"EnemyAI received event. debugUnspecified = {debugUnspecified}, debugTriggerFlags = {debugTriggerFlags}");
+            //Script.Logger.Log(LogLevel.Message,$"EnemyAI received event. debugUnspecified = {debugUnspecified}, debugTriggerFlags = {debugTriggerFlags}");
         }
 
         [HarmonyPatch("Start")]
         [HarmonyPostfix]
         static void StartPostfix(EnemyAI __instance)
         {
-
             if (!enemyData.ContainsKey(__instance)) enemyData.Add(__instance, new EnemyData());
             EnemyData data = enemyData[__instance];
             data.originalAgentRadius = __instance.agent.radius;
             __instance.agent.radius = __instance.agent.radius * Script.BoundingConfig.agentRadiusModifier.Value;
-            if (debugUnspecified && debugTriggerFlags) Script.Logger.LogMessage($"Modified agent radius. Original: {enemyData[__instance].originalAgentRadius}, Modified: {__instance.agent.radius}");
+            if (debugUnspecified && debugTriggerFlags) Script.Logger.Log(LogLevel.Message,$"Modified agent radius. Original: {enemyData[__instance].originalAgentRadius}, Modified: {__instance.agent.radius}");
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
 
@@ -67,7 +66,7 @@ namespace NaturalSelection.EnemyPatches
             {
                 playerString = $"{playerWhoHit.playerUsername}(SteamID: {playerWhoHit.playerSteamId}, playerClientID: {playerWhoHit.playerClientId})";
             }
-            if (debugTriggerFlags) Script.Logger.LogInfo($"{LibraryCalls.DebugStringHead(__instance)} registered hit by {playerString} with force of {force}. playHitSFX:{playHitSFX}, hitID:{hitID}.");
+            if (debugTriggerFlags) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} registered hit by {playerString} with force of {force}. playHitSFX:{playHitSFX}, hitID:{hitID}.");
         }
         /*
         static bool CheckEnemyTypeForOverride(EnemyAI enemy)
@@ -88,7 +87,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPatch(typeof(EnemyAI),nameof(EnemyAI.KillEnemyOnOwnerClient))]
         static IEnumerable<CodeInstruction> KillEnemyOnOwnerCLientT(IEnumerable<CodeInstruction> instructions)
         {
-            Script.Logger.LogWarning("Fired Transpiller for EnemyAI.KillEnemyOnOwnerClient");
+            Script.Logger.Log(LogLevel.Warning,"Fired Transpiller for EnemyAI.KillEnemyOnOwnerClient");
             CodeMatcher matcher = new CodeMatcher(instructions);
 
             matcher.MatchForward(false,
@@ -121,7 +120,7 @@ namespace NaturalSelection.EnemyPatches
                             offset++;
                         }
                     }
-                    else Script.Logger.LogInfo(instructions.ToList()[i]);
+                    else Script.Logger.Log(LogLevel.Info,instructions.ToList()[i]);
                 }
                 catch
                 {

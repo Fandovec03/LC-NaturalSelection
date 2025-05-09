@@ -24,13 +24,13 @@ namespace NaturalSelection.EnemyPatches
         static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
             if (entryKey == "debugTriggerFlags") triggerFlag = value;
-            //Script.Logger.LogMessage($"Hoarder bug received event. triggerFlag = {triggerFlag}");
+            //Script.Logger.Log(LogLevel.Message,$"Hoarder bug received event. triggerFlag = {triggerFlag}");
         }
 
         public static void CustomOnHit(int force, EnemyAI enemyWhoHit, bool playHitSFX, HoarderBugAI __instance)
         {
             __instance.enemyHP -= force;
-            if (triggerFlag) Script.Logger.LogDebug("Hoarderbug CustomHit Triggered");
+            if (triggerFlag) Script.Logger.Log(LogLevel.Debug,"Hoarderbug CustomHit Triggered");
             if (playHitSFX)
             {
                 WalkieTalkie.TransmitOneShotAudio(__instance.creatureVoice, __instance.enemyType.hitBodySFX);

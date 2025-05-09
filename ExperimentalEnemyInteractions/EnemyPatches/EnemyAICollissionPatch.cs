@@ -1,3 +1,4 @@
+using BepInEx.Logging;
 using HarmonyLib;
 using NaturalSelection.Generics;
 using System;

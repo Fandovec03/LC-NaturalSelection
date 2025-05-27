@@ -65,6 +65,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (!spiderWebs.ContainsKey(__instance))
             {
+                Script.Logger.Log(LogLevel.Info, $"Creating data container for web {__instance.trapID}");
                 spiderWebs.Add(__instance, new SpiderWebValues());
             }
 

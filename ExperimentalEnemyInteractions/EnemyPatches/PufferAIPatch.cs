@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using BepInEx.Logging;
 using HarmonyLib;
+using NaturalSelection.Generics;
 using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches
@@ -36,6 +37,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (!pufferList.ContainsKey(__instance))
             {
+                Script.Logger.Log(LogLevel.Info, $"Creating data container for {LibraryCalls.DebugStringHead(__instance)}");
                 pufferList.Add(__instance, new PufferData());
             }
         }

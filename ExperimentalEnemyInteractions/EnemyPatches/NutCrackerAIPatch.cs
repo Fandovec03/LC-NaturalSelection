@@ -53,6 +53,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (!NutcrackerData.ContainsKey(__instance))
             {
+                Script.Logger.Log(LogLevel.Info, $"Creating data container for {LibraryCalls.DebugStringHead(__instance)}");
                 NutcrackerData.Add(__instance, new NutcrackerData());
             }
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;

@@ -7,6 +7,7 @@ using HarmonyLib;
 using NaturalSelection.Generics;
 using Unity.Netcode;
 using UnityEngine.UIElements;
+using BepInEx.Logging;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -36,11 +37,15 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void StartPostfix(EnemyAI __instance)
         {
-            if (!enemyData.ContainsKey(__instance)) enemyData.Add(__instance, new EnemyData());
+            if (!enemyData.ContainsKey(__instance))
+            {
+                Script.Logger.Log(BepInEx.Logging.LogLevel.Info, $"Creating data container for {LibraryCalls.DebugStringHead(__instance)}");
+                enemyData.Add(__instance, new EnemyData());
+            }
             EnemyData data = enemyData[__instance];
             data.originalAgentRadius = __instance.agent.radius;
             __instance.agent.radius = __instance.agent.radius * Script.BoundingConfig.agentRadiusModifier.Value;
-            if (debugUnspecified && debugTriggerFlags) Script.Logger.Log(LogLevel.Message,$"Modified agent radius. Original: {enemyData[__instance].originalAgentRadius}, Modified: {__instance.agent.radius}");
+            if (debugUnspecified && debugTriggerFlags) Script.Logger.Log(BepInEx.Logging.LogLevel.Message,$"Modified agent radius. Original: {enemyData[__instance].originalAgentRadius}, Modified: {__instance.agent.radius}");
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
 
@@ -66,7 +71,7 @@ namespace NaturalSelection.EnemyPatches
             {
                 playerString = $"{playerWhoHit.playerUsername}(SteamID: {playerWhoHit.playerSteamId}, playerClientID: {playerWhoHit.playerClientId})";
             }
-            if (debugTriggerFlags) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} registered hit by {playerString} with force of {force}. playHitSFX:{playHitSFX}, hitID:{hitID}.");
+            if (debugTriggerFlags) Script.Logger.Log(BepInEx.Logging.LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} registered hit by {playerString} with force of {force}. playHitSFX:{playHitSFX}, hitID:{hitID}.");
         }
         /*
         static bool CheckEnemyTypeForOverride(EnemyAI enemy)

@@ -12,7 +12,6 @@ using NaturalSelection.Generics;
 using Steamworks.Data;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -118,7 +117,7 @@ namespace NaturalSelection.EnemyPatches
 			{
 				List<EnemyAI> tempList = LibraryCalls.GetCompleteList(__instance, true, 1);
                 LibraryCalls.FilterEnemyList(ref tempList, null, blobBlacklist, __instance, false, true);
-                RoundManagerPatch.ScheduleGlobalListUpdate(__instance, tempList);
+                RoundManagerPatch.ScheduleGlobalListUpdate(__instance, ref tempList);
 			}
 			if (__instance.IsOwner)
 			{
@@ -130,7 +129,7 @@ namespace NaturalSelection.EnemyPatches
 
 			if (blobData.playSound)
 			{
-                Script.Logger.Log(LogLevel.Message,"Playing sound. NetworkObjectID: " + __instance.NetworkObjectId);
+                Script.Logger.Log(BepInEx.Logging.LogLevel.Message,"Playing sound. NetworkObjectID: " + __instance.NetworkObjectId);
                 __instance.creatureVoice.PlayOneShot(__instance.killPlayerSFX);
 				blobData.playSound = false;
 			}
@@ -147,7 +146,7 @@ namespace NaturalSelection.EnemyPatches
                     if (__instance.IsOwner && mainscript2.thisNetworkObject.IsSpawned)
 					{
                         BlobEatCorpseEvent(__instance).InvokeClients();
-                        Script.Logger.Log(LogLevel.Message,"Send event");
+                        Script.Logger.Log(BepInEx.Logging.LogLevel.Message,"Send event");
                         mainscript2.thisNetworkObject.Despawn(true);
 					}
                     return;

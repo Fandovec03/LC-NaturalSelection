@@ -32,7 +32,7 @@ namespace NaturalSelection.EnemyPatches
         public static void Collide(string text, EnemyAI? mainscript, EnemyAI? mainscript2)
         {
 
-            if (logUnspecified && debugSpam && triggerFlag) Script.NSLog(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(mainscript)} hit collider of {LibraryCalls.DebugStringHead(mainscript2)} Tag: {text}");
+            if (logUnspecified && debugSpam && triggerFlag) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(mainscript)} hit collider of {LibraryCalls.DebugStringHead(mainscript2)} Tag: {text}");
             if (mainscript != null && text == "Player")
             {
 

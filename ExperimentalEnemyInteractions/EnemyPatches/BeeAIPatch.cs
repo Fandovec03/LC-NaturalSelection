@@ -72,7 +72,7 @@ namespace NaturalSelection.EnemyPatches
 
 
 
-                RoundManagerPatch.ScheduleGlobalListUpdate(__instance, tempList);
+                RoundManagerPatch.ScheduleGlobalListUpdate(__instance, ref tempList);
             }
             foreach (KeyValuePair<EnemyAI, float> enemy in new Dictionary<EnemyAI, float>(beeData.hitRegistry))
             {

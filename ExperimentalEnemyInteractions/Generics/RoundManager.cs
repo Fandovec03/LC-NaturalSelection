@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using BepInEx.Logging;
 using HarmonyLib;
-using NaturalSelection.EnemyPatches;
-using NaturalSelection.Experimental;
 using UnityEngine;
 
 namespace NaturalSelection.Generics
@@ -93,7 +90,7 @@ namespace NaturalSelection.Generics
             }
         }
 
-        public static void ScheduleGlobalListUpdate(EnemyAI instance, List<EnemyAI> list)
+        public static void ScheduleGlobalListUpdate(EnemyAI instance, ref List<EnemyAI> list)
         {
             if (checkedTypes.ContainsKey(instance.GetType()))
             {
@@ -101,8 +98,9 @@ namespace NaturalSelection.Generics
             }
             if (!NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists.ContainsKey(instance.GetType()))
             {
+                List<EnemyAI> tempList = checkedTypes[instance.GetType()];
                 Script.Logger.Log(LogLevel.Warning,LibraryCalls.DebugStringHead(instance) + "global enemy list for this enemy does not exist! Creating a new one.");
-                NaturalSelectionLib.NaturalSelectionLib.UpdateListInsideDictionrary(instance.GetType(), checkedTypes[instance.GetType()]);
+                NaturalSelectionLib.NaturalSelectionLib.UpdateListInsideDictionrary(instance.GetType(), ref tempList);
             }
         }
     }

@@ -25,8 +25,6 @@ namespace NaturalSelection.EnemyPatches
     [HarmonyPatch(typeof(SandSpiderAI))]
     class SandSpiderAIPatch
     {
-        EnemyBehaviourState climbWall = new EnemyBehaviourState();
-
         static float refreshCDtimeSpider = 1f;
         static float chaseModifier = Script.BoundingConfig.chaseAfterEnemiesModifier.Value;
 
@@ -57,6 +55,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (!spiderList.ContainsKey(__instance))
             {
+                Script.Logger.Log(LogLevel.Info, $"Creating data container for {LibraryCalls.DebugStringHead(__instance)}");
                 spiderList.Add(__instance, new SpiderData());
                 SpiderData spiderData = spiderList[__instance];
             }
@@ -77,7 +76,7 @@ namespace NaturalSelection.EnemyPatches
                 List<EnemyAI> tempList = LibraryCalls.GetCompleteList(__instance);
                 LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
                 LibraryCalls.FilterEnemyList(ref tempList, null, spiderBlacklist, __instance);
-                RoundManagerPatch.ScheduleGlobalListUpdate(__instance, tempList);
+                RoundManagerPatch.ScheduleGlobalListUpdate(__instance, ref tempList);
             }
             if (__instance.IsOwner)
             {
@@ -482,7 +481,6 @@ namespace NaturalSelection.EnemyPatches
                 spiderData.investigateTrapTimer = 5f;
                 if (debugSpider || debugTriggerFlag) Script.Logger.LogInfo($"Spider trap {triggeredTrap.trapID} alerted its owner {LibraryCalls.DebugStringHead(owner)}");
                 return;
-                if (debugSpider) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(ins)} ChaseEnemy: Switched state to: {ins.currentBehaviourStateIndex}");
             }
         }
     }

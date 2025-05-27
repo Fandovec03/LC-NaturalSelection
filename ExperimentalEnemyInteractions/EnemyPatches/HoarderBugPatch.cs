@@ -1,5 +1,6 @@
 using BepInEx.Logging;
 using HarmonyLib;
+using NaturalSelection.Generics;
 using System.Collections.Generic;
 
 namespace NaturalSelection.EnemyPatches
@@ -54,6 +55,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (!hoarderBugList.ContainsKey(__instance))
             {
+                Script.Logger.Log(LogLevel.Info, $"Creating data container for {LibraryCalls.DebugStringHead(__instance)}");
                 hoarderBugList.Add(__instance, new HoarderBugValues());
             }
 

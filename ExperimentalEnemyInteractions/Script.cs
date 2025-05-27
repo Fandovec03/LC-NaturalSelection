@@ -3,7 +3,6 @@ using BepInEx.Logging;
 using HarmonyLib;
 using NaturalSelection.Generics;
 using NaturalSelection.EnemyPatches;
-using NaturalSelection.Experimental;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Reflection;
@@ -196,6 +195,7 @@ public class Script : BaseUnityPlugin
         //Compatibilities
         //if (enhancedMonstersPresent) Harmony.PatchAll(typeof(EnhancedMonstersPatch));
         //if (sellBodiesPresent) SellBodiesFixedPatch.AddTracerScriptToPrefabs();
+        if (rexuvinationPresent) Harmony.PatchAll(typeof(ReXuvinationPatch));
 
         if (!stableToggle)
         {

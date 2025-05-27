@@ -62,6 +62,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (!sandworms.ContainsKey(__instance))
             {
+                Script.Logger.Log(LogLevel.Info, $"Creating data container for {LibraryCalls.DebugStringHead(__instance)}");
                 sandworms.Add(__instance, new ExtendedSandWormAIData());
 
                 if (targetedTypes.Count == 0 && Script.BoundingConfig.sandwormFilterTypes.Value == true)
@@ -96,7 +97,7 @@ namespace NaturalSelection.EnemyPatches
                 {
                     List<EnemyAI> tempList = LibraryCalls.GetCompleteList(__instance, true, 0);
                     LibraryCalls.FilterEnemyList(ref tempList, targetedTypes, sandwormBlacklist, __instance);
-                    RoundManagerPatch.ScheduleGlobalListUpdate(__instance, tempList);
+                    RoundManagerPatch.ScheduleGlobalListUpdate(__instance, ref tempList);
                     //NaturalSelectionLib.NaturalSelectionLib.UpdateListInsideDictionrary(__instance.GetType(), LibraryCalls.FilterEnemyList(LibraryCalls.GetOutsideEnemyList(LibraryCalls.GetCompleteList(__instance, true, 0), __instance), targetedTypes, __instance));
                 }
                 if (__instance.IsOwner)

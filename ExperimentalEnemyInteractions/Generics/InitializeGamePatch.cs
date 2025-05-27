@@ -1,3 +1,4 @@
+using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
 using Mono.Cecil;
@@ -12,8 +13,6 @@ namespace NaturalSelection.Generics
     class InitializeGamePatch
     {
         private static bool finishedLoading = false;
-
-        Script.loadedEnemyList = Resources.FindObjectsOfTypeAll<EnemyAI>().ToList();
         static List<string> loadedEnemyNamesFromConfig = new List<string>();
 
         static List<string> beeBlacklistList = Script.BoundingConfig.beeBlacklist.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
@@ -41,6 +40,7 @@ namespace NaturalSelection.Generics
         [HarmonyPostfix]
         public static void InitializeGameStartPatch()
         {
+            Script.loadedEnemyList = Resources.FindObjectsOfTypeAll<EnemyAI>().ToList();
             if (!finishedLoading)
             {
                 Script.Logger.Log(LogLevel.Message,$"Reading/Checking/Writing entries for enemies.");
@@ -218,6 +218,17 @@ namespace NaturalSelection.Generics
                     tryFindLater.Add(item);
                     continue;
                 }
+
+                try
+                {
+                    Script.Logger.Log(LogLevel.Info, $"Assembly name: {item.GetType().Assembly.FullName.Split(',', '.')[0]}. Assembly location: {item.GetType().Assembly.Location}.");
+                }
+                catch (Exception e)
+                {
+                    Script.Logger.LogError($"error: {e}");
+                }
+
+
                 if (!loadedEnemyNamesFromConfig.Contains(itemName))
                 {
                     loadedEnemyNamesFromConfig.Add(itemName);

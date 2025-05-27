@@ -55,6 +55,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (!giantDictionary.ContainsKey(__instance))
             {
+                Script.Logger.Log(LogLevel.Info, $"Creating data container for {LibraryCalls.DebugStringHead(__instance)}");
                 giantDictionary.Add(__instance, new GiantData());
             }
             GiantData data =giantDictionary[__instance];

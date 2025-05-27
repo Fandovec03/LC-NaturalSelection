@@ -51,7 +51,8 @@ namespace NaturalSelection.EnemyPatches
 		{
 			if (!slimeList.ContainsKey(__instance))
 			{
-				slimeList.Add(__instance, new BlobData());
+                Script.Logger.Log(BepInEx.Logging.LogLevel.Info, $"Creating data container for {LibraryCalls.DebugStringHead(__instance)}");
+                slimeList.Add(__instance, new BlobData());
 			}
 			if (Script.BoundingConfig.blobAICantOpenDoors.Value)
 			{

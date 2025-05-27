@@ -46,6 +46,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (!beeList.ContainsKey(__instance))
             {
+                Script.Logger.Log(LogLevel.Info, $"Creating data container for {LibraryCalls.DebugStringHead(__instance)}");
                 beeList.Add(__instance, new BeeValues());
             }
             BeeValues beeData = beeList[__instance];

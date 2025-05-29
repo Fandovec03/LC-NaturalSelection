@@ -19,7 +19,6 @@ namespace NaturalSelection.EnemyPatches
         internal float LostLOSOfEnemy = 0f;
         internal List<Type> enemyTypes = new List<Type>();
         internal float delayTimer = 0.2f;
-        internal List<EnemyAI> localEnemyList = new List<EnemyAI>();
     }
 
     [HarmonyPatch(typeof(RedLocustBees))]
@@ -64,6 +63,11 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void UpdatePatch(RedLocustBees __instance)
         {
+            if (!beeList.ContainsKey(__instance))
+            {
+                Script.Logger.Log(LogLevel.Fatal, $"Critical failule. Failed to get data for {LibraryCalls.DebugStringHead(__instance)}. Attempting to fix...");
+                beeList.Add(__instance, new BeeValues());
+            }
             BeeValues beeData = beeList[__instance];
             if (RoundManagerPatch.RequestUpdate(__instance) == true)
             {
@@ -88,7 +92,8 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static bool DoAIIntervalPrefixPatch(RedLocustBees __instance)
         {
-        BeeValues beeData = beeList[__instance];
+            CheckDataIntegrityBees(__instance);
+            BeeValues beeData = beeList[__instance];
         
         if (beeData.targetEnemy != null && __instance.movingTowardsTargetPlayer == false && __instance.currentBehaviourStateIndex != 0)
         {
@@ -109,13 +114,14 @@ namespace NaturalSelection.EnemyPatches
         static void DoAIIntervalPostfixPatch(RedLocustBees __instance)
         {
             if (__instance.isEnemyDead) return;
+            CheckDataIntegrityBees(__instance);
             BeeValues beeData = beeList[__instance];
             Type type = __instance.GetType();
 
-            beeData.localEnemyList = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
-            LibraryCalls.GetInsideOrOutsideEnemyList(ref beeData.localEnemyList, __instance);
+            List <EnemyAI> tempList = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
+            LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
 
-            Dictionary<EnemyAI, float> enemiesInLOS = new Dictionary<EnemyAI, float>(LibraryCalls.GetEnemiesInLOS(__instance, ref beeData.localEnemyList, 360f, 16, 1));
+            Dictionary<EnemyAI, float> enemiesInLOS = new Dictionary<EnemyAI, float>(LibraryCalls.GetEnemiesInLOS(__instance, ref tempList, 360f, 16, 1));
 
             switch (__instance.currentBehaviourStateIndex)
             {
@@ -367,6 +373,15 @@ namespace NaturalSelection.EnemyPatches
         {
             string NWID = "NSSetGiantOnFire" + forestGiantAI.NetworkObjectId;
             return Networking.NSEnemyNetworkEvent(NWID);
+        }
+
+        public static void CheckDataIntegrityBees(RedLocustBees __instance)
+        {
+            if (!beeList.ContainsKey(__instance))
+            {
+                Script.Logger.Log(LogLevel.Fatal, $"Critical failule. Failed to get data for {LibraryCalls.DebugStringHead(__instance)}. Attempting to fix...");
+                beeList.Add(__instance, new BeeValues());
+            }
         }
 
         public static void OnCustomEnemyCollision(RedLocustBees __instance, EnemyAI mainscript2)

@@ -67,6 +67,7 @@ namespace NaturalSelection.EnemyPatches
         static void UpdatePostfix(HoarderBugAI __instance)
         {
             if (__instance.isEnemyDead) return;
+            CheckDataIntegrityHoarder(__instance);
             HoarderBugValues Bugvalues = hoarderBugList[__instance];
             if (Bugvalues.limitSpeed)
             {
@@ -74,7 +75,7 @@ namespace NaturalSelection.EnemyPatches
             }
             //Bugvalues.enemiesInLOS = EnemyAIPatch.GetEnemiesInLOS(__instance, Bugvalues.enemies, 60f, 12, 3f).Keys.ToList();
         }
-        
+
         /*
         [HarmonyPatch("DoAIInterval")]
         [HarmonyPrefix]
@@ -116,5 +117,14 @@ namespace NaturalSelection.EnemyPatches
             }      
         }
         */
+
+        public static void CheckDataIntegrityHoarder(HoarderBugAI __instance)
+        {
+            if (!hoarderBugList.ContainsKey(__instance))
+            {
+                Script.Logger.Log(LogLevel.Fatal, $"Critical failule. Failed to get data for {LibraryCalls.DebugStringHead(__instance)}. Attempting to fix...");
+                hoarderBugList.Add(__instance, new HoarderBugValues());
+            }
+        }
     }
 }

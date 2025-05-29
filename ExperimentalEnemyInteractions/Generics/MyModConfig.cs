@@ -18,6 +18,7 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<bool> stableMode;
     public readonly ConfigEntry<bool> IgnoreImmortalEnemies;
     public readonly ConfigEntry<float> agentRadiusModifier;
+    public readonly ConfigEntry<float> globalListsUpdateInterval;
     //enemy bools
     public readonly ConfigEntry<bool> enableSpider;
     public readonly ConfigEntry<bool> enableSlime;
@@ -87,6 +88,7 @@ namespace NaturalSelection.Generics;
             stableMode = cfg.Bind("General Settings", "Toggle stable mode", true, "When true, the mod will exlude patches that are WIP or are experimental from loading. Requires restart.");
             IgnoreImmortalEnemies = cfg.Bind("General Settings", "Ignore Immortal Enemies", false, "All immortal enemies will be ignored by majority of entities.");
             agentRadiusModifier = cfg.Bind("General Settings", "Agent radius modifier", 0.50f, "Modifies agent radius of entities for more reliable collisions.");
+            globalListsUpdateInterval = cfg.Bind("General Settings", "Global lists update interval", 1f, "Set a period how often are global lists updated. Default is one second.");
 
             //enable entities
             enableSpider = cfg.Bind("DEV", "Enable spider", false, "Enable changes to apply to to spider and modify it's behavior. Unfinished.");

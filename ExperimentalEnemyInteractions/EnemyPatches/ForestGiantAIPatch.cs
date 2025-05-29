@@ -91,6 +91,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void KillEnemyPatchPostfix(ForestGiantAI __instance)
         {
+            CheckDataIntegrityGiant(__instance);
             GiantData giantDaata = giantDictionary[__instance];
             if (giantDaata.extinguished != 1 && __instance.currentBehaviourStateIndex == 2)
             {
@@ -103,6 +104,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static bool UpdatePrefix(ForestGiantAI __instance)
         {
+            CheckDataIntegrityGiant(__instance);
             GiantData giantData = giantDictionary[__instance];
 
             if (__instance.currentBehaviourStateIndex == 2 && Time.realtimeSinceStartup - __instance.timeAtStartOfBurning > 9.5f && __instance.enemyHP > 20 && giantData.extinguished == 0  && !__instance.isEnemyDead && __instance.IsOwner)
@@ -134,6 +136,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void UpdatePostfix(ForestGiantAI __instance)
         {
+            CheckDataIntegrityGiant(__instance);
             GiantData giantData = giantDictionary[__instance];
             if (__instance.IsOwner) NetworkOwnerPostfixResult(__instance).Value = Time.realtimeSinceStartup - __instance.timeAtStartOfBurning;
 
@@ -149,6 +152,15 @@ namespace NaturalSelection.EnemyPatches
             else if (__instance.isEnemyDead && NetworkOwnerPostfixResult(__instance).Value > 26f && __instance.burningParticlesContainer.activeSelf == true)
             {     
                 __instance.burningParticlesContainer.SetActive(false);
+            }
+        }
+
+        public static void CheckDataIntegrityGiant(ForestGiantAI __instance)
+        {
+            if (!giantDictionary.ContainsKey(__instance))
+            {
+                Script.Logger.Log(LogLevel.Fatal, $"Critical failule. Failed to get data for {LibraryCalls.DebugStringHead(__instance)}. Attempting to fix...");
+                giantDictionary.Add(__instance, new GiantData());
             }
         }
         /*

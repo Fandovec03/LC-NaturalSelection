@@ -17,7 +17,6 @@ namespace NaturalSelection.EnemyPatches
         internal EnemyAI? targetEnemy = null;
         //public int targetingEntity = 0;
         internal float clearEnemiesTimer = 0f;
-        internal List<EnemyAI> localEnemyList = new List<EnemyAI>();
     }
 
     [HarmonyPatch(typeof(SandWormAI))]
@@ -83,6 +82,7 @@ namespace NaturalSelection.EnemyPatches
         static bool SandWormPrefixUpdatePatch(SandWormAI __instance)
         {
             if (__instance.isEnemyDead) return true;
+            CheckDataIntegrityWorm(__instance);
             ExtendedSandWormAIData SandwormData = sandworms[__instance];
             Type type = __instance.GetType();
 
@@ -104,7 +104,6 @@ namespace NaturalSelection.EnemyPatches
                 {
                     List<EnemyAI> tempList = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
                     LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
-                    SandwormData.localEnemyList = tempList;
                     SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, SandwormData.closestEnemy, __instance);
                 }
                 SandwormData.refreshCDtime = 0.2f;
@@ -167,6 +166,7 @@ namespace NaturalSelection.EnemyPatches
         static void SandWormPostfixUpdatePatch(SandWormAI __instance)
         {
             if (__instance.isEnemyDead) return;
+            CheckDataIntegrityWorm(__instance);
             ExtendedSandWormAIData SandwormData = sandworms[__instance];
             int targetingEntity = NetworkSandwormBehaviorState(__instance).Value;
             bool networkMovingTowardsPlayer = NetworkMovingTowardsPlayer(__instance).Value;
@@ -242,6 +242,7 @@ namespace NaturalSelection.EnemyPatches
         static bool SandWormDoAIIntervalPrefix(SandWormAI __instance)
         {
             if (__instance.isEnemyDead) return true;
+            CheckDataIntegrityWorm(__instance);
             ExtendedSandWormAIData SandwormData = sandworms[__instance];
             Type type = __instance.GetType();
             int targetingEntity = NetworkSandwormBehaviorState(__instance).Value;
@@ -253,7 +254,9 @@ namespace NaturalSelection.EnemyPatches
                     {
                         if (!__instance.emerged && !__instance.inEmergingState)
                         {
-                            SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(ref SandwormData.localEnemyList, SandwormData.closestEnemy, __instance);
+                            List<EnemyAI> tempList = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
+                            LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
+                            SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, SandwormData.closestEnemy, __instance);
                             __instance.agent.speed = 4f;
                             if (debugSandworm) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: assigned {SandwormData.closestEnemy} as closestEnemy");
                             if (SandwormData.closestEnemy != null && Vector3.Distance(__instance.transform.position, SandwormData.closestEnemy.transform.position) < 15f)
@@ -355,6 +358,15 @@ namespace NaturalSelection.EnemyPatches
                 return false;
             }
             return true;
+        }
+
+        public static void CheckDataIntegrityWorm(SandWormAI __instance)
+        {
+            if (!sandworms.ContainsKey(__instance))
+            {
+                Script.Logger.Log(LogLevel.Fatal, $"Critical failule. Failed to get data for {LibraryCalls.DebugStringHead(__instance)}. Attempting to fix...");
+                sandworms.Add(__instance, new ExtendedSandWormAIData());
+            }
         }
     }
 }

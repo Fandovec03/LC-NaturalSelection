@@ -13,7 +13,7 @@ namespace NaturalSelection.Generics
         static float nextUpdate = 0;
         static float updateTime = 0;
         static Dictionary<Type, List<EnemyAI>> checkedTypes = new Dictionary<Type, List<EnemyAI>>();
-        public static float updateListInterval = 1f;
+        public static float updateListInterval = Script.BoundingConfig.globalListsUpdateInterval.Value;
         static bool logSpam = Script.Bools["spammyLogs"];
         static bool logUnspecified = Script.Bools["debugUnspecified"];
 
@@ -36,10 +36,9 @@ namespace NaturalSelection.Generics
         {
             if (Time.realtimeSinceStartup >= nextUpdate)
             {
-                List<EnemyAI> listChecked;
                 foreach (Type type in checkedTypes.Keys.ToList())
                 {
-                    listChecked = checkedTypes[type];
+                    List<EnemyAI> listChecked = checkedTypes[type];
                     NaturalSelectionLib.NaturalSelectionLib.UpdateListInsideDictionrary(type, ref listChecked);
                 }
                 checkedTypes.Clear();

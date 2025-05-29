@@ -1,9 +1,17 @@
 # Experimental Enemy Interactions
 
+## 0.5.8
+- Added a check for retrieving enemy data
+- Slightly updated library
+- Added setting for global enemy lists update interval
+- Removed localEnemyLists from patches. Enemies use local/temporary lists instead.
+- Updated rexuvination compatibility a bit.
+
 ## 0.5.7
 - Added logs when data containers are created.
 - Updated loggers
 - Updated scheduling global lists to pass parameters by reference
+- Updated Rexuvination compatibility
 
 ## 0.5.6
 - ~~Updated immortal enemies check to include enemies with set canDie bool to false~~ Reverted

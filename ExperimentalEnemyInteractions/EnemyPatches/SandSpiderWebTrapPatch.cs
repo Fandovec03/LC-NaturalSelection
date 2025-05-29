@@ -76,6 +76,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static void OnTriggerStayPatch(Collider other, SandSpiderWebTrap __instance)
         {
+            CheckDataIntegrityWeb(__instance);
             SpiderWebValues webData = spiderWebs[__instance];
             EnemyAICollisionDetect? trippedEnemyCollision = other.GetComponent<EnemyAICollisionDetect>();
             EnemyAI? trippedEnemy = null;
@@ -130,6 +131,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static bool UpdatePrefix(SandSpiderWebTrap __instance, out bool __state)
         {
+            CheckDataIntegrityWeb(__instance);
             SpiderWebValues webData = spiderWebs[__instance];
 
             if (__instance.currentTrappedPlayer != null)
@@ -150,6 +152,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void UpdatePostfix(SandSpiderWebTrap __instance, bool __state)
         {
+            CheckDataIntegrityWeb(__instance);
             SpiderWebValues webData = spiderWebs[__instance];
             if (!__state)
             {
@@ -181,6 +184,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static void OnTriggerExitPatch(Collider other, SandSpiderWebTrap __instance)
         {
+            CheckDataIntegrityWeb(__instance);
             SpiderWebValues webData = spiderWebs[__instance];
             EnemyAICollisionDetect? trippedEnemyCollision = other.GetComponent<EnemyAICollisionDetect>();
             EnemyAI? trippedEnemy = null;
@@ -206,6 +210,15 @@ namespace NaturalSelection.EnemyPatches
                     //NetworkEnemyTripTrapExit(__instance).InvokeClients();
                 }
                 //__instance.webAudio.Stop();
+            }
+        }
+
+        public static void CheckDataIntegrityWeb(SandSpiderWebTrap __instance)
+        {
+            if (!spiderWebs.ContainsKey(__instance))
+            {
+                Script.Logger.Log(LogLevel.Fatal, $"Critical failule. Failed to get data for trap {__instance.trapID}. Attempting to fix...");
+                spiderWebs.Add(__instance, new SpiderWebValues());
             }
         }
     }

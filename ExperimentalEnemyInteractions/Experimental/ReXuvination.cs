@@ -11,6 +11,8 @@ namespace NaturalSelection.Compatibility
 {
     public class ReXuvinationPatch()
     {
+        public static bool patched = false;
+
         [HarmonyPatch(typeof(SandSpiderWebTrap) ,"Awake")]
         [HarmonyPostfix]
         [HarmonyAfter("XuuXiaolan.ReXuvination")]
@@ -37,12 +39,23 @@ namespace NaturalSelection.Compatibility
 
         [HarmonyPatch(typeof(QuickMenuManager) ,"Start")]
         [HarmonyPrefix]
+        [HarmonyBefore("XuuXiaolan.ReXuvination")]
         static void QuickMenuManagerStartPatch()
         {
-            foreach(EnemyAI enemy in Script.loadedEnemyList)
+            if (patched) return;
+
+            foreach (EnemyAI enemy in Script.loadedEnemyList)
             {
                 foreach (EnemyAICollisionDetect collisionDetectScript in enemy.enemyType.enemyPrefab.GetComponentsInChildren<EnemyAICollisionDetect>())
                 {
+                    collisionDetectScript.gameObject.TryGetComponent<Collider>(out Collider coltemp);
+
+                    if (coltemp != null && !coltemp.isTrigger)
+                    {
+                        collisionDetectScript.canCollideWithEnemies = true;
+                        Script.Logger.Log(LogLevel.Info, $"Unoptimized {enemy.enemyType.enemyName} collider {coltemp.name} to collide with enemies.");
+                    }
+
                     foreach (Collider col in collisionDetectScript.gameObject.GetComponentsInChildren<Collider>())
                     {
                         if (col.isTrigger) continue;
@@ -50,9 +63,11 @@ namespace NaturalSelection.Compatibility
                         if (collisionDetectScript.canCollideWithEnemies) continue;
 
                         collisionDetectScript.canCollideWithEnemies = true;
+                        Script.Logger.Log(LogLevel.Info, $"Unoptimized {enemy.enemyType.enemyName} collider {col.name} to collide with enemies.");
                     }
                 }
             }
+            patched = true;
         }
     }
 }

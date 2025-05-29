@@ -66,6 +66,7 @@ namespace NaturalSelection.EnemyPatches
         static bool UpdatePrefixPatch(SandSpiderAI __instance)
         {
             if (__instance.isEnemyDead) return true;
+            CheckDataIntegritySpider(__instance);
             SpiderData spiderData = spiderList[__instance];
             Type type = __instance.GetType();
 
@@ -340,6 +341,7 @@ namespace NaturalSelection.EnemyPatches
         static bool DoAIIntervalPrefix(SandSpiderAI __instance)
         {
             if (__instance.isEnemyDead) return true;
+            CheckDataIntegritySpider(__instance);
             SpiderData spiderData = spiderList[__instance];
             SandSpiderAI Ins = __instance;
 
@@ -363,6 +365,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (__instance.isEnemyDead) return;
             SandSpiderAI Ins = __instance;
+            CheckDataIntegritySpider(__instance);
             SpiderData spiderData = spiderList[__instance];
             
             switch (__instance.currentBehaviourStateIndex)
@@ -481,6 +484,15 @@ namespace NaturalSelection.EnemyPatches
                 spiderData.investigateTrapTimer = 5f;
                 if (debugSpider || debugTriggerFlag) Script.Logger.LogInfo($"Spider trap {triggeredTrap.trapID} alerted its owner {LibraryCalls.DebugStringHead(owner)}");
                 return;
+            }
+        }
+
+        public static void CheckDataIntegritySpider(SandSpiderAI __instance)
+        {
+            if (!spiderList.ContainsKey(__instance))
+            {
+                Script.Logger.Log(LogLevel.Fatal, $"Critical failule. Failed to get data for {LibraryCalls.DebugStringHead(__instance)}. Attempting to fix...");
+                spiderList.Add(__instance, new SpiderData());
             }
         }
     }

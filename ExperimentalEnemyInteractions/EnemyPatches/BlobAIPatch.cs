@@ -12,6 +12,7 @@ using NaturalSelection.Generics;
 using Steamworks.Data;
 using Unity.Netcode;
 using UnityEngine;
+using LogLevel = BepInEx.Logging.LogLevel;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -20,7 +21,6 @@ namespace NaturalSelection.EnemyPatches
 	{
         internal EnemyAI? closestEnemy = null;
 		internal bool playSound = false;
-		internal List<EnemyAI> localEnemyList = new List<EnemyAI>();
 		internal Dictionary<EnemyAI, float> hitRegistry = new Dictionary<EnemyAI, float>();
     }
 
@@ -75,6 +75,7 @@ namespace NaturalSelection.EnemyPatches
 		static bool DoAIIntervalPrefixPatch(BlobAI __instance)
 		{
             if (__instance.isEnemyDead) return true;
+            CheckDataIntegrityBlob(__instance);
             BlobData blobData = slimeList[__instance];
 
 			if (Script.BoundingConfig.blobPathfind.Value == true)
@@ -103,6 +104,7 @@ namespace NaturalSelection.EnemyPatches
 		static void BlobUpdatePatch(BlobAI __instance)
 		{
             if (__instance.isEnemyDead) return;
+            CheckDataIntegrityBlob(__instance);
             BlobData blobData = slimeList[__instance];
 			Type type = __instance.GetType();
 
@@ -124,8 +126,7 @@ namespace NaturalSelection.EnemyPatches
 			{
 				List<EnemyAI> temp = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
                 LibraryCalls.GetInsideOrOutsideEnemyList(ref temp, __instance);
-				blobData.localEnemyList = temp;
-				blobData.closestEnemy = LibraryCalls.FindClosestEnemy(ref blobData.localEnemyList, blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
+				blobData.closestEnemy = LibraryCalls.FindClosestEnemy(ref temp, blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
             }
 
 			if (blobData.playSound)
@@ -135,9 +136,19 @@ namespace NaturalSelection.EnemyPatches
 				blobData.playSound = false;
 			}
         }
-		
-		public static void OnCustomEnemyCollision(BlobAI __instance, EnemyAI mainscript2)
+
+        public static void CheckDataIntegrityBlob(BlobAI __instance)
+        {
+            if (!slimeList.ContainsKey(__instance))
+            {
+                Script.Logger.Log(LogLevel.Fatal, $"Critical failule. Failed to get data for {LibraryCalls.DebugStringHead(__instance)}. Attempting to fix...");
+                slimeList.Add(__instance, new BlobData());
+            }
+        }
+
+        public static void OnCustomEnemyCollision(BlobAI __instance, EnemyAI mainscript2)
 		{
+            CheckDataIntegrityBlob(__instance);
             BlobData blobData = slimeList[__instance];
 
             if (!blobData.hitRegistry.ContainsKey(mainscript2) && !blobBlacklist.Contains(mainscript2.enemyType.enemyName))

@@ -219,16 +219,6 @@ namespace NaturalSelection.Generics
                     continue;
                 }
 
-                try
-                {
-                    Script.Logger.Log(LogLevel.Info, $"Assembly name: {item.GetType().Assembly.FullName.Split(',', '.')[0]}. Assembly location: {item.GetType().Assembly.Location}.");
-                }
-                catch (Exception e)
-                {
-                    Script.Logger.LogError($"error: {e}");
-                }
-
-
                 if (!loadedEnemyNamesFromConfig.Contains(itemName))
                 {
                     loadedEnemyNamesFromConfig.Add(itemName);
@@ -246,7 +236,13 @@ namespace NaturalSelection.Generics
                 if (!beeBlacklistrDictionay.Keys.Contains(itemName))
                 {
                     Script.Logger.Log(LogLevel.Debug,$"Generating new bee blacklist entry for {itemName}");
-                    beeBlacklistrDictionay.Add(itemName, false);
+                    bool value = false;
+
+                    if (beeBlacklistrDictionay.Keys.Contains("Earth Leviathan") || beeBlacklistrDictionay.Keys.Contains("Docile Locust Bees"))
+                    {
+                        value = true;
+                    }
+                    beeBlacklistrDictionay.Add(itemName, value);
                 }
                 if (!blobBlacklistDictionay.Keys.Contains(itemName))
                 {

@@ -17,6 +17,9 @@ namespace NaturalSelection.Generics
         static bool logSpam = Script.Bools["spammyLogs"];
         static bool logUnspecified = Script.Bools["debugUnspecified"];
 
+        //Only used when SellBodiesFixed/Enhanced Monsters are in the modpack
+        public static List<GameObject> deadEnemiesList = new List<GameObject>();
+
         static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
             if (entryKey == "debugUnspecified") logUnspecified = value;

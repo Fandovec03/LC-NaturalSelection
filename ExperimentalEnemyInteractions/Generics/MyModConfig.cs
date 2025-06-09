@@ -41,7 +41,6 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<bool> blobPathfind;
     //Sandworm
     public readonly ConfigEntry<bool> sandwormDoNotEatPlayersInsideLeavingShip;
-    public readonly ConfigEntry<bool> sandwormFilterTypes;
     //Spider web
     public readonly ConfigEntry<bool> enableSpiderWebs;
     public readonly ConfigEntry<string> speedModifierList;
@@ -111,7 +110,6 @@ namespace NaturalSelection.Generics;
             blobPathfind = cfg.Bind("Entity settings | Hygrodere", "Pathfind", true, "Pathfind to other entities.");
             //Sandworm
             sandwormDoNotEatPlayersInsideLeavingShip = cfg.Bind("Entity settings | Sandworm", "Do not eat players inside leaving ship", false, "Worms do not eat players inside ship leaving moon.");
-            sandwormFilterTypes = cfg.Bind("Entity settings | Sandworm", "Filter out enemy types", true, "Filter out enemies by enemy type. When disabled allows sandworms to target that are filtered out (Vanilla enemies smaller than employee). Blacklisting enemies is highly recommended when this setting is disabled.");
             //Spider/Spider Web
             chaseAfterEnemiesModifier = cfg.Bind("Entity settings | Spider/Spider Web", "Chase after enemies modifier", 3f, "Modifies chase timer for chasing enemies. When chasing another enemy, hunter's chase timer is divided by set number.");
             speedModifierList = cfg.Bind("Entity settings | Spider/Spider Web", "Web speed modifiers", "", "Modifies final speed of enemy caught in web. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:Speed ] \n This config generates automatically.");

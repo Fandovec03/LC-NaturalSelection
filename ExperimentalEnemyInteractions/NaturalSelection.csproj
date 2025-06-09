@@ -58,18 +58,22 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Deprecated\" />
       <Folder Include="DLLs\" />
     </ItemGroup>
 
     <ItemGroup>
+      <Reference Include="EnhancedMonsters" Publicize="True">
+        <HintPath>TEMP\EnhancedMonsters.dll</HintPath>
+      </Reference>
       <Reference Include="fandovec03.NaturalSelectionLib">
         <HintPath>..\..\NaturalSelectionLib\NaturalSelectionLib\bin\Debug\netstandard2.1\fandovec03.NaturalSelectionLib.dll</HintPath>
       </Reference>
-      <Reference Include="TEMP\ReXuvination.dll" Publicize="true">
+      <Reference Include="ReXuvination" Publicize="True">
+        <HintPath>TEMP\ReXuvination.dll</HintPath>
       </Reference>
-      <Reference Include="TEMP\EnhancedMonsters.dll">
-      </Reference>
-      <Reference Include="TEMP\SellBodies.dll" Publicize="true">
+      <Reference Include="SellBodies" Publicize="True">
+        <HintPath>TEMP\SellBodies.dll</HintPath>
       </Reference>
     </ItemGroup>
 </Project>

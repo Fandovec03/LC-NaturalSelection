@@ -25,7 +25,7 @@ public class Script : BaseUnityPlugin
 {
     public static Script Instance { get; private set; } = null!;
 
-    internal new static ManualLogSource Logger = null!;
+    public new static ManualLogSource Logger = null!;
     internal static Harmony? Harmony { get; set; }
 
     internal static MyModConfig BoundingConfig { get; set; } = null!;
@@ -193,8 +193,8 @@ public class Script : BaseUnityPlugin
         if (BoundingConfig.enableSpiderWebs.Value)Harmony.PatchAll(typeof(SandSpiderWebTrapPatch));
 
         //Compatibilities
-        //if (enhancedMonstersPresent) Harmony.PatchAll(typeof(EnhancedMonstersPatch));
-        //if (sellBodiesPresent) SellBodiesFixedPatch.AddTracerScriptToPrefabs();
+        if (enhancedMonstersPresent) Harmony.PatchAll(typeof(EnhancedMonstersCompatibility));
+        if (sellBodiesPresent) SellBodiesFixedCompatibility.AddTracerScriptToPrefabs();
         if (rexuvinationPresent) Harmony.PatchAll(typeof(ReXuvinationPatch));
 
         if (!stableToggle)

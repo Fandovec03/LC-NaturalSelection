@@ -22,7 +22,6 @@ namespace NaturalSelection.EnemyPatches
     [HarmonyPatch(typeof(SandWormAI))]
     class SandWormAIPatch
     {
-        static List<Type> targetedTypes = new List<Type>();
         static bool debugSandworm = Script.Bools["debugSandworms"];
         static bool debugSpam = Script.Bools["spammyLogs"];
         static bool triggerFlag = Script.Bools["debugTriggerFlags"];
@@ -63,15 +62,6 @@ namespace NaturalSelection.EnemyPatches
             {
                 Script.Logger.Log(LogLevel.Info, $"Creating data container for {LibraryCalls.DebugStringHead(__instance)}");
                 sandworms.Add(__instance, new ExtendedSandWormAIData());
-
-                if (targetedTypes.Count == 0 && Script.BoundingConfig.sandwormFilterTypes.Value == true)
-                {
-                    targetedTypes.Add(typeof(BaboonBirdAI));
-                    targetedTypes.Add(typeof(ForestGiantAI));
-                    targetedTypes.Add(typeof(MouthDogAI));
-                    targetedTypes.Add(typeof(BushWolfEnemy));
-                    targetedTypes.Add(typeof(RadMechAI));
-                }
             }
 
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
@@ -96,7 +86,7 @@ namespace NaturalSelection.EnemyPatches
                 if (RoundManagerPatch.RequestUpdate(__instance) == true)
                 {
                     List<EnemyAI> tempList = LibraryCalls.GetCompleteList(__instance, true, 0);
-                    LibraryCalls.FilterEnemyList(ref tempList, targetedTypes, sandwormBlacklist, __instance);
+                    LibraryCalls.FilterEnemyList(ref tempList, [EnemySize.Tiny], sandwormBlacklist, __instance, true);
                     RoundManagerPatch.ScheduleGlobalListUpdate(__instance, ref tempList);
                     //NaturalSelectionLib.NaturalSelectionLib.UpdateListInsideDictionrary(__instance.GetType(), LibraryCalls.FilterEnemyList(LibraryCalls.GetOutsideEnemyList(LibraryCalls.GetCompleteList(__instance, true, 0), __instance), targetedTypes, __instance));
                 }

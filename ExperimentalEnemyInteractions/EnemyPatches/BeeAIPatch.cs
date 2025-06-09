@@ -17,7 +17,6 @@ namespace NaturalSelection.EnemyPatches
         internal int customBehaviorStateIndex = 0;
         internal Dictionary<EnemyAI, float> hitRegistry = new Dictionary<EnemyAI, float>();
         internal float LostLOSOfEnemy = 0f;
-        internal List<Type> enemyTypes = new List<Type>();
         internal float delayTimer = 0.2f;
     }
 
@@ -49,12 +48,6 @@ namespace NaturalSelection.EnemyPatches
                 beeList.Add(__instance, new BeeValues());
             }
             BeeValues beeData = beeList[__instance];
-            
-            if (beeData.enemyTypes.Count < 1)
-            {
-                beeData.enemyTypes.Add(typeof(DocileLocustBeesAI));
-                beeData.enemyTypes.Add(typeof(SandWormAI));
-            }
 
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
@@ -73,7 +66,7 @@ namespace NaturalSelection.EnemyPatches
             {
                 List<EnemyAI> tempList = LibraryCalls.GetCompleteList(__instance);
 
-                LibraryCalls.FilterEnemyList(ref tempList, beeList[__instance].enemyTypes, beeBlacklist, __instance, true, Script.BoundingConfig.IgnoreImmortalEnemies.Value);
+                LibraryCalls.FilterEnemyList(ref tempList, null, beeBlacklist, __instance, true, Script.BoundingConfig.IgnoreImmortalEnemies.Value);
 
 
 
@@ -150,8 +143,16 @@ namespace NaturalSelection.EnemyPatches
                                 if (logBees && debugSpam) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} Found dead enemy in LOSList: {LibraryCalls.DebugStringHead(keyPair.Key)}, Distance: {keyPair.Value}");
                                 enemiesInLOS.Remove(keyPair.Key);
                             }
+
+                                IVisibleThreat threat = keyPair.Key.GetComponentInChildren<IVisibleThreat>();
+
+                            if (threat != null && threat.GetHeldObject() == __instance.hive)
+                            {
+                                if (logBees && debugSpam) Script.Logger.Log(LogLevel.Info, $"{LibraryCalls.DebugStringHead(__instance)} Found threat holding its hive: {LibraryCalls.DebugStringHead(keyPair.Key)}, Distance: {keyPair.Value}");
+                                LOSenemy = keyPair.Key;
+                            }
                         }
-                        if (enemiesInLOS.Count > 0)
+                        if (enemiesInLOS.Count > 0 && LOSenemy == null)
                         {
                             LOSenemy = enemiesInLOS.Keys.First();
                         }

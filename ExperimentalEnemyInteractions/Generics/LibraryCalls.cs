@@ -42,11 +42,11 @@ public class LibraryCalls
         if (debugSpam && debugTriggerFlag) Script.Logger.Log(LogLevel.Info,"Called library findClosestEnemy!");
         return NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemy(ref importEnemyList, importClosestEnemy, instance, includeTheDead);
     }
-    public static void FilterEnemyList(ref List<EnemyAI> importEnemyList, List<Type>? targetTypes, List<string>? blacklist, EnemyAI instance, bool inverseToggle = false, bool filterOutImmortal = true)
+    public static void FilterEnemyList(ref List<EnemyAI> importEnemyList, EnemySize[]? enemySizes, List<string>? blacklist, EnemyAI instance, bool inverseToggle = false, bool filterOutImmortal = true)
     {
         if (debugSpam && debugTriggerFlag) Script.Logger.LogInfo("Called library filterEnemyList!");
         if (debugSpam && debugTriggerFlag) Script.Logger.Log(LogLevel.Info,"Called library filterEnemyList!");
-        NaturalSelectionLib.NaturalSelectionLib.FilterEnemyList(ref importEnemyList, targetTypes, blacklist, instance, inverseToggle, filterOutImmortal);
+        NaturalSelectionLib.NaturalSelectionLib.FilterEnemyList(ref importEnemyList, enemySizes, blacklist, instance, inverseToggle, filterOutImmortal);
     }
 
     static public Dictionary<EnemyAI, float> GetEnemiesInLOS(EnemyAI instance, ref List<EnemyAI> importEnemyList, float width = 45f, int importRange = 0, float proximityAwareness = -1)

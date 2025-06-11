@@ -66,7 +66,7 @@ namespace NaturalSelection.EnemyPatches
             {
                 List<EnemyAI> tempList = LibraryCalls.GetCompleteList(__instance);
 
-                LibraryCalls.FilterEnemyList(ref tempList, null, beeBlacklist, __instance, true, Script.BoundingConfig.IgnoreImmortalEnemies.Value);
+                LibraryCalls.FilterEnemyList(ref tempList, beeBlacklist, __instance, Script.BoundingConfig.IgnoreImmortalEnemies.Value);
 
 
 

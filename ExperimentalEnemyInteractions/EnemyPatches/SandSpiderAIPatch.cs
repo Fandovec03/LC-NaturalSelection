@@ -76,7 +76,7 @@ namespace NaturalSelection.EnemyPatches
             {
                 List<EnemyAI> tempList = LibraryCalls.GetCompleteList(__instance);
                 LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
-                LibraryCalls.FilterEnemyList(ref tempList, null, spiderBlacklist, __instance);
+                LibraryCalls.FilterEnemyList(ref tempList, spiderBlacklist, __instance);
                 RoundManagerPatch.ScheduleGlobalListUpdate(__instance, ref tempList);
             }
             if (__instance.IsOwner)

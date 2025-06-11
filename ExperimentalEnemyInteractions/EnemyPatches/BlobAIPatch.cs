@@ -119,7 +119,7 @@ namespace NaturalSelection.EnemyPatches
 			if (RoundManagerPatch.RequestUpdate(__instance) == true)
 			{
 				List<EnemyAI> tempList = LibraryCalls.GetCompleteList(__instance, true, 1);
-                LibraryCalls.FilterEnemyList(ref tempList, null, blobBlacklist, __instance, false, true);
+                LibraryCalls.FilterEnemyList(ref tempList, blobBlacklist, __instance, true);
                 RoundManagerPatch.ScheduleGlobalListUpdate(__instance, ref tempList);
 			}
 			if (__instance.IsOwner)

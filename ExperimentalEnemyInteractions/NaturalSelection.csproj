@@ -67,7 +67,7 @@
         <HintPath>TEMP\EnhancedMonsters.dll</HintPath>
       </Reference>
       <Reference Include="fandovec03.NaturalSelectionLib">
-        <HintPath>..\..\NaturalSelectionLib\NaturalSelectionLib\bin\Debug\netstandard2.1\fandovec03.NaturalSelectionLib.dll</HintPath>
+        <HintPath>DLLs\fandovec03.NaturalSelectionLib.dll</HintPath>
       </Reference>
       <Reference Include="ReXuvination" Publicize="True">
         <HintPath>TEMP\ReXuvination.dll</HintPath>

@@ -86,7 +86,14 @@ namespace NaturalSelection.EnemyPatches
                 if (RoundManagerPatch.RequestUpdate(__instance) == true)
                 {
                     List<EnemyAI> tempList = LibraryCalls.GetCompleteList(__instance, true, 0);
-                    LibraryCalls.FilterEnemyList(ref tempList, [EnemySize.Tiny], sandwormBlacklist, __instance, true);
+                    Dictionary<EnemyAI, int> tempDict = new Dictionary<EnemyAI, int>();
+                    LibraryCalls.FilterEnemyList(ref tempList, sandwormBlacklist, __instance, true);
+                    foreach (var enemy in tempList)
+                    {
+                        tempDict.Add(enemy, InitializeGamePatch.customSizeOverrideListDictionary[enemy.enemyType.enemyName]);
+                    }
+                    LibraryCalls.FilterEnemySizes(ref tempDict, [2, 3, 4, 5], __instance, false);
+                    tempList = tempDict.Keys.ToList();
                     RoundManagerPatch.ScheduleGlobalListUpdate(__instance, ref tempList);
                     //NaturalSelectionLib.NaturalSelectionLib.UpdateListInsideDictionrary(__instance.GetType(), LibraryCalls.FilterEnemyList(LibraryCalls.GetOutsideEnemyList(LibraryCalls.GetCompleteList(__instance, true, 0), __instance), targetedTypes, __instance));
                 }

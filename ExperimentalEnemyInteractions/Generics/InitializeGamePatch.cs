@@ -1,8 +1,10 @@
 using BepInEx;
 using BepInEx.Logging;
+using EasyTextEffects.Editor.MyBoxCopy.Extensions;
 using HarmonyLib;
 using Mono.Cecil;
 using NaturalSelection;
+using NaturalSelection.EnemyPatches;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +23,7 @@ namespace NaturalSelection.Generics
         static List<string> spiderWebBlacklistList = Script.BoundingConfig.spiderWebBlacklist.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
         static List<string> speedModifierList = Script.BoundingConfig.speedModifierList.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
         static List<string> spiderBlacklistList = Script.BoundingConfig.spiderBlacklist.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        static List<string> customSizeOverrideListList = Script.BoundingConfig.customSizeOverrideList.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
 
         static Dictionary<string, bool> beeBlacklistrDictionay = new Dictionary<string, bool>();
         static Dictionary<string, bool> blobBlacklistDictionay = new Dictionary<string, bool>();
@@ -28,6 +31,7 @@ namespace NaturalSelection.Generics
         static Dictionary<string, bool> spiderWebBlacklistDictionay = new Dictionary<string, bool>();
         public static Dictionary<string, float> speedModifierDictionay = new Dictionary<string, float>();
         static Dictionary<string, bool> spiderBlacklistDictionay = new Dictionary<string, bool>();
+        public static Dictionary<string, int> customSizeOverrideListDictionary = new Dictionary<string, int>();
 
         public static List<string> beeBlacklistFinal = new List<string>();
         public static List<string> blobBlacklistFinal = new List<string>();
@@ -202,6 +206,31 @@ namespace NaturalSelection.Generics
                     continue;
                 }
             }
+
+            foreach (var item in customSizeOverrideListList)
+            {
+                try
+                {
+                    string itemName = item.Split(":")[0];
+                    int itemValue = int.Parse(item.Split(":")[1]);
+                    if (itemValue < 0 || itemValue > 5)
+                    {
+                        Script.Logger.Log(LogLevel.Error, $"Invalid size value {itemValue}. Defaulting to (0 || {(CustomEnemySize)0})");
+                        itemValue = 0;
+                    }
+                    customSizeOverrideListDictionary.Add(itemName, itemValue);
+                    Script.Logger.Log(LogLevel.Debug, $"Found {itemName}, {(CustomEnemySize)itemValue}");
+                }
+                catch (Exception e)
+                {
+                    Script.Logger.Log(LogLevel.Error, "Failed to add enemy into spiderBlacklistDictionay");
+                    Script.Logger.Log(LogLevel.Error, item);
+                    Script.Logger.Log(LogLevel.Error, item.Split(":")[0]);
+                    Script.Logger.Log(LogLevel.Error, item.Split(":")[1]);
+                    Script.Logger.Log(LogLevel.Error, e);
+                    continue;
+                }
+            }
         }
         public static void CheckConfigLists(List<EnemyAI> listOfEnemies)
         {
@@ -217,6 +246,33 @@ namespace NaturalSelection.Generics
                     Script.Logger.Log(LogLevel.Warning,$"Failed to get enemy name from {item.name}. Adding to list for 2nd attempt.");
                     tryFindLater.Add(item);
                     continue;
+                }
+
+                if (customSizeOverrideListList.Count < 1)
+                {
+                    switch (item.enemyType.EnemySize)
+                    {
+                        case EnemySize.Tiny:
+                            {
+                                if (item is FlowerSnakeEnemy || item is DoublewingAI || item is CentipedeAI) customSizeOverrideListDictionary[itemName] = (int)CustomEnemySize.Tiny;
+                                else customSizeOverrideListDictionary[itemName] = (int)CustomEnemySize.Undefined;
+                                break;
+                            }
+                        case EnemySize.Medium:
+                            {
+                                customSizeOverrideListDictionary[itemName] = (int)CustomEnemySize.Medium;
+                                break;
+                            }
+                        case EnemySize.Giant:
+                            {
+                                customSizeOverrideListDictionary[itemName] = (int)CustomEnemySize.Giant;
+                                break;
+                            }
+
+                        default:
+                            customSizeOverrideListDictionary[itemName] = (int)CustomEnemySize.Undefined;
+                            break;
+                    }
                 }
 
                 if (!loadedEnemyNamesFromConfig.Contains(itemName))
@@ -264,6 +320,11 @@ namespace NaturalSelection.Generics
                     Script.Logger.Log(LogLevel.Debug,$"Generating new spider blacklist entry for {itemName}");
                     spiderBlacklistDictionay.Add(itemName, false);
                 }
+                if (!customSizeOverrideListDictionary.Keys.Contains(itemName))
+                {
+                    Script.Logger.Log(LogLevel.Debug, $"Generating new custom enemy size entry for {itemName}");
+                    customSizeOverrideListDictionary.Add(itemName, 0);
+                }
             }
             if (Script.BoundingConfig.debugBool.Value == true)
             {
@@ -298,6 +359,7 @@ namespace NaturalSelection.Generics
             string finalSandWormBlacklistString = "";
             string finalSpiderWebBlacklistString = "";
             string finalSpiderBlacklistString = "";
+            string customSizeOverrideListFinal = "";
 
             try
             {
@@ -338,6 +400,11 @@ namespace NaturalSelection.Generics
                 }
                 Script.BoundingConfig.spiderBlacklist.Value = finalSpiderBlacklistString;
 
+                foreach(var entry in customSizeOverrideListDictionary)
+                {
+                    customSizeOverrideListFinal = $"{customSizeOverrideListFinal}{entry.Key}:{entry.Value},";
+                }
+                Script.BoundingConfig.customSizeOverrideList.Value = customSizeOverrideListFinal;
 
                 Script.Logger.Log(LogLevel.Info,"Finished generating configucations.");
 

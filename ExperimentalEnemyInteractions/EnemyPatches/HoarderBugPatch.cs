@@ -2,6 +2,7 @@ using BepInEx.Logging;
 using HarmonyLib;
 using NaturalSelection.Generics;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -12,8 +13,7 @@ namespace NaturalSelection.EnemyPatches
         internal bool alertedByEnemy = false;
         internal List<EnemyAI> enemies = new List<EnemyAI>();
         internal List<EnemyAI> enemiesInLOS = new List<EnemyAI>();
-        internal bool limitSpeed = false;
-        internal float limitedSpeed = 0f;
+        internal float updateLog = 0f;
     }
 
 
@@ -69,9 +69,15 @@ namespace NaturalSelection.EnemyPatches
             if (__instance.isEnemyDead) return;
             CheckDataIntegrityHoarder(__instance);
             HoarderBugValues Bugvalues = hoarderBugList[__instance];
-            if (Bugvalues.limitSpeed)
+
+            if (Bugvalues.updateLog <= 0)
             {
-                __instance.agent.speed = Bugvalues.limitedSpeed;
+                Script.Logger.LogDebug($"isOutside : {__instance.isOutside}");
+                Bugvalues.updateLog = 1f;
+            }
+            else
+            {
+                Bugvalues.updateLog -= Time.deltaTime;
             }
             //Bugvalues.enemiesInLOS = EnemyAIPatch.GetEnemiesInLOS(__instance, Bugvalues.enemies, 60f, 12, 3f).Keys.ToList();
         }

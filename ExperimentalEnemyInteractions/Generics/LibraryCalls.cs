@@ -14,7 +14,9 @@ public class LibraryCalls
     static void Event_OnConfigSettingChanged(string entryKey, bool value)
     {
             if (entryKey == "debugTriggerFlags") debugTriggerFlag = value;
-            if (entryKey == "spammyLogs") debugSpam = value;
+            if (entryKey == "spammyLogs") { debugSpam = value; NaturalSelectionLib.NaturalSelectionLib.SetLibraryLoggers(Script.Logger, value, debugLibraryCalls); }
+            if (entryKey == "debugLibrary") { debugLibraryCalls = value; NaturalSelectionLib.NaturalSelectionLib.SetLibraryLoggers(Script.Logger, debugSpam, value); }
+
             //Script.Logger.Log(LogLevel.Message,$"LibraryCalls received event. debugTriggerFlag = {debugTriggerFlag}, debugSpam = {debugSpam}");
     }
     public static void SubscribeToConfigChanges()
@@ -44,11 +46,11 @@ public class LibraryCalls
         if (debugLibraryCalls && debugSpam && debugTriggerFlag) Script.Logger.Log(LogLevel.Info,"Called library findClosestEnemy!");
         return NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemy(ref importEnemyList, importClosestEnemy, instance, includeTheDead);
     }
-    public static void FilterEnemyList(ref List<EnemyAI> importEnemyList, List<string>? blacklist, EnemyAI instance, bool filterOutImmortal = true)
+    public static void FilterEnemyList(ref List<EnemyAI> importEnemyList, List<string>? blacklist, EnemyAI instance, bool filterOutImmortal = true, bool filterTheSameType = true)
     {
         if (debugLibraryCalls && debugSpam && debugTriggerFlag) Script.Logger.LogInfo("Called library filterEnemyList!");
         if (debugLibraryCalls && debugSpam && debugTriggerFlag) Script.Logger.Log(LogLevel.Info,"Called library filterEnemyList!");
-        NaturalSelectionLib.NaturalSelectionLib.FilterEnemyList(ref importEnemyList, blacklist, instance, filterOutImmortal);
+        NaturalSelectionLib.NaturalSelectionLib.FilterEnemyList(ref importEnemyList, blacklist, instance, filterOutImmortal, filterTheSameType);
     }
 
     public static void FilterEnemySizes(ref Dictionary<EnemyAI, int> importEnemySizeDict, int[] enemySizes, EnemyAI instance, bool inverseToggle = false)

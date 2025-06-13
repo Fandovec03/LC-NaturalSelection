@@ -92,7 +92,12 @@ namespace NaturalSelection.EnemyPatches
                 SpeedModifier = speedModifierDictionary[trippedEnemy.enemyType.enemyName];
                 if (!enemyData.ContainsKey(trippedEnemy))
                 {
-                    enemyData[trippedEnemy] = new EnemyInfo(trippedEnemy, trippedEnemy.agent.speed, trippedEnemy.creatureAnimator.speed);
+                    float creatureAnimatorSpeed = 1f;
+                    if (trippedEnemy.creatureAnimator != null)
+                    {
+                        creatureAnimatorSpeed = trippedEnemy.creatureAnimator.speed;
+                    }
+                    enemyData.Add(trippedEnemy, new EnemyInfo(trippedEnemy, trippedEnemy.agent.speed, creatureAnimatorSpeed));
                 }
                 if (!enemyData[trippedEnemy].NumberOfTraps.Contains(__instance))
                 {
@@ -104,14 +109,16 @@ namespace NaturalSelection.EnemyPatches
                 if (debugWebs) Script.Logger.Log(LogLevel.Debug,$"{__instance} Collided with {trippedEnemy}");
 
                 trippedEnemy.agent.speed = (enemyData[trippedEnemy].EnterAgentSpeed / ((1 + enemyData[trippedEnemy].NumberOfTraps.Count) * webStrenght)) * SpeedModifier;
-                trippedEnemy.creatureAnimator.speed = (enemyData[trippedEnemy].EnterAnimationSpeed / ((1 + enemyData[trippedEnemy].NumberOfTraps.Count) * webStrenght)) * SpeedModifier;
+
+                if (trippedEnemy.creatureAnimator != null) trippedEnemy.creatureAnimator.speed = (enemyData[trippedEnemy].EnterAnimationSpeed / ((1 + enemyData[trippedEnemy].NumberOfTraps.Count) * webStrenght)) * SpeedModifier;
 
                 if (Script.BoundingConfig.debugSpiderWebs.Value)
                 {
                     if (debugCD <= 0)
                     {
                         Script.Logger.Log(LogLevel.Debug,$"{__instance} Slowed down movement of {trippedEnemy} from {enemyData[trippedEnemy].EnterAgentSpeed} to {trippedEnemy.agent.speed} with Speed modifier {SpeedModifier}");
-                        Script.Logger.Log(LogLevel.Debug,$"{__instance} Slowed down animation of {trippedEnemy} from {enemyData[trippedEnemy].EnterAnimationSpeed} to {trippedEnemy.creatureAnimator.speed} with Speed modifier {SpeedModifier}");
+
+                        if (trippedEnemy.creatureAnimator != null) Script.Logger.Log(LogLevel.Debug,$"{__instance} Slowed down animation of {trippedEnemy} from {enemyData[trippedEnemy].EnterAnimationSpeed} to {trippedEnemy.creatureAnimator.speed} with Speed modifier {SpeedModifier}");
                         debugCD = 0.2f;
                     }
                     else
@@ -200,7 +207,7 @@ namespace NaturalSelection.EnemyPatches
                 if (debugLogs && debugWebs) Script.Logger.Log(LogLevel.Info,$"Removing {trippedEnemy}");
                 //trippedEnemy.agent.speed = enemyData[trippedEnemy].EnterAgentSpeed;
 
-                trippedEnemy.creatureAnimator.speed = enemyData[trippedEnemy].EnterAnimationSpeed;
+                if (trippedEnemy.creatureAnimator != null) trippedEnemy.creatureAnimator.speed = enemyData[trippedEnemy].EnterAnimationSpeed;
                 webData.enemyReference = trippedEnemy;
                 webData.trappedEnemy = null;
 

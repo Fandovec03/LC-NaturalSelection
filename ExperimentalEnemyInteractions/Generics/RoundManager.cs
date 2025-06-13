@@ -15,14 +15,14 @@ namespace NaturalSelection.Generics
         static Dictionary<Type, List<EnemyAI>> checkedTypes = new Dictionary<Type, List<EnemyAI>>();
         public static float updateListInterval = Script.BoundingConfig.globalListsUpdateInterval.Value;
         static bool logSpam = Script.Bools["spammyLogs"];
-        static bool logUnspecified = Script.Bools["debugUnspecified"];
+        static bool logUnspecified = Script.Bools["debugNetworking"];
 
         //Only used when SellBodiesFixed/Enhanced Monsters are in the modpack
         public static List<GameObject> deadEnemiesList = new List<GameObject>();
 
         static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
-            if (entryKey == "debugUnspecified") logUnspecified = value;
+            if (entryKey == "debugNetworking") logUnspecified = value;
             if (entryKey == "spammyLogs") logSpam = value;
             //Script.Logger.Log(LogLevel.Message,$"RoundManager received event. logUnspecified = {logUnspecified}, logSpam = {logSpam}");
         }

@@ -177,7 +177,7 @@ public class Script : BaseUnityPlugin
 
         try
         {
-            NaturalSelectionLib.NaturalSelectionLib.LibrarySetup(Logger, spammyLogs, debugLibrary);
+            NaturalSelectionLib.NaturalSelectionLib.SetLibraryLoggers(Logger, spammyLogs, debugLibrary);
             Logger.LogMessage($"Library successfully setup! Version {NaturalSelectionLib.NaturalSelectionLib.ReturnVersion()}");
         }
         catch

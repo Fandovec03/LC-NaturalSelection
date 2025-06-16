@@ -193,8 +193,8 @@ public class Script : BaseUnityPlugin
         if (BoundingConfig.enableSpiderWebs.Value)Harmony.PatchAll(typeof(SandSpiderWebTrapPatch));
 
         //Compatibilities
-        if (enhancedMonstersPresent) Harmony.PatchAll(typeof(EnhancedMonstersCompatibility));
-        if (sellBodiesPresent) SellBodiesFixedCompatibility.AddTracerScriptToPrefabs();
+        if (enhancedMonstersPresent && !stableToggle) Harmony.PatchAll(typeof(EnhancedMonstersCompatibility));
+        if (sellBodiesPresent && !stableToggle) SellBodiesFixedCompatibility.AddTracerScriptToPrefabs();
         if (rexuvinationPresent) Harmony.PatchAll(typeof(ReXuvinationPatch));
 
         if (!stableToggle)

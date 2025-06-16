@@ -1,5 +1,21 @@
 # Experimental Enemy Interactions
 
+## 0.5.10
+- Fixed unfinished compatibilities turning on with stable mode on
+- Added logs for loading compatibilities
+
+## 0.5.9
+- Fixed spider web NRE spam when enemy didn't have animator
+- Sandworm now ignores enemies by enemy sizes
+	- Done with custom enemy size enum. Vanilla is too limiting
+	- New config for enemy sizes ranging from 1 - 5 [Tiny - Giant] and 0 [Undefined]
+- Merged Sellbodiesfixed and Enhanced Monsters compatibility into one script
+	- still in WIP
+- Improved Curcuit Bees
+	- Removed old and redundant code
+	- Bees now actually prioritize enemies holding its nest
+	- More consistent behavior
+
 ## 0.5.8
 - Added a check for retrieving enemy data
 - Slightly updated library

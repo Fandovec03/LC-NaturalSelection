@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection.Emit;
 using GameNetcodeStuff;
 using HarmonyLib;
 using NaturalSelection.Generics;
-using Unity.Netcode;
-using UnityEngine.UIElements;
-using BepInEx.Logging;
 
 namespace NaturalSelection.EnemyPatches
 {

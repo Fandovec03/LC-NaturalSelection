@@ -5,7 +5,7 @@
         <AssemblyName>fandovec03.NaturalSelection</AssemblyName>
         <Product>NaturalSelection</Product>
         <!-- Change to whatever version you're currently on. -->
-        <Version>990.3.0</Version>
+        <Version>990.3.1</Version>
     </PropertyGroup>
 
     <!-- Project Properties -->
@@ -38,6 +38,11 @@
         -->
         <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=./</PathMap>
     </PropertyGroup>
+    <ItemGroup>
+      <Compile Remove="Deprecated\**" />
+      <EmbeddedResource Remove="Deprecated\**" />
+      <None Remove="Deprecated\**" />
+    </ItemGroup>
 
     <!-- Primary Package References -->
     <ItemGroup>
@@ -58,7 +63,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Deprecated\" />
       <Folder Include="DLLs\" />
     </ItemGroup>
 

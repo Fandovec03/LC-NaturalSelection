@@ -77,6 +77,13 @@ namespace NaturalSelection.EnemyPatches
                 List<EnemyAI> tempList = LibraryCalls.GetCompleteList(__instance);
                 LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
                 LibraryCalls.FilterEnemyList(ref tempList, spiderBlacklist, __instance);
+                Dictionary<EnemyAI, int> tempDict = new Dictionary<EnemyAI, int>();
+                foreach (EnemyAI enemy in tempList)
+                {
+                    tempDict.Add(enemy, InitializeGamePatch.customSizeOverrideListDictionary[enemy.enemyType.enemyName]);
+                }
+                LibraryCalls.FilterEnemySizes(ref tempDict, [1, 2, 3], __instance);
+                tempList = tempDict.Keys.ToList();
                 RoundManagerPatch.ScheduleGlobalListUpdate(__instance, ref tempList);
             }
             if (__instance.IsOwner)
@@ -147,7 +154,7 @@ namespace NaturalSelection.EnemyPatches
                                 if (spiderData.investigateTrapTimer > 0f)
                                 {
                                     spiderData.investigateTrapTimer -= Time.deltaTime;
-                                    __instance.agent.speed = 0f;
+                                    __instance.SetDestinationToPosition(__instance.meshContainer.transform.position);
                                     __instance.overrideSpiderLookRotation = true;
                                     __instance.SetSpiderLookAtPosition(spiderData.investigateTrap.centerOfWeb.position);
                                 }
@@ -159,7 +166,7 @@ namespace NaturalSelection.EnemyPatches
                             }
                             else
                             {
-                                __instance.SetDestinationToPosition(spiderData.investigateTrap.centerOfWeb.position, true);
+                                __instance.SetDestinationToPosition(spiderData.investigateTrap.centerOfWeb.position , true);
                                 if (!__instance.onWall) __instance.agent.speed = 4.25f;
                             }
                         }

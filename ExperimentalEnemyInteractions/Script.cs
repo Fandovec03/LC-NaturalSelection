@@ -141,7 +141,7 @@ public class Script : BaseUnityPlugin
                         break;
                     }
             }
-            if (comment != "") Logger.LogInfo(comment);
+            if (comment != "") Logger.LogInfo($"{comment}. Stable mode: {BoundingConfig.stableMode.Value}");
         }
 
         foreach (var item in BoundingConfig.CompatibilityEntries)
@@ -161,7 +161,7 @@ public class Script : BaseUnityPlugin
                         rexuvinationPresent = true;
                         break;
                 }
-                comment = $"Forcefully enabling compatibility for {item.Key}";
+                comment = $"Forcefully enabling compatibility for {item.Key}. Stable mode: {BoundingConfig.stableMode.Value}";
             }
             if (comment != "") Logger.LogInfo(comment);
         }
@@ -193,11 +193,11 @@ public class Script : BaseUnityPlugin
         if (BoundingConfig.enableSpiderWebs.Value)Harmony.PatchAll(typeof(SandSpiderWebTrapPatch));
 
         //Compatibilities
-        if (enhancedMonstersPresent && !stableToggle) Harmony.PatchAll(typeof(EnhancedMonstersCompatibility));
-        if (sellBodiesPresent && !stableToggle) SellBodiesFixedCompatibility.AddTracerScriptToPrefabs();
-        if (rexuvinationPresent) Harmony.PatchAll(typeof(ReXuvinationPatch));
+        if (enhancedMonstersPresent && !stableToggle) { Harmony.PatchAll(typeof(EnhancedMonstersCompatibility)); Logger.LogInfo($"Loading compatibility for Enhanced Monsters"); }
+        if (sellBodiesPresent && !stableToggle) { SellBodiesFixedCompatibility.AddTracerScriptToPrefabs(); Logger.LogInfo($"Loading compatibility for SellbodiesFixed"); }
+        if (rexuvinationPresent) { Harmony.PatchAll(typeof(ReXuvinationPatch)); Logger.LogInfo($"Loading compatibility for Rexuvination"); }
 
-        if (!stableToggle)
+            if (!stableToggle)
         {
         if (BoundingConfig.enableSpider.Value)Harmony.PatchAll(typeof(SandSpiderAIPatch));
 

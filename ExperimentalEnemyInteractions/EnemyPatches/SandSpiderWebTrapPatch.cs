@@ -114,7 +114,7 @@ namespace NaturalSelection.EnemyPatches
 
                 if (trippedEnemy.agent.velocity.magnitude / trippedEnemy.agent.speed > 1)
                 {
-                    Script.Logger.LogInfo($"Agent velocity: {trippedEnemy.agent.velocity.magnitude}, Agent speed: {trippedEnemy.agent.speed} || {trippedEnemy.agent.velocity.magnitude / test}");
+                    if (debugLogs) Script.Logger.LogInfo($"Agent velocity: {trippedEnemy.agent.velocity.magnitude}, Agent speed: {trippedEnemy.agent.speed} || {trippedEnemy.agent.velocity.magnitude / test}");
                     trippedEnemy.agent.velocity /= trippedEnemy.agent.velocity.magnitude / test;
                 }
 

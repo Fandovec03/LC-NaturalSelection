@@ -482,7 +482,7 @@ namespace NaturalSelection.EnemyPatches
 
             CustomEnemySize customEnemySize = (CustomEnemySize)InitializeGamePatch.customSizeOverrideListDictionary[tempEnemy.enemyType.enemyName];
             SpiderData spiderData = spiderList[owner];
-            Script.Logger.LogInfo($"Custom enemy size: {customEnemySize}");
+            if (debugSpider) Script.Logger.LogInfo($"Custom enemy size: {customEnemySize}");
             if (owner.currentBehaviourStateIndex != 2)
             {
                 if (spiderData.investigateTrap != null)

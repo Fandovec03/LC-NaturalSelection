@@ -1,5 +1,13 @@
 # Experimental Enemy Interactions
 
+## 0.5.11
+
+- Added compatibility toggles to use only config toggles to load compatibilities
+- Spider web no longer gets triggered on dead enemies
+- Fixed spider web not stopping the audio
+- Spider webs reduce enemy velocity when over target speed
+- Updated initialial custom size list generation
+
 ## 0.5.10
 - Fixed unfinished compatibilities turning on with stable mode on
 - Added logs for loading compatibilities

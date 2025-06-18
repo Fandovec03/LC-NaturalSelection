@@ -149,14 +149,16 @@ namespace NaturalSelection.EnemyPatches
 
                         if (spiderData.investigateTrap != null)
                         {
-                            if (__instance.CheckLineOfSightForPosition(spiderData.investigateTrap.centerOfWeb.position, 80f, 15, 2f, __instance.eye) && Vector3.Distance(__instance.transform.position, spiderData.investigateTrap.centerOfWeb.position) < 2f)
+                            if (__instance.CheckLineOfSightForPosition(spiderData.investigateTrap.centerOfWeb.position, 80f, 15, 2f, __instance.eye) && Vector3.Distance(__instance.transform.position, spiderData.investigateTrap.centerOfWeb.position) < 3f)
                             {
                                 if (spiderData.investigateTrapTimer > 0f)
                                 {
                                     spiderData.investigateTrapTimer -= Time.deltaTime;
-                                    __instance.SetDestinationToPosition(__instance.meshContainer.transform.position);
+                                    __instance.SetDestinationToPosition(__instance.meshContainer.transform.position, true);
                                     __instance.overrideSpiderLookRotation = true;
-                                    __instance.SetSpiderLookAtPosition(spiderData.investigateTrap.centerOfWeb.position);
+                                    Vector3 position = spiderData.investigateTrap.centerOfWeb.position;
+                                    position.y = __instance.meshContainer.transform.position.y;
+                                    __instance.SetSpiderLookAtPosition(position);
                                 }
                                 else
                                 {
@@ -208,7 +210,7 @@ namespace NaturalSelection.EnemyPatches
                         }
                         if (__instance.onWall)
                         {
-                            __instance.SetDestinationToPosition(spiderData.targetEnemy.transform.position);
+                            __instance.SetDestinationToPosition(spiderData.targetEnemy.transform.position, true);
                             __instance.agent.speed = 4.25f;
                             __instance.spiderSpeed = 4.25f;
                             if (debugSpider) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} Update Postfix: /case2/ onWall");
@@ -242,7 +244,7 @@ namespace NaturalSelection.EnemyPatches
                             }
                             break;
                         }
-                        __instance.SetDestinationToPosition(spiderData.targetEnemy.transform.position);
+                        __instance.SetDestinationToPosition(spiderData.targetEnemy.transform.position, true);
                         if (spiderData.targetEnemy == null || spiderData.targetEnemy.isEnemyDead)
                         {
                             if (debugSpider) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} Update Postfix: /case2-2/ Stopping chasing: {spiderData.targetEnemy}");
@@ -263,7 +265,7 @@ namespace NaturalSelection.EnemyPatches
                             spiderData.targetEnemy = null;
                             __instance.StopChasing();
                         }
-                        else if (Vector3.Distance(spiderData.targetEnemy.transform.position, __instance.homeNode.position) > 12f && Vector3.Distance(spiderData.targetEnemy.transform.position, __instance.meshContainer.position) > 5f)
+                        else if (Vector3.Distance(spiderData.targetEnemy.transform.position, __instance.homeNode.position) > 15f && Vector3.Distance(spiderData.targetEnemy.transform.position, __instance.meshContainer.position) > 8f)
                         {
                             __instance.chaseTimer -= Time.deltaTime;
                             if (__instance.chaseTimer <= 0)
@@ -424,7 +426,7 @@ namespace NaturalSelection.EnemyPatches
                             }
                             if (Ins.watchFromDistance)
                             {
-                                Ins.SetDestinationToPosition(Ins.ChooseClosestNodeToPosition(spiderData.targetEnemy.transform.position, avoidLineOfSight: false, 4).transform.position);
+                                Ins.SetDestinationToPosition(Ins.ChooseClosestNodeToPosition(spiderData.targetEnemy.transform.position, avoidLineOfSight: false, 4).transform.position, true);
                                 if (debugSpider) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval Postfix: /case2/ Set destination to: {spiderData.targetEnemy}");
                             }
                         }
@@ -474,13 +476,18 @@ namespace NaturalSelection.EnemyPatches
         {
             if (!Script.BoundingConfig.enableSpider.Value) return;
 
-            SpiderData spiderData = spiderList[owner];
+            EnemyAI? tempEnemy = tempEnemy = SandSpiderWebTrapPatch.spiderWebs[triggeredTrap].trappedEnemy;
 
+            if (tempEnemy == null || InitializeGamePatch.spiderBlacklistFinal.Contains(tempEnemy.enemyType.enemyName) || tempEnemy.isEnemyDead) { return; }
+
+            CustomEnemySize customEnemySize = (CustomEnemySize)InitializeGamePatch.customSizeOverrideListDictionary[tempEnemy.enemyType.enemyName];
+            SpiderData spiderData = spiderList[owner];
+            Script.Logger.LogInfo($"Custom enemy size: {customEnemySize}");
             if (owner.currentBehaviourStateIndex != 2)
             {
                 if (spiderData.investigateTrap != null)
                 {
-                    spiderData.targetEnemy = SandSpiderWebTrapPatch.spiderWebs[triggeredTrap].trappedEnemy;
+                    spiderData.targetEnemy = tempEnemy;
                     owner.SwitchToBehaviourState(2);
                     spiderData.investigateTrap = null;
                     spiderData.investigateTrapTimer = 0;

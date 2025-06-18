@@ -73,8 +73,11 @@ namespace NaturalSelection.Generics;
     public Dictionary<string, ConfigEntry<bool>> CompatibilityEntries = new Dictionary<string, ConfigEntry<bool>>();
     //Compatibility overrides
     public ConfigEntry<bool> enhancedMonstersCompToggle;
+    public ConfigEntry<bool> enhancedMonstersToggleOverride;
     public ConfigEntry<bool> sellBodiesFixedCompToggle;
+    public ConfigEntry<bool> sellBodiesFixedToggleOverride;
     public ConfigEntry<bool> ReXuvinationCompToggle;
+    public ConfigEntry<bool> ReXuvinationToggleOverride;
     public MyModConfig(ConfigFile cfg)
     {
         cfg.SaveOnConfigSet = false;
@@ -141,6 +144,9 @@ namespace NaturalSelection.Generics;
             ReXuvinationCompToggle = cfg.Bind("Compatibility toggles", "ReXuvination compatibility", false, "Manually toggles compatibility patches for ReXuvination."); CompatibilityEntries.Add("XuuXiaolan.ReXuvination", ReXuvinationCompToggle);
             enhancedMonstersCompToggle = cfg.Bind("DEV", "Enhanced monsters compatibility", false, "Manually toggles compatibility patches for Enhanced monsters."); CompatibilityEntries.Add("com.velddev.enhancedmonsters", enhancedMonstersCompToggle);
             sellBodiesFixedCompToggle = cfg.Bind("DEV", "Sellbodiesfixed compatibility", false, "Manually toggles compatibility patches for Sellbodiesfixed."); CompatibilityEntries.Add("Entity378.sellbodies", sellBodiesFixedCompToggle);
+            ReXuvinationToggleOverride = cfg.Bind("Compatibility toggles", "ReXuvination use Toggle", false, "Override automatic compatibility with toggle");
+            enhancedMonstersToggleOverride = cfg.Bind("DEV", "Enhanced monsters use Toggle", false, "Override automatic compatibility with toggle");
+            sellBodiesFixedToggleOverride = cfg.Bind("DEV", "Sellbodiesfixed use Toggle", false, "Override automatic compatibility with toggle");
         }
         ClearOrphanedEntries(cfg);
         cfg.Save();

@@ -81,7 +81,7 @@ namespace NaturalSelection.EnemyPatches
             EnemyAICollisionDetect? trippedEnemyCollision = other.GetComponent<EnemyAICollisionDetect>();
             EnemyAI? trippedEnemy = null;
             if (trippedEnemyCollision != null && trippedEnemyCollision.mainScript != __instance.mainScript) trippedEnemy = trippedEnemyCollision.mainScript;
-            if (trippedEnemy == __instance.mainScript) return;
+            if (trippedEnemy == __instance.mainScript || trippedEnemy != null && trippedEnemy.isEnemyDead) return;
 
             if (trippedEnemy != null && !spiderWebBlacklist.Contains(trippedEnemy.enemyType.enemyName))
             {
@@ -108,7 +108,15 @@ namespace NaturalSelection.EnemyPatches
 
                 if (debugWebs) Script.Logger.Log(LogLevel.Debug,$"{__instance} Collided with {trippedEnemy}");
 
-                trippedEnemy.agent.speed = (enemyData[trippedEnemy].EnterAgentSpeed / ((1 + enemyData[trippedEnemy].NumberOfTraps.Count) * webStrenght)) * SpeedModifier;
+                float test = (enemyData[trippedEnemy].EnterAgentSpeed / ((1 + enemyData[trippedEnemy].NumberOfTraps.Count) * webStrenght)) * SpeedModifier;
+
+                trippedEnemy.agent.speed = test;
+
+                if (trippedEnemy.agent.velocity.magnitude / trippedEnemy.agent.speed > 1)
+                {
+                    Script.Logger.LogInfo($"Agent velocity: {trippedEnemy.agent.velocity.magnitude}, Agent speed: {trippedEnemy.agent.speed} || {trippedEnemy.agent.velocity.magnitude / test}");
+                    trippedEnemy.agent.velocity /= trippedEnemy.agent.velocity.magnitude / test;
+                }
 
                 if (trippedEnemy.creatureAnimator != null) trippedEnemy.creatureAnimator.speed = (enemyData[trippedEnemy].EnterAnimationSpeed / ((1 + enemyData[trippedEnemy].NumberOfTraps.Count) * webStrenght)) * SpeedModifier;
 
@@ -166,7 +174,7 @@ namespace NaturalSelection.EnemyPatches
                 return;
             }
 
-            if (webData.trappedEnemy != null)
+            if (webData.trappedEnemy != null && !webData.trappedEnemy.isEnemyDead)
             {
                 __instance.leftBone.LookAt(webData.trappedEnemy.transform.position);
                 __instance.rightBone.LookAt(webData.trappedEnemy.transform.position);
@@ -175,6 +183,12 @@ namespace NaturalSelection.EnemyPatches
             {
                 __instance.leftBone.LookAt(__instance.centerOfWeb);
                 __instance.rightBone.LookAt(__instance.centerOfWeb);
+
+                if (__instance.webAudio.isPlaying)
+                {
+                    __instance.webAudio.Stop();
+                }
+
             }
             __instance.transform.localScale = Vector3.Lerp(__instance.transform.localScale, new Vector3(1f, 1f, __instance.zScale), 8f * Time.deltaTime);
 
@@ -195,7 +209,7 @@ namespace NaturalSelection.EnemyPatches
             SpiderWebValues webData = spiderWebs[__instance];
             EnemyAICollisionDetect? trippedEnemyCollision = other.GetComponent<EnemyAICollisionDetect>();
             EnemyAI? trippedEnemy = null;
-            if (trippedEnemyCollision != null && trippedEnemyCollision.mainScript != __instance.mainScript) trippedEnemy = trippedEnemyCollision.mainScript;
+            if (trippedEnemyCollision != null && trippedEnemyCollision.mainScript != __instance.mainScript && !trippedEnemyCollision.mainScript.isEnemyDead) trippedEnemy = trippedEnemyCollision.mainScript;
 
             if (trippedEnemy != null && !spiderWebBlacklist.Contains(trippedEnemy.enemyType.enemyName))
             {

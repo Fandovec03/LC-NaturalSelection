@@ -38,9 +38,6 @@ namespace NaturalSelection.Compatibility
 
     public class EnhancedMonstersCompatibility
     {
-
-        public static List<GameObject> deadEnemiesList = new List<GameObject>();
-
         [HarmonyBefore("com.velddev.enhancedmonsters")]
         [HarmonyPatch(typeof(EnemyScrap), "Start")]
         [HarmonyPrefix]

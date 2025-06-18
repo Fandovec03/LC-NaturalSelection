@@ -50,6 +50,9 @@ public class Script : BaseUnityPlugin
     internal static bool enhancedMonstersPresent = false;
     internal static bool sellBodiesPresent = false;
     internal static bool rexuvinationPresent = false;
+    internal static bool enhancedMonstersUseToggle = false;
+    internal static bool sellBodiesUseToggle = false;
+    internal static bool rexuvinationUseTogle = false;
 
 
     internal static Dictionary<string,bool> Bools = new Dictionary<string, bool>();
@@ -193,9 +196,9 @@ public class Script : BaseUnityPlugin
         if (BoundingConfig.enableSpiderWebs.Value)Harmony.PatchAll(typeof(SandSpiderWebTrapPatch));
 
         //Compatibilities
-        if (enhancedMonstersPresent && !stableToggle) { Harmony.PatchAll(typeof(EnhancedMonstersCompatibility)); Logger.LogInfo($"Loading compatibility for Enhanced Monsters"); }
-        if (sellBodiesPresent && !stableToggle) { SellBodiesFixedCompatibility.AddTracerScriptToPrefabs(); Logger.LogInfo($"Loading compatibility for SellbodiesFixed"); }
-        if (rexuvinationPresent) { Harmony.PatchAll(typeof(ReXuvinationPatch)); Logger.LogInfo($"Loading compatibility for Rexuvination"); }
+        if (enhancedMonstersPresent && !stableToggle && !enhancedMonstersUseToggle|| enhancedMonstersPresent && enhancedMonstersUseToggle) { Harmony.PatchAll(typeof(EnhancedMonstersCompatibility)); Logger.LogInfo($"Loading compatibility for Enhanced Monsters"); }
+        if (sellBodiesPresent && !stableToggle && !sellBodiesUseToggle || sellBodiesPresent && sellBodiesUseToggle) { SellBodiesFixedCompatibility.AddTracerScriptToPrefabs(); Logger.LogInfo($"Loading compatibility for SellbodiesFixed"); }
+        if (rexuvinationPresent && !rexuvinationUseTogle || rexuvinationPresent && rexuvinationUseTogle) { Harmony.PatchAll(typeof(ReXuvinationPatch)); Logger.LogInfo($"Loading compatibility for Rexuvination"); }
 
             if (!stableToggle)
         {

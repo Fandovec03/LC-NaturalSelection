@@ -1,5 +1,8 @@
 # Experimental Enemy Interactions
 
+## 0.5.12
+- Fixed Log spam from Circuit bees
+
 ## 0.5.11
 
 - Added compatibility toggles to use only config toggles to load compatibilities

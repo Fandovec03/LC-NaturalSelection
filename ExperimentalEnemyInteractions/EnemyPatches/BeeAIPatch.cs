@@ -393,14 +393,14 @@ namespace NaturalSelection.EnemyPatches
                 {
                     if (threatCompoment.GetHeldObject() != null && threatCompoment.GetHeldObject() == instance.hive && !threatCompoment.IsThreatDead())
                     {
-                        Script.Logger.Log(LogLevel.Info, $"ChaseEnemiesWithPriorities: Returning {LibraryCalls.DebugStringHead(enemyAI.Key)} |threatComp|");
+                        if (debugTriggers) Script.Logger.Log(LogLevel.Info, $"ChaseEnemiesWithPriorities: Returning {LibraryCalls.DebugStringHead(enemyAI.Key)} |threatComp|");
                         return enemyAI.Key;
                     }
                 }
 
                 if (instance.hive.parentObject != null && instance.hive.parentObject.gameObject.GetComponentInParent<EnemyAI>() == enemyAI.Key)
                 {
-                    Script.Logger.Log(LogLevel.Info, $"ChaseEnemiesWithPriorities: Returning {LibraryCalls.DebugStringHead(enemyAI.Key)} |GetComponentInParent|");
+                    if (debugTriggers) Script.Logger.Log(LogLevel.Info, $"ChaseEnemiesWithPriorities: Returning {LibraryCalls.DebugStringHead(enemyAI.Key)} |GetComponentInParent|");
                     return enemyAI.Key;
                 }
 
@@ -422,7 +422,7 @@ namespace NaturalSelection.EnemyPatches
                 }
             }
             if (!returnEnemy) returnEnemy = enemyDictionary.Keys.First();
-            Script.Logger.Log(LogLevel.Info, $"ChaseEnemiesWithPriorities: Returning {LibraryCalls.DebugStringHead(returnEnemy)} |returnEnemy|");
+            if (debugTriggers) Script.Logger.Log(LogLevel.Info, $"ChaseEnemiesWithPriorities: Returning {LibraryCalls.DebugStringHead(returnEnemy)} |returnEnemy|");
             return returnEnemy;
         }
     }

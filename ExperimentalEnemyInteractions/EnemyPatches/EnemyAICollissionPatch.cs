@@ -1,5 +1,6 @@
 using BepInEx.Logging;
 using HarmonyLib;
+using NaturalSelection.Compatibility;
 using NaturalSelection.Generics;
 using System;
 using UnityEngine;
@@ -29,13 +30,21 @@ namespace NaturalSelection.EnemyPatches
             //Script.NSLog(LogLevel.Message,$"EnemYAICollision received event. logUnspecified = {logUnspecified}, debugSpam = {debugSpam}, triggetFlag = {triggerFlag}");
         }
 
-        public static void Collide(string text, EnemyAI? mainscript, EnemyAI? mainscript2)
+        public static void Collide(string text, EnemyAI? mainscript, EnemyAI? mainscript2, GameObject? gameObject = null)
         {
 
             if (logUnspecified && debugSpam && triggerFlag) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(mainscript)} hit collider of {LibraryCalls.DebugStringHead(mainscript2)} Tag: {text}");
             if (mainscript != null && text == "Player")
             {
 
+            }
+
+            if (mainscript != null && text == "Corpse")
+            {
+                if (mainscript is BlobAI && enableSlime && gameObject != null)
+                {
+                    BlobAIPatch.OnEnemyCorpseCollision((BlobAI)mainscript, gameObject);
+                }
             }
             if (mainscript != null && mainscript2 != null)
             {
@@ -90,6 +99,13 @@ namespace NaturalSelection.EnemyPatches
             if (__instance != null)
             {
                 EnemyAI? hitEnemy = null;
+                DeadBodyTrackerScript corpse = other.GetComponent<DeadBodyTrackerScript>();
+
+                if (corpse != null)
+                {
+                    Script.Logger.LogInfo("Collided with corpse");
+                    OnCollideWithUniversal.Collide("Corpse", __instance.mainScript, null,corpse.gameObject);
+                }
                 if (other.CompareTag("Player") && __instance.mainScript.isEnemyDead == false)
                 {
                     OnCollideWithUniversal.Collide("Player", null, null);

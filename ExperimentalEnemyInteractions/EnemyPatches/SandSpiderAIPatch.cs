@@ -96,6 +96,10 @@ namespace NaturalSelection.EnemyPatches
             {
                 foreach (KeyValuePair<EnemyAI, float> enemy in spiderData.enemiesInLOSDictionary)
                 {
+                    if (enemy.Key is CentipedeAI && enemy.Key.currentBehaviourStateIndex == 1)
+                    {
+                        continue;
+                    }
                     if (enemy.Key.isEnemyDead)
                     {
                         if (debugSpider) Script.Logger.Log(LogLevel.Warning,$"{LibraryCalls.DebugStringHead(__instance)} Update Postfix: {enemy.Key} is Dead! Checking deadEnemyBodies list and skipping...");
@@ -245,6 +249,8 @@ namespace NaturalSelection.EnemyPatches
                             break;
                         }
                         __instance.SetDestinationToPosition(spiderData.targetEnemy.transform.position, true);
+                        __instance.agent.speed = 4.25f;
+                        __instance.spiderSpeed = 4.25f;
                         if (spiderData.targetEnemy == null || spiderData.targetEnemy.isEnemyDead)
                         {
                             if (debugSpider) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} Update Postfix: /case2-2/ Stopping chasing: {spiderData.targetEnemy}");
@@ -392,6 +398,10 @@ namespace NaturalSelection.EnemyPatches
                         {
                             for (int i = 0; i < tempList.Count; i++)
                             {
+                                if (tempList[i] is CentipedeAI && (tempList[i] as CentipedeAI).currentBehaviourStateIndex == 1)
+                                {
+                                    continue;
+                                }
                                 if (Vector3.Distance(Ins.meshContainer.position, tempList[i].transform.position) < 5f /*|| tempList[i] is HoarderBugAI*/)
                                 {
                                     ChaseEnemy(__instance, tempList[i]);
@@ -485,6 +495,11 @@ namespace NaturalSelection.EnemyPatches
             if (debugSpider) Script.Logger.LogInfo($"Custom enemy size: {customEnemySize}");
             if (owner.currentBehaviourStateIndex != 2)
             {
+                if (!tempEnemy.enemyType.canDie)
+                {
+                    return;
+                }
+
                 if (spiderData.investigateTrap != null)
                 {
                     spiderData.targetEnemy = tempEnemy;

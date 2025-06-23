@@ -80,7 +80,24 @@ namespace NaturalSelection.EnemyPatches
 
 			if (Script.BoundingConfig.blobPathfind.Value == true)
 			{
-				if (__instance.GetClosestPlayer() != null && (!__instance.PlayerIsTargetable(__instance.GetClosestPlayer()) || blobData.closestEnemy != null && Vector3.Distance(blobData.closestEnemy.transform.position, __instance.transform.position) < Vector3.Distance(__instance.GetClosestPlayer().transform.position, __instance.transform.position)) || __instance.GetClosestPlayer() == null)
+
+				GameObject? closestDeadBody = null;
+				if (RoundManagerPatch.deadEnemiesList.Count > 0)
+				{
+					foreach (GameObject body in RoundManagerPatch.deadEnemiesList)
+					{
+						if (closestDeadBody == null || Vector3.Distance(closestDeadBody.transform.position, __instance.transform.position) > Vector3.Distance(body.transform.position, __instance.transform.position))
+						{
+							closestDeadBody = body;
+						}
+					}
+				}
+
+				if (__instance.GetClosestPlayer() != null &&
+					(!__instance.PlayerIsTargetable(__instance.GetClosestPlayer()) ||
+					blobData.closestEnemy != null && Vector3.Distance(blobData.closestEnemy.transform.position, __instance.transform.position) < Vector3.Distance(__instance.GetClosestPlayer().transform.position, __instance.transform.position) ||
+					closestDeadBody != null && Vector3.Distance(closestDeadBody.transform.position, __instance.transform.position) < Vector3.Distance(__instance.GetClosestPlayer().transform.position, __instance.transform.position)) ||
+					__instance.GetClosestPlayer() == null)
 				{
 					if (__instance.moveTowardsDestination)
 					{
@@ -92,7 +109,19 @@ namespace NaturalSelection.EnemyPatches
 					{
 						__instance.StopSearch(__instance.searchForPlayers);
 					}
-					if (blobData.closestEnemy != null) __instance.SetDestinationToPosition(blobData.closestEnemy.transform.position, true);
+
+					if (blobData.closestEnemy != null)
+					{
+						if (closestDeadBody != null && Vector3.Distance(blobData.closestEnemy.transform.position, __instance.transform.position) > Vector3.Distance(closestDeadBody.transform.position, __instance.transform.position))
+						{
+                            __instance.SetDestinationToPosition(closestDeadBody.transform.position, true);
+                        }
+                        else __instance.SetDestinationToPosition(blobData.closestEnemy.transform.position, true);
+                    }
+					else if (closestDeadBody != null)
+					{
+                        __instance.SetDestinationToPosition(closestDeadBody.transform.position, true);
+                    }
 					return false;
 				}
 			}
@@ -146,29 +175,29 @@ namespace NaturalSelection.EnemyPatches
             }
         }
 
-        public static void OnCustomEnemyCollision(BlobAI __instance, EnemyAI mainscript2)
+		public static void OnCustomEnemyCollision(BlobAI __instance, EnemyAI mainscript2)
 		{
-            CheckDataIntegrityBlob(__instance);
-            BlobData blobData = slimeList[__instance];
+			CheckDataIntegrityBlob(__instance);
+			BlobData blobData = slimeList[__instance];
 
-            if (!blobData.hitRegistry.ContainsKey(mainscript2) && !blobBlacklist.Contains(mainscript2.enemyType.enemyName))
+			if (!blobData.hitRegistry.ContainsKey(mainscript2) && !blobBlacklist.Contains(mainscript2.enemyType.enemyName))
 			{
 				if (mainscript2.isEnemyDead && IsEnemyImmortal.EnemyIsImmortal(mainscript2) == false && Vector3.Distance(__instance.transform.position, mainscript2.transform.position) <= 2.8f && Script.BoundingConfig.blobConsumesCorpses.Value)
 				{
-                    if (__instance.IsOwner && mainscript2.thisNetworkObject.IsSpawned)
+					if (__instance.IsOwner && mainscript2.thisNetworkObject.IsSpawned)
 					{
-                        BlobEatCorpseEvent(__instance).InvokeClients();
-                        Script.Logger.Log(BepInEx.Logging.LogLevel.Message,"Send event");
-                        mainscript2.thisNetworkObject.Despawn(true);
+						BlobEatCorpseEvent(__instance).InvokeClients();
+						Script.Logger.Log(BepInEx.Logging.LogLevel.Message, "Send event");
+						mainscript2.thisNetworkObject.Despawn(true);
 					}
-                    return;
-                }
+					return;
+				}
 				if (!mainscript2.isEnemyDead)
 				{
 					if (mainscript2 is not NutcrackerEnemyAI && mainscript2 is not CaveDwellerAI)
 					{
 
-                        blobData.hitRegistry.Add(mainscript2, 0);
+						blobData.hitRegistry.Add(mainscript2, 0);
 
 						if (mainscript2 is FlowermanAI)
 						{
@@ -183,7 +212,7 @@ namespace NaturalSelection.EnemyPatches
 								{
 									mainscript2.KillEnemyOnOwnerClient();
 								}
-								
+
 								flowermanAI.targetPlayer = null;
 								flowermanAI.movingTowardsTargetPlayer = false;
 								flowermanAI.isInAngerMode = false;
@@ -208,13 +237,24 @@ namespace NaturalSelection.EnemyPatches
 							return;
 						}
 
-                        mainscript2.HitEnemy(1, null, playHitSFX: true);
+						mainscript2.HitEnemy(1, null, playHitSFX: true);
 						if (mainscript2.enemyHP <= 0)
 						{
 							mainscript2.KillEnemyOnOwnerClient();
 						}
 					}
 				}
+			}
+		}
+
+        public static void OnEnemyCorpseCollision(BlobAI __instance, GameObject corpse)
+        {
+			NetworkObject nwObj = corpse.GetComponent<NetworkObject>();
+            if (__instance.IsOwner && nwObj.IsSpawned)
+            {
+                BlobEatCorpseEvent(__instance).InvokeClients();
+                Script.Logger.Log(BepInEx.Logging.LogLevel.Message, "Send event 2");
+                nwObj.Despawn(true);
             }
         }
     }

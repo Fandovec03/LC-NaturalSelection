@@ -92,10 +92,10 @@ namespace NaturalSelection.Generics;
             IgnoreImmortalEnemies = cfg.Bind("General Settings", "Ignore Immortal Enemies", false, "All immortal enemies will be ignored by majority of entities.");
             agentRadiusModifier = cfg.Bind("General Settings", "Agent radius modifier", 0.50f, "Modifies agent radius of entities for more reliable collisions.");
             globalListsUpdateInterval = cfg.Bind("General Settings", "Global lists update interval", 1f, "Set a period how often are global lists updated. Default is one second.");
-            customSizeOverrideList = cfg.Bind("WIP", "Custom size override list", "", "Set what size the enemy is considered as. Generates automatically.");
+            customSizeOverrideList = cfg.Bind("DEV", "Custom size override list", "", "Set what size the enemy is considered as. Generates automatically.");
 
             //enable entities
-            enableSpider = cfg.Bind("DEV", "Enable spider", false, "Enable changes to apply to to spider and modify it's behavior. Unfinished.");
+            enableSpider = cfg.Bind("Entity settings", "Enable spider", false, "Enable changes to apply to to spider and modify it's behavior. Unfinished.");
             enableSlime = cfg.Bind("Entity settings", "Enable slime", true, "Enable changes to apply to to slime and modify it's behavior.");
             enableLeviathan = cfg.Bind("Entity settings", "Enable leviathan", true, "Enable changes to apply to to leviathan and modify it's behavior.");
             enableSporeLizard = cfg.Bind("DEV", "Enable SporeLizard", false, "Enable changes to apply to to spore lizard. \n\n Early build. DEV ONLY");
@@ -142,11 +142,11 @@ namespace NaturalSelection.Generics;
 
             //Compatibility overrides
             ReXuvinationCompToggle = cfg.Bind("Compatibility toggles", "ReXuvination compatibility", false, "Manually toggles compatibility patches for ReXuvination."); CompatibilityEntries.Add("XuuXiaolan.ReXuvination", ReXuvinationCompToggle);
-            enhancedMonstersCompToggle = cfg.Bind("DEV", "Enhanced monsters compatibility", false, "Manually toggles compatibility patches for Enhanced monsters."); CompatibilityEntries.Add("com.velddev.enhancedmonsters", enhancedMonstersCompToggle);
-            sellBodiesFixedCompToggle = cfg.Bind("DEV", "Sellbodiesfixed compatibility", false, "Manually toggles compatibility patches for Sellbodiesfixed."); CompatibilityEntries.Add("Entity378.sellbodies", sellBodiesFixedCompToggle);
+            enhancedMonstersCompToggle = cfg.Bind("Compatibility toggles", "Enhanced monsters compatibility", false, "Manually toggles compatibility patches for Enhanced monsters."); CompatibilityEntries.Add("com.velddev.enhancedmonsters", enhancedMonstersCompToggle);
+            sellBodiesFixedCompToggle = cfg.Bind("Compatibility toggles", "Sellbodiesfixed compatibility", false, "Manually toggles compatibility patches for Sellbodiesfixed."); CompatibilityEntries.Add("Entity378.sellbodies", sellBodiesFixedCompToggle);
             ReXuvinationToggleOverride = cfg.Bind("Compatibility toggles", "ReXuvination use Toggle", false, "Override automatic compatibility with toggle");
-            enhancedMonstersToggleOverride = cfg.Bind("DEV", "Enhanced monsters use Toggle", false, "Override automatic compatibility with toggle");
-            sellBodiesFixedToggleOverride = cfg.Bind("DEV", "Sellbodiesfixed use Toggle", false, "Override automatic compatibility with toggle");
+            enhancedMonstersToggleOverride = cfg.Bind("Compatibility toggles", "Enhanced monsters use Toggle", false, "Override automatic compatibility with toggle");
+            sellBodiesFixedToggleOverride = cfg.Bind("Compatibility toggles", "Sellbodiesfixed use Toggle", false, "Override automatic compatibility with toggle");
         }
         ClearOrphanedEntries(cfg);
         cfg.Save();

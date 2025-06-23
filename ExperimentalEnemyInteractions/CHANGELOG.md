@@ -1,5 +1,16 @@
 # Experimental Enemy Interactions
 
+## 0.5.13
+
+- Updated spider behavior
+    - Spider ignores Snare fleas on the ceiling
+    - Spider won't get alerted by immortal enemies that trigger spider webs
+
+- Implemented compatibility for Sellbodies/Enhanced Monsters
+    - Blob now moves towards and consumes enemy bodies from these mods
+
+- Pre-release
+
 ## 0.5.12
 - Fixed Log spam from Circuit bees
 

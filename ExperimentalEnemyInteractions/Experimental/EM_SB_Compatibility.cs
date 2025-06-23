@@ -6,12 +6,14 @@ using UnityEngine;
 using CleaningCompany;
 using LogLevel = BepInEx.Logging.LogLevel;
 using NaturalSelection.Generics;
+using NaturalSelection.EnemyPatches;
 
 namespace NaturalSelection.Compatibility
 {
     public class DeadBodyTrackerScript : MonoBehaviour
     {
         GameObject instance;
+
 
         public DeadBodyTrackerScript()
         {

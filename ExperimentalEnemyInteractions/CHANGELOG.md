@@ -1,5 +1,11 @@
 # Experimental Enemy Interactions
 
+## 0.5.14
+- Fixed collided with corpse spam
+
+### Library
+- Updated GetEnemiesInLOS to use OverlapSphere for better optimization
+
 ## 0.5.13
 
 - Updated spider behavior

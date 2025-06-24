@@ -103,7 +103,7 @@ namespace NaturalSelection.EnemyPatches
 
                 if (corpse != null)
                 {
-                    Script.Logger.LogInfo("Collided with corpse");
+                    if (Script.Bools["spammyLogs"] && Script.Bools["debugTriggerFlags"]) Script.Logger.LogInfo("Collided with corpse");
                     OnCollideWithUniversal.Collide("Corpse", __instance.mainScript, null,corpse.gameObject);
                 }
                 if (other.CompareTag("Player") && __instance.mainScript.isEnemyDead == false)

@@ -111,7 +111,7 @@ namespace NaturalSelection.EnemyPatches
             List <EnemyAI> tempList = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
             LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
 
-            Dictionary<EnemyAI, float> enemiesInLOS = new Dictionary<EnemyAI, float>(LibraryCalls.GetEnemiesInLOS(__instance, ref tempList, 360f, 16, 1));
+            Dictionary<EnemyAI, float> enemiesInLOS = new Dictionary<EnemyAI, float>(LibraryCalls.GetEnemiesInLOS(__instance, 360f, 16, 1));
 
             switch (__instance.currentBehaviourStateIndex)
             {

@@ -1,5 +1,8 @@
+using BepInEx.Logging;
 using HarmonyLib;
+using NaturalSelection.Generics;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -10,8 +13,7 @@ namespace NaturalSelection.EnemyPatches
         internal bool alertedByEnemy = false;
         internal List<EnemyAI> enemies = new List<EnemyAI>();
         internal List<EnemyAI> enemiesInLOS = new List<EnemyAI>();
-        internal bool limitSpeed = false;
-        internal float limitedSpeed = 0f;
+        internal float updateLog = 0f;
     }
 
 
@@ -24,13 +26,13 @@ namespace NaturalSelection.EnemyPatches
         static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
             if (entryKey == "debugTriggerFlags") triggerFlag = value;
-            //Script.Logger.LogMessage($"Hoarder bug received event. triggerFlag = {triggerFlag}");
+            //Script.Logger.Log(LogLevel.Message,$"Hoarder bug received event. triggerFlag = {triggerFlag}");
         }
 
         public static void CustomOnHit(int force, EnemyAI enemyWhoHit, bool playHitSFX, HoarderBugAI __instance)
         {
             __instance.enemyHP -= force;
-            if (triggerFlag) Script.Logger.LogDebug("Hoarderbug CustomHit Triggered");
+            if (triggerFlag) Script.Logger.Log(LogLevel.Debug,"Hoarderbug CustomHit Triggered");
             if (playHitSFX)
             {
                 WalkieTalkie.TransmitOneShotAudio(__instance.creatureVoice, __instance.enemyType.hitBodySFX);
@@ -53,6 +55,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (!hoarderBugList.ContainsKey(__instance))
             {
+                Script.Logger.Log(LogLevel.Info, $"Creating data container for {LibraryCalls.DebugStringHead(__instance)}");
                 hoarderBugList.Add(__instance, new HoarderBugValues());
             }
 
@@ -63,14 +66,22 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void UpdatePostfix(HoarderBugAI __instance)
         {
+            if (__instance.isEnemyDead) return;
+            CheckDataIntegrityHoarder(__instance);
             HoarderBugValues Bugvalues = hoarderBugList[__instance];
-            if (Bugvalues.limitSpeed)
+
+            if (Bugvalues.updateLog <= 0)
             {
-                __instance.agent.speed = Bugvalues.limitedSpeed;
+                Script.Logger.LogDebug($"isOutside : {__instance.isOutside}");
+                Bugvalues.updateLog = 1f;
+            }
+            else
+            {
+                Bugvalues.updateLog -= Time.deltaTime;
             }
             //Bugvalues.enemiesInLOS = EnemyAIPatch.GetEnemiesInLOS(__instance, Bugvalues.enemies, 60f, 12, 3f).Keys.ToList();
         }
-        
+
         /*
         [HarmonyPatch("DoAIInterval")]
         [HarmonyPrefix]
@@ -112,5 +123,14 @@ namespace NaturalSelection.EnemyPatches
             }      
         }
         */
+
+        public static void CheckDataIntegrityHoarder(HoarderBugAI __instance)
+        {
+            if (!hoarderBugList.ContainsKey(__instance))
+            {
+                Script.Logger.Log(LogLevel.Fatal, $"Critical failule. Failed to get data for {LibraryCalls.DebugStringHead(__instance)}. Attempting to fix...");
+                hoarderBugList.Add(__instance, new HoarderBugValues());
+            }
+        }
     }
 }

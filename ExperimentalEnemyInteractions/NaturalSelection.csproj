@@ -5,7 +5,7 @@
         <AssemblyName>fandovec03.NaturalSelection</AssemblyName>
         <Product>NaturalSelection</Product>
         <!-- Change to whatever version you're currently on. -->
-        <Version>0.3.0</Version>
+        <Version>0.4.0</Version>
     </PropertyGroup>
 
     <!-- Project Properties -->
@@ -38,6 +38,11 @@
         -->
         <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=./</PathMap>
     </PropertyGroup>
+    <ItemGroup>
+      <Compile Remove="Deprecated\**" />
+      <EmbeddedResource Remove="Deprecated\**" />
+      <None Remove="Deprecated\**" />
+    </ItemGroup>
 
     <!-- Primary Package References -->
     <ItemGroup>
@@ -46,7 +51,6 @@
         <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" PrivateAssets="all" />
         <PackageReference Include="LethalCompany.GameLibs.Steam" Version="*-*" PrivateAssets="all" />
         <PackageReference Include="UnityEngine.Modules" Version="2022.3.9" IncludeAssets="compile" PrivateAssets="all" />
-		<PackageReference Include="fandovec03.NaturalSelectionLib" Version="0.6.7" />
 		<PackageReference Include="Xilophor.LethalNetworkAPI" Version="3.3.2" PrivateAssets="all" />
 		<PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3">
 			<PrivateAssets>all</PrivateAssets>
@@ -63,11 +67,17 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Reference Include="TEMP\ReXuvination.dll" Publicize="true">
+      <Reference Include="EnhancedMonsters" Publicize="True">
+        <HintPath>TEMP\EnhancedMonsters.dll</HintPath>
       </Reference>
-      <Reference Include="TEMP\EnhancedMonsters.dll">
+      <Reference Include="fandovec03.NaturalSelectionLib">
+        <HintPath>DLLs\fandovec03.NaturalSelectionLib.dll</HintPath>
       </Reference>
-      <Reference Include="TEMP\SellBodies.dll" Publicize="true">
+      <Reference Include="ReXuvination" Publicize="True">
+        <HintPath>TEMP\ReXuvination.dll</HintPath>
+      </Reference>
+      <Reference Include="SellBodies" Publicize="True">
+        <HintPath>TEMP\SellBodies.dll</HintPath>
       </Reference>
     </ItemGroup>
 </Project>

@@ -3,6 +3,7 @@ using Dissonance;
 using HarmonyLib;
 using JetBrains.Annotations;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UIElements.UIR;
@@ -17,6 +18,8 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<bool> stableMode;
     public readonly ConfigEntry<bool> IgnoreImmortalEnemies;
     public readonly ConfigEntry<float> agentRadiusModifier;
+    public readonly ConfigEntry<float> globalListsUpdateInterval;
+    public readonly ConfigEntry<string> customSizeOverrideList;
     //enemy bools
     public readonly ConfigEntry<bool> enableSpider;
     public readonly ConfigEntry<bool> enableSlime;
@@ -39,7 +42,6 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<bool> blobPathfind;
     //Sandworm
     public readonly ConfigEntry<bool> sandwormDoNotEatPlayersInsideLeavingShip;
-    public readonly ConfigEntry<bool> sandwormFilterTypes;
     //Spider web
     public readonly ConfigEntry<bool> enableSpiderWebs;
     public readonly ConfigEntry<string> speedModifierList;
@@ -68,7 +70,9 @@ namespace NaturalSelection.Generics;
     public ConfigEntry<bool> debugLibrary;
     public ConfigEntry<bool> debugSpiderWebs;
     public Dictionary<string,ConfigEntry<bool>> debugEntries = new Dictionary<string, ConfigEntry<bool>>();
+    public Dictionary<string, ConfigEntry<bool>> CompatibilityEntries = new Dictionary<string, ConfigEntry<bool>>();
     //Compatibility overrides
+    public ConfigEntry<bool> CompatibilityAutoToggle;
     public ConfigEntry<bool> enhancedMonstersCompToggle;
     public ConfigEntry<bool> sellBodiesFixedCompToggle;
     public ConfigEntry<bool> ReXuvinationCompToggle;
@@ -85,16 +89,18 @@ namespace NaturalSelection.Generics;
             stableMode = cfg.Bind("General Settings", "Toggle stable mode", true, "When true, the mod will exlude patches that are WIP or are experimental from loading. Requires restart.");
             IgnoreImmortalEnemies = cfg.Bind("General Settings", "Ignore Immortal Enemies", false, "All immortal enemies will be ignored by majority of entities.");
             agentRadiusModifier = cfg.Bind("General Settings", "Agent radius modifier", 0.50f, "Modifies agent radius of entities for more reliable collisions.");
+            globalListsUpdateInterval = cfg.Bind("General Settings", "Global lists update interval", 1f, "Set a period how often are global lists updated. Default is one second.");
+            customSizeOverrideList = cfg.Bind("DEV", "Custom size override list", "", "Set what size the enemy is considered as. Generates automatically.");
 
             //enable entities
-            enableSpider = cfg.Bind("Entity settings/WIP", "Enable spider", false, "Enable changes to apply to to spider and modify it's behavior. Unfinished.");
+            enableSpider = cfg.Bind("Entity settings", "Enable spider", false, "Enable changes to apply to to spider and modify it's behavior. Unfinished.");
             enableSlime = cfg.Bind("Entity settings", "Enable slime", true, "Enable changes to apply to to slime and modify it's behavior.");
             enableLeviathan = cfg.Bind("Entity settings", "Enable leviathan", true, "Enable changes to apply to to leviathan and modify it's behavior.");
-            enableSporeLizard = cfg.Bind("Entity settings/WIP", "Enable SporeLizard", false, "Enable changes to apply to to spore lizard. \n\n Early build. DEV ONLY");
+            enableSporeLizard = cfg.Bind("DEV", "Enable SporeLizard", false, "Enable changes to apply to to spore lizard. \n\n Early build. DEV ONLY");
             enableRedBees = cfg.Bind("Entity settings", "Enable Red bees (Circuit bees)", true, "Enable changes to apply to red bees and modify it's behavior.");
-            enableNutcracker = cfg.Bind("Entity settings/WIP", "Enable Nutcracker", false, "Enable changes to nutcracker to apply to and modify its behavior. \n\n Early build. DEV ONLY");
+            enableNutcracker = cfg.Bind("DEV", "Enable Nutcracker", false, "Enable changes to nutcracker to apply to and modify its behavior. \n\n Early build. DEV ONLY");
             enableGiant = cfg.Bind("Entity settings", "Enable Giant", true, "Enable changes to apply to to forest giant.");
-            enableHoardingBug = cfg.Bind("Entity settings/WIP", "Enable Hoarding bug", false, "Enable changes to apply to to hoarding bug");
+            enableHoardingBug = cfg.Bind("DEV", "Enable Hoarding bug", false, "Enable changes to apply to to hoarding bug");
             enableSpiderWebs = cfg.Bind("Entity settings", "Enable Spider Webs", true, "Enables changes to apply to to spider webs. Webs will stick to and slow down enemies.");
             //entity settings
             //Giant
@@ -107,7 +113,6 @@ namespace NaturalSelection.Generics;
             blobPathfind = cfg.Bind("Entity settings | Hygrodere", "Pathfind", true, "Pathfind to other entities.");
             //Sandworm
             sandwormDoNotEatPlayersInsideLeavingShip = cfg.Bind("Entity settings | Sandworm", "Do not eat players inside leaving ship", false, "Worms do not eat players inside ship leaving moon.");
-            sandwormFilterTypes = cfg.Bind("Entity settings | Sandworm", "Filter out enemy types", true, "Filter out enemies by enemy type. When disabled allows sandworms to target that are filtered out (Vanilla enemies smaller than employee). Blacklisting enemies is highly recommended when this setting is disabled.");
             //Spider/Spider Web
             chaseAfterEnemiesModifier = cfg.Bind("Entity settings | Spider/Spider Web", "Chase after enemies modifier", 3f, "Modifies chase timer for chasing enemies. When chasing another enemy, hunter's chase timer is divided by set number.");
             speedModifierList = cfg.Bind("Entity settings | Spider/Spider Web", "Web speed modifiers", "", "Modifies final speed of enemy caught in web. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:Speed ] \n This config generates automatically.");
@@ -134,9 +139,10 @@ namespace NaturalSelection.Generics;
             debugSpiderWebs = cfg.Bind("Debug", "Log spider webs", false, "Enables logs for spider webs. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugSpiderWebs), debugSpiderWebs);
 
             //Compatibility overrides
-            ReXuvinationCompToggle = cfg.Bind("Compatibility toggles", "ReXuvination compatibility", false, "Manually toggles compatibility patches for ReXuvination.");
-            enhancedMonstersCompToggle = cfg.Bind("WIP", "Enhanced monsters compatibility", false, "Manually toggles compatibility patches for Enhanced monsters.");
-            sellBodiesFixedCompToggle = cfg.Bind("WIP", "Sellbodiesfixed compatibility", false, "Manually toggles compatibility patches for Sellbodiesfixed.");
+            CompatibilityAutoToggle = cfg.Bind("Compatibility toggles", "Auto load compatibilities", true, "Automatically load compatibilites for detected mods");
+            ReXuvinationCompToggle = cfg.Bind("Compatibility toggles", "ReXuvination compatibility", false, "Manually toggles compatibility patches for ReXuvination."); CompatibilityEntries.Add("XuuXiaolan.ReXuvination", ReXuvinationCompToggle);
+            enhancedMonstersCompToggle = cfg.Bind("Compatibility toggles", "Enhanced monsters compatibility", false, "Manually toggles compatibility patches for Enhanced monsters."); CompatibilityEntries.Add("com.velddev.enhancedmonsters", enhancedMonstersCompToggle);
+            sellBodiesFixedCompToggle = cfg.Bind("Compatibility toggles", "Sellbodiesfixed compatibility", false, "Manually toggles compatibility patches for Sellbodiesfixed."); CompatibilityEntries.Add("Entity378.sellbodies", sellBodiesFixedCompToggle);
         }
         ClearOrphanedEntries(cfg);
         cfg.Save();

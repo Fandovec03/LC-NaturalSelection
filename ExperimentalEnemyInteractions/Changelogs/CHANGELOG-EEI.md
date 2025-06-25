@@ -1,5 +1,10 @@
 # Experimental Enemy Interactions
 
+## 0.5.7
+- Added logs when data containers are created.
+- Updated loggers
+- Updated scheduling global lists to pass parameters by reference
+
 ## 0.5.6
 - ~~Updated immortal enemies check to include enemies with set canDie bool to false~~ Reverted
 

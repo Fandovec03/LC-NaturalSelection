@@ -16,6 +16,9 @@ Many mechanics, behaviors an settings can be toggled and tweaked with config wit
 - Debug toggles
     - Can be changed at runtime with config mods (LethalConfig, LethalSettings).
     - For better bug reports, turn the toggles on when you encounter bugs or unexpected behaviors.
+- __Compatibilities__
+    - Enhanced Monsters and SellbodiesFixed
+    - Rexuvination
 
 ## Branches
 ###  **Stable branch: [Natural selection - food chains and ecosystems](https://thunderstore.io/c/lethal-company/p/Fandovec03/Natural_selection/)**
@@ -39,6 +42,15 @@ Many mechanics, behaviors an settings can be toggled and tweaked with config wit
 - Leviathans actively seek and hunt any organism nearby.
 - Does not hunt prey that is too small in size (Below the size of an employee).
 
+#### Bunker Spider
+- Spider investigates and hunts down creatures caught by it's webs
+- Likes to hunt smaller enemies like hoarding bugs and snare fleas
+
+#### Spider web
+
+- Spider webs stick to and slow down entities passing through it.
+- Alerts the spider.
+
 
 ## Modified enemies:
 #### Forest keeper:
@@ -47,17 +59,6 @@ Many mechanics, behaviors an settings can be toggled and tweaked with config wit
 - Forest Keeper's corpse last longer on fire.
 
 ### Unfinished and WIP:
-
-#### Bunker Spider **(Unfinished)**
-    
-- Bunker spider will defend itself when it finds itself in a dangerous situation.
-- May attempt to flee climb on wall.
-- When alterted, spider will investigate and chase after prey.
-
-#### Spider web **(Unfinished)**
-
-- Spider webs stick to and slow down entities passing through it.
-- Alerts the spider.
 
 ## TODO:
 - Nutcracker
@@ -74,3 +75,4 @@ Many mechanics, behaviors an settings can be toggled and tweaked with config wit
 - Robyn and Xilophor: Pointing out flawed networking
 - DiFFoZ: Finding the problem causing bees to turn invisible
 - Quain808: Bug reports
+- Lunxara: Playtesting and bug reports

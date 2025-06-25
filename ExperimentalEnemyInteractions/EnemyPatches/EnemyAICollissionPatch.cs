@@ -1,5 +1,8 @@
+using BepInEx.Logging;
 using HarmonyLib;
+using NaturalSelection.Compatibility;
 using NaturalSelection.Generics;
+using System;
 using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches
@@ -24,30 +27,38 @@ namespace NaturalSelection.EnemyPatches
             logUnspecified = Script.Bools["debugUnspecified"];
             debugSpam = Script.Bools["spammyLogs"];
             triggerFlag = Script.Bools["debugTriggerFlags"];
-            //Script.Logger.LogMessage($"EnemYAICollision received event. logUnspecified = {logUnspecified}, debugSpam = {debugSpam}, triggetFlag = {triggerFlag}");
+            //Script.NSLog(LogLevel.Message,$"EnemYAICollision received event. logUnspecified = {logUnspecified}, debugSpam = {debugSpam}, triggetFlag = {triggerFlag}");
         }
 
-        public static void Collide(string text, EnemyAI? mainscript, EnemyAI? mainscript2)
+        public static void Collide(string text, EnemyAI? mainscript, EnemyAI? mainscript2, GameObject? gameObject = null)
         {
 
-            if (logUnspecified && debugSpam && triggerFlag) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(mainscript)} hit collider of {LibraryCalls.DebugStringHead(mainscript2)} Tag: {text}");
+            if (logUnspecified && debugSpam && triggerFlag) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(mainscript)} hit collider of {LibraryCalls.DebugStringHead(mainscript2)} Tag: {text}");
             if (mainscript != null && text == "Player")
             {
 
             }
+
+            if (mainscript != null && text == "Corpse")
+            {
+                if (mainscript is BlobAI && enableSlime && gameObject != null)
+                {
+                    BlobAIPatch.OnEnemyCorpseCollision((BlobAI)mainscript, gameObject);
+                }
+            }
             if (mainscript != null && mainscript2 != null)
             {
-                if (mainscript is SandSpiderAI && mainscript2 is not SandSpiderAI && mainscript2 != null && enableSpider)
+                if (mainscript is SandSpiderAI && mainscript2 != null && enableSpider)
                 {
                     SandSpiderAIPatch.OnCustomEnemyCollision((SandSpiderAI)mainscript, mainscript2);
                 }
 
-                if (mainscript is BlobAI && mainscript2 is not BlobAI && mainscript2 != null && enableSlime)
+                if (mainscript is BlobAI && mainscript2 != null && enableSlime)
                 {
                     BlobAIPatch.OnCustomEnemyCollision((BlobAI)mainscript, mainscript2);
                 }
 
-                if (mainscript is RedLocustBees && mainscript2 is not RedLocustBees && mainscript2 != null && enableBees)
+                if (mainscript is RedLocustBees && mainscript2 != null && enableBees)
                 {
                     BeeAIPatch.OnCustomEnemyCollision((RedLocustBees)mainscript, mainscript2);
                 }
@@ -82,12 +93,19 @@ namespace NaturalSelection.EnemyPatches
         {
 
 
-            if (other == null) { Script.Logger.LogError($"{LibraryCalls.DebugStringHead(__instance.mainScript)} Collider is null! Using original function..."); return true; }
+            if (other == null) { Script.Logger.Log(LogLevel.Error,$"{LibraryCalls.DebugStringHead(__instance.mainScript)} Collider is null! Using original function..."); return true; }
             EnemyAICollisionDetect? compoment2 = other.gameObject.GetComponent<EnemyAICollisionDetect>();
 
             if (__instance != null)
             {
                 EnemyAI? hitEnemy = null;
+                DeadBodyTrackerScript corpse = other.GetComponent<DeadBodyTrackerScript>();
+
+                if (corpse != null)
+                {
+                    if (Script.Bools["spammyLogs"] && Script.Bools["debugTriggerFlags"]) Script.Logger.LogInfo("Collided with corpse");
+                    OnCollideWithUniversal.Collide("Corpse", __instance.mainScript, null,corpse.gameObject);
+                }
                 if (other.CompareTag("Player") && __instance.mainScript.isEnemyDead == false)
                 {
                     OnCollideWithUniversal.Collide("Player", null, null);

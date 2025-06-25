@@ -3,7 +3,6 @@ using BepInEx.Logging;
 using HarmonyLib;
 using NaturalSelection.Generics;
 using NaturalSelection.EnemyPatches;
-using NaturalSelection.Experimental;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Reflection;
@@ -14,6 +13,7 @@ using Unity.Burst.CompilerServices;
 using JetBrains.Annotations;
 using System.Text;
 using BepInEx.Bootstrap;
+using NaturalSelection.Compatibility;
 
 namespace NaturalSelection;
 
@@ -25,7 +25,7 @@ public class Script : BaseUnityPlugin
 {
     public static Script Instance { get; private set; } = null!;
 
-    internal new static ManualLogSource Logger = null!;
+    public new static ManualLogSource Logger = null!;
     internal static Harmony? Harmony { get; set; }
 
     internal static MyModConfig BoundingConfig { get; set; } = null!;
@@ -50,9 +50,11 @@ public class Script : BaseUnityPlugin
     internal static bool enhancedMonstersPresent = false;
     internal static bool sellBodiesPresent = false;
     internal static bool rexuvinationPresent = false;
+    internal static bool CompatibilityAutoToggle = false;
+
 
     internal static Dictionary<string,bool> Bools = new Dictionary<string, bool>();
-
+    internal static List<EnemyAI> loadedEnemyList = new List<EnemyAI>();
     public static Action<string, bool>? OnConfigSettingChanged;
 
     static void SubscribeDebugConfigBools(ConfigEntry<bool> entryKey,bool boolParam, string entry)
@@ -114,20 +116,56 @@ public class Script : BaseUnityPlugin
 
         Logger.LogInfo($"Patching {MyPluginInfo.PLUGIN_NAME}...");
 
-        if (Chainloader.PluginInfos.ContainsKey("com.velddev.enhancedmonsters") || BoundingConfig.enhancedMonstersCompToggle.Value)
+        foreach (var item in Chainloader.PluginInfos)
         {
-            enhancedMonstersPresent = true;
-            Logger.LogDebug("Enhanced Monsters is present");
+            //Logger.LogInfo($"GUID in Metadata> {item.Value.Metadata.GUID} : GUID in Key> {item.Key}");
+            string comment = "";
+            if (!CompatibilityAutoToggle) break;
+
+            switch (item.Key)
+            {
+                case "com.velddev.enhancedmonsters":
+                    {
+                        enhancedMonstersPresent = true;
+                        comment = "Enhanced Monsters is present";
+                        break;
+                    }
+                case "Entity378.sellbodies":
+                    {
+                        sellBodiesPresent = true;
+                        comment = "SellbodiesFixed is present";
+                        break;
+                    }
+                case "XuuXiaolan.ReXuvination":
+                    {
+                        rexuvinationPresent = true;
+                        comment = "ReXuvination is present";
+                        break;
+                    }
+            }
+            if (comment != "") Logger.LogInfo($"{comment}. Automatically loading compatibility.");
         }
-        if (Chainloader.PluginInfos.ContainsKey("Entity378.sellbodies") || BoundingConfig.sellBodiesFixedCompToggle.Value)
+
+        foreach (var item in BoundingConfig.CompatibilityEntries)
         {
-            sellBodiesPresent = true;
-            Logger.LogDebug("SellbodiesFixed is present");
-        }
-        if (Chainloader.PluginInfos.ContainsKey("XuuXiaolan.ReXuvination") || BoundingConfig.ReXuvinationCompToggle.Value)
-        {
-            rexuvinationPresent = true;
-            Logger.LogDebug("ReXuvination is present");
+            string comment = "";
+            if (item.Value.Value == true)
+            {
+                switch (item.Key)
+                {
+                    case "com.velddev.enhancedmonsters":
+                        enhancedMonstersPresent = true;
+                        break;
+                    case "Entity378.sellbodies":
+                        sellBodiesPresent = true;
+                        break;
+                    case "XuuXiaolan.ReXuvination":
+                        rexuvinationPresent = true;
+                        break;
+                }
+                comment = $"Manually enabling compatibility for {item.Key}.";
+            }
+            if (comment != "") Logger.LogInfo(comment);
         }
 
         if (isExperimental) Logger.LogFatal($"LOADING EXPERIMENTAL BUILD OF {MyPluginInfo.PLUGIN_NAME.ToUpper()}, DOWNLOAD NATURAL SELECTION INSTEAD FOR MORE STABLE EXPERIENCE!");
@@ -141,7 +179,7 @@ public class Script : BaseUnityPlugin
 
         try
         {
-            NaturalSelectionLib.NaturalSelectionLib.LibrarySetup(Logger, spammyLogs, debugLibrary);
+            NaturalSelectionLib.NaturalSelectionLib.SetLibraryLoggers(Logger, spammyLogs, debugLibrary);
             Logger.LogMessage($"Library successfully setup! Version {NaturalSelectionLib.NaturalSelectionLib.ReturnVersion()}");
         }
         catch
@@ -155,16 +193,27 @@ public class Script : BaseUnityPlugin
         if (BoundingConfig.enableRedBees.Value) Harmony.PatchAll(typeof(BeeAIPatch));
         if (BoundingConfig.enableGiant.Value)Harmony.PatchAll(typeof(ForestGiantPatch));
         if (BoundingConfig.enableSpiderWebs.Value)Harmony.PatchAll(typeof(SandSpiderWebTrapPatch));
+        if (BoundingConfig.enableSpider.Value) Harmony.PatchAll(typeof(SandSpiderAIPatch));
 
         //Compatibilities
-        //if (enhancedMonstersPresent) Harmony.PatchAll(typeof(EnhancedMonstersPatch));
-        //if (sellBodiesPresent) SellBodiesFixedPatch.AddTracerScriptToPrefabs();
+        if (enhancedMonstersPresent) { Harmony.PatchAll(typeof(EnhancedMonstersCompatibility)); Logger.LogInfo($"Loading compatibility for Enhanced Monsters"); }
+        if (sellBodiesPresent) { SellBodiesFixedCompatibility.AddTracerScriptToPrefabs(); Logger.LogInfo($"Loading compatibility for SellbodiesFixed"); }
+        if (rexuvinationPresent) { Harmony.PatchAll(typeof(ReXuvinationPatch)); Logger.LogInfo($"Loading compatibility for Rexuvination"); }
 
         if (!stableToggle)
         {
-        if (BoundingConfig.enableNutcracker.Value)Harmony.PatchAll(typeof(NutcrackerAIPatch));
-        if (BoundingConfig.enableSporeLizard.Value)Harmony.PatchAll(typeof(PufferAIPatch));
-        if (BoundingConfig.enableSpider.Value)Harmony.PatchAll(typeof(SandSpiderAIPatch));
+        //if (BoundingConfig.enableSpider.Value)Harmony.PatchAll(typeof(SandSpiderAIPatch));
+
+        if (isExperimental)
+        {
+            if (BoundingConfig.enableNutcracker.Value) Harmony.PatchAll(typeof(NutcrackerAIPatch));
+            if (BoundingConfig.enableSporeLizard.Value) Harmony.PatchAll(typeof(PufferAIPatch));
+        }
+        else
+        {
+        Logger.LogWarning("Limited access. Some patches cannot be enabled in stable branch.");
+        }
+
         Logger.LogInfo("Stable mode off. Loaded all patches.");
         }
         else

@@ -1,4 +1,6 @@
 ﻿using HarmonyLib;
+using LethalNetworkAPI;
+﻿using BepInEx.Logging;
 using NaturalSelection.Generics;
 using System;
 using System.Collections.Generic;
@@ -14,12 +16,24 @@ namespace NaturalSelection.EnemyPatches
         internal EnemyAI? enemyReference = null;
         internal float enemyReferenceTimer = 0f;
         internal bool patchedCollisionLayer = false;
+        //internal bool playSound = false;
     }
-
 
     [HarmonyPatch(typeof(SandSpiderWebTrap))]
     class SandSpiderWebTrapPatch
     {
+        /*static LNetworkEvent NetworkEnemyTripTrapEnter(SandSpiderWebTrap instance)
+        {
+            string NWID = "NSSpiderTripTrapEnter" + instance.trapID;
+            return Networking.NSEnemyNetworkEvent(NWID);
+        }
+
+        static LNetworkEvent NetworkEnemyTripTrapExit(SandSpiderWebTrap instance)
+        {
+            string NWID = "NSSpiderTripTrapExit" + instance.trapID;
+            return Networking.NSEnemyNetworkEvent(NWID);
+        }*/
+
         class EnemyInfo(EnemyAI enemy, float enterAgentSpeed, float enterAnimationSpeed)
         {
             internal EnemyAI EnemyAI { get; set; } = enemy;
@@ -28,7 +42,7 @@ namespace NaturalSelection.EnemyPatches
             internal List<SandSpiderWebTrap> NumberOfTraps { get; set; } = new List<SandSpiderWebTrap>();
         }
 
-        static Dictionary<SandSpiderWebTrap, SpiderWebValues> spiderWebs = new Dictionary<SandSpiderWebTrap, SpiderWebValues>();
+        internal static Dictionary<SandSpiderWebTrap, SpiderWebValues> spiderWebs = new Dictionary<SandSpiderWebTrap, SpiderWebValues>();
         static Dictionary<EnemyAI, EnemyInfo> enemyData = new Dictionary<EnemyAI, EnemyInfo>();
         static bool debugLogs = Script.Bools["debugBool"];
         static bool debugWebs = Script.Bools["debugSpiderWebs"];
@@ -42,36 +56,17 @@ namespace NaturalSelection.EnemyPatches
         {
             if (entryKey == "debugBool") debugLogs = value;
             if (entryKey == "debugSpiderWebs") debugWebs = value;
-            //Script.Logger.LogMessage($"Bunker Spider web received event. debugBool = {debugLogs}, debugSpiderWebs = {debugWebs}");
+            //Script.Logger.Log(LogLevel.Message,$"Bunker Spider web received event. debugBool = {debugLogs}, debugSpiderWebs = {debugWebs}");
         }
 
         [HarmonyPatch("Awake")]
         [HarmonyPostfix]
-        [HarmonyAfter("XuuXiaolan.ReXuvination")]
         static void AwakePostfix(SandSpiderWebTrap __instance)
         {
             if (!spiderWebs.ContainsKey(__instance))
             {
+                Script.Logger.Log(LogLevel.Info, $"Creating data container for web {__instance.trapID}");
                 spiderWebs.Add(__instance, new SpiderWebValues());
-            }
-
-
-            if (Script.rexuvinationPresent && !spiderWebs[__instance].patchedCollisionLayer)
-            {
-                Collider[] colliders = __instance.gameObject.GetComponents<Collider>();
-                int patched = 0;
-                foreach (Collider collider in colliders)
-                {
-                    if (!collider.isTrigger) continue;
-                    Script.Logger.LogMessage($"awake found  {collider.excludeLayers.value}");
-                    Script.Logger.LogMessage($"awake expected {~(StartOfRound.Instance.playersMask ^ LayerMask.GetMask("Enemies"))}");
-                    collider.excludeLayers = ~(StartOfRound.Instance.playersMask ^ LayerMask.GetMask("Enemies"));
-                    patched++;
-                }
-                if (patched > 0)
-                {
-                    spiderWebs[__instance].patchedCollisionLayer = true;
-                }
             }
 
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
@@ -81,11 +76,12 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static void OnTriggerStayPatch(Collider other, SandSpiderWebTrap __instance)
         {
+            CheckDataIntegrityWeb(__instance);
             SpiderWebValues webData = spiderWebs[__instance];
             EnemyAICollisionDetect? trippedEnemyCollision = other.GetComponent<EnemyAICollisionDetect>();
             EnemyAI? trippedEnemy = null;
             if (trippedEnemyCollision != null && trippedEnemyCollision.mainScript != __instance.mainScript) trippedEnemy = trippedEnemyCollision.mainScript;
-            if (trippedEnemy == __instance.mainScript) return;
+            if (trippedEnemy == __instance.mainScript || trippedEnemy != null && trippedEnemy.isEnemyDead) return;
 
             if (trippedEnemy != null && !spiderWebBlacklist.Contains(trippedEnemy.enemyType.enemyName))
             {
@@ -96,25 +92,41 @@ namespace NaturalSelection.EnemyPatches
                 SpeedModifier = speedModifierDictionary[trippedEnemy.enemyType.enemyName];
                 if (!enemyData.ContainsKey(trippedEnemy))
                 {
-                    enemyData[trippedEnemy] = new EnemyInfo(trippedEnemy, trippedEnemy.agent.speed, trippedEnemy.creatureAnimator.speed);
+                    float creatureAnimatorSpeed = 1f;
+                    if (trippedEnemy.creatureAnimator != null)
+                    {
+                        creatureAnimatorSpeed = trippedEnemy.creatureAnimator.speed;
+                    }
+                    enemyData.Add(trippedEnemy, new EnemyInfo(trippedEnemy, trippedEnemy.agent.speed, creatureAnimatorSpeed));
                 }
                 if (!enemyData[trippedEnemy].NumberOfTraps.Contains(__instance))
                 {
                     enemyData[trippedEnemy].NumberOfTraps.Add(__instance);
-                    if (debugLogs) Script.Logger.LogInfo($"Added instance to NumberOfWebTraps {enemyData[trippedEnemy].NumberOfTraps.Count}");
+                    SandSpiderAIPatch.AlertSpider(__instance.mainScript, __instance);
+                    if (debugLogs) Script.Logger.Log(LogLevel.Info,$"Added instance to NumberOfWebTraps {enemyData[trippedEnemy].NumberOfTraps.Count}");
                 }
 
-                if (debugWebs) Script.Logger.LogDebug($"{__instance} Collided with {trippedEnemy}");
+                if (debugWebs) Script.Logger.Log(LogLevel.Debug,$"{__instance} Collided with {trippedEnemy}");
 
-                trippedEnemy.agent.speed = (enemyData[trippedEnemy].EnterAgentSpeed / ((1 + enemyData[trippedEnemy].NumberOfTraps.Count) * webStrenght)) * SpeedModifier;
-                trippedEnemy.creatureAnimator.speed = (enemyData[trippedEnemy].EnterAnimationSpeed / ((1 + enemyData[trippedEnemy].NumberOfTraps.Count) * webStrenght)) * SpeedModifier;
+                float test = (enemyData[trippedEnemy].EnterAgentSpeed / ((1 + enemyData[trippedEnemy].NumberOfTraps.Count) * webStrenght)) * SpeedModifier;
+
+                trippedEnemy.agent.speed = test;
+
+                if (trippedEnemy.agent.velocity.magnitude / trippedEnemy.agent.speed > 1)
+                {
+                    if (debugLogs) Script.Logger.LogInfo($"Agent velocity: {trippedEnemy.agent.velocity.magnitude}, Agent speed: {trippedEnemy.agent.speed} || {trippedEnemy.agent.velocity.magnitude / test}");
+                    trippedEnemy.agent.velocity /= trippedEnemy.agent.velocity.magnitude / test;
+                }
+
+                if (trippedEnemy.creatureAnimator != null) trippedEnemy.creatureAnimator.speed = (enemyData[trippedEnemy].EnterAnimationSpeed / ((1 + enemyData[trippedEnemy].NumberOfTraps.Count) * webStrenght)) * SpeedModifier;
 
                 if (Script.BoundingConfig.debugSpiderWebs.Value)
                 {
                     if (debugCD <= 0)
                     {
-                        Script.Logger.LogDebug($"{__instance} Slowed down movement of {trippedEnemy} from {enemyData[trippedEnemy].EnterAgentSpeed} to {trippedEnemy.agent.speed} with Speed modifier {SpeedModifier}");
-                        Script.Logger.LogDebug($"{__instance} Slowed down animation of {trippedEnemy} from {enemyData[trippedEnemy].EnterAnimationSpeed} to {trippedEnemy.creatureAnimator.speed} with Speed modifier {SpeedModifier}");
+                        Script.Logger.Log(LogLevel.Debug,$"{__instance} Slowed down movement of {trippedEnemy} from {enemyData[trippedEnemy].EnterAgentSpeed} to {trippedEnemy.agent.speed} with Speed modifier {SpeedModifier}");
+
+                        if (trippedEnemy.creatureAnimator != null) Script.Logger.Log(LogLevel.Debug,$"{__instance} Slowed down animation of {trippedEnemy} from {enemyData[trippedEnemy].EnterAnimationSpeed} to {trippedEnemy.creatureAnimator.speed} with Speed modifier {SpeedModifier}");
                         debugCD = 0.2f;
                     }
                     else
@@ -134,25 +146,8 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static bool UpdatePrefix(SandSpiderWebTrap __instance, out bool __state)
         {
+            CheckDataIntegrityWeb(__instance);
             SpiderWebValues webData = spiderWebs[__instance];
-
-            if (Script.rexuvinationPresent && !webData.patchedCollisionLayer)
-            {
-                Collider[] colliders = __instance.gameObject.GetComponents<Collider>();
-                int patched = 0;
-                foreach (Collider collider in colliders)
-                {
-                    if (!collider.isTrigger) continue;
-                    Script.Logger.LogMessage($"found  {collider.excludeLayers.value}");
-                    Script.Logger.LogMessage($"expected {~(StartOfRound.Instance.playersMask ^ LayerMask.GetMask("Enemies"))}");
-                    collider.excludeLayers = ~(StartOfRound.Instance.playersMask ^ LayerMask.GetMask("Enemies"));
-                    patched++;
-                }
-                if (patched > 0)
-                {
-                    webData.patchedCollisionLayer = true;
-                }
-            }
 
             if (__instance.currentTrappedPlayer != null)
             {
@@ -172,13 +167,14 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void UpdatePostfix(SandSpiderWebTrap __instance, bool __state)
         {
+            CheckDataIntegrityWeb(__instance);
             SpiderWebValues webData = spiderWebs[__instance];
             if (!__state)
             {
                 return;
             }
 
-            if (webData.trappedEnemy != null)
+            if (webData.trappedEnemy != null && !webData.trappedEnemy.isEnemyDead)
             {
                 __instance.leftBone.LookAt(webData.trappedEnemy.transform.position);
                 __instance.rightBone.LookAt(webData.trappedEnemy.transform.position);
@@ -187,12 +183,18 @@ namespace NaturalSelection.EnemyPatches
             {
                 __instance.leftBone.LookAt(__instance.centerOfWeb);
                 __instance.rightBone.LookAt(__instance.centerOfWeb);
+
+                if (__instance.webAudio.isPlaying)
+                {
+                    __instance.webAudio.Stop();
+                }
+
             }
             __instance.transform.localScale = Vector3.Lerp(__instance.transform.localScale, new Vector3(1f, 1f, __instance.zScale), 8f * Time.deltaTime);
 
             if (webData.enemyReference != null && webData.enemyReference != webData.trappedEnemy && enemyData.ContainsKey(webData.enemyReference) && enemyData[webData.enemyReference].NumberOfTraps.Count <= 0)
             {
-                if(debugLogs) Script.Logger.LogInfo($"Removing {webData.enemyReference} from NumberOfWebTraps {enemyData[webData.enemyReference].NumberOfTraps.Count}");
+                if(debugLogs) Script.Logger.Log(LogLevel.Info,$"Removing {webData.enemyReference} from NumberOfWebTraps {enemyData[webData.enemyReference].NumberOfTraps.Count}");
                 enemyData.Remove(webData.enemyReference);
                 webData.enemyReference = null;
                 webData.enemyReferenceTimer = 0;
@@ -203,25 +205,41 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static void OnTriggerExitPatch(Collider other, SandSpiderWebTrap __instance)
         {
+            CheckDataIntegrityWeb(__instance);
             SpiderWebValues webData = spiderWebs[__instance];
             EnemyAICollisionDetect? trippedEnemyCollision = other.GetComponent<EnemyAICollisionDetect>();
             EnemyAI? trippedEnemy = null;
-            if (trippedEnemyCollision != null && trippedEnemyCollision.mainScript != __instance.mainScript) trippedEnemy = trippedEnemyCollision.mainScript;
+            if (trippedEnemyCollision != null && trippedEnemyCollision.mainScript != __instance.mainScript && !trippedEnemyCollision.mainScript.isEnemyDead) trippedEnemy = trippedEnemyCollision.mainScript;
 
             if (trippedEnemy != null && !spiderWebBlacklist.Contains(trippedEnemy.enemyType.enemyName))
             {
                 if (enemyData[trippedEnemy].NumberOfTraps.Contains(__instance))
                 {
                     enemyData[trippedEnemy].NumberOfTraps.Remove(__instance);
-                    if (debugLogs) Script.Logger.LogInfo($"Removed instance to NumberOfWebTraps {enemyData[trippedEnemy].NumberOfTraps.Count}");
+                    if (debugLogs) Script.Logger.Log(LogLevel.Info,$"Removed instance to NumberOfWebTraps {enemyData[trippedEnemy].NumberOfTraps.Count}");
                 }
-                if (debugLogs && debugWebs) Script.Logger.LogInfo($"Removing {trippedEnemy}");
+                if (debugLogs && debugWebs) Script.Logger.Log(LogLevel.Info,$"Removing {trippedEnemy}");
                 //trippedEnemy.agent.speed = enemyData[trippedEnemy].EnterAgentSpeed;
 
-                trippedEnemy.creatureAnimator.speed = enemyData[trippedEnemy].EnterAnimationSpeed;
+                if (trippedEnemy.creatureAnimator != null) trippedEnemy.creatureAnimator.speed = enemyData[trippedEnemy].EnterAnimationSpeed;
                 webData.enemyReference = trippedEnemy;
                 webData.trappedEnemy = null;
-                __instance.webAudio.Stop();
+
+                if (__instance.webAudio.isPlaying)
+                {
+                    __instance.webAudio.Stop();
+                    //NetworkEnemyTripTrapExit(__instance).InvokeClients();
+                }
+                //__instance.webAudio.Stop();
+            }
+        }
+
+        public static void CheckDataIntegrityWeb(SandSpiderWebTrap __instance)
+        {
+            if (!spiderWebs.ContainsKey(__instance))
+            {
+                Script.Logger.Log(LogLevel.Fatal, $"Critical failule. Failed to get data for trap {__instance.trapID}. Attempting to fix...");
+                spiderWebs.Add(__instance, new SpiderWebValues());
             }
         }
     }

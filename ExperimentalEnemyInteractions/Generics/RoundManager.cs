@@ -47,33 +47,6 @@ namespace NaturalSelection.Generics
                 checkedTypes.Clear();
                 nextUpdate = Time.realtimeSinceStartup + updateListInterval;
             }
-            /*
-            if (EnhancedMonstersPatch.deadEnemiesList.Count > 0 && updateTime < Time.realtimeSinceStartup)
-            {
-                Script.Logger.Log(LogLevel.Message,"Items in deadEnemiesList = " + EnhancedMonstersPatch.deadEnemiesList.Count);
-                updateTime = Time.realtimeSinceStartup + 1f;
-
-                List<GameObject> temp = new List<GameObject>(EnhancedMonstersPatch.deadEnemiesList);
-
-                for (int i = 0; i < temp.Count; i++)
-                {
-                    try
-                    {
-                        if (temp[i] == null)
-                        {
-                            Script.Logger.Log(LogLevel.Warning,$"Item in deadEnemiesList is null. Removing at {i}");
-                            EnhancedMonstersPatch.deadEnemiesList.RemoveAt(i);
-                        }
-                    }
-                    catch
-                    {
-                        Script.Logger.Log(LogLevel.Warning,$"Catch > Failed to get item. Removing at {i}");
-                        EnhancedMonstersPatch.deadEnemiesList.RemoveAt(i);
-                    }
-                }
-
-            }*/
-
         }
 
         public static bool RequestUpdate(EnemyAI instance)

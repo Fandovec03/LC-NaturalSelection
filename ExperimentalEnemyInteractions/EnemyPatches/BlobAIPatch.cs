@@ -112,7 +112,10 @@ namespace NaturalSelection.EnemyPatches
 
 					if (blobData.closestEnemy != null)
 					{
-						if (closestDeadBody != null && Vector3.Distance(blobData.closestEnemy.transform.position, __instance.transform.position) > Vector3.Distance(closestDeadBody.transform.position, __instance.transform.position))
+						float num1 = Vector3.Distance(blobData.closestEnemy.transform.position, __instance.transform.position);
+						float num2 = 0f;
+						if (closestDeadBody != null) num2 = Vector3.Distance(closestDeadBody.transform.position, __instance.transform.position);
+                        if (closestDeadBody != null && num1 > num2)
 						{
                             __instance.SetDestinationToPosition(closestDeadBody.transform.position, true);
                         }

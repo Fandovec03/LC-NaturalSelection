@@ -66,16 +66,16 @@ public class LibraryCalls
         NaturalSelectionLib.NaturalSelectionLib.FilterEnemySizes(ref importEnemySizeDict, enemySizes, instance, inverseToggle);
     }
 
-    static public Dictionary<EnemyAI, float> GetEnemiesInLOS(EnemyAI instance, ref List<EnemyAI> importEnemyList, float width = 45f, int importRange = 0, float proximityAwareness = -1, Vector3? importEyePosition = null)
+    static public Dictionary<EnemyAI, float> GetEnemiesInLOS(EnemyAI instance, ref List<EnemyAI> importEnemyList, float width = 45f, int importRange = 0, float proximityAwareness = -1, float importRadius = 0f,Vector3? importEyePosition = null)
     {
         if (debugLibraryCalls && debugSpam && debugTriggerFlag) Script.Logger.Log(LogLevel.Info,"Called library GetEnemiesInLOS!");
-        return NaturalSelectionLib.NaturalSelectionLib.GetEnemiesInLOS(instance, ref importEnemyList, width, importRange, proximityAwareness, importEyePosition);
+        return NaturalSelectionLib.NaturalSelectionLib.GetEnemiesInLOS(instance, ref importEnemyList, width, importRange, proximityAwareness, importRadius, importEyePosition);
     }
 
-    static public Dictionary<EnemyAI, float> GetEnemiesInLOS(EnemyAI instance, float width = 45f, int importRange = 0, float proximityAwareness = -1, Vector3? importEyePosition = null)
+    static public Dictionary<EnemyAI, float> GetEnemiesInLOS(EnemyAI instance, float width = 45f, int importRange = 0, float proximityAwareness = -1, float importRadius = 0f, Vector3? importEyePosition = null)
     {
         if (debugLibraryCalls && debugSpam && debugTriggerFlag) Script.Logger.Log(LogLevel.Info, "Called library GetEnemiesInLOS!");
-        return NaturalSelectionLib.NaturalSelectionLib.GetEnemiesInLOS(instance, width, importRange, proximityAwareness, importEyePosition);
+        return NaturalSelectionLib.NaturalSelectionLib.GetEnemiesInLOS(instance, width, importRange, proximityAwareness, importRadius, importEyePosition);
     }
 
 }

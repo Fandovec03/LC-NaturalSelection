@@ -13,7 +13,7 @@ namespace NaturalSelection.EnemyPatches
     {
         internal EnemyAI? closestEnemy = null;
         internal EnemyAI? targetEnemy = null;
-        internal List<EnemyAI> knownEnemy = new List<EnemyAI>();
+        //internal List<EnemyAI> knownEnemy = new List<EnemyAI>();
         internal List<EnemyAI> deadEnemyBodies = new List<EnemyAI>();
         internal float LookAtEnemyTimer = 0f;
         internal Dictionary<EnemyAI,float> enemiesInLOSDictionary = new Dictionary<EnemyAI, float>();
@@ -102,31 +102,14 @@ namespace NaturalSelection.EnemyPatches
                     }
                     if (enemy.Key.isEnemyDead)
                     {
-                        if (debugSpider) Script.Logger.Log(LogLevel.Warning,$"{LibraryCalls.DebugStringHead(__instance)} Update Postfix: {enemy.Key} is Dead! Checking deadEnemyBodies list and skipping...");
+                        if (debugSpider) Script.Logger.Log(LogLevel.Warning, $"{LibraryCalls.DebugStringHead(__instance)} Update Postfix: {enemy.Key} is Dead! Checking deadEnemyBodies list and skipping...");
 
                         if (!spiderData.deadEnemyBodies.Contains(enemy.Key))
                         {
                             spiderData.deadEnemyBodies.Add(enemy.Key);
-                            if (debugSpider) Script.Logger.Log(LogLevel.Warning,$"{LibraryCalls.DebugStringHead(__instance)} Update Postfix: {enemy.Key} added to deadEnemyBodies list");
+                            if (debugSpider) Script.Logger.Log(LogLevel.Warning, $"{LibraryCalls.DebugStringHead(__instance)} Update Postfix: {enemy.Key} added to deadEnemyBodies list");
                         }
                         continue;
-                    }
-                    if (spiderData.knownEnemy.Contains(enemy.Key))
-                    {
-                        if (debugSpider && debugSpam) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} Update Postfix: {enemy.Key} is already in knownEnemyList");
-                    }
-                    else
-                    {
-                        if (debugSpider) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)}  Update Postfix: Adding {enemy.Key} to knownEnemyList");
-                        spiderData.knownEnemy.Add(enemy.Key);
-                    }
-                }
-                for (int i = 0; i < spiderData.knownEnemy.Count; i++)
-                {
-                    if (spiderData.knownEnemy[i].isEnemyDead)
-                    {
-                        if (debugSpider) Script.Logger.Log(LogLevel.Warning,$"{LibraryCalls.DebugStringHead(__instance)}  Update Postfix: Removed {spiderData.knownEnemy[i]} from knownEnemyList");
-                        spiderData.knownEnemy.Remove(spiderData.knownEnemy[i]);
                     }
                 }
             }
@@ -136,7 +119,8 @@ namespace NaturalSelection.EnemyPatches
                 {
                     case 0:
                     {
-                        spiderData.closestEnemy = LibraryCalls.FindClosestEnemy(ref spiderData.knownEnemy, spiderData.closestEnemy, __instance);
+                        List<EnemyAI> tempList = spiderData.enemiesInLOSDictionary.Keys.ToList();
+                        spiderData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, spiderData.closestEnemy, __instance);
 
 
                         if (spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f, __instance.eye) != false && !spiderData.closestEnemy.isEnemyDead)
@@ -194,11 +178,15 @@ namespace NaturalSelection.EnemyPatches
 
                         if (spiderData.targetEnemy != spiderData.closestEnemy && spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f, __instance.eye))
                         {
-                            if (spiderData.targetEnemy is HoarderBugAI && spiderData.closestEnemy is not HoarderBugAI && (Vector3.Distance(__instance.meshContainer.position, spiderData.targetEnemy.transform.position) * 1.2f < Vector3.Distance(__instance.meshContainer.position, spiderData.closestEnemy.transform.position)))
+                            float num1 = 0f;
+                            if (spiderData.targetEnemy != null) num1 = Vector3.Distance(__instance.meshContainer.position, spiderData.targetEnemy.transform.position);
+                            float num2 = Vector3.Distance(__instance.meshContainer.position, spiderData.closestEnemy.transform.position);
+
+                            if (spiderData.targetEnemy is HoarderBugAI && spiderData.closestEnemy is not HoarderBugAI && (num1 / 1.2f < num2))
                             {
                                 spiderData.targetEnemy = spiderData.closestEnemy;
                             }
-                            else
+                            else if (num1 < num2)
                             {
                                 spiderData.targetEnemy = spiderData.closestEnemy;
                             }
@@ -260,7 +248,6 @@ namespace NaturalSelection.EnemyPatches
                                 try
                                 {
                                     spiderData.deadEnemyBodies.Add(spiderData.targetEnemy);
-                                    spiderData.knownEnemy.Remove(spiderData.targetEnemy);
                                     if (debugSpider) Script.Logger.LogDebug($"{LibraryCalls.DebugStringHead(__instance)} Update Postfix: /case2-2/ Moved dead enemy to separate list");
                                 }
                                 catch
@@ -398,7 +385,7 @@ namespace NaturalSelection.EnemyPatches
                         {
                             for (int i = 0; i < tempList.Count; i++)
                             {
-                                if (tempList[i] is CentipedeAI && (tempList[i] as CentipedeAI).currentBehaviourStateIndex == 1)
+                                if (tempList[i] is CentipedeAI && tempList[i].currentBehaviourStateIndex == 1)
                                 {
                                     continue;
                                 }

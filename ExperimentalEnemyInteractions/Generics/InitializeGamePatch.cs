@@ -255,9 +255,9 @@ namespace NaturalSelection.Generics
                         case EnemySize.Tiny:
                             {
                                 if (!item.enemyType.canDie) { customSizeOverrideListDictionary[itemName] = (int)CustomEnemySize.Undefined; break; }
-                                if (item is FlowerSnakeEnemy || item is DoublewingAI || item is CentipedeAI) { customSizeOverrideListDictionary[itemName] = (int)CustomEnemySize.Tiny; break; }
+                                if (item is FlowerSnakeEnemy || item is DoublewingAI || item is RedLocustBees || item is DocileLocustBeesAI || item is ButlerBeesEnemyAI) { customSizeOverrideListDictionary[itemName] = (int)CustomEnemySize.Tiny; break; }
                                 else if (item.enemyHP <= 3) { customSizeOverrideListDictionary[itemName] = (int)CustomEnemySize.Small; break; }
-                                else if (item.enemyHP <= 12) { customSizeOverrideListDictionary[itemName] = (int)CustomEnemySize.Medium; break; }
+                                else if (item.enemyHP <= 15) { customSizeOverrideListDictionary[itemName] = (int)CustomEnemySize.Medium; break; }
                                 else if (item.enemyHP <= 30) { customSizeOverrideListDictionary[itemName] = (int)CustomEnemySize.Large; break; }
                                 else if (item.enemyHP > 30) { customSizeOverrideListDictionary[itemName] = (int)CustomEnemySize.Giant; break; }
                                 else customSizeOverrideListDictionary[itemName] = (int)CustomEnemySize.Undefined;

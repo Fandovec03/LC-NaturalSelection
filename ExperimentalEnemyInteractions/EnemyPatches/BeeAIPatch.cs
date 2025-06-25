@@ -361,12 +361,6 @@ namespace NaturalSelection.EnemyPatches
                             Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} OnCustomEnemyCollision: SET GIANT ON FIRE! Random number: {NSSetOnFireChance(__instance).Value}");
                             ForestGiantAI giant = (ForestGiantAI)mainscript2;
 
-                            /*if (giant.IsOwner)
-                            {
-                            giant.timeAtStartOfBurning = Time.realtimeSinceStartup;
-                            giant.SwitchToBehaviourState(2);
-                            Script.Logger.Log(LogLevel.Info,LibraryCalls.DebugStringHead(__instance) + " /BeesCustomhit/ " + "isOwner: " + __instance.IsOwner + ", Giant isOwner: " + giant.IsOwner + ", set fire to false");
-                            }*/
                             NetworkSetGiantOnFire(giant).InvokeServer();
                         }
                     }

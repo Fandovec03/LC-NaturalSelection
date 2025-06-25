@@ -143,7 +143,7 @@ public class Script : BaseUnityPlugin
                         break;
                     }
             }
-            if (comment != "") Logger.LogInfo($"{comment}. Automatically loading compatibility. Stable mode: {BoundingConfig.stableMode.Value}");
+            if (comment != "") Logger.LogInfo($"{comment}. Automatically loading compatibility.");
         }
 
         foreach (var item in BoundingConfig.CompatibilityEntries)
@@ -163,7 +163,7 @@ public class Script : BaseUnityPlugin
                         rexuvinationPresent = true;
                         break;
                 }
-                comment = $"Manually enabling compatibility for {item.Key}. Stable mode: {BoundingConfig.stableMode.Value}";
+                comment = $"Manually enabling compatibility for {item.Key}.";
             }
             if (comment != "") Logger.LogInfo(comment);
         }

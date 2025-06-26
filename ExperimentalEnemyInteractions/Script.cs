@@ -117,7 +117,8 @@ public class Script : BaseUnityPlugin
         {
             //Logger.LogInfo($"GUID in Metadata> {item.Value.Metadata.GUID} : GUID in Key> {item.Key}");
             string comment = "";
-            if (!CompatibilityAutoToggle) break;
+
+            if (!CompatibilityAutoToggle) { break; }
 
             switch (item.Key)
             {

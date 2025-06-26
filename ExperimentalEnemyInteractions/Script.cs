@@ -3,14 +3,9 @@ using BepInEx.Logging;
 using HarmonyLib;
 using NaturalSelection.Generics;
 using NaturalSelection.EnemyPatches;
-using UnityEngine;
 using System.Collections.Generic;
-using System.Reflection;
 using System;
 using BepInEx.Configuration;
-using System.Linq;
-using Unity.Burst.CompilerServices;
-using JetBrains.Annotations;
 using System.Text;
 using BepInEx.Bootstrap;
 using NaturalSelection.Compatibility;
@@ -51,6 +46,7 @@ public class Script : BaseUnityPlugin
     internal static bool sellBodiesPresent = false;
     internal static bool rexuvinationPresent = false;
     internal static bool CompatibilityAutoToggle = false;
+    internal static bool LobbyCompatibilityPresent = false;
 
 
     internal static Dictionary<string,bool> Bools = new Dictionary<string, bool>();
@@ -83,8 +79,9 @@ public class Script : BaseUnityPlugin
         Bools.Add(nameof(debugSpiders),debugSpiders);
         Bools.Add(nameof(debugSpiderWebs),debugSpiderWebs);
         Bools.Add(nameof(debugUnspecified),debugUnspecified);
+        CompatibilityAutoToggle = BoundingConfig.CompatibilityAutoToggle.Value;
 
-        foreach(var entry in BoundingConfig.debugEntries)
+        foreach (var entry in BoundingConfig.debugEntries)
         {
             if(Bools.ContainsKey(entry.Key))
             {
@@ -127,24 +124,33 @@ public class Script : BaseUnityPlugin
                 case "com.velddev.enhancedmonsters":
                     {
                         enhancedMonstersPresent = true;
-                        comment = "Enhanced Monsters is present";
+                        comment = "Found Enhanced Monsters";
                         break;
                     }
                 case "Entity378.sellbodies":
                     {
                         sellBodiesPresent = true;
-                        comment = "SellbodiesFixed is present";
+                        comment = "Found SellbodiesFixed";
                         break;
                     }
                 case "XuuXiaolan.ReXuvination":
                     {
                         rexuvinationPresent = true;
-                        comment = "ReXuvination is present";
+                        comment = "Found ReXuvination";
+                        break;
+                    }
+                case "BMX.LobbyCompatibility":
+                    {
+                        LobbyCompatibilityPresent = true;
+                        comment = "Found LobbyCompatibility";
                         break;
                     }
             }
             if (comment != "") Logger.LogInfo($"{comment}. Automatically loading compatibility.");
         }
+
+        try { LobbyCompCompatibility.RegisterLobbyComp(MyPluginInfo.PLUGIN_GUID, Version.Parse(MyPluginInfo.PLUGIN_VERSION)); }
+        catch { }
 
         foreach (var item in BoundingConfig.CompatibilityEntries)
         {

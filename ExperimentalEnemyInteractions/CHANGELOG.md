@@ -1,5 +1,8 @@
 # _Natural selection_
 
+# 0.4.1
+- Fixed compatibility patches not loading automatically with the toggle on
+- Added compatibility for LobbyCompatibility
 # 0.4.0
 
 ### __Bunker spider released__

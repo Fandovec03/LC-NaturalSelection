@@ -1,5 +1,59 @@
 # Experimental Enemy Interactions
 
+## 0.5.15
+- Updated to Natural Selection 0.4.2
+
+## 0.5.14
+- Fixed collided with corpse spam
+
+### Library
+- Updated GetEnemiesInLOS to use OverlapSphere for better optimization
+
+## 0.5.13
+
+- Updated spider behavior
+    - Spider ignores Snare fleas on the ceiling
+    - Spider won't get alerted by immortal enemies that trigger spider webs
+
+- Implemented compatibility for Sellbodies/Enhanced Monsters
+    - Blob now moves towards and consumes enemy bodies from these mods
+
+- Pre-release
+
+## 0.5.12
+- Fixed Log spam from Circuit bees
+
+## 0.5.11
+
+- Added compatibility toggles to use only config toggles to load compatibilities
+- Spider web no longer gets triggered on dead enemies
+- Fixed spider web not stopping the audio
+- Spider webs reduce enemy velocity when over target speed
+- Updated initialial custom size list generation
+
+## 0.5.10
+- Fixed unfinished compatibilities turning on with stable mode on
+- Added logs for loading compatibilities
+
+## 0.5.9
+- Fixed spider web NRE spam when enemy didn't have animator
+- Sandworm now ignores enemies by enemy sizes
+	- Done with custom enemy size enum. Vanilla is too limiting
+	- New config for enemy sizes ranging from 1 - 5 [Tiny - Giant] and 0 [Undefined]
+- Merged Sellbodiesfixed and Enhanced Monsters compatibility into one script
+	- still in WIP
+- Improved Curcuit Bees
+	- Removed old and redundant code
+	- Bees now actually prioritize enemies holding its nest
+	- More consistent behavior
+
+## 0.5.8
+- Added a check for retrieving enemy data
+- Slightly updated library
+- Added setting for global enemy lists update interval
+- Removed localEnemyLists from patches. Enemies use local/temporary lists instead.
+- Updated rexuvination compatibility a bit.
+
 ## 0.5.7
 - Added logs when data containers are created.
 - Updated loggers

@@ -1,5 +1,46 @@
 # _Natural selection_
 
+# 0.4.2
+- Updated config. Spider toggle is on by default instead of off.
+
+# 0.4.1
+- Fixed compatibility patches not loading automatically with the toggle on
+- Added compatibility for LobbyCompatibility
+# 0.4.0
+
+### __Bunker spider released__
+- Spider webs stick to enemies and alert spider
+    - Investigates webs and chases prey. Returns back when the prey gets too far from the nest.
+
+### Added compatibility for SellbodiesFixed, Enhanced Monsters and ReXuvination
+- Beware of slimes consuming your profits away!
+
+## Major Changes
+
+- Added checks for enemy data structures
+- Added custom enemy sizes
+    - Customizable in config file
+
+### Circuit Bees
+- Circuit bees properly prioritize enemies holding its nest
+
+### Sandworms
+- Sandworms ignores enemies by custom enemy size
+
+### Optimizations, Fixes and QoL
+- Optimized networking with generics
+- Added setting update interval of global enemy lists
+- Updated library to newest version
+    - More optimized LOS check
+    - Deprecated usage of types
+- Fixed spider webs throwing NREs when enemy is missing animator
+- Fixed spider webs playing audio when it shouldn't
+- Fixed spider webs getting triggered by dead enemies
+- Updated logs
+
+## IMPORTANT
+- Regenerate and check your config logs
+
 # 0.3.0
 
 ## Major changes

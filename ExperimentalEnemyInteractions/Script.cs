@@ -13,8 +13,14 @@ using NaturalSelection.Compatibility;
 namespace NaturalSelection;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
+// Hard Dependencies
 [BepInDependency("fandovec03.NaturalSelectionLib", BepInDependency.DependencyFlags.HardDependency)]
 [BepInDependency("LethalNetworkAPI", BepInDependency.DependencyFlags.HardDependency)]
+// Soft Dependencies
+[BepInDependency("com.velddev.enhancedmonsters", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("Entity378.sellbodies", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("XuuXiaolan.ReXuvination", BepInDependency.DependencyFlags.SoftDependency)]
+[BepInDependency("BMX.LobbyCompatibility", BepInDependency.DependencyFlags.SoftDependency)]
 
 public class Script : BaseUnityPlugin
 {

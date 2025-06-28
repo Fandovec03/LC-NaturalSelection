@@ -1,5 +1,8 @@
 # _Natural selection_
 
+# 0.4.3
+- Fixed some supported mods not registering when not specified with BepInDependency attribute
+
 # 0.4.2
 - Updated config. Spider toggle is on by default instead of off.
 

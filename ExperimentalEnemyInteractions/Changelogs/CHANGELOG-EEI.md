@@ -1,5 +1,8 @@
 # Experimental Enemy Interactions
 
+## 0.5.16
+- Updated to Natural Selection 0.4.3
+
 ## 0.5.15
 - Updated to Natural Selection 0.4.2
 

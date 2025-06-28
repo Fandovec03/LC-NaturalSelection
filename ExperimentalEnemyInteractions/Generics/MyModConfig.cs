@@ -1,12 +1,7 @@
 ﻿using BepInEx.Configuration;
-using Dissonance;
 using HarmonyLib;
-using JetBrains.Annotations;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using UnityEngine;
-using UnityEngine.UIElements.UIR;
 
 namespace NaturalSelection.Generics;
     class MyModConfig
@@ -93,7 +88,7 @@ namespace NaturalSelection.Generics;
             customSizeOverrideList = cfg.Bind("DEV", "Custom size override list", "", "Set what size the enemy is considered as. Generates automatically.");
 
             //enable entities
-            enableSpider = cfg.Bind("Entity settings", "Enable spider", false, "Enable changes to apply to to spider and modify it's behavior. Unfinished.");
+            enableSpider = cfg.Bind("Entity settings", "Enable spider", true, "Enable changes to apply to to spider and modify it's behavior.");
             enableSlime = cfg.Bind("Entity settings", "Enable slime", true, "Enable changes to apply to to slime and modify it's behavior.");
             enableLeviathan = cfg.Bind("Entity settings", "Enable leviathan", true, "Enable changes to apply to to leviathan and modify it's behavior.");
             enableSporeLizard = cfg.Bind("DEV", "Enable SporeLizard", false, "Enable changes to apply to to spore lizard. \n\n Early build. DEV ONLY");

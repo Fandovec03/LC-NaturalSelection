@@ -1,5 +1,14 @@
 # _Natural selection_
 
+# 0.4.3
+- Fixed some supported mods not registering when not specified with BepInDependency attribute
+
+# 0.4.2
+- Updated config. Spider toggle is on by default instead of off.
+
+# 0.4.1
+- Fixed compatibility patches not loading automatically with the toggle on
+- Added compatibility for LobbyCompatibility
 # 0.4.0
 
 ### __Bunker spider released__

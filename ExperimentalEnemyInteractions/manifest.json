@@ -1,11 +1,10 @@
 {
-  "name": "Natural_selection",
-  "version_number": "0.4.3",
+  "name": "ExperimentalEnemyInteractions",
+  "version_number": "0.5.17",
   "website_url": "https://github.com/Fandovec03/LC-NaturalSelection",
   "description": "Rewamps the ecosystem an enemies to feel more alive and interactable. Enemies will fight each other and hunt to survive.",
   "dependencies": [
-    "Fandovec03-SpiderPositionFix-1.5.2",
-    "Fandovec03-NaturalSelectionLib-0.7.0",
+    "Fandovec03-SpiderPositionFix-1.5.1",
     "xilophor-LethalNetworkAPI-3.3.2"
   ]
 }

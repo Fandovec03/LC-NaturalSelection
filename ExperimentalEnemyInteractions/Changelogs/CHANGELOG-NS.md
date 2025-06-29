@@ -1,5 +1,8 @@
 # _Natural selection_
 
+# 0.4.4
+- Fixed ReXuvination patch not working sometimes. Now patch prevents ReXuvination from patching enemy colliders.
+
 # 0.4.3
 - Fixed some supported mods not registering when not specified with BepInDependency attribute
 

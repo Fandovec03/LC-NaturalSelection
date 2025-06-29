@@ -53,6 +53,7 @@
         <PackageReference Include="UnityEngine.Modules" Version="2022.3.9" IncludeAssets="compile" PrivateAssets="all" />
 		<PackageReference Include="Xilophor.LethalNetworkAPI" Version="3.3.2" PrivateAssets="all" />
 		<PackageReference Include="TeamBMX.LobbyCompatibility" Version="1.5.1" />
+		<PackageReference Include="Evaisa.NetcodePatcher" Version="3.3.4" />
 		<PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
@@ -68,17 +69,17 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Reference Include="EnhancedMonsters" Publicize="True">
-        <HintPath>TEMP\EnhancedMonsters.dll</HintPath>
+      <Reference Include="EnhancedMonsters" Publicize = "True">
+        <HintPath>Dependencies\EnhancedMonsters.dll</HintPath>
       </Reference>
-      <Reference Include="fandovec03.NaturalSelectionLib">
-        <HintPath>DLLs\fandovec03.NaturalSelectionLib.dll</HintPath>
+      <Reference Include="fandovec03.NaturalSelectionLib" Publicize = "True">
+        <HintPath>Dependencies\fandovec03.NaturalSelectionLib.dll</HintPath>
       </Reference>
-      <Reference Include="ReXuvination" Publicize="True">
-        <HintPath>TEMP\ReXuvination.dll</HintPath>
+      <Reference Include="ReXuvination" Publicize = "True">
+        <HintPath>Dependencies\ReXuvination.dll</HintPath>
       </Reference>
-      <Reference Include="SellBodies" Publicize="True">
-        <HintPath>TEMP\SellBodies.dll</HintPath>
+      <Reference Include="SellBodies" Publicize = "True">
+        <HintPath>Dependencies\SellBodies.dll</HintPath>
       </Reference>
     </ItemGroup>
 </Project>

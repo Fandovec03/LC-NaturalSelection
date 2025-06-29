@@ -123,6 +123,8 @@ namespace NaturalSelection.EnemyPatches
                 }
             }
 
+
+
             if (SandwormData.refreshCDtime <= 0)
             {
                 if (RoundManagerPatch.RequestUpdate(__instance) == true)
@@ -152,6 +154,7 @@ namespace NaturalSelection.EnemyPatches
                 SandwormData.refreshCDtime -= Time.deltaTime;
             }
 
+            
             int targetingEntity = SandwormData.NetworkSandwormBehaviorState;
 
             switch (targetingEntity)
@@ -198,7 +201,7 @@ namespace NaturalSelection.EnemyPatches
                     break;
                 }
             }
-
+            
             if (debugSandworm && triggerFlag) Script.Logger.Log(LogLevel.Debug,LibraryCalls.DebugStringHead(__instance) + " Prefix/2/ targetEnemy: " + SandwormData.targetEnemy + ", target: " + SandwormData.targetEnemy);
             return true;
         }
@@ -215,7 +218,7 @@ namespace NaturalSelection.EnemyPatches
             if (Script.BoundingConfig.enableLeviathan.Value != true) return;
 
             if (debugSandworm && debugSpam) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} Postfix targetingEntity: {targetingEntity}");
-
+            
             switch(targetingEntity)
             {
                 case 0:
@@ -294,6 +297,8 @@ namespace NaturalSelection.EnemyPatches
             int targetingEntity = SandwormData.NetworkSandwormBehaviorState;
             if (debugSandworm && debugSpam && triggerFlag) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: checking chaseTimer: {__instance.chaseTimer}");
 
+
+            
             switch (targetingEntity)
             {
                 case 0:
@@ -362,8 +367,22 @@ namespace NaturalSelection.EnemyPatches
                 break;
             }
 
-            if (!__instance.movingTowardsTargetPlayer && __instance.currentBehaviourStateIndex == 1)
+            PlayerControllerB closestPlayer = __instance.GetClosestPlayer(false, true, true);
+            float closestPlayerDistance = -1f;
+            if (closestPlayer != null)
             {
+                closestPlayerDistance = Vector3.Distance(__instance.GetClosestPlayer(false, true, true).transform.position, __instance.transform.position);
+            }
+
+            if (SandwormData.targetEnemy != null && closestPlayerDistance > Vector3.Distance(__instance.transform.position, SandwormData.targetEnemy.transform.position))
+            {
+                if (__instance.currentBehaviourStateIndex == 1)
+                {
+                    __instance.targetPlayer = null;
+                    __instance.movingTowardsTargetPlayer = false;
+                    __instance.SwitchToBehaviourState(0);
+                }
+
                 if (__instance.moveTowardsDestination)
                 {
                     __instance.agent.SetDestination(__instance.destination);

@@ -7,6 +7,8 @@ using UnityEngine;
 using LethalNetworkAPI;
 using System.Linq;
 using BepInEx.Logging;
+using Unity.Netcode;
+using LogLevel = BepInEx.Logging.LogLevel;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -17,10 +19,13 @@ namespace NaturalSelection.EnemyPatches
         internal EnemyAI? targetEnemy = null;
         //public int targetingEntity = 0;
         internal float clearEnemiesTimer = 0f;
+        internal bool MovingTowardsTargetPlayer = false;
+        internal bool MovingTowardsTargetEntity = false;
+        internal int NetworkSandwormBehaviorState = 0;
     }
 
     [HarmonyPatch(typeof(SandWormAI))]
-    class SandWormAIPatch
+    class SandWormAIPatch : NetworkBehaviour
     {
         static bool debugSandworm = Script.Bools["debugSandworms"];
         static bool debugSpam = Script.Bools["spammyLogs"];
@@ -43,6 +48,57 @@ namespace NaturalSelection.EnemyPatches
             string NWID = "NSSandwormMovingTowardsPlayer" + instance.NetworkObjectId;
             return Networking.NSEnemyNetworkVariable<bool>(NWID);
         }
+        */
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        [ServerRpc(RequireOwnership = true)]
+        private static void ServerRPCMovingTowardsPlayer(SandWormAI __instance, bool value)
+        {
+            Script.Logger.LogDebug($"Server RPC MovingTowardsTargetPlayer = {value}");
+            ClientRPCMovingTowardsPlayer(__instance.NetworkObject, value);
+
+            NetcodePatcher.Patcher.Patch()
+        }
+
+        [ClientRpc]
+        private static void ClientRPCMovingTowardsPlayer(NetworkObject networkOject, bool value)
+        {
+            Script.Logger.LogDebug($"Client RPC MovingTowardsTargetPlayer = {value}");
+            SandWormAI __instance = networkOject.GetComponent<SandWormAI>();
+            sandworms[__instance].MovingTowardsTargetPlayer = value;
+        }
+
+        [ServerRpc(RequireOwnership = true)]
+        private static void ServerRPCMovingTowardsEnemy(SandWormAI __instance, bool value)
+        {
+            Script.Logger.LogDebug($"Server RPC MovingTowardsTargetEntity = {value}");
+            ClientRPCMovingTowardsEnemy(__instance.NetworkObject, value);
+        }
+
+        [ClientRpc]
+        private static void ClientRPCMovingTowardsEnemy(NetworkObject networkOject, bool value)
+        {
+            Script.Logger.LogDebug($"Client RPC MovingTowardsTargetEntity = {value}");
+            SandWormAI __instance = networkOject.GetComponent<SandWormAI>();
+            sandworms[__instance].MovingTowardsTargetEntity = value;
+        }
+
+        [ServerRpc(RequireOwnership = true)]
+        private static void ServerRPCNetworkBehaviorState(SandWormAI __instance, int value)
+        {
+            Script.Logger.LogDebug($"Server RPC NetworkSandwormBehaviorState = {value}");
+            ClientRPCNetworkBehaviorState(__instance.NetworkObject, value);
+        }
+
+        [ClientRpc]
+        private static void ClientRPCNetworkBehaviorState(NetworkObject networkOject, int value)
+        {
+            Script.Logger.LogDebug($"Client RPC NetworkSandwormBehaviorState = {value}");
+            SandWormAI __instance = networkOject.GetComponent<SandWormAI>();
+            sandworms[__instance].NetworkSandwormBehaviorState = value;
+        }
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         static Dictionary<SandWormAI, ExtendedSandWormAIData> sandworms = [];
 

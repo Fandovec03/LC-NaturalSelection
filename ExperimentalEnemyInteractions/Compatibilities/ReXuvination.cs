@@ -6,6 +6,8 @@ using BepInEx.Logging;
 using UnityEngine;
 using System.Reflection.Emit;
 using NaturalSelection.EnemyPatches;
+using ReXuvination.src.Patches;
+using SandSpiderWebTrapPatch = NaturalSelection.EnemyPatches.SandSpiderWebTrapPatch;
 
 namespace NaturalSelection.Compatibility
 {
@@ -37,37 +39,12 @@ namespace NaturalSelection.Compatibility
             }
         }
 
-        [HarmonyPatch(typeof(QuickMenuManager) ,"Start")]
+        [HarmonyPatch(typeof(QuickMenuManagerPatch) ,"QuickMenuManagerStartPatch")]
         [HarmonyPrefix]
-        [HarmonyBefore("XuuXiaolan.ReXuvination")]
         static void QuickMenuManagerStartPatch()
         {
-            if (patched) return;
-
-            foreach (EnemyAI enemy in Script.loadedEnemyList)
-            {
-                foreach (EnemyAICollisionDetect collisionDetectScript in enemy.enemyType.enemyPrefab.GetComponentsInChildren<EnemyAICollisionDetect>())
-                {
-                    collisionDetectScript.gameObject.TryGetComponent<Collider>(out Collider coltemp);
-
-                    if (coltemp != null && !coltemp.isTrigger)
-                    {
-                        collisionDetectScript.canCollideWithEnemies = true;
-                        Script.Logger.Log(LogLevel.Info, $"Unoptimized {enemy.enemyType.enemyName} collider {coltemp.name} to collide with enemies.");
-                    }
-
-                    foreach (Collider col in collisionDetectScript.gameObject.GetComponentsInChildren<Collider>())
-                    {
-                        if (col.isTrigger) continue;
-
-                        if (collisionDetectScript.canCollideWithEnemies) continue;
-
-                        collisionDetectScript.canCollideWithEnemies = true;
-                        Script.Logger.Log(LogLevel.Info, $"Unoptimized {enemy.enemyType.enemyName} collider {col.name} to collide with enemies.");
-                    }
-                }
-            }
-            patched = true;
+            QuickMenuManagerPatch.alreadyPatched = true;
+            Script.Logger.LogMessage("Prevented Rexuvination from patching enemy colliders");
         }
     }
 }

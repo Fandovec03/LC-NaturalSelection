@@ -34,13 +34,6 @@ namespace NaturalSelection.EnemyPatches
         static bool debugTriggerFlag = Script.Bools["debugTriggerFlags"];
         static List<string> spiderBlacklist = InitializeGamePatch.spiderBlacklistFinal;
 
-        static LNetworkVariable<int> NetworkSpiderBehaviorState(SandSpiderAI instance)
-        {
-            string NWID = "NSSpiderBehaviorState" + instance.NetworkObjectId;
-            return Networking.NSEnemyNetworkVariable<int>(NWID);
-        }
-
-
         static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
             if (entryKey == "debugSpiders") debugSpider = value;
@@ -69,8 +62,6 @@ namespace NaturalSelection.EnemyPatches
             CheckDataIntegritySpider(__instance);
             SpiderData spiderData = spiderList[__instance];
             Type type = __instance.GetType();
-
-            int TargetingState = NetworkSpiderBehaviorState(__instance).Value;
 
             if (RoundManagerPatch.RequestUpdate(__instance) == true)
             {

@@ -9,6 +9,9 @@ using BepInEx.Configuration;
 using System.Text;
 using BepInEx.Bootstrap;
 using NaturalSelection.Compatibility;
+using System.Reflection;
+using UnityEngine;
+//using NetcodePatcher;
 
 namespace NaturalSelection;
 

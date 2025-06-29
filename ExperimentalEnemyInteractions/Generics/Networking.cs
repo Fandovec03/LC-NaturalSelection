@@ -38,6 +38,7 @@ namespace NaturalSelection.Generics
         {
             foreach (KeyValuePair<string, Type> pair in NetworkingDictionary)
             {
+
                 if(pair.Value == typeof(LNetworkEvent))
                 {
                     if (logNetworking) Script.Logger.Log(LogLevel.Debug,$"Clearing subscriptions of event {pair.Key}");

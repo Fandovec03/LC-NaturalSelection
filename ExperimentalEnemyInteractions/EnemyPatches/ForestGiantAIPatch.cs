@@ -13,6 +13,7 @@ namespace NaturalSelection.EnemyPatches
     {
         internal int extinguished = 0;
         internal bool setFireOnKill = false;
+        internal float CachedNetworkOwnerPostfixResult = 0f;
     }
 
 
@@ -84,6 +85,13 @@ namespace NaturalSelection.EnemyPatches
                 data.extinguished = 1;
             }
 
+            NetworkOwnerPostfixResult(__instance).OnValueChanged += OwnerPostfixResult;
+
+            void OwnerPostfixResult(float oldValue, float newValue)
+            {
+                if (oldValue != newValue) { data.CachedNetworkOwnerPostfixResult = newValue; }
+            }
+            
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
 
@@ -138,18 +146,18 @@ namespace NaturalSelection.EnemyPatches
         {
             CheckDataIntegrityGiant(__instance);
             GiantData giantData = giantDictionary[__instance];
-            if (__instance.IsOwner) NetworkOwnerPostfixResult(__instance).Value = Time.realtimeSinceStartup - __instance.timeAtStartOfBurning;
+            if (__instance.IsOwner) giantData.CachedNetworkOwnerPostfixResult = Time.realtimeSinceStartup - __instance.timeAtStartOfBurning;
 
-            if (__instance.isEnemyDead && __instance.currentBehaviourStateIndex == 2 && NetworkOwnerPostfixResult(__instance).Value < 20f)
+            if (__instance.isEnemyDead && __instance.currentBehaviourStateIndex == 2 && giantData.CachedNetworkOwnerPostfixResult < 20f)
             {
-                if (__instance.IsOwner) NetworkOwnerPostfixResult(__instance).Value = Time.realtimeSinceStartup - __instance.timeAtStartOfBurning;
+                if (__instance.IsOwner) giantData.CachedNetworkOwnerPostfixResult = Time.realtimeSinceStartup - __instance.timeAtStartOfBurning;
                 if (!__instance.giantBurningAudio.isPlaying)
                 {
                     __instance.giantBurningAudio.Play();
                 }
                 __instance.giantBurningAudio.volume = Mathf.Min(__instance.giantBurningAudio.volume + Time.deltaTime * 0.5f, 1f);
             }
-            else if (__instance.isEnemyDead && NetworkOwnerPostfixResult(__instance).Value > 26f && __instance.burningParticlesContainer.activeSelf == true)
+            else if (__instance.isEnemyDead && giantData.CachedNetworkOwnerPostfixResult > 26f && __instance.burningParticlesContainer.activeSelf == true)
             {     
                 __instance.burningParticlesContainer.SetActive(false);
             }

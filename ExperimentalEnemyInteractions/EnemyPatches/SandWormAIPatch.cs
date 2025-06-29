@@ -6,8 +6,6 @@ using NaturalSelection.Generics;
 using UnityEngine;
 using LethalNetworkAPI;
 using System.Linq;
-using BepInEx.Logging;
-using Unity.Netcode;
 using LogLevel = BepInEx.Logging.LogLevel;
 
 namespace NaturalSelection.EnemyPatches
@@ -27,7 +25,7 @@ namespace NaturalSelection.EnemyPatches
     }
 
     [HarmonyPatch(typeof(SandWormAI))]
-    class SandWormAIPatch : NetworkBehaviour
+    class SandWormAIPatch
     {
         static bool debugSandworm = Script.Bools["debugSandworms"];
         static bool debugSpam = Script.Bools["spammyLogs"];
@@ -109,7 +107,7 @@ namespace NaturalSelection.EnemyPatches
                 if (__instance.movingTowardsTargetPlayer != SandwormData.movingTowardsTargetPlayer)
                 {
                     SandwormData.movingTowardsTargetPlayer = __instance.movingTowardsTargetPlayer;
-                    NetworkMovingTowardsPlayer(__instance).Value = SandwormData.movingTowardsTargetPlayer;
+                    NetworkMovingTowardsPlayer(__instance).Value = __instance.movingTowardsTargetPlayer;
                 }
 
                 if (SandwormData.NetworkSandwormBehaviorState != SandwormData.CacheNetworkSandwormBehaviorState)
@@ -257,7 +255,7 @@ namespace NaturalSelection.EnemyPatches
                             if (SandwormData.targetEnemy == null)
                             {
                                 if (debugSandworm) Script.Logger.Log(LogLevel.Error,$"{LibraryCalls.DebugStringHead(__instance)} TargetEnemy is null! TargetingEntity set to false /Trigger 1/");
-                                SandwormData.MovingTowardsTargetEntity = false;
+                                //SandwormData.MovingTowardsTargetEntity = false;
                                 SandwormData.NetworkSandwormBehaviorState = 0;
                                 //__instance.SwitchToBehaviourState(0);
                                 break;
@@ -354,7 +352,7 @@ namespace NaturalSelection.EnemyPatches
                             if (__instance.chaseTimer < 1.5f && Vector3.Distance(__instance.transform.position, SandwormData.targetEnemy.transform.position) < 4f && !(Vector3.Distance(StartOfRound.Instance.shipInnerRoomBounds.ClosestPoint(__instance.transform.position), __instance.transform.position) < 9f) && UnityEngine.Random.Range(0, 100) < 17)
                             {
                                 Script.Logger.Log(LogLevel.Message,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: Emerging!");
-                                SandwormData.MovingTowardsTargetEntity = false;
+                                //SandwormData.MovingTowardsTargetEntity = false;
                                 SandwormData.NetworkSandwormBehaviorState = 0;
                                 //__instance.SwitchToBehaviourState(0);
                                 __instance.StartEmergeAnimation();

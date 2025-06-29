@@ -12,7 +12,7 @@ using LogLevel = BepInEx.Logging.LogLevel;
 
 namespace NaturalSelection.EnemyPatches
 {
-    class ExtendedSandWormAIData()
+    class ExtendedSandWormAIData3()
     {
         internal float refreshCDtime = 0.5f;
         internal EnemyAI? closestEnemy = null;
@@ -25,82 +25,51 @@ namespace NaturalSelection.EnemyPatches
     }
 
     [HarmonyPatch(typeof(SandWormAI))]
-    class SandWormAIPatch : NetworkBehaviour
+    class SandWormAIPatch3
     {
         static bool debugSandworm = Script.Bools["debugSandworms"];
         static bool debugSpam = Script.Bools["spammyLogs"];
         static bool triggerFlag = Script.Bools["debugTriggerFlags"];
         static List<string> sandwormBlacklist = InitializeGamePatch.sandwormBlacklistFinal;
 
-        /*
-        static LNetworkVariable<int> NetworkSandwormBehaviorState(SandWormAI instance)
+        
+        static LNetworkMessage<int> NetworkSandwormBehaviorState(ushort instance)
         {
-            string NWID = "NSSandwormBehaviorState" + instance.NetworkObjectId;
-            return Networking.NSEnemyNetworkVariable<int>(NWID);
+            string NWID = "NSSandwormBehaviorState" + instance;
+            return Networking.NSEnemyNetworkMessageInt(NWID);
         }
 
-        static LNetworkVariable<bool> NetworkTargetingEntity(SandWormAI instance)
+        static LNetworkMessage<bool> NetworkTargetingEntity(ushort instance)
         {
-            string NWID = "NSSandwormTargetingEntity" + instance.NetworkObjectId;
-            return Networking.NSEnemyNetworkVariable<bool>(NWID);
+            string NWID = "NSSandwormTargetingEntity" + instance;
+            return Networking.NSEnemyNetworkMessageBool(NWID);
         }
 
-        static LNetworkVariable<bool> NetworkMovingTowardsPlayer(SandWormAI instance)
+        static LNetworkMessage<bool> NetworkMovingTowardsPlayer(ushort instance)
         {
-            string NWID = "NSSandwormMovingTowardsPlayer" + instance.NetworkObjectId;
-            return Networking.NSEnemyNetworkVariable<bool>(NWID);
+            string NWID = "NSSandwormMovingTowardsPlayer" + instance;
+            return Networking.NSEnemyNetworkMessageBool(NWID);
         }
-        */
+        
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        [ServerRpc(RequireOwnership = true)]
-        private static void ServerRPCMovingTowardsPlayer(NetworkBehaviour networkBehaviour, bool value)
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /*public static void NetworkMovingTowardsPlayer(ushort __instance, bool value)
         {
-            Script.Logger.LogDebug($"Server RPC MovingTowardsTargetPlayer = {value}");
-            ClientRPCMovingTowardsPlayer(networkBehaviour, value);
-        }
-
-        [ClientRpc]
-        private static void ClientRPCMovingTowardsPlayer(NetworkBehaviour networkBehaviour, bool value)
-        {
-            Script.Logger.LogDebug($"Client RPC MovingTowardsTargetPlayer = {value}");
-            SandWormAI __instance = networkBehaviour.GetComponent<SandWormAI>();
             sandworms[__instance].MovingTowardsTargetPlayer = value;
         }
 
-        [ServerRpc(RequireOwnership = true)]
-        private static void ServerRPCMovingTowardsEnemy(NetworkBehaviour networkBehaviour, bool value)
+        public static void NetworkMovingTowardsEnemy(ushort __instance, bool value)
         {
-            Script.Logger.LogDebug($"Server RPC MovingTowardsTargetEntity = {value}");
-            ClientRPCMovingTowardsEnemy(networkBehaviour, value);
-        }
-
-        [ClientRpc]
-        private static void ClientRPCMovingTowardsEnemy(NetworkBehaviour networkBehaviour, bool value)
-        {
-            Script.Logger.LogDebug($"Client RPC MovingTowardsTargetEntity = {value}");
-            SandWormAI __instance = networkBehaviour.GetComponent<SandWormAI>();
             sandworms[__instance].MovingTowardsTargetEntity = value;
         }
 
-        [ServerRpc(RequireOwnership = true)]
-        private static void ServerRPCNetworkBehaviorState(NetworkBehaviour networkBehaviour, int value)
+        public static void NetworkNetworkBehaviorState(ushort __instance, int value)
         {
-            Script.Logger.LogDebug($"Server RPC NetworkSandwormBehaviorState = {value}");
-            ClientRPCNetworkBehaviorState(networkBehaviour, value);
-        }
-
-        [ClientRpc]
-        private static void ClientRPCNetworkBehaviorState(NetworkBehaviour networkBehaviour, int value)
-        {
-            Script.Logger.LogDebug($"Client RPC NetworkSandwormBehaviorState = {value}");
-            SandWormAI __instance = networkBehaviour.GetComponent<SandWormAI>();
             sandworms[__instance].NetworkSandwormBehaviorState = value;
-        }
+        }*/
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        static Dictionary<SandWormAI, ExtendedSandWormAIData> sandworms = [];
+        static Dictionary<SandWormAI, ExtendedSandWormAIData3> sandworms = [];
 
         static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
@@ -114,10 +83,11 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static void SandWormStartPatch(SandWormAI __instance)
         {
+
             if (!sandworms.ContainsKey(__instance))
             {
                 Script.Logger.Log(LogLevel.Info, $"Creating data container for {LibraryCalls.DebugStringHead(__instance)}");
-                sandworms.Add(__instance, new ExtendedSandWormAIData());
+                sandworms.Add(__instance, new ExtendedSandWormAIData3());
             }
 
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
@@ -129,12 +99,12 @@ namespace NaturalSelection.EnemyPatches
         {
             if (__instance.isEnemyDead) return true;
             CheckDataIntegrityWorm(__instance);
-            ExtendedSandWormAIData SandwormData = sandworms[__instance];
+            ExtendedSandWormAIData3 SandwormData = sandworms[__instance];
             Type type = __instance.GetType();
 
             if (__instance.IsOwner)
             {
-                ServerRPCMovingTowardsPlayer(__instance, __instance.movingTowardsTargetPlayer);
+                NetworkMovingTowardsPlayer(__instance.NetworkBehaviourId).SendClients(__instance.movingTowardsTargetPlayer);
                 //NetworkMovingTowardsPlayer(__instance).Value = __instance.movingTowardsTargetPlayer;
             }
 
@@ -186,7 +156,7 @@ namespace NaturalSelection.EnemyPatches
                         {
                             if (SandwormData.targetEnemy != null)
                             {
-                                ServerRPCMovingTowardsEnemy(__instance, true);
+                                 NetworkTargetingEntity(__instance.NetworkBehaviourId).SendClients(true);
                                 //NetworkTargetingEntity(__instance).Value = true;
                             }
                             if (__instance.updateDestinationInterval >= 0f)
@@ -228,7 +198,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (__instance.isEnemyDead) return;
             CheckDataIntegrityWorm(__instance);
-            ExtendedSandWormAIData SandwormData = sandworms[__instance];
+            ExtendedSandWormAIData3 SandwormData = sandworms[__instance];
             int targetingEntity = SandwormData.NetworkSandwormBehaviorState;
             bool networkMovingTowardsPlayer = SandwormData.MovingTowardsTargetPlayer;
 
@@ -271,7 +241,7 @@ namespace NaturalSelection.EnemyPatches
                             if (SandwormData.targetEnemy == null)
                             {
                                 if (debugSandworm) Script.Logger.Log(LogLevel.Error,$"{LibraryCalls.DebugStringHead(__instance)} TargetEnemy is null! TargetingEntity set to false /Trigger 1/");
-                                ServerRPCNetworkBehaviorState(__instance, 0);
+                                NetworkSandwormBehaviorState(__instance.NetworkBehaviourId).SendClients(0);
                                 //NetworkSandwormBehaviorState(__instance).Value = 0;
                                 //__instance.SwitchToBehaviourState(0);
                                 break;
@@ -289,11 +259,11 @@ namespace NaturalSelection.EnemyPatches
                             if (__instance.chaseTimer > 6f)
                             {
                                 if (debugSandworm) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} Chasing for too long. targetEnemy set to null");
-                                ServerRPCNetworkBehaviorState(__instance, 0);
+                                NetworkSandwormBehaviorState(__instance.NetworkBehaviourId).SendClients(0);
                                 //NetworkSandwormBehaviorState(__instance).Value = 0;
                                 //__instance.SwitchToBehaviourState(0);
                                 SandwormData.targetEnemy = null;
-                                ServerRPCMovingTowardsEnemy(__instance, false);
+                                NetworkTargetingEntity(__instance.NetworkBehaviourId).SendClients(false);
                                 //NetworkTargetingEntity(__instance).Value = false;
                             }
                         }
@@ -307,7 +277,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (__instance.isEnemyDead) return true;
             CheckDataIntegrityWorm(__instance);
-            ExtendedSandWormAIData SandwormData = sandworms[__instance];
+            ExtendedSandWormAIData3 SandwormData = sandworms[__instance];
             Type type = __instance.GetType();
             int targetingEntity = SandwormData.NetworkSandwormBehaviorState;
             if (debugSandworm && debugSpam && triggerFlag) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: checking chaseTimer: {__instance.chaseTimer}");
@@ -327,11 +297,11 @@ namespace NaturalSelection.EnemyPatches
                             {
                                 if (debugSandworm && triggerFlag) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} closestEnemy is {LibraryCalls.DebugStringHead(SandwormData.closestEnemy)}, isEnemyDead: {SandwormData.closestEnemy.isEnemyDead} /1/");
                                 __instance.SetDestinationToPosition(SandwormData.closestEnemy.transform.position);
-                                ServerRPCNetworkBehaviorState(__instance, 1);
+                                NetworkSandwormBehaviorState(__instance.NetworkBehaviourId).SendClients(1);
                                 //NetworkSandwormBehaviorState(__instance).Value = 1;
                                 //__instance.SwitchToBehaviourState(1);
                                 SandwormData.targetEnemy = SandwormData.closestEnemy;
-                                ServerRPCMovingTowardsEnemy(__instance, true);
+                                NetworkTargetingEntity(__instance.NetworkBehaviourId).SendClients(true);
                                 //NetworkTargetingEntity(__instance).Value = true;
                                 __instance.chaseTimer = 0;
                                 if (debugSandworm) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: Set targetingEntity to {targetingEntity} and reset chaseTimer: {__instance.chaseTimer}");
@@ -348,8 +318,8 @@ namespace NaturalSelection.EnemyPatches
                         {
                             if (debugSandworm) Script.Logger.Log(LogLevel.Error,$"{LibraryCalls.DebugStringHead(__instance)}: targetEnemy is at null or dead. Setting targetingEntity to false /Trigger 2/");
                             SandwormData.targetEnemy = null;
-                            ServerRPCMovingTowardsEnemy(__instance, false);
-                            ServerRPCNetworkBehaviorState(__instance, 0);
+                            NetworkTargetingEntity(__instance.NetworkBehaviourId).SendClients(false);
+                            NetworkSandwormBehaviorState(__instance.NetworkBehaviourId).SendClients(0);
                             //NetworkTargetingEntity(__instance).Value = false;
                             //NetworkSandwormBehaviorState(__instance).Value = 0;
                             //__instance.SwitchToBehaviourState(0);
@@ -362,7 +332,7 @@ namespace NaturalSelection.EnemyPatches
                             if (Vector3.Distance(__instance.transform.position, SandwormData.targetEnemy.transform.position) > 19f)
                             {
                                 SandwormData.targetEnemy = null;
-                                ServerRPCMovingTowardsEnemy(__instance, false);
+                                NetworkTargetingEntity(__instance.NetworkBehaviourId).SendClients(false);
                                 //NetworkTargetingEntity(__instance).Value = false;
                                 if (debugSandworm) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: TargetEnemy too far! set to null");
                                 break;
@@ -375,7 +345,7 @@ namespace NaturalSelection.EnemyPatches
                             if (__instance.chaseTimer < 1.5f && Vector3.Distance(__instance.transform.position, SandwormData.targetEnemy.transform.position) < 4f && !(Vector3.Distance(StartOfRound.Instance.shipInnerRoomBounds.ClosestPoint(__instance.transform.position), __instance.transform.position) < 9f) && UnityEngine.Random.Range(0, 100) < 17)
                             {
                                 Script.Logger.Log(LogLevel.Message,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: Emerging!");
-                                ServerRPCNetworkBehaviorState(__instance, 0);
+                                NetworkSandwormBehaviorState(__instance.NetworkBehaviourId).SendClients(0);
                                 //NetworkSandwormBehaviorState(__instance).Value = 0;
                                 //__instance.SwitchToBehaviourState(0);
                                 __instance.StartEmergeAnimation();
@@ -435,7 +405,7 @@ namespace NaturalSelection.EnemyPatches
             if (!sandworms.ContainsKey(__instance))
             {
                 Script.Logger.Log(LogLevel.Fatal, $"Critical failule. Failed to get data for {LibraryCalls.DebugStringHead(__instance)}. Attempting to fix...");
-                sandworms.Add(__instance, new ExtendedSandWormAIData());
+                sandworms.Add(__instance, new ExtendedSandWormAIData3());
             }
         }
     }

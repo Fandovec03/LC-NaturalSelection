@@ -11,7 +11,7 @@ using BepInEx.Bootstrap;
 using NaturalSelection.Compatibility;
 using System.Reflection;
 using UnityEngine;
-using NetcodePatcher;
+//using NetcodePatcher;
 
 namespace NaturalSelection;
 
@@ -62,7 +62,7 @@ public class Script : BaseUnityPlugin
     internal static List<EnemyAI> loadedEnemyList = new List<EnemyAI>();
     public static Action<string, bool>? OnConfigSettingChanged;
 
-    private static void NetcodePatcher()
+    /*private static void NetcodePatcher()
     {
         var types = Assembly.GetExecutingAssembly().GetTypes();
         foreach (var type in types)
@@ -77,7 +77,7 @@ public class Script : BaseUnityPlugin
                 }
             }
         }
-    }
+    }*/
 
     static void SubscribeDebugConfigBools(ConfigEntry<bool> entryKey,bool boolParam, string entry)
     {
@@ -126,7 +126,7 @@ public class Script : BaseUnityPlugin
             chars[0] = '0'; chars[1] = '0';
         }
         Patch();
-        NetcodePatcher();
+        //NetcodePatcher();
 
         StringBuilder version = new StringBuilder();
 

@@ -50,6 +50,10 @@ namespace NaturalSelection.EnemyPatches
             BeeValues beeData = beeList[__instance];
 
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
+
+
+
+
         }
 
         [HarmonyPatch("Update")]

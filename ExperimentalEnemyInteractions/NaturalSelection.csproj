@@ -66,6 +66,7 @@
 
 	<ItemGroup>
 		<Folder Include="DLLs\" />
+		<Folder Include="Experimental\" />
 	</ItemGroup>
 
 	<ItemGroup>

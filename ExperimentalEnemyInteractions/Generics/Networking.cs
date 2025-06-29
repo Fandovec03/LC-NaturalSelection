@@ -34,22 +34,6 @@ namespace NaturalSelection.Generics
             return LNetworkEvent.Connect(NWID);
         }
 
-        public static LNetworkMessage<string> NSEnemyNetworkMessageString(string NWID)
-        {
-            if (!NetworkingDictionary.ContainsKey(NWID)) NetworkingDictionary.Add(NWID, typeof(LNetworkMessage<string>));
-            return LNetworkMessage<string>.Connect(NWID);
-        }
-        public static LNetworkMessage<bool> NSEnemyNetworkMessageBool(string NWID)
-        {
-            if (!NetworkingDictionary.ContainsKey(NWID)) NetworkingDictionary.Add(NWID, typeof(LNetworkMessage<bool>));
-            return LNetworkMessage<bool>.Connect(NWID);
-        }
-        public static LNetworkMessage<int> NSEnemyNetworkMessageInt(string NWID)
-        {
-            if (!NetworkingDictionary.ContainsKey(NWID)) NetworkingDictionary.Add(NWID, typeof(LNetworkMessage<int>));
-            return LNetworkMessage<int>.Connect(NWID);
-        }
-
         public static void ClearSubscribtionsInDictionary()
         {
             foreach (KeyValuePair<string, Type> pair in NetworkingDictionary)
@@ -59,21 +43,6 @@ namespace NaturalSelection.Generics
                 {
                     if (logNetworking) Script.Logger.Log(LogLevel.Debug,$"Clearing subscriptions of event {pair.Key}");
                     LNetworkEvent.Connect(pair.Key).ClearSubscriptions(); continue;
-                }
-                else if (pair.Value == typeof(LNetworkMessage<string>))
-                {
-                    if (logNetworking) Script.Logger.Log(LogLevel.Debug, $"Clearing subscriptions of message<string> {pair.Key}");
-                    LNetworkMessage<string>.Connect(pair.Key).ClearSubscriptions(); continue;
-                }
-                else if (pair.Value == typeof(LNetworkMessage<int>))
-                {
-                    if (logNetworking) Script.Logger.Log(LogLevel.Debug, $"Clearing subscriptions of message<int> {pair.Key}");
-                    LNetworkMessage<int>.Connect(pair.Key).ClearSubscriptions(); continue;
-                }
-                else if (pair.Value == typeof(LNetworkMessage<bool>))
-                {
-                    if (logNetworking) Script.Logger.Log(LogLevel.Debug, $"Clearing subscriptions of message<bool> {pair.Key}");
-                    LNetworkMessage<bool>.Connect(pair.Key).ClearSubscriptions(); continue;
                 }
                 else
                 {

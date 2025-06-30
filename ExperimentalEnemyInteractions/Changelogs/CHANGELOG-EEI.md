@@ -1,5 +1,11 @@
 # Experimental Enemy Interactions
 
+## 0.5.18
+- Optimized and Delobotomized Earth Leviathan
+
+## 0.5.17
+- Updated to NaturalSelection 0.4.4
+
 ## 0.5.16
 - Updated to Natural Selection 0.4.3
 

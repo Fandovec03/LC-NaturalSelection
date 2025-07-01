@@ -22,17 +22,6 @@ namespace NaturalSelection.EnemyPatches
     [HarmonyPatch(typeof(SandSpiderWebTrap))]
     class SandSpiderWebTrapPatch
     {
-        /*static LNetworkEvent NetworkEnemyTripTrapEnter(SandSpiderWebTrap instance)
-        {
-            string NWID = "NSSpiderTripTrapEnter" + instance.trapID;
-            return Networking.NSEnemyNetworkEvent(NWID);
-        }
-
-        static LNetworkEvent NetworkEnemyTripTrapExit(SandSpiderWebTrap instance)
-        {
-            string NWID = "NSSpiderTripTrapExit" + instance.trapID;
-            return Networking.NSEnemyNetworkEvent(NWID);
-        }*/
 
         class EnemyInfo(EnemyAI enemy, float enterAgentSpeed, float enterAnimationSpeed)
         {

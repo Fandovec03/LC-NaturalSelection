@@ -1,13 +1,11 @@
-using System;
 using System.Collections.Generic;
-using System.Text;
 using HarmonyLib;
 using BepInEx.Logging;
 using UnityEngine;
 using System.Reflection.Emit;
-using NaturalSelection.EnemyPatches;
 using ReXuvination.src.Patches;
 using SandSpiderWebTrapPatch = NaturalSelection.EnemyPatches.SandSpiderWebTrapPatch;
+using System.Linq;
 
 namespace NaturalSelection.Compatibility
 {
@@ -39,23 +37,18 @@ namespace NaturalSelection.Compatibility
             }
         }
 
-        [HarmonyPatch(typeof(QuickMenuManagerPatch) ,"QuickMenuManagerStartPatch")]
         [HarmonyTranspiler]
-        static IEnumerable<CodeInstruction> QuickMenuManagerStartPatch(IEnumerable<CodeInstruction> instructions)
+        [HarmonyPatch(typeof(QuickMenuManagerPatch) ,"QuickMenuManagerStartPatch")]
+        public static IEnumerable<CodeInstruction> QuickMenuManagerStartPatch(IEnumerable<CodeInstruction> instructions)
         {
-
-            foreach (var instruction in instructions)
-            {
-                Script.Logger.LogInfo(instruction.ToString());
-            }
 
             CodeMatcher matcher = new CodeMatcher(instructions);
 
             matcher.MatchForward(true,
                 new CodeMatch(OpCodes.Stloc_2),
-                new CodeMatch(OpCodes.Stloc_0,
+                new CodeMatch(OpCodes.Ldloc_0),
                 new CodeMatch(OpCodes.Stloc_3)
-                ))
+                )
                 .ThrowIfInvalid("Failed to get a match.")
                 .Advance(1)
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_2))

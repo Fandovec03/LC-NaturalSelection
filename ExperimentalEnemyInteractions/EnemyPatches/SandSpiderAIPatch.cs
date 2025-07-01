@@ -443,7 +443,7 @@ namespace NaturalSelection.EnemyPatches
                         mainscript2.HitEnemy(1, null, playHitSFX: true);
                     }
 
-                    if (debugSpider && debugTriggerFlag) Script.Logger.Log(LogLevel.Message,$"{LibraryCalls.DebugStringHead(__instance)} hit {LibraryCalls.DebugStringHead(mainscript2)}");
+                    Script.Logger.Log(LogLevel.Message,$"{LibraryCalls.DebugStringHead(__instance)} hit {LibraryCalls.DebugStringHead(mainscript2)}");
                 }
             }
         }

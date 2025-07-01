@@ -1,5 +1,10 @@
 # _Natural selection_
 
+# 0.4.6
+- Redone ReXuvination patch for enemy colliders
+	- Modified enemy collider optimization with transpiller. Enemies will always collide with eachother.
+- Modified debug logs
+
 # 0.4.5
 - Optimized and Delobotomized Earth Leviathan
 

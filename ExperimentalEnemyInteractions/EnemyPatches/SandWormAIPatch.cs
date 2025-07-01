@@ -229,10 +229,6 @@ namespace NaturalSelection.EnemyPatches
                         {
                             __instance.creatureSFX.Stop();
                             if (debugSandworm) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} stopping Sounds");
-                            if (debugSandworm) Script.Logger.Log(LogLevel.Debug, $"{LibraryCalls.DebugStringHead(__instance)} networkMovingTowardsPlayer {networkMovingTowardsPlayer}");
-                            if (debugSandworm) Script.Logger.Log(LogLevel.Debug, $"{LibraryCalls.DebugStringHead(__instance)} targetingEntity {targetingEntity}");
-                            if (debugSandworm) Script.Logger.Log(LogLevel.Debug, $"{LibraryCalls.DebugStringHead(__instance)} __instance.movingTowardsTargetPlayer {__instance.movingTowardsTargetPlayer}");
-                            if (debugSandworm) Script.Logger.Log(LogLevel.Debug, $"{LibraryCalls.DebugStringHead(__instance)} __instance.currentBehaviourStateIndex {__instance.currentBehaviourStateIndex}");
                         }
                     }
                 }
@@ -279,6 +275,7 @@ namespace NaturalSelection.EnemyPatches
                                 SandwormData.NetworkSandwormBehaviorState = 0;
                                 //__instance.SwitchToBehaviourState(0);
                                 SandwormData.targetEnemy = null;
+                                __instance.chaseTimer = 0f;
                                 SandwormData.MovingTowardsTargetEntity = false;
                             }
                         }

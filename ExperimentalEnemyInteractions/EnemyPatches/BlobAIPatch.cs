@@ -65,7 +65,6 @@ namespace NaturalSelection.EnemyPatches
             void EventReceived()
             {
 				blobData.playSound = true;
-                //Script.Logger.LogMessage("Received event. Changed value to " + blobData.playSound + ", eventLimiter: " + eventLimiter);
             }
 
 			Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
@@ -190,7 +189,7 @@ namespace NaturalSelection.EnemyPatches
 					if (__instance.IsOwner && mainscript2.thisNetworkObject.IsSpawned)
 					{
 						BlobEatCorpseEvent(__instance).InvokeClients();
-						Script.Logger.Log(BepInEx.Logging.LogLevel.Message, "Send event");
+						Script.Logger.Log(LogLevel.Message, $"{LibraryCalls.DebugStringHead(__instance)} consumed dead body of {mainscript2.enemyType.enemyName}");
 						mainscript2.thisNetworkObject.Despawn(true);
 					}
 					return;
@@ -256,7 +255,7 @@ namespace NaturalSelection.EnemyPatches
             if (__instance.IsOwner && nwObj.IsSpawned)
             {
                 BlobEatCorpseEvent(__instance).InvokeClients();
-                Script.Logger.Log(BepInEx.Logging.LogLevel.Message, "Send event 2");
+                Script.Logger.Log(LogLevel.Message, $"{LibraryCalls.DebugStringHead(__instance)} consumed dead body {corpse.name}");
                 nwObj.Despawn(true);
             }
         }

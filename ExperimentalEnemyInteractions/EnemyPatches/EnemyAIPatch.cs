@@ -79,6 +79,8 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         public static void HitEnemyPatch(EnemyAI __instance, int force, PlayerControllerB playerWhoHit, bool playHitSFX, int hitID)
         {
+            NetworkingRPC.Instance.NetworkBehaviorServerRpc();
+
             string playerString = "unknown";
             if (playerWhoHit != null)
             {

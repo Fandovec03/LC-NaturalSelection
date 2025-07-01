@@ -4,10 +4,13 @@ using System.Text;
 using LethalNetworkAPI;
 using HarmonyLib;
 using BepInEx.Logging;
+using UnityEngine.Networking;
+using Unity.Netcode;
+using LogLevel = BepInEx.Logging.LogLevel;
 
 namespace NaturalSelection.Generics
 {
-    public class Networking
+    public class Networking : NetworkBehaviour
     {
         public static Dictionary<string, Type> NetworkingDictionary = new Dictionary<string, Type>();
         static bool logNetworking = Script.Bools["debugNetworking"];
@@ -21,6 +24,9 @@ namespace NaturalSelection.Generics
         {
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
+
+
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         public static LNetworkVariable<T> NSEnemyNetworkVariable<T>(string NWID)
         {
@@ -39,27 +45,26 @@ namespace NaturalSelection.Generics
             foreach (KeyValuePair<string, Type> pair in NetworkingDictionary)
             {
 
-                if(pair.Value == typeof(LNetworkEvent))
+                if (pair.Value == typeof(LNetworkEvent))
                 {
-                    if (logNetworking) Script.Logger.Log(LogLevel.Debug,$"Clearing subscriptions of event {pair.Key}");
+                    if (logNetworking) Script.Logger.Log(LogLevel.Debug, $"Clearing subscriptions of event {pair.Key}");
                     LNetworkEvent.Connect(pair.Key).ClearSubscriptions(); continue;
                 }
                 else
                 {
-                    if (logNetworking) Script.Logger.Log(LogLevel.Debug,$"Disposing of network {pair.Value} {pair.Key}");
+                    if (logNetworking) Script.Logger.Log(LogLevel.Debug, $"Disposing of network {pair.Value} {pair.Key}");
 
-                    if (pair.Value == typeof(int)) {LNetworkVariable<int>.Connect(pair.Key).Dispose(); continue;}
-                    if (pair.Value == typeof(float)) {LNetworkVariable<float>.Connect(pair.Key).Dispose(); continue;}
-                    if (pair.Value == typeof(bool)) {LNetworkVariable<bool>.Connect(pair.Key).Dispose(); continue;}
+                    if (pair.Value == typeof(int)) { LNetworkVariable<int>.Connect(pair.Key).Dispose(); continue; }
+                    if (pair.Value == typeof(float)) { LNetworkVariable<float>.Connect(pair.Key).Dispose(); continue; }
+                    if (pair.Value == typeof(bool)) { LNetworkVariable<bool>.Connect(pair.Key).Dispose(); continue; }
 
-                    Script.Logger.Log(LogLevel.Warning,$"Unsupported type {pair.Value}");
+                    Script.Logger.Log(LogLevel.Warning, $"Unsupported type {pair.Value}");
                 }
             }
-            Script.Logger.Log(LogLevel.Info,"/Networking/ Finished clearing dictionary.");
+            Script.Logger.Log(LogLevel.Info, "/Networking/ Finished clearing dictionary.");
             NetworkingDictionary.Clear();
         }
     }
-
     class NetworkingMethods
     {
         [HarmonyPatch(typeof(GameNetworkManager), "ResetGameValuesToDefault")]

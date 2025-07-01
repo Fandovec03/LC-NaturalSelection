@@ -69,6 +69,21 @@ public class Script : BaseUnityPlugin
 
     private void Awake()
     {
+        var types = Assembly.GetExecutingAssembly().GetTypes();
+        foreach (var type in types)
+        {
+            var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+            foreach (var method in methods)
+            {
+                var attributes = method.GetCustomAttributes(typeof(RuntimeInitializeOnLoadMethodAttribute), false);
+                if (attributes.Length > 0)
+                {
+                    method.Invoke(null, null);
+                }
+            }
+        }
+
+
         Logger = base.Logger;
         Instance = this;
 
@@ -224,7 +239,8 @@ public class Script : BaseUnityPlugin
         {
             if (BoundingConfig.enableNutcracker.Value) Harmony.PatchAll(typeof(NutcrackerAIPatch));
             if (BoundingConfig.enableSporeLizard.Value) Harmony.PatchAll(typeof(PufferAIPatch));
-        }
+                Harmony.PatchAll(typeof(NetworkingPatchesTest));
+            }
         else
         {
         Logger.LogWarning("Limited access. Some patches cannot be enabled in stable branch.");

@@ -79,4 +79,23 @@ namespace NaturalSelection.Generics
             }
         }
     }
+
+    [HarmonyPatch]
+    class NetworkingPatchesTest
+    {
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.Awake))]
+        public static void StartOfRoundAwakePatch()
+        {
+            NetworkingRPC.CreateNetworkObject();
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(GameNetworkManager), nameof(GameNetworkManager.Start))]
+        public static void GameNetworkManagerStartPatch()
+        {
+            NetworkingRPC.Init();
+        }
+    }
+
 }

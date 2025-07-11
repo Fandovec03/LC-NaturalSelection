@@ -8,7 +8,7 @@ namespace NaturalSelection.Generics;
     {
     //experimental fixes
     public readonly ConfigEntry<bool> sandwormCollisionOverride;
-    public readonly ConfigEntry<bool> blobAICantOpenDoors;
+    public readonly ConfigEntry<float> blobAIOpeningDoorsMultiplier;
     //settings
     public readonly ConfigEntry<bool> stableMode;
     public readonly ConfigEntry<bool> IgnoreImmortalEnemies;
@@ -64,6 +64,7 @@ namespace NaturalSelection.Generics;
     public ConfigEntry<bool> debugUnspecified;
     public ConfigEntry<bool> debugLibrary;
     public ConfigEntry<bool> debugSpiderWebs;
+
     public Dictionary<string,ConfigEntry<bool>> debugEntries = new Dictionary<string, ConfigEntry<bool>>();
     public Dictionary<string, ConfigEntry<bool>> CompatibilityEntries = new Dictionary<string, ConfigEntry<bool>>();
     //Compatibility overrides
@@ -78,7 +79,6 @@ namespace NaturalSelection.Generics;
         {
             //experimental fixes
             sandwormCollisionOverride = cfg.Bind("Experimental Fixes", "Sandworm collision override", false, "Override vanilla sandworm collisions. May fix lag when sandworm collides with multiple enemies at once. \n \n May be removed in the future.");
-            blobAICantOpenDoors = cfg.Bind("Experimental Fixes", "Blob cannot open doors", true, "Blob can't open doors.");
 
             //general settings
             stableMode = cfg.Bind("General Settings", "Toggle stable mode", true, "When true, the mod will exlude patches that are WIP or are experimental from loading. Requires restart.");
@@ -106,6 +106,7 @@ namespace NaturalSelection.Generics;
             blobConsumesCorpses = cfg.Bind("Entity settings | Hygrodere", "Consume corpses", true, "Hygrodere consume dead enemy corpses.");
             blobPathfindToCorpses = cfg.Bind("Entity settings | Hygrodere", "Pathfind to corpses", true, "Hygrodere move towards corpses to consume.");
             blobPathfind = cfg.Bind("Entity settings | Hygrodere", "Pathfind", true, "Pathfind to other entities.");
+            blobAIOpeningDoorsMultiplier = cfg.Bind("Entity settings | Hygrodere", "Open door multiplier", 0.7f, "Open door speed multiplier. Default value is vanilla.");
             //Sandworm
             sandwormDoNotEatPlayersInsideLeavingShip = cfg.Bind("Entity settings | Sandworm", "Do not eat players inside leaving ship", false, "Worms do not eat players inside ship leaving moon.");
             //Spider/Spider Web

@@ -54,10 +54,8 @@ namespace NaturalSelection.EnemyPatches
                 Script.Logger.Log(BepInEx.Logging.LogLevel.Info, $"Creating data container for {LibraryCalls.DebugStringHead(__instance)}");
                 slimeList.Add(__instance, new BlobData());
 			}
-			if (Script.BoundingConfig.blobAICantOpenDoors.Value)
-			{
-				__instance.openDoorSpeedMultiplier = 0f;
-			}
+			__instance.enemyType.doorSpeedMultiplier = Script.BoundingConfig.blobAIOpeningDoorsMultiplier.Value;
+
             BlobData blobData = slimeList[__instance];
 
             BlobEatCorpseEvent(__instance).OnClientReceived += EventReceived;

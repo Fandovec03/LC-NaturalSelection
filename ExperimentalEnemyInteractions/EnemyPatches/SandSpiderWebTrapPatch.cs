@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches
 {
-    class SpiderWebValues()
+    class SpiderWebValues() : EnemyDataBase
     {
         internal EnemyAI? trappedEnemy = null;
         internal EnemyAI? enemyReference = null;
@@ -45,7 +45,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (entryKey == "debugBool") debugLogs = value;
             if (entryKey == "debugSpiderWebs") debugWebs = value;
-            //Script.Logger.Log(LogLevel.Message,$"Bunker Spider web received event. debugBool = {debugLogs}, debugSpiderWebs = {debugWebs}");
+            //Script.LogNS(LogLevel.Message,$"Bunker Spider web received event. debugBool = {debugLogs}, debugSpiderWebs = {debugWebs}");
         }
 
         [HarmonyPatch("Awake")]
@@ -54,7 +54,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (!spiderWebs.ContainsKey(__instance))
             {
-                Script.Logger.Log(LogLevel.Info, $"Creating data container for web {__instance.trapID}");
+                Script.LogNS(LogLevel.Info, $"Creating data container for web {__instance.trapID}");
                 spiderWebs.Add(__instance, new SpiderWebValues());
             }
 
@@ -92,10 +92,10 @@ namespace NaturalSelection.EnemyPatches
                 {
                     enemyData[trippedEnemy].NumberOfTraps.Add(__instance);
                     SandSpiderAIPatch.AlertSpider(__instance.mainScript, __instance);
-                    if (debugLogs) Script.Logger.Log(LogLevel.Info,$"Added instance to NumberOfWebTraps {enemyData[trippedEnemy].NumberOfTraps.Count}");
+                    if (debugLogs) Script.LogNS(LogLevel.Info,$"Added instance to NumberOfWebTraps {enemyData[trippedEnemy].NumberOfTraps.Count}", __instance);
                 }
 
-                if (debugWebs) Script.Logger.Log(LogLevel.Debug,$"{__instance} Collided with {trippedEnemy}");
+                if (debugWebs) Script.LogNS(LogLevel.Debug,$"Collided with {trippedEnemy}", __instance);
 
                 float test = (enemyData[trippedEnemy].EnterAgentSpeed / ((1 + enemyData[trippedEnemy].NumberOfTraps.Count) * webStrenght)) * SpeedModifier;
 
@@ -103,7 +103,7 @@ namespace NaturalSelection.EnemyPatches
 
                 if (trippedEnemy.agent.velocity.magnitude / trippedEnemy.agent.speed > 1)
                 {
-                    if (debugLogs) Script.Logger.LogInfo($"Agent velocity: {trippedEnemy.agent.velocity.magnitude}, Agent speed: {trippedEnemy.agent.speed} || {trippedEnemy.agent.velocity.magnitude / test}");
+                    if (debugLogs) Script.LogNS(LogLevel.Info,$"Agent velocity: {trippedEnemy.agent.velocity.magnitude}, Agent speed: {trippedEnemy.agent.speed} || {trippedEnemy.agent.velocity.magnitude / test}", __instance);
                     trippedEnemy.agent.velocity /= trippedEnemy.agent.velocity.magnitude / test;
                 }
 
@@ -113,9 +113,9 @@ namespace NaturalSelection.EnemyPatches
                 {
                     if (debugCD <= 0)
                     {
-                        Script.Logger.Log(LogLevel.Debug,$"{__instance} Slowed down movement of {trippedEnemy} from {enemyData[trippedEnemy].EnterAgentSpeed} to {trippedEnemy.agent.speed} with Speed modifier {SpeedModifier}");
+                        Script.LogNS(LogLevel.Debug,$"Slowed down movement of {trippedEnemy} from {enemyData[trippedEnemy].EnterAgentSpeed} to {trippedEnemy.agent.speed} with Speed modifier {SpeedModifier}", __instance);
 
-                        if (trippedEnemy.creatureAnimator != null) Script.Logger.Log(LogLevel.Debug,$"{__instance} Slowed down animation of {trippedEnemy} from {enemyData[trippedEnemy].EnterAnimationSpeed} to {trippedEnemy.creatureAnimator.speed} with Speed modifier {SpeedModifier}");
+                        if (trippedEnemy.creatureAnimator != null) Script.LogNS(LogLevel.Debug,$"Slowed down animation of {trippedEnemy} from {enemyData[trippedEnemy].EnterAnimationSpeed} to {trippedEnemy.creatureAnimator.speed} with Speed modifier {SpeedModifier}", __instance);
                         debugCD = 0.2f;
                     }
                     else
@@ -183,7 +183,7 @@ namespace NaturalSelection.EnemyPatches
 
             if (webData.enemyReference != null && webData.enemyReference != webData.trappedEnemy && enemyData.ContainsKey(webData.enemyReference) && enemyData[webData.enemyReference].NumberOfTraps.Count <= 0)
             {
-                if(debugLogs) Script.Logger.Log(LogLevel.Info,$"Removing {webData.enemyReference} from NumberOfWebTraps {enemyData[webData.enemyReference].NumberOfTraps.Count}");
+                if(debugLogs) Script.LogNS(LogLevel.Info,$"Removing {webData.enemyReference} from NumberOfWebTraps {enemyData[webData.enemyReference].NumberOfTraps.Count}", __instance);
                 enemyData.Remove(webData.enemyReference);
                 webData.enemyReference = null;
                 webData.enemyReferenceTimer = 0;
@@ -205,9 +205,9 @@ namespace NaturalSelection.EnemyPatches
                 if (enemyData[trippedEnemy].NumberOfTraps.Contains(__instance))
                 {
                     enemyData[trippedEnemy].NumberOfTraps.Remove(__instance);
-                    if (debugLogs) Script.Logger.Log(LogLevel.Info,$"Removed instance to NumberOfWebTraps {enemyData[trippedEnemy].NumberOfTraps.Count}");
+                    if (debugLogs) Script.LogNS(LogLevel.Info,$"Removed instance to NumberOfWebTraps {enemyData[trippedEnemy].NumberOfTraps.Count}", __instance);
                 }
-                if (debugLogs && debugWebs) Script.Logger.Log(LogLevel.Info,$"Removing {trippedEnemy}");
+                if (debugLogs && debugWebs) Script.LogNS(LogLevel.Info,$"Removing {trippedEnemy}", __instance);
                 //trippedEnemy.agent.speed = enemyData[trippedEnemy].EnterAgentSpeed;
 
                 if (trippedEnemy.creatureAnimator != null) trippedEnemy.creatureAnimator.speed = enemyData[trippedEnemy].EnterAnimationSpeed;
@@ -227,7 +227,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (!spiderWebs.ContainsKey(__instance))
             {
-                Script.Logger.Log(LogLevel.Fatal, $"Critical failule. Failed to get data for trap {__instance.trapID}. Attempting to fix...");
+                Script.LogNS(LogLevel.Error, $"Failed to get data for trap {__instance.trapID}. Attempting to fix...", __instance);
                 spiderWebs.Add(__instance, new SpiderWebValues());
             }
         }

@@ -10,11 +10,9 @@ using LogLevel = BepInEx.Logging.LogLevel;
 
 namespace NaturalSelection.EnemyPatches
 {
-    class ExtendedSandWormAIData()
+    class ExtendedSandWormAIData : EnemyDataBase
     {
         internal float refreshCDtime = 0.5f;
-        internal EnemyAI? closestEnemy = null;
-        internal EnemyAI? targetEnemy = null;
         //public int targetingEntity = 0;
         internal float clearEnemiesTimer = 0f;
         internal bool movingTowardsTargetPlayer = false;
@@ -51,25 +49,21 @@ namespace NaturalSelection.EnemyPatches
 
         ////////////////////////////////////////////
 
-        static Dictionary<SandWormAI, ExtendedSandWormAIData> sandworms = [];
+        //static Dictionary<SandWormAI, ExtendedSandWormAIData> sandworms = [];
 
         static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
             if (entryKey == "debugSandworms") debugSandworm = value;
             if (entryKey == "spammyLogs") debugSpam = value;
             if (entryKey == "debugTriggerFlags") triggerFlag = value;
-            //Script.Logger.Log(LogLevel.Message,$"Earth Leviathan received event. debugSandworm = {debugSandworm}, debugSpam = {debugSpam}");
+            //Script.LogNS(LogLevel.Message,$"Earth Leviathan received event. debugSandworm = {debugSandworm}, debugSpam = {debugSpam}");
         }
 
         [HarmonyPatch("Start")]
         [HarmonyPrefix]
         static void SandWormStartPatch(SandWormAI __instance)
         {
-            if (!sandworms.ContainsKey(__instance))
-            {
-                Script.Logger.Log(LogLevel.Info, $"Creating data container for {LibraryCalls.DebugStringHead(__instance)}");
-                sandworms.Add(__instance, new ExtendedSandWormAIData());
-            }
+            ExtendedSandWormAIData data = EnemyAIPatch.GetEnemyData(__instance, new ExtendedSandWormAIData());
 
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
 
@@ -79,17 +73,17 @@ namespace NaturalSelection.EnemyPatches
 
             void ChangeMovingTowardsPlayer(bool oldValue, bool newValue)
             {
-                if (oldValue != newValue) sandworms[__instance].movingTowardsTargetPlayer = newValue;
+                if (oldValue != newValue) data.movingTowardsTargetPlayer = newValue;
             }
 
             void ChangeMovingTowardsEntity(bool oldValue, bool newValue)
             {
-                if (oldValue != newValue) sandworms[__instance].MovingTowardsTargetEntity = newValue;
+                if (oldValue != newValue) data.MovingTowardsTargetEntity = newValue;
             }
 
             void ChangeNetworkBehaviorState(int oldValue, int newValue)
             {
-                if (oldValue != newValue) sandworms[__instance].NetworkSandwormBehaviorState = newValue;
+                if (oldValue != newValue) data.NetworkSandwormBehaviorState = newValue;
             }
         }
 
@@ -98,8 +92,7 @@ namespace NaturalSelection.EnemyPatches
         static bool SandWormPrefixUpdatePatch(SandWormAI __instance)
         {
             if (__instance.isEnemyDead) return true;
-            CheckDataIntegrityWorm(__instance);
-            ExtendedSandWormAIData SandwormData = sandworms[__instance];
+            ExtendedSandWormAIData SandwormData = EnemyAIPatch.GetEnemyData(__instance, new ExtendedSandWormAIData());
             Type type = __instance.GetType();
 
             if (__instance.IsOwner)
@@ -178,22 +171,22 @@ namespace NaturalSelection.EnemyPatches
                             }
                             else
                             {
-                                if (debugSandworm && debugSpam) Script.Logger.Log(LogLevel.Debug,LibraryCalls.DebugStringHead(__instance) + " calling DoAIInterval");
+                                Script.LogNS(LogLevel.Debug," calling DoAIInterval", __instance ,debugSandworm && debugSpam);
                                 __instance.DoAIInterval();
                                 __instance.updateDestinationInterval = __instance.AIIntervalTime + UnityEngine.Random.Range(-0.015f, 0.015f);
                             }
                         }
 
-                        //Script.Logger.Log(LogLevel.Message,$"{LibraryCalls.DebugStringHead(__instance)} Invoking originalUpdate");
+                        //Script.LogNS(LogLevel.Message,$"Invoking originalUpdate");
                         try
                         {
                             ReversePatchAI.originalUpdate.Invoke(__instance);
-                            //Script.Logger.Log(LogLevel.Message,"Succesfully invoked originalUpdate");
+                            //Script.LogNS(LogLevel.Message,"Succesfully invoked originalUpdate");
                         }
                         catch (Exception e)
                         {
-                            Script.Logger.Log(LogLevel.Error,"failed invoking originalUpdate.");
-                            Script.Logger.Log(LogLevel.Error,e);
+                            Script.LogNS(LogLevel.Error,"failed invoking originalUpdate.", __instance);
+                            Script.LogNS(LogLevel.Error,e.ToString());
                         }
 
                         return false;
@@ -202,7 +195,7 @@ namespace NaturalSelection.EnemyPatches
                 }
             }
             
-            if (debugSandworm && triggerFlag) Script.Logger.Log(LogLevel.Debug,LibraryCalls.DebugStringHead(__instance) + " Prefix/2/ targetEnemy: " + SandwormData.targetEnemy + ", target: " + SandwormData.targetEnemy);
+            Script.LogNS(LogLevel.Debug,"Prefix/2/ targetEnemy: " + SandwormData.targetEnemy + ", target: " + SandwormData.targetEnemy, __instance,debugSandworm && triggerFlag);
             return true;
         }
         [HarmonyPatch("Update")]
@@ -210,14 +203,13 @@ namespace NaturalSelection.EnemyPatches
         static void SandWormPostfixUpdatePatch(SandWormAI __instance)
         {
             if (__instance.isEnemyDead) return;
-            CheckDataIntegrityWorm(__instance);
-            ExtendedSandWormAIData SandwormData = sandworms[__instance];
+            ExtendedSandWormAIData SandwormData = EnemyAIPatch.GetEnemyData(__instance, new ExtendedSandWormAIData());
             int targetingEntity = SandwormData.NetworkSandwormBehaviorState;
             bool networkMovingTowardsPlayer = SandwormData.movingTowardsTargetPlayer;
 
             if (Script.BoundingConfig.enableLeviathan.Value != true) return;
 
-            if (debugSandworm && debugSpam) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} Postfix targetingEntity: {targetingEntity}");
+            Script.LogNS(LogLevel.Debug,$"Postfix targetingEntity: {targetingEntity}", __instance,debugSandworm && debugSpam);
             
             switch(targetingEntity)
             {
@@ -228,14 +220,14 @@ namespace NaturalSelection.EnemyPatches
                         if (__instance.creatureSFX.isPlaying)
                         {
                             __instance.creatureSFX.Stop();
-                            if (debugSandworm) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} stopping Sounds");
+                            Script.LogNS(LogLevel.Debug,$"stopping Sounds", __instance,debugSandworm);
                         }
                     }
                 }
                     break;
                 case 1:
                     {
-                        if (debugSandworm && SandwormData.closestEnemy != null && __instance.IsOwner) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} closestEnemy is {LibraryCalls.DebugStringHead(SandwormData.closestEnemy)}, isEnemyDead: {SandwormData.closestEnemy.isEnemyDead} /3/");
+                        if (debugSandworm && SandwormData.closestEnemy != null && __instance.IsOwner) Script.LogNS(LogLevel.Info,$"closestEnemy is {LibraryCalls.DebugStringHead(SandwormData.closestEnemy)}, isEnemyDead: {SandwormData.closestEnemy.isEnemyDead} /3/", __instance);
                         if (networkMovingTowardsPlayer) break;
                         if (!networkMovingTowardsPlayer)
                         {
@@ -244,7 +236,7 @@ namespace NaturalSelection.EnemyPatches
                                 int num = UnityEngine.Random.Range(0, __instance.ambientRumbleSFX.Length);
                                 __instance.creatureSFX.clip = __instance.ambientRumbleSFX[num];
                                 __instance.creatureSFX.Play();
-                                if (debugSandworm) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} Started playing sounds");
+                                Script.LogNS(LogLevel.Debug,$"Started playing sounds", __instance,debugSandworm,debugSandworm);
 
                             }
                             if (!__instance.IsOwner)    
@@ -253,7 +245,7 @@ namespace NaturalSelection.EnemyPatches
                             }
                             if (SandwormData.targetEnemy == null)
                             {
-                                if (debugSandworm) Script.Logger.Log(LogLevel.Error,$"{LibraryCalls.DebugStringHead(__instance)} TargetEnemy is null! TargetingEntity set to false /Trigger 1/");
+                                Script.LogNS(LogLevel.Error,$"TargetEnemy is null! TargetingEntity set to false /Trigger 1/", __instance,debugSandworm);
                                 //SandwormData.MovingTowardsTargetEntity = false;
                                 SandwormData.NetworkSandwormBehaviorState = 0;
                                 //__instance.SwitchToBehaviourState(0);
@@ -262,16 +254,16 @@ namespace NaturalSelection.EnemyPatches
                             if (Vector3.Distance(SandwormData.targetEnemy.transform.position, __instance.transform.position) > 22f)
                             {
                                 __instance.chaseTimer += Time.deltaTime;
-                                if (debugSandworm && debugSpam && triggerFlag) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} updated chaseTimer: {__instance.chaseTimer}");
+                                if (debugSandworm && debugSpam && triggerFlag) Script.LogNS(LogLevel.Debug,$"updated chaseTimer: {__instance.chaseTimer}", __instance);
                             }
                             else
                             {
                                 __instance.chaseTimer = 0f;
-                                if (debugSandworm && triggerFlag) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} Reset chasetimer");
+                                Script.LogNS(LogLevel.Debug,$"Reset chasetimer", __instance,debugSandworm && triggerFlag);
                             }
                             if (__instance.chaseTimer > 6f)
                             {
-                                if (debugSandworm) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} Chasing for too long. targetEnemy set to null");
+                                Script.LogNS(LogLevel.Info,$"Chasing for too long. targetEnemy set to null", __instance,debugSandworm);
                                 SandwormData.NetworkSandwormBehaviorState = 0;
                                 //__instance.SwitchToBehaviourState(0);
                                 SandwormData.targetEnemy = null;
@@ -288,11 +280,10 @@ namespace NaturalSelection.EnemyPatches
         static bool SandWormDoAIIntervalPrefix(SandWormAI __instance)
         {
             if (__instance.isEnemyDead) return true;
-            CheckDataIntegrityWorm(__instance);
-            ExtendedSandWormAIData SandwormData = sandworms[__instance];
+            ExtendedSandWormAIData SandwormData = EnemyAIPatch.GetEnemyData(__instance, new ExtendedSandWormAIData());
             Type type = __instance.GetType();
             int targetingEntity = SandwormData.NetworkSandwormBehaviorState;
-            if (debugSandworm && debugSpam && triggerFlag) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: checking chaseTimer: {__instance.chaseTimer}");
+            Script.LogNS(LogLevel.Debug,$"DoAIInterval: checking chaseTimer: {__instance.chaseTimer}", __instance,debugSandworm && debugSpam && triggerFlag);
 
 
             
@@ -306,17 +297,17 @@ namespace NaturalSelection.EnemyPatches
                             LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
                             SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, SandwormData.closestEnemy, __instance);
                             __instance.agent.speed = 4f;
-                            if (debugSandworm) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: assigned {SandwormData.closestEnemy} as closestEnemy");
+                            Script.LogNS(LogLevel.Info,$"DoAIInterval: assigned {SandwormData.closestEnemy} as closestEnemy",debugSandworm);
                             if (SandwormData.closestEnemy != null && Vector3.Distance(__instance.transform.position, SandwormData.closestEnemy.transform.position) < 15f)
                             {
-                                if (debugSandworm && triggerFlag) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} closestEnemy is {LibraryCalls.DebugStringHead(SandwormData.closestEnemy)}, isEnemyDead: {SandwormData.closestEnemy.isEnemyDead} /1/");
+                                Script.LogNS(LogLevel.Info,$"closestEnemy is {LibraryCalls.DebugStringHead(SandwormData.closestEnemy)}, isEnemyDead: {SandwormData.closestEnemy.isEnemyDead} /1/", __instance,debugSandworm && triggerFlag);
                                 __instance.SetDestinationToPosition(SandwormData.closestEnemy.transform.position);
                                 SandwormData.NetworkSandwormBehaviorState = 1;
                                 //__instance.SwitchToBehaviourState(1);
                                 SandwormData.targetEnemy = SandwormData.closestEnemy;
                                 SandwormData.MovingTowardsTargetEntity = true;
                                 __instance.chaseTimer = 0;
-                                if (debugSandworm) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: Set targetingEntity to {targetingEntity} and reset chaseTimer: {__instance.chaseTimer}");
+                                Script.LogNS(LogLevel.Info,$"DoAIInterval: Set targetingEntity to {targetingEntity} and reset chaseTimer: {__instance.chaseTimer}", __instance,debugSandworm);
                                 break;
                             }
                         }
@@ -324,11 +315,11 @@ namespace NaturalSelection.EnemyPatches
                     break;
                 case 1:
                     {
-                        if (debugSandworm && SandwormData.closestEnemy != null && triggerFlag) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} closestEnemy is {LibraryCalls.DebugStringHead(SandwormData.closestEnemy)}, isEnemyDead: {SandwormData.closestEnemy.isEnemyDead} /2/");
+                        if (SandwormData.closestEnemy != null) Script.LogNS(LogLevel.Info,$"closestEnemy is {LibraryCalls.DebugStringHead(SandwormData.closestEnemy)}, isEnemyDead: {SandwormData.closestEnemy.isEnemyDead} /2/", __instance,debugSandworm && triggerFlag);
                         if (SandwormData.movingTowardsTargetPlayer) break;
                         if (SandwormData.targetEnemy == null || SandwormData.targetEnemy.isEnemyDead)
                         {
-                            if (debugSandworm) Script.Logger.Log(LogLevel.Error,$"{LibraryCalls.DebugStringHead(__instance)}: targetEnemy is at null or dead. Setting targetingEntity to false /Trigger 2/");
+                            Script.LogNS(LogLevel.Error,$": targetEnemy is at null or dead. Setting targetingEntity to false /Trigger 2/", __instance,debugSandworm);
                             SandwormData.targetEnemy = null;
                             SandwormData.MovingTowardsTargetEntity = false;
                             SandwormData.NetworkSandwormBehaviorState = 0;
@@ -336,24 +327,24 @@ namespace NaturalSelection.EnemyPatches
                             break;
                         }
                         SandwormData.targetEnemy = SandwormData.closestEnemy;
-                        if (debugSandworm) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: Set {SandwormData.targetEnemy} as targetEnemy");
+                        Script.LogNS(LogLevel.Info,$"DoAIInterval: Set {SandwormData.targetEnemy} as targetEnemy", __instance,debugSandworm);
                         if (SandwormData.targetEnemy != null)
                         {
                             if (Vector3.Distance(__instance.transform.position, SandwormData.targetEnemy.transform.position) > 19f)
                             {
                                 SandwormData.targetEnemy = null;
                                 SandwormData.MovingTowardsTargetEntity = false;
-                                if (debugSandworm) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: TargetEnemy too far! set to null");
+                                Script.LogNS(LogLevel.Info,$"DoAIInterval: TargetEnemy too far! set to null", __instance,debugSandworm);
                                 break;
                             }
                             if (!__instance.emerged && !__instance.inEmergingState)
                             {
                                 __instance.SetDestinationToPosition(SandwormData.targetEnemy.transform.position, checkForPath: true);
-                                if (debugSandworm && debugSpam) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: Set destitantion to {SandwormData.targetEnemy}");
+                                if (debugSandworm && debugSpam) Script.LogNS(LogLevel.Debug,$"DoAIInterval: Set destitantion to {SandwormData.targetEnemy}", __instance);
                             }
                             if (__instance.chaseTimer < 1.5f && Vector3.Distance(__instance.transform.position, SandwormData.targetEnemy.transform.position) < 4f && !(Vector3.Distance(StartOfRound.Instance.shipInnerRoomBounds.ClosestPoint(__instance.transform.position), __instance.transform.position) < 9f) && UnityEngine.Random.Range(0, 100) < 17)
                             {
-                                Script.Logger.Log(LogLevel.Message,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: Emerging!");
+                                Script.LogNS(LogLevel.Message,$"DoAIInterval: Emerging!", __instance);
                                 //SandwormData.MovingTowardsTargetEntity = false;
                                 SandwormData.NetworkSandwormBehaviorState = 0;
                                 //__instance.SwitchToBehaviourState(0);
@@ -398,7 +389,7 @@ namespace NaturalSelection.EnemyPatches
                 PlayerControllerB player = other.gameObject.GetComponent<PlayerControllerB>();
                 if (__instance.emerged && !player.isInHangarShipRoom && !StartOfRound.Instance.shipIsLeaving && Script.BoundingConfig.sandwormDoNotEatPlayersInsideLeavingShip.Value)
                 {
-                    Script.Logger.Log(LogLevel.Info,"Prevented sandworm from eating player inside ship");
+                    Script.LogNS(LogLevel.Info,"Prevented sandworm from eating player inside ship");
                     return false;
                 }
             }
@@ -421,15 +412,6 @@ namespace NaturalSelection.EnemyPatches
                 return false;
             }
             return true;
-        }
-
-        public static void CheckDataIntegrityWorm(SandWormAI __instance)
-        {
-            if (!sandworms.ContainsKey(__instance))
-            {
-                Script.Logger.Log(LogLevel.Fatal, $"Critical failule. Failed to get data for {LibraryCalls.DebugStringHead(__instance)}. Attempting to fix...");
-                sandworms.Add(__instance, new ExtendedSandWormAIData());
-            }
         }
     }
 }

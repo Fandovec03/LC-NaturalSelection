@@ -25,8 +25,8 @@ namespace NaturalSelection.Compatibility
                 foreach (Collider collider in colliders)
                 {
                     if (!collider.isTrigger) continue;
-                    Script.Logger.Log(LogLevel.Message,$"awake found  {collider.excludeLayers.value}");
-                    Script.Logger.Log(LogLevel.Message,$"awake expected {~(StartOfRound.Instance.playersMask ^ LayerMask.GetMask("Enemies"))}");
+                    Script.LogNS(LogLevel.Message,$"awake found  {collider.excludeLayers.value}");
+                    Script.LogNS(LogLevel.Message,$"awake expected {~(StartOfRound.Instance.playersMask ^ LayerMask.GetMask("Enemies"))}");
                     collider.excludeLayers = ~(StartOfRound.Instance.playersMask ^ LayerMask.GetMask("Enemies"));
                     patched++;
                 }
@@ -54,7 +54,7 @@ namespace NaturalSelection.Compatibility
                 .InsertAndAdvance(new CodeInstruction(OpCodes.Ldloc_2))
                 .Insert(new CodeInstruction(OpCodes.Stloc_1));
 
-            Script.Logger.LogMessage("Prevented Rexuvination from patching enemy colliders");
+            Script.LogNS(LogLevel.Message,"Patched ReXuvination");
 
             return matcher.Instructions();
         }

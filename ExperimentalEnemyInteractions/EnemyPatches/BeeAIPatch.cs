@@ -9,10 +9,8 @@ using BepInEx.Logging;
 
 namespace NaturalSelection.EnemyPatches
 {
-    class BeeValues()
+    class BeeValues : EnemyDataBase
     {
-        internal EnemyAI? closestEnemy = null;
-        internal EnemyAI? targetEnemy = null;
         internal Vector3 lastKnownEnemyPosition = Vector3.zero;
         internal int customBehaviorStateIndex = 0;
         internal Dictionary<EnemyAI, float> hitRegistry = new Dictionary<EnemyAI, float>();
@@ -23,7 +21,7 @@ namespace NaturalSelection.EnemyPatches
     [HarmonyPatch(typeof(RedLocustBees))]
     class BeeAIPatch
     {
-        static Dictionary<RedLocustBees, BeeValues> beeList = [];
+        //static Dictionary<RedLocustBees, BeeValues> beeList = [];
         static bool logBees = Script.Bools["debugRedBees"];
         static bool debugSpam = Script.Bools["spammyLogs"];
         static bool debugTriggers = Script.Bools["debugTriggerFlags"];
@@ -35,19 +33,14 @@ namespace NaturalSelection.EnemyPatches
             if (entryKey == "debugRedBees") logBees = value;
             if (entryKey == "spammyLogs") debugSpam = value;
             if (entryKey == "debugTriggerFlags") debugTriggers = value;
-            //Script.Logger.Log(LogLevel.Message,$"Curcuit received event. logBees = {logBees}, debugSpam = {debugSpam}, debugTriggers = {debugTriggers}");
+            //Script.LogNS(LogLevel.Message,$"Curcuit received event. logBees = {logBees}, debugSpam = {debugSpam}, debugTriggers = {debugTriggers}");
         }
 
         [HarmonyPatch("Start")]
         [HarmonyPostfix]
         static void StartPatch(RedLocustBees __instance)
         {
-            if (!beeList.ContainsKey(__instance))
-            {
-                Script.Logger.Log(LogLevel.Info, $"Creating data container for {LibraryCalls.DebugStringHead(__instance)}");
-                beeList.Add(__instance, new BeeValues());
-            }
-            BeeValues beeData = beeList[__instance];
+            BeeValues beeData = EnemyAIPatch.GetEnemyData(__instance, new BeeValues());
 
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
 
@@ -60,12 +53,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void UpdatePatch(RedLocustBees __instance)
         {
-            if (!beeList.ContainsKey(__instance))
-            {
-                Script.Logger.Log(LogLevel.Fatal, $"Critical failule. Failed to get data for {LibraryCalls.DebugStringHead(__instance)}. Attempting to fix...");
-                beeList.Add(__instance, new BeeValues());
-            }
-            BeeValues beeData = beeList[__instance];
+            BeeValues beeData = EnemyAIPatch.GetEnemyData(__instance, new BeeValues());
             if (RoundManagerPatch.RequestUpdate(__instance) == true)
             {
                 List<EnemyAI> tempList = LibraryCalls.GetCompleteList(__instance);
@@ -86,12 +74,11 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static bool DoAIIntervalPrefixPatch(RedLocustBees __instance)
         {
-            CheckDataIntegrityBees(__instance);
-            BeeValues beeData = beeList[__instance];
+            BeeValues beeData = (BeeValues)EnemyAIPatch.GetEnemyData(__instance, new BeeValues());
         
         if (beeData.targetEnemy != null && __instance.movingTowardsTargetPlayer == false && beeData.customBehaviorStateIndex != 0)
         {
-            if (logBees && debugSpam && debugTriggers) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: Prefix triggered false");
+            Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: Prefix triggered false", __instance,logBees && debugSpam && debugTriggers);
 
             if (__instance.moveTowardsDestination)
             {
@@ -100,7 +87,7 @@ namespace NaturalSelection.EnemyPatches
             __instance.SyncPositionToClients();
             return false;
         }
-        if (logBees && debugSpam && debugTriggers) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: Prefix triggered true");
+        Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: Prefix triggered true", __instance,logBees && debugSpam && debugTriggers);
         return true;
         }
         [HarmonyPatch("DoAIInterval")]
@@ -108,8 +95,7 @@ namespace NaturalSelection.EnemyPatches
         static void DoAIIntervalPostfixPatch(RedLocustBees __instance)
         {
             if (__instance.isEnemyDead) return;
-            CheckDataIntegrityBees(__instance);
-            BeeValues beeData = beeList[__instance];
+            BeeValues beeData = (BeeValues)EnemyAIPatch.GetEnemyData(__instance, new BeeValues());
             Type type = __instance.GetType();
 
             List <EnemyAI> tempList = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
@@ -124,7 +110,7 @@ namespace NaturalSelection.EnemyPatches
                     if (enemiesInLOS.Count > 0)
                     {
                         beeData.targetEnemy = enemiesInLOS.Keys.First();
-                        if (logBees) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} case0: Checked LOS for enemies. Enemy found: {LibraryCalls.DebugStringHead(beeData.targetEnemy)}");
+                        Script.LogNS(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} case0: Checked LOS for enemies. Enemy found: {LibraryCalls.DebugStringHead(beeData.targetEnemy)}", __instance, logBees);
                     }
 
                     if (__instance.wasInChase)
@@ -139,18 +125,18 @@ namespace NaturalSelection.EnemyPatches
                     {
                         __instance.SwitchToBehaviourState(2);
                         beeData.customBehaviorStateIndex = 2;
-                        if (logBees) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} case0: HIVE IS MISSING! CustomBehaviorStateIndex changed: {beeData.customBehaviorStateIndex}");
+                        Script.LogNS(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} case0: HIVE IS MISSING! CustomBehaviorStateIndex changed: {beeData.customBehaviorStateIndex}", __instance, logBees);
                         break;
                     }
                     if (beeData.targetEnemy != null && Vector3.Distance(beeData.targetEnemy.transform.position, __instance.hive.transform.position) < (float)__instance.defenseDistance /*&& Vector3.Distance(__instance.targetPlayer.transform.position, __instance.hive.transform.position) < Vector3.Distance(LOSenemy.transform.position, __instance.hive.transform.position)*/)
                     {
                         __instance.SetDestinationToPosition(beeData.targetEnemy.transform.position, true);
-                        if (logBees) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} case0: Moving towards {beeData.targetEnemy}");
+                        Script.LogNS(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} case0: Moving towards {beeData.targetEnemy}", __instance, logBees);
 
                         beeData.customBehaviorStateIndex = 1;
                         __instance.SwitchToBehaviourState(1);
                         beeData.LostLOSOfEnemy = 0f;
-                        if (logBees) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case0: CustomBehaviorStateIndex changed: {beeData.customBehaviorStateIndex}");
+                        Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case0: CustomBehaviorStateIndex changed: {beeData.customBehaviorStateIndex}", __instance, logBees);
                     }
                     break;
                 }
@@ -165,13 +151,13 @@ namespace NaturalSelection.EnemyPatches
                         {
                             beeData.customBehaviorStateIndex = 2;
                             __instance.SwitchToBehaviourState(2);
-                            if (logBees) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} case1: HIVE IS MISSING! CustomBehaviorStateIndex changed: {beeData.customBehaviorStateIndex}");
+                            Script.LogNS(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} case1: HIVE IS MISSING! CustomBehaviorStateIndex changed: {beeData.customBehaviorStateIndex}", __instance, logBees);
                         }
                         else
                         {
                             beeData.customBehaviorStateIndex = 0;
                             __instance.SwitchToBehaviourState(0);
-                            if (logBees) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case1: CustomBehaviorStateIndex changed: {beeData.customBehaviorStateIndex}");
+                            Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case1: CustomBehaviorStateIndex changed: {beeData.customBehaviorStateIndex}", __instance, logBees);
                         }
                         break;
                     }
@@ -189,7 +175,7 @@ namespace NaturalSelection.EnemyPatches
                 {
                     if (__instance.targetPlayer != null || __instance.movingTowardsTargetPlayer)
                     {
-                        if (logBees && debugSpam) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: target player found or moving towards target player");
+                        Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: target player found or moving towards target player", __instance,logBees && debugSpam);
                         return;
                     }
 
@@ -201,7 +187,7 @@ namespace NaturalSelection.EnemyPatches
                         }
                         __instance.lastKnownHivePosition = __instance.hive.transform.position + Vector3.up * 0.5f;
 
-                        if (logBees) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: IsHivePlacedAndInLOS triggered");
+                        Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: IsHivePlacedAndInLOS triggered", __instance, logBees);
                         EnemyAI? enemyAI2 = null;
                         Collider[] collisionArray = Physics.OverlapSphere(__instance.hive.transform.position, __instance.defenseDistance, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Collide);
 
@@ -214,7 +200,7 @@ namespace NaturalSelection.EnemyPatches
                                 if (enemy != null && enemy != __instance)
                                 {
                                     enemyAI2 = enemy;
-                                    if (logBees) Script.Logger.Log(LogLevel.Info, $"{LibraryCalls.DebugStringHead(__instance)} case2: CollisionArray triggered. Enemy found: {LibraryCalls.DebugStringHead(enemyAI2)}");
+                                    Script.LogNS(LogLevel.Info, $"{LibraryCalls.DebugStringHead(__instance)} case2: CollisionArray triggered. Enemy found: {LibraryCalls.DebugStringHead(enemyAI2)}", __instance ,logBees);
                                     break;
                                 }
                             }
@@ -222,19 +208,19 @@ namespace NaturalSelection.EnemyPatches
                         if (enemyAI2 != null && Vector3.Distance(enemyAI2.transform.position, __instance.hive.transform.position) < (float)__instance.defenseDistance)
                         {
                             __instance.SetDestinationToPosition(enemyAI2.transform.position, true);
-                            if (logBees) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} case2: Moving towards: {enemyAI2}");
+                            Script.LogNS(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} case2: Moving towards: {enemyAI2}", __instance,logBees);
                             beeData.customBehaviorStateIndex = 1;
                             __instance.SwitchToBehaviourState(1);
                             __instance.syncedLastKnownHivePosition = false;
                             __instance.SyncLastKnownHivePositionServerRpc(__instance.lastKnownHivePosition);
                             beeData.LostLOSOfEnemy = 0f;
-                            if (logBees) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: CustomBehaviorStateIndex changed: {beeData.customBehaviorStateIndex}");
+                            Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: CustomBehaviorStateIndex changed: {beeData.customBehaviorStateIndex}", __instance,logBees);
                         }
                         else
                         {
                             beeData.customBehaviorStateIndex = 0;
                             __instance.SwitchToBehaviourState(0);
-                            if (logBees) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: CustomBehaviorStateIndex changed: {beeData.customBehaviorStateIndex}");
+                            Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: CustomBehaviorStateIndex changed: {beeData.customBehaviorStateIndex}", __instance,logBees);
                         }
                         break;
                     }
@@ -242,7 +228,7 @@ namespace NaturalSelection.EnemyPatches
                     bool flag = false;
                     EnemyAI? priorityTarget = ChaseEnemyWithPriorities(ref enemiesInLOS, __instance);
 
-                    if (logBees) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: {priorityTarget} is closest to hive.");
+                    Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: {priorityTarget} is closest to hive.", __instance,logBees);
 
                     if (priorityTarget != null && beeData.targetEnemy != priorityTarget)
                     {
@@ -254,7 +240,7 @@ namespace NaturalSelection.EnemyPatches
                         __instance.syncedLastKnownHivePosition = false;
                         beeData.LostLOSOfEnemy = 0f;
                         __instance.SyncLastKnownHivePositionServerRpc(__instance.lastKnownHivePosition);
-                        if (logBees) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} case2: Targeting {priorityTarget}. Synced hive position");
+                        Script.LogNS(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} case2: Targeting {priorityTarget}. Synced hive position", __instance,logBees);
                         break;
                     }
                     if (beeData.targetEnemy != null)
@@ -262,13 +248,13 @@ namespace NaturalSelection.EnemyPatches
                         __instance.agent.acceleration = 16f;
                         if (!flag && enemiesInLOS.Count == 0)
                         {
-                            if (logBees && debugSpam) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: lost LOS of {beeData.targetEnemy}, started timer.");
+                            Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: lost LOS of {beeData.targetEnemy}, started timer.", __instance,logBees && debugSpam);
                             beeData.LostLOSOfEnemy += __instance.AIIntervalTime;
                             if (beeData.LostLOSOfEnemy >= 4.5f)
                             {
                                 beeData.targetEnemy = null;
                                 beeData.LostLOSOfEnemy = 0f;
-                                if (logBees) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: lost LOS of {beeData.targetEnemy}, Stopped and reset timer.");
+                                Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: lost LOS of {beeData.targetEnemy}, Stopped and reset timer.", __instance,logBees);
                             }
                         }
                         else
@@ -277,7 +263,7 @@ namespace NaturalSelection.EnemyPatches
                             beeData.lastKnownEnemyPosition = beeData.targetEnemy.transform.position;
                             __instance.SetDestinationToPosition(beeData.lastKnownEnemyPosition, true);
                             beeData.LostLOSOfEnemy = 0f;
-                            if (logBees) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: lost {beeData.targetEnemy}");
+                            Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: lost {beeData.targetEnemy}", __instance,logBees);
 
                         }
                         break;
@@ -285,16 +271,16 @@ namespace NaturalSelection.EnemyPatches
                     __instance.agent.acceleration = 13f;
                     if (!__instance.searchForHive.inProgress)
                     {
-                        if (logBees) Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} case2: set new search for hive");
+                        Script.LogNS(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} case2: set new search for hive", __instance,logBees);
                         if (__instance.wasInChase)
                         {
                             __instance.StartSearch(beeData.lastKnownEnemyPosition, __instance.searchForHive);
-                            if (logBees) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: Started search for hive.");
+                            Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: Started search for hive.", __instance,logBees);
                         }
                         else
                         {
                             __instance.StartSearch(__instance.transform.position, __instance.searchForHive);
-                            if (logBees) Script.Logger.Log(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: Started search for hive.");
+                            Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: Started search for hive.", __instance,logBees);
                         }
                     }
                     break;
@@ -319,26 +305,27 @@ namespace NaturalSelection.EnemyPatches
             return Networking.NSEnemyNetworkEvent(NWID);
         }
 
-        public static void CheckDataIntegrityBees(RedLocustBees __instance)
+        /*public static void CheckDataIntegrityBees(RedLocustBees __instance)
         {
             if (!beeList.ContainsKey(__instance))
             {
-                Script.Logger.Log(LogLevel.Fatal, $"Critical failule. Failed to get data for {LibraryCalls.DebugStringHead(__instance)}. Attempting to fix...");
+                Script.LogNS(LogLevel.Fatal, $"Critical failule. Failed to get data for {LibraryCalls.DebugStringHead(__instance)}. Attempting to fix...");
                 beeList.Add(__instance, new BeeValues());
             }
-        }
+        }*/
 
         public static void OnCustomEnemyCollision(RedLocustBees __instance, EnemyAI mainscript2)
         {
             if (mainscript2.GetType() == typeof(RedLocustBees)) return;
-            if (beeList.ContainsKey(__instance) && !beeBlacklist.Contains(mainscript2.enemyType.enemyName))
+            BeeValues beeData = EnemyAIPatch.GetEnemyData(__instance, new BeeValues());
+            if (EnemyAIPatch.enemyDataDict.ContainsKey(__instance) && !beeBlacklist.Contains(mainscript2.enemyType.enemyName))
             {
-                if ((!beeList[__instance].hitRegistry.ContainsKey(mainscript2) ||beeList[__instance].hitRegistry[mainscript2] > 1.7f) && __instance.currentBehaviourStateIndex > 0 && !mainscript2.isEnemyDead || (!beeList[__instance].hitRegistry.ContainsKey(mainscript2) || beeList[__instance].hitRegistry[mainscript2] > 1.2f) && __instance.currentBehaviourStateIndex == 2 && !mainscript2.isEnemyDead)
+                if ((!beeData.hitRegistry.ContainsKey(mainscript2) || beeData.hitRegistry[mainscript2] > 1.7f) && __instance.currentBehaviourStateIndex > 0 && !mainscript2.isEnemyDead || (!beeData.hitRegistry.ContainsKey(mainscript2) || beeData.hitRegistry[mainscript2] > 1.2f) && __instance.currentBehaviourStateIndex == 2 && !mainscript2.isEnemyDead)
                 {
                     mainscript2.HitEnemy(1, null, playHitSFX: true);
 
-                    if (!beeList[__instance].hitRegistry.ContainsKey(mainscript2)) beeList[__instance].hitRegistry.Add(mainscript2, 0);
-                    else beeList[__instance].hitRegistry[mainscript2] = 0;
+                    if (!beeData.hitRegistry.ContainsKey(mainscript2)) beeData.hitRegistry.Add(mainscript2, 0);
+                    else beeData.hitRegistry[mainscript2] = 0;
 
                     if (mainscript2 is ForestGiantAI && mainscript2.currentBehaviourStateIndex != 2)
                     {
@@ -354,15 +341,15 @@ namespace NaturalSelection.EnemyPatches
                             {
                                 NSSetOnFireMaxChance(__instance).Value = Script.BoundingConfig.beesSetGiantsOnFireMaxChance.Value;
                             }
-                            Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} OnCustomEnemyCollision: Giant hit. Chance to set on fire: {NSSetOnFireMaxChance(__instance).Value} , rolled {NSSetOnFireChance(__instance)}");;
+                            Script.LogNS(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} OnCustomEnemyCollision: Giant hit. Chance to set on fire: {NSSetOnFireMaxChance(__instance).Value} , rolled {NSSetOnFireChance(__instance)}", __instance);;
                         }
                         else
                         {
-                            if (logBees) Script.Logger.Log(LogLevel.Message,"Client not elligible to determine chance to set giant on fire");
+                            Script.LogNS(LogLevel.Message,"Client not elligible to determine chance to set giant on fire", __instance,logBees);
                         }
                         if (NSSetOnFireChance(__instance).Value <= NSSetOnFireMaxChance(__instance).Value && __instance.IsOwner)
                         {
-                            Script.Logger.Log(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} OnCustomEnemyCollision: SET GIANT ON FIRE! Random number: {NSSetOnFireChance(__instance).Value}");
+                            Script.LogNS(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} OnCustomEnemyCollision: SET GIANT ON FIRE! Random number: {NSSetOnFireChance(__instance).Value}", __instance);
                             ForestGiantAI giant = (ForestGiantAI)mainscript2;
 
                             NetworkSetGiantOnFire(giant).InvokeServer();
@@ -391,14 +378,14 @@ namespace NaturalSelection.EnemyPatches
                 {
                     if (threatCompoment.GetHeldObject() != null && threatCompoment.GetHeldObject() == instance.hive && !threatCompoment.IsThreatDead())
                     {
-                        if (debugTriggers) Script.Logger.Log(LogLevel.Info, $"ChaseEnemiesWithPriorities: Returning {LibraryCalls.DebugStringHead(enemyAI.Key)} |threatComp|");
+                        if (debugTriggers) Script.LogNS(LogLevel.Info, $"ChaseEnemiesWithPriorities: Returning {LibraryCalls.DebugStringHead(enemyAI.Key)} |threatComp|", instance);
                         return enemyAI.Key;
                     }
                 }
 
                 if (instance.hive.parentObject != null && instance.hive.parentObject.gameObject.GetComponentInParent<EnemyAI>() == enemyAI.Key)
                 {
-                    if (debugTriggers) Script.Logger.Log(LogLevel.Info, $"ChaseEnemiesWithPriorities: Returning {LibraryCalls.DebugStringHead(enemyAI.Key)} |GetComponentInParent|");
+                    if (debugTriggers) Script.LogNS(LogLevel.Info, $"ChaseEnemiesWithPriorities: Returning {LibraryCalls.DebugStringHead(enemyAI.Key)} |GetComponentInParent|", instance);
                     return enemyAI.Key;
                 }
 
@@ -420,7 +407,7 @@ namespace NaturalSelection.EnemyPatches
                 }
             }
             if (!returnEnemy) returnEnemy = enemyDictionary.Keys.First();
-            if (debugTriggers) Script.Logger.Log(LogLevel.Info, $"ChaseEnemiesWithPriorities: Returning {LibraryCalls.DebugStringHead(returnEnemy)} |returnEnemy|");
+            if (debugTriggers) Script.LogNS(LogLevel.Info, $"ChaseEnemiesWithPriorities: Returning {LibraryCalls.DebugStringHead(returnEnemy)} |returnEnemy|", instance);
             return returnEnemy;
         }
     }

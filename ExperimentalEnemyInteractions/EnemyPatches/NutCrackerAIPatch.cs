@@ -7,10 +7,8 @@ using BepInEx.Logging;
 
 namespace NaturalSelection.EnemyPatches
 {
-    class NutcrackerData()
+    class NutcrackerData : EnemyDataBase
     {
-        internal EnemyAI? closestEnemy = null;
-        internal EnemyAI? targetEnemy = null;
         internal bool SeeMovingEnemy = false;
         internal Vector3 lastSeenEnemyPosition = UnityEngine.Vector3.zero;
         internal float TimeSinceSeeingMonster = 0f;
@@ -21,7 +19,7 @@ namespace NaturalSelection.EnemyPatches
     class NutcrackerAIPatch
     {
         static List<EnemyAI> enemyList = new List<EnemyAI>();
-        static Dictionary<NutcrackerEnemyAI, NutcrackerData> NutcrackerData = [];
+        //static Dictionary<NutcrackerEnemyAI, NutcrackerData> NutcrackerData = [];
         static bool debugSpam = Script.Bools["spammyLogs"];
         static bool debugNutcrackers = Script.Bools["debugNutcrackers"];
         static bool debugTriggerFlags = Script.Bools["debugTriggerFlags"];
@@ -51,11 +49,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void UpdatePatch(NutcrackerEnemyAI __instance)
         {
-            if (!NutcrackerData.ContainsKey(__instance))
-            {
-                Script.Logger.Log(LogLevel.Info, $"Creating data container for {LibraryCalls.DebugStringHead(__instance)}");
-                NutcrackerData.Add(__instance, new NutcrackerData());
-            }
+            EnemyAIPatch.GetEnemyData(__instance, new NutcrackerData());
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
 
@@ -64,8 +58,7 @@ namespace NaturalSelection.EnemyPatches
         static void NutcrackerUpdatePostfix(NutcrackerEnemyAI __instance)
         {
             if (__instance.isEnemyDead) return;
-            CheckDataIntegrityNutcracker(__instance);
-            NutcrackerData data = NutcrackerData[__instance];
+            NutcrackerData data = EnemyAIPatch.GetEnemyData(__instance, new NutcrackerData());
 
             enemyList = LibraryCalls.GetCompleteList(__instance);
             LibraryCalls.GetInsideOrOutsideEnemyList(ref enemyList, __instance);
@@ -142,8 +135,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void DoAIIntervalPatch(NutcrackerEnemyAI __instance)
         {
-            CheckDataIntegrityNutcracker(__instance);
-            NutcrackerData data = NutcrackerData[__instance];
+            NutcrackerData data = EnemyAIPatch.GetEnemyData(__instance, new NutcrackerData());
 
             if (__instance.currentBehaviourStateIndex == 2)
             {
@@ -166,15 +158,6 @@ namespace NaturalSelection.EnemyPatches
                         __instance.SwitchToBehaviourState(1);
                     }
                 }
-            }
-        }
-
-        public static void CheckDataIntegrityNutcracker(NutcrackerEnemyAI __instance)
-        {
-            if (!NutcrackerData.ContainsKey(__instance))
-            {
-                Script.Logger.Log(LogLevel.Fatal, $"Critical failule. Failed to get data for {LibraryCalls.DebugStringHead(__instance)}. Attempting to fix...");
-                NutcrackerData.Add(__instance, new NutcrackerData());
             }
         }
     }

@@ -17,9 +17,8 @@ using LogLevel = BepInEx.Logging.LogLevel;
 namespace NaturalSelection.EnemyPatches
 {
 
-    class BlobData()
+    class BlobData : EnemyDataBase
 	{
-        internal EnemyAI? closestEnemy = null;
 		internal bool playSound = false;
 		internal Dictionary<EnemyAI, float> hitRegistry = new Dictionary<EnemyAI, float>();
     }
@@ -27,7 +26,7 @@ namespace NaturalSelection.EnemyPatches
 	[HarmonyPatch(typeof(BlobAI))]
 	class BlobAIPatch
 	{
-		static Dictionary<BlobAI, BlobData> slimeList = [];
+		//static Dictionary<BlobAI, BlobData> slimeList = [];
 		static bool logBlob = Script.Bools["debugHygrodere"];
 		static bool triggerFlag = Script.Bools["debugTriggerFlags"];
         static List<string> blobBlacklist = InitializeGamePatch.blobBlacklistFinal;
@@ -41,7 +40,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (entryKey == "debugHygrodere") logBlob = value;
             if (entryKey == "debugTriggerFlags") triggerFlag = value;
-			//Script.Logger.LogMessage($"Hygrodere received event. logBlob = {logBlob}, triggerFlag = {triggerFlag}");
+			//Script.LogNSMessage($"Hygrodere received event. logBlob = {logBlob}, triggerFlag = {triggerFlag}");
         }
 
 
@@ -49,14 +48,9 @@ namespace NaturalSelection.EnemyPatches
 		[HarmonyPrefix]
 		static void StartPatch(BlobAI __instance)
 		{
-			if (!slimeList.ContainsKey(__instance))
-			{
-                Script.Logger.Log(BepInEx.Logging.LogLevel.Info, $"Creating data container for {LibraryCalls.DebugStringHead(__instance)}");
-                slimeList.Add(__instance, new BlobData());
-			}
-			__instance.enemyType.doorSpeedMultiplier = Script.BoundingConfig.blobAIOpeningDoorsMultiplier.Value;
+            BlobData blobData = EnemyAIPatch.GetEnemyData(__instance, new BlobData());
 
-            BlobData blobData = slimeList[__instance];
+            __instance.enemyType.doorSpeedMultiplier = Script.BoundingConfig.blobAIOpeningDoorsMultiplier.Value;
 
             BlobEatCorpseEvent(__instance).OnClientReceived += EventReceived;
 
@@ -72,8 +66,7 @@ namespace NaturalSelection.EnemyPatches
 		static bool DoAIIntervalPrefixPatch(BlobAI __instance)
 		{
             if (__instance.isEnemyDead) return true;
-            CheckDataIntegrityBlob(__instance);
-            BlobData blobData = slimeList[__instance];
+            BlobData blobData = EnemyAIPatch.GetEnemyData(__instance, new BlobData());
 
 			if (Script.BoundingConfig.blobPathfind.Value == true)
 			{
@@ -133,8 +126,7 @@ namespace NaturalSelection.EnemyPatches
 		static void BlobUpdatePatch(BlobAI __instance)
 		{
             if (__instance.isEnemyDead) return;
-            CheckDataIntegrityBlob(__instance);
-            BlobData blobData = slimeList[__instance];
+            BlobData blobData = EnemyAIPatch.GetEnemyData(__instance, new BlobData());
 			Type type = __instance.GetType();
 
 			foreach(KeyValuePair<EnemyAI, float> enemy in new Dictionary<EnemyAI, float>(blobData.hitRegistry))
@@ -160,25 +152,24 @@ namespace NaturalSelection.EnemyPatches
 
 			if (blobData.playSound)
 			{
-                Script.Logger.Log(BepInEx.Logging.LogLevel.Message,"Playing sound. NetworkObjectID: " + __instance.NetworkObjectId);
+                Script.LogNS(BepInEx.Logging.LogLevel.Message,"Playing sound.", __instance);
                 __instance.creatureVoice.PlayOneShot(__instance.killPlayerSFX);
 				blobData.playSound = false;
 			}
         }
 
-        public static void CheckDataIntegrityBlob(BlobAI __instance)
+        /*public static void CheckDataIntegrityBlob(BlobAI __instance)
         {
             if (!slimeList.ContainsKey(__instance))
             {
-                Script.Logger.Log(LogLevel.Fatal, $"Critical failule. Failed to get data for {LibraryCalls.DebugStringHead(__instance)}. Attempting to fix...");
+                Script.LogNS(LogLevel.Fatal, $"Critical failule. Failed to get data for {LibraryCalls.DebugStringHead(__instance)}. Attempting to fix...");
                 slimeList.Add(__instance, new BlobData());
             }
-        }
+        }*/
 
 		public static void OnCustomEnemyCollision(BlobAI __instance, EnemyAI mainscript2)
 		{
-			CheckDataIntegrityBlob(__instance);
-			BlobData blobData = slimeList[__instance];
+			BlobData blobData = EnemyAIPatch.GetEnemyData(__instance, new BlobData());
 
 			if (!blobData.hitRegistry.ContainsKey(mainscript2) && !blobBlacklist.Contains(mainscript2.enemyType.enemyName))
 			{
@@ -187,7 +178,7 @@ namespace NaturalSelection.EnemyPatches
 					if (__instance.IsOwner && mainscript2.thisNetworkObject.IsSpawned)
 					{
 						BlobEatCorpseEvent(__instance).InvokeClients();
-						Script.Logger.Log(LogLevel.Message, $"{LibraryCalls.DebugStringHead(__instance)} consumed dead body of {mainscript2.enemyType.enemyName}");
+						Script.LogNS(LogLevel.Message, $"consumed dead body of {mainscript2.enemyType.enemyName}", __instance);
 						mainscript2.thisNetworkObject.Despawn(true);
 					}
 					return;
@@ -253,7 +244,7 @@ namespace NaturalSelection.EnemyPatches
             if (__instance.IsOwner && nwObj.IsSpawned)
             {
                 BlobEatCorpseEvent(__instance).InvokeClients();
-                Script.Logger.Log(LogLevel.Message, $"{LibraryCalls.DebugStringHead(__instance)} consumed dead body {corpse.name}");
+                Script.LogNS(LogLevel.Message, $"consumed dead body {corpse.name}", __instance);
                 nwObj.Despawn(true);
             }
         }

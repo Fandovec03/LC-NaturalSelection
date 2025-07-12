@@ -247,4 +247,25 @@ public class Script : BaseUnityPlugin
 
         Logger.LogDebug("Finished unpatching!");
     }
+
+    public static void LogNS(BepInEx.Logging.LogLevel logLevel, string log, object? source = null, bool toggle = true,bool moreDetail = false)
+    {
+        if (!toggle) return;
+
+        string sourceString = "";
+        if (source != null)
+        {
+            if (source is EnemyAI) sourceString = LibraryCalls.DebugStringHead(source as EnemyAI, moreDetail);
+            else if (source is SandSpiderWebTrap)
+            {
+                sourceString = "Spider web " + (source as SandSpiderWebTrap).trapID;
+                if (moreDetail) sourceString = sourceString + ", owner " + LibraryCalls.DebugStringHead((source as SandSpiderWebTrap).mainScript);
+            }
+            else if (source is string) sourceString = (string)source;
+            else if (source is MonoBehaviour) sourceString = (source as MonoBehaviour).gameObject.name;
+            else sourceString = "Unknown source";
+        }
+        Logger.Log(logLevel, $"({sourceString}) {log}");
+    }
+
 }

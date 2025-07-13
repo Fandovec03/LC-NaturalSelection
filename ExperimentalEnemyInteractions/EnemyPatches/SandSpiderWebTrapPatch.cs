@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches
 {
-    class SpiderWebValues() : EnemyDataBase
+    class SpiderWebValues : EnemyDataBase
     {
         internal EnemyAI? trappedEnemy = null;
         internal EnemyAI? enemyReference = null;
@@ -52,11 +52,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void AwakePostfix(SandSpiderWebTrap __instance)
         {
-            if (!spiderWebs.ContainsKey(__instance))
-            {
-                Script.LogNS(LogLevel.Info, $"Creating data container for web {__instance.trapID}");
-                spiderWebs.Add(__instance, new SpiderWebValues());
-            }
+            EnemyAIPatch.GetEnemyData(__instance, new SpiderWebValues());
 
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
@@ -65,8 +61,8 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static void OnTriggerStayPatch(Collider other, SandSpiderWebTrap __instance)
         {
-            CheckDataIntegrityWeb(__instance);
-            SpiderWebValues webData = spiderWebs[__instance];
+            //CheckDataIntegrityWeb(__instance);
+            SpiderWebValues webData = (SpiderWebValues)EnemyAIPatch.GetEnemyData(__instance, new SpiderWebValues());
             EnemyAICollisionDetect? trippedEnemyCollision = other.GetComponent<EnemyAICollisionDetect>();
             EnemyAI? trippedEnemy = null;
             if (trippedEnemyCollision != null && trippedEnemyCollision.mainScript != __instance.mainScript) trippedEnemy = trippedEnemyCollision.mainScript;
@@ -135,8 +131,8 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static bool UpdatePrefix(SandSpiderWebTrap __instance, out bool __state)
         {
-            CheckDataIntegrityWeb(__instance);
-            SpiderWebValues webData = spiderWebs[__instance];
+            //CheckDataIntegrityWeb(__instance);
+            SpiderWebValues webData = (SpiderWebValues)EnemyAIPatch.GetEnemyData(__instance, new SpiderWebValues());
 
             if (__instance.currentTrappedPlayer != null)
             {
@@ -156,8 +152,8 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void UpdatePostfix(SandSpiderWebTrap __instance, bool __state)
         {
-            CheckDataIntegrityWeb(__instance);
-            SpiderWebValues webData = spiderWebs[__instance];
+            //CheckDataIntegrityWeb(__instance);
+            SpiderWebValues webData = (SpiderWebValues)EnemyAIPatch.GetEnemyData(__instance, new SpiderWebValues());
             if (!__state)
             {
                 return;
@@ -194,8 +190,8 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static void OnTriggerExitPatch(Collider other, SandSpiderWebTrap __instance)
         {
-            CheckDataIntegrityWeb(__instance);
-            SpiderWebValues webData = spiderWebs[__instance];
+            //CheckDataIntegrityWeb(__instance);
+            SpiderWebValues webData = (SpiderWebValues)EnemyAIPatch.GetEnemyData(__instance, new SpiderWebValues());
             EnemyAICollisionDetect? trippedEnemyCollision = other.GetComponent<EnemyAICollisionDetect>();
             EnemyAI? trippedEnemy = null;
             if (trippedEnemyCollision != null && trippedEnemyCollision.mainScript != __instance.mainScript && !trippedEnemyCollision.mainScript.isEnemyDead) trippedEnemy = trippedEnemyCollision.mainScript;
@@ -220,15 +216,6 @@ namespace NaturalSelection.EnemyPatches
                     //NetworkEnemyTripTrapExit(__instance).InvokeClients();
                 }
                 //__instance.webAudio.Stop();
-            }
-        }
-
-        public static void CheckDataIntegrityWeb(SandSpiderWebTrap __instance)
-        {
-            if (!spiderWebs.ContainsKey(__instance))
-            {
-                Script.LogNS(LogLevel.Error, $"Failed to get data for trap {__instance.trapID}. Attempting to fix...", __instance);
-                spiderWebs.Add(__instance, new SpiderWebValues());
             }
         }
     }

@@ -40,15 +40,9 @@ namespace NaturalSelection.EnemyPatches
     {
         static bool debugUnspecified = Script.Bools["debugUnspecified"];
         static bool debugTriggerFlags = Script.Bools["debugTriggerFlags"];
-        public static Dictionary<EnemyAI, EnemyData> enemyDataDict = [];
-        public static Dictionary<EnemyAI, BeeValues> beeDataDict = [];
-        public static Dictionary<EnemyAI, BlobData> blobDataDict = [];
-        public static Dictionary<EnemyAI, GiantData> forestGiantDataDict = [];
-        public static Dictionary<EnemyAI, HoarderBugValues> hoarderBugDataDict = [];
-        public static Dictionary<EnemyAI, NutcrackerData> nutcrackerDataDict = [];
-        public static Dictionary<EnemyAI, PufferData> pufferDataDict = [];
-        public static Dictionary<EnemyAI, SpiderData> spiderDataDict = [];
-        public static Dictionary<EnemyAI, ExtendedSandWormAIData> sandwormDataDict = [];
+        public static Dictionary<object, EnemyDataBase> enemyDataDict = [];
+        public static Dictionary<EnemyAI, EnemyData> enemyDataDict2 = [];
+        public static Dictionary<SandSpiderWebTrap, SpiderWebValues> enemyDataDict3 = [];
 
         static void Event_OnConfigSettingChanged(string entryKey, bool value)
 
@@ -62,7 +56,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void StartPostfix(EnemyAI __instance)
         {
-            EnemyData data = GetEnemyData(__instance, new EnemyData());
+            EnemyData data = (EnemyData)GetEnemyData(__instance, new EnemyData());
 
             data.originalAgentRadius = __instance.agent.radius;
 
@@ -103,7 +97,7 @@ namespace NaturalSelection.EnemyPatches
             Script.LogNS(BepInEx.Logging.LogLevel.Info, $"registered hit by {playerString} with force of {force}. playHitSFX:{playHitSFX}, hitID:{hitID}.", __instance, debugTriggerFlags);
         }
 
-        public static EnemyData GetEnemyData(EnemyAI __instance, EnemyData enemyData)
+        public static EnemyDataBase GetEnemyData(object __instance, EnemyDataBase enemyData)
         {
             if (!enemyDataDict.ContainsKey(__instance))
             {
@@ -113,84 +107,24 @@ namespace NaturalSelection.EnemyPatches
             return enemyDataDict[__instance];
         }
 
-        public static BeeValues GetEnemyData(EnemyAI __instance, BeeValues enemyData)
+        public static EnemyData GetEnemyData(EnemyAI __instance, EnemyData enemyData)
         {
-            if (!beeDataDict.ContainsKey(__instance))
+            if (!enemyDataDict2.ContainsKey(__instance))
             {
                 Script.LogNS(LogLevel.Warning, $"Missing data container for {LibraryCalls.DebugStringHead(__instance)}. Creating new data container...");
-                beeDataDict.Add(__instance, enemyData);
+                enemyDataDict2.Add(__instance, enemyData);
             }
-            return beeDataDict[__instance];
+            return enemyDataDict2[__instance];
         }
 
-        public static BlobData GetEnemyData(EnemyAI __instance, BlobData enemyData)
+        public static SpiderWebValues GetEnemyData(SandSpiderWebTrap __instance, SpiderWebValues enemyData)
         {
-            if (!blobDataDict.ContainsKey(__instance))
+            if (!SandSpiderWebTrapPatch.spiderWebs.ContainsKey(__instance))
             {
                 Script.LogNS(LogLevel.Warning, $"Missing data container for {LibraryCalls.DebugStringHead(__instance)}. Creating new data container...");
-                blobDataDict.Add(__instance, enemyData);
+                SandSpiderWebTrapPatch.spiderWebs.Add(__instance, enemyData);
             }
-            return blobDataDict[__instance];
-        }
-
-        public static GiantData GetEnemyData(EnemyAI __instance, GiantData enemyData)
-        {
-            if (forestGiantDataDict.ContainsKey(__instance))
-            {
-                Script.LogNS(LogLevel.Warning, $"Missing data container for {LibraryCalls.DebugStringHead(__instance)}. Creating new data container...");
-                forestGiantDataDict.Add(__instance, enemyData);
-            }
-            return forestGiantDataDict[__instance];
-        }
-
-        public static HoarderBugValues GetEnemyData(EnemyAI __instance, HoarderBugValues enemyData)
-        {
-            if (!hoarderBugDataDict.ContainsKey(__instance))
-            {
-                Script.LogNS(LogLevel.Warning, $"Missing data container for {LibraryCalls.DebugStringHead(__instance)}. Creating new data container...");
-                hoarderBugDataDict.Add(__instance, enemyData);
-            }
-            return hoarderBugDataDict[__instance];
-        }
-
-        public static NutcrackerData GetEnemyData(EnemyAI __instance, NutcrackerData enemyData)
-        {
-            if (!nutcrackerDataDict.ContainsKey(__instance))
-            {
-                Script.LogNS(LogLevel.Warning, $"Missing data container for {LibraryCalls.DebugStringHead(__instance)}. Creating new data container...");
-                nutcrackerDataDict.Add(__instance, enemyData);
-            }
-            return nutcrackerDataDict[__instance];
-        }
-
-        public static PufferData GetEnemyData(EnemyAI __instance, PufferData enemyData)
-        {
-            if (!pufferDataDict.ContainsKey(__instance))
-            {
-                Script.LogNS(LogLevel.Warning, $"Missing data container for {LibraryCalls.DebugStringHead(__instance)}. Creating new data container...");
-                pufferDataDict.Add(__instance, enemyData);
-            }
-            return pufferDataDict[__instance];
-        }
-
-        public static SpiderData GetEnemyData(EnemyAI __instance, SpiderData enemyData)
-        {
-            if (!spiderDataDict.ContainsKey(__instance))
-            {
-                Script.LogNS(LogLevel.Warning, $"Missing data container for {LibraryCalls.DebugStringHead(__instance)}. Creating new data container...");
-                spiderDataDict.Add(__instance, enemyData);
-            }
-            return spiderDataDict[__instance];
-        }
-
-        public static ExtendedSandWormAIData GetEnemyData(EnemyAI __instance, ExtendedSandWormAIData enemyData)
-        {
-            if (!sandwormDataDict.ContainsKey(__instance))
-            {
-                Script.LogNS(LogLevel.Warning, $"Missing data container for {LibraryCalls.DebugStringHead(__instance)}. Creating new data container...");
-                sandwormDataDict.Add(__instance, enemyData);
-            }
-            return sandwormDataDict[__instance];
+            return SandSpiderWebTrapPatch.spiderWebs[__instance];
         }
     }
 

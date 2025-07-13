@@ -63,7 +63,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static void SandWormStartPatch(SandWormAI __instance)
         {
-            ExtendedSandWormAIData data = EnemyAIPatch.GetEnemyData(__instance, new ExtendedSandWormAIData());
+            ExtendedSandWormAIData data = (ExtendedSandWormAIData)EnemyAIPatch.GetEnemyData(__instance, new ExtendedSandWormAIData());
 
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
 
@@ -92,7 +92,7 @@ namespace NaturalSelection.EnemyPatches
         static bool SandWormPrefixUpdatePatch(SandWormAI __instance)
         {
             if (__instance.isEnemyDead) return true;
-            ExtendedSandWormAIData SandwormData = EnemyAIPatch.GetEnemyData(__instance, new ExtendedSandWormAIData());
+            ExtendedSandWormAIData SandwormData = (ExtendedSandWormAIData)EnemyAIPatch.GetEnemyData(__instance, new ExtendedSandWormAIData());
             Type type = __instance.GetType();
 
             if (__instance.IsOwner)
@@ -203,7 +203,7 @@ namespace NaturalSelection.EnemyPatches
         static void SandWormPostfixUpdatePatch(SandWormAI __instance)
         {
             if (__instance.isEnemyDead) return;
-            ExtendedSandWormAIData SandwormData = EnemyAIPatch.GetEnemyData(__instance, new ExtendedSandWormAIData());
+            ExtendedSandWormAIData SandwormData = (ExtendedSandWormAIData)EnemyAIPatch.GetEnemyData(__instance, new ExtendedSandWormAIData());
             int targetingEntity = SandwormData.NetworkSandwormBehaviorState;
             bool networkMovingTowardsPlayer = SandwormData.movingTowardsTargetPlayer;
 
@@ -280,7 +280,7 @@ namespace NaturalSelection.EnemyPatches
         static bool SandWormDoAIIntervalPrefix(SandWormAI __instance)
         {
             if (__instance.isEnemyDead) return true;
-            ExtendedSandWormAIData SandwormData = EnemyAIPatch.GetEnemyData(__instance, new ExtendedSandWormAIData());
+            ExtendedSandWormAIData SandwormData = (ExtendedSandWormAIData)EnemyAIPatch.GetEnemyData(__instance, new ExtendedSandWormAIData());
             Type type = __instance.GetType();
             int targetingEntity = SandwormData.NetworkSandwormBehaviorState;
             Script.LogNS(LogLevel.Debug,$"DoAIInterval: checking chaseTimer: {__instance.chaseTimer}", __instance,debugSandworm && debugSpam && triggerFlag);

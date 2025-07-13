@@ -58,7 +58,7 @@ namespace NaturalSelection.EnemyPatches
         static void NutcrackerUpdatePostfix(NutcrackerEnemyAI __instance)
         {
             if (__instance.isEnemyDead) return;
-            NutcrackerData data = EnemyAIPatch.GetEnemyData(__instance, new NutcrackerData());
+            NutcrackerData data = (NutcrackerData)EnemyAIPatch.GetEnemyData(__instance, new NutcrackerData()); ;
 
             enemyList = LibraryCalls.GetCompleteList(__instance);
             LibraryCalls.GetInsideOrOutsideEnemyList(ref enemyList, __instance);
@@ -135,7 +135,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void DoAIIntervalPatch(NutcrackerEnemyAI __instance)
         {
-            NutcrackerData data = EnemyAIPatch.GetEnemyData(__instance, new NutcrackerData());
+            NutcrackerData data = (NutcrackerData)EnemyAIPatch.GetEnemyData(__instance, new NutcrackerData());
 
             if (__instance.currentBehaviourStateIndex == 2)
             {

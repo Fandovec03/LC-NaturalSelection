@@ -255,17 +255,20 @@ public class Script : BaseUnityPlugin
         string sourceString = "";
         if (source != null)
         {
-            if (source is EnemyAI) sourceString = LibraryCalls.DebugStringHead(source as EnemyAI, moreDetail);
+            string tempString = "";
+
+            if (source is EnemyAI) tempString = LibraryCalls.DebugStringHead(source as EnemyAI, moreDetail);
             else if (source is SandSpiderWebTrap)
             {
-                sourceString = "Spider web " + (source as SandSpiderWebTrap).trapID;
-                if (moreDetail) sourceString = sourceString + ", owner " + LibraryCalls.DebugStringHead((source as SandSpiderWebTrap).mainScript);
+                tempString = "Spider web " + ((SandSpiderWebTrap)source).trapID;
+                if (moreDetail) tempString = tempString + ", owner " + LibraryCalls.DebugStringHead(((SandSpiderWebTrap)source).mainScript);
             }
-            else if (source is string) sourceString = (string)source;
-            else if (source is MonoBehaviour) sourceString = (source as MonoBehaviour).gameObject.name;
-            else sourceString = "Unknown source";
+            else if (source is string) tempString = (string)source;
+            else if (source is MonoBehaviour) tempString = ((MonoBehaviour)source).gameObject.name;
+            else tempString = "Unknown source";
+            sourceString = $"({tempString}) ";
         }
-        Logger.Log(logLevel, $"({sourceString}) {log}");
+        Logger.Log(logLevel, $"{sourceString}{log}");
     }
 
 }

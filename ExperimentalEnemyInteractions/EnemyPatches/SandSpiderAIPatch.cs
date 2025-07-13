@@ -52,7 +52,7 @@ namespace NaturalSelection.EnemyPatches
         static bool UpdatePrefixPatch(SandSpiderAI __instance)
         {
             if (__instance.isEnemyDead) return true;
-            SpiderData spiderData = EnemyAIPatch.GetEnemyData(__instance, new SpiderData());
+            SpiderData spiderData = (SpiderData)EnemyAIPatch.GetEnemyData(__instance, new SpiderData());
             Type type = __instance.GetType();
 
             if (RoundManagerPatch.RequestUpdate(__instance) == true)
@@ -326,7 +326,7 @@ namespace NaturalSelection.EnemyPatches
         static bool DoAIIntervalPrefix(SandSpiderAI __instance)
         {
             if (__instance.isEnemyDead) return true;
-            SpiderData spiderData = EnemyAIPatch.GetEnemyData(__instance, new SpiderData());
+            SpiderData spiderData = (SpiderData)EnemyAIPatch.GetEnemyData(__instance, new SpiderData()); ;
             SandSpiderAI Ins = __instance;
 
             if (spiderData.targetEnemy != null && !__instance.targetPlayer && __instance.currentBehaviourStateIndex == 2)
@@ -349,7 +349,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (__instance.isEnemyDead) return;
             SandSpiderAI Ins = __instance;
-            SpiderData spiderData = EnemyAIPatch.GetEnemyData(__instance, new SpiderData());
+            SpiderData spiderData = (SpiderData)EnemyAIPatch.GetEnemyData(__instance, new SpiderData()); ;
             
             switch (__instance.currentBehaviourStateIndex)
             {
@@ -440,7 +440,7 @@ namespace NaturalSelection.EnemyPatches
 
         static void ChaseEnemy(SandSpiderAI ins, EnemyAI target, SandSpiderWebTrap? triggeredWeb = null)
         {
-            SpiderData spiderData = EnemyAIPatch.GetEnemyData(ins, new SpiderData());
+            SpiderData spiderData = (SpiderData)EnemyAIPatch.GetEnemyData(ins, new SpiderData());
             if ((ins.currentBehaviourStateIndex != 2 && ins.watchFromDistance) || Vector3.Distance(target.transform.position, ins.homeNode.position) < 25f || Vector3.Distance(ins.meshContainer.position, target.transform.position) < 15f)
             {
                 ins.watchFromDistance = false;
@@ -459,7 +459,7 @@ namespace NaturalSelection.EnemyPatches
             if (tempEnemy == null || InitializeGamePatch.spiderBlacklistFinal.Contains(tempEnemy.enemyType.enemyName) || tempEnemy.isEnemyDead) { return; }
 
             CustomEnemySize customEnemySize = (CustomEnemySize)InitializeGamePatch.customSizeOverrideListDictionary[tempEnemy.enemyType.enemyName];
-            SpiderData spiderData = EnemyAIPatch.GetEnemyData(owner, new SpiderData());;
+            SpiderData spiderData = (SpiderData)EnemyAIPatch.GetEnemyData(owner, new SpiderData());
             Script.LogNS(LogLevel.Info,$"Custom enemy size: {customEnemySize}", triggeredTrap, debugSpider);
             if (owner.currentBehaviourStateIndex != 2)
             {

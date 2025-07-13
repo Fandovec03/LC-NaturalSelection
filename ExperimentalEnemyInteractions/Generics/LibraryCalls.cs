@@ -26,6 +26,11 @@ public class LibraryCalls
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info,"Called library DebugStringHead!");
         return NaturalSelectionLib.NaturalSelectionLib.DebugStringHead(instance, shortFormat);
     }
+    public static string DebugStringHead(object? instance, bool shortFormat = true)
+    { 
+        if (instance is EnemyAI) return DebugStringHead(instance as EnemyAI, shortFormat);
+        return $"{instance}";
+    }
     public static List<EnemyAI> GetCompleteList(EnemyAI instance, bool FilterThemselves = true, int includeOrReturnThedDead = 0)
     {
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info,"Called library GetCompleteList!");

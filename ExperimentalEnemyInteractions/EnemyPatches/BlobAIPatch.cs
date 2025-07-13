@@ -48,7 +48,7 @@ namespace NaturalSelection.EnemyPatches
 		[HarmonyPrefix]
 		static void StartPatch(BlobAI __instance)
 		{
-            BlobData blobData = EnemyAIPatch.GetEnemyData(__instance, new BlobData());
+            BlobData blobData = (BlobData)EnemyAIPatch.GetEnemyData(__instance, new BlobData());
 
             __instance.enemyType.doorSpeedMultiplier = Script.BoundingConfig.blobAIOpeningDoorsMultiplier.Value;
 
@@ -66,7 +66,7 @@ namespace NaturalSelection.EnemyPatches
 		static bool DoAIIntervalPrefixPatch(BlobAI __instance)
 		{
             if (__instance.isEnemyDead) return true;
-            BlobData blobData = EnemyAIPatch.GetEnemyData(__instance, new BlobData());
+            BlobData blobData = (BlobData)EnemyAIPatch.GetEnemyData(__instance, new BlobData());
 
 			if (Script.BoundingConfig.blobPathfind.Value == true)
 			{
@@ -126,7 +126,7 @@ namespace NaturalSelection.EnemyPatches
 		static void BlobUpdatePatch(BlobAI __instance)
 		{
             if (__instance.isEnemyDead) return;
-            BlobData blobData = EnemyAIPatch.GetEnemyData(__instance, new BlobData());
+            BlobData blobData = (BlobData)EnemyAIPatch.GetEnemyData(__instance, new BlobData());
 			Type type = __instance.GetType();
 
 			foreach(KeyValuePair<EnemyAI, float> enemy in new Dictionary<EnemyAI, float>(blobData.hitRegistry))
@@ -169,7 +169,7 @@ namespace NaturalSelection.EnemyPatches
 
 		public static void OnCustomEnemyCollision(BlobAI __instance, EnemyAI mainscript2)
 		{
-			BlobData blobData = EnemyAIPatch.GetEnemyData(__instance, new BlobData());
+			BlobData blobData = (BlobData)EnemyAIPatch.GetEnemyData(__instance, new BlobData());
 
 			if (!blobData.hitRegistry.ContainsKey(mainscript2) && !blobBlacklist.Contains(mainscript2.enemyType.enemyName))
 			{

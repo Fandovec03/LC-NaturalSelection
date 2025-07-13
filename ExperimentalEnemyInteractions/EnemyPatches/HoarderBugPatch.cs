@@ -60,7 +60,7 @@ namespace NaturalSelection.EnemyPatches
         static void UpdatePostfix(HoarderBugAI __instance)
         {
             if (__instance.isEnemyDead) return;
-            HoarderBugValues Bugvalues = EnemyAIPatch.GetEnemyData(__instance, new HoarderBugValues());
+            HoarderBugValues Bugvalues = (HoarderBugValues)EnemyAIPatch.GetEnemyData(__instance, new HoarderBugValues());
 
             if (Bugvalues.updateLog <= 0)
             {

@@ -21,15 +21,10 @@ public class LibraryCalls
         Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
     }
 
-    public static string DebugStringHead(EnemyAI? instance, bool shortFormat = true)
+    public static string DebugStringHead(object? source, bool shortFormat = true)
     {
-        if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info,"Called library DebugStringHead!");
-        return NaturalSelectionLib.NaturalSelectionLib.DebugStringHead(instance, shortFormat);
-    }
-    public static string DebugStringHead(object? instance, bool shortFormat = true)
-    { 
-        if (instance is EnemyAI) return DebugStringHead(instance as EnemyAI, shortFormat);
-        return $"{instance}";
+        if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library DebugStringHead!");
+        return NaturalSelectionLib.NaturalSelectionLib.DebugStringHead(source, shortFormat);
     }
     public static List<EnemyAI> GetCompleteList(EnemyAI instance, bool FilterThemselves = true, int includeOrReturnThedDead = 0)
     {

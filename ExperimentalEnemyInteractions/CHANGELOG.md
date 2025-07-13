@@ -1,5 +1,19 @@
 # Experimental Enemy Interactions
 
+## 0.5.21
+- Updated ReXuvination compatibility
+- Updated logs
+
+### Internal
+- Replaced majority of loggers with method
+- Rewamped enemy data system
+
+### Library
+- Updated DebugStringHead. Now it accepts any type
+
+## 0.5.20
+- Redone fix for blob opening doors.
+
 ## 0.5.19
 - Redone blob door fix.
 

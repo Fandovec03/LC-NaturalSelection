@@ -6,12 +6,13 @@ using System.Reflection.Emit;
 using ReXuvination.src.Patches;
 using SandSpiderWebTrapPatch = NaturalSelection.EnemyPatches.SandSpiderWebTrapPatch;
 using System.Linq;
+using ReXuvination;
 
 namespace NaturalSelection.Compatibility
 {
     public class ReXuvinationPatch()
     {
-        public static bool patched = false;
+        public static bool patchedQuickMenu = false;
 
         [HarmonyPatch(typeof(SandSpiderWebTrap) ,"Awake")]
         [HarmonyPostfix]
@@ -25,9 +26,11 @@ namespace NaturalSelection.Compatibility
                 foreach (Collider collider in colliders)
                 {
                     if (!collider.isTrigger) continue;
-                    Script.LogNS(LogLevel.Message,$"awake found  {collider.excludeLayers.value}");
-                    Script.LogNS(LogLevel.Message,$"awake expected {~(StartOfRound.Instance.playersMask ^ LayerMask.GetMask("Enemies"))}");
-                    collider.excludeLayers = ~(StartOfRound.Instance.playersMask ^ LayerMask.GetMask("Enemies"));
+
+                    /*Script.LogNS(LogLevel.Message,$"awake found  {collider.excludeLayers.value}");
+                    Script.LogNS(LogLevel.Message,$"awake expected {~(StartOfRound.Instance.playersMask ^ LayerMask.GetMask("Enemies"))}");*/
+
+                    collider.includeLayers |= LayerMask.GetMask("Enemies");
                     patched++;
                 }
                 if (patched > 0)
@@ -37,6 +40,34 @@ namespace NaturalSelection.Compatibility
             }
         }
 
+        [HarmonyPatch(typeof(QuickMenuManager), "Start")]
+        [HarmonyPostfix]
+        [HarmonyAfter("XuuXiaolan.ReXuvination")]
+        static void QuickMenuManagerPostfix(SandSpiderWebTrap __instance)
+        {
+            if (!patchedQuickMenu)
+            {
+                foreach (EnemyType enemy in Resources.FindObjectsOfTypeAll<EnemyType>())
+                {
+                    if (string.IsNullOrEmpty(enemy.enemyName)) continue;
+                    if (enemy.enemyPrefab == null) continue;
+                    if (ReXuvination.src.ReXuvination.PluginConfig.ConfigEnemyBlacklist.Value.Contains(enemy.enemyName)) continue;
+
+                    foreach (var collision in enemy.enemyPrefab.GetComponentsInChildren<EnemyAICollisionDetect>())
+                    {
+                        foreach (var collider in collision.gameObject.GetComponentsInChildren<Collider>())
+                        {
+                            if (!collider.isTrigger) continue;
+
+                            collider.includeLayers |= LayerMask.GetMask("Enemies");
+                        }
+                    }
+
+                }
+                patchedQuickMenu = true;
+            }
+        }
+        /*
         [HarmonyTranspiler]
         [HarmonyPatch(typeof(QuickMenuManagerPatch) ,"QuickMenuManagerStartPatch")]
         public static IEnumerable<CodeInstruction> QuickMenuManagerStartPatch(IEnumerable<CodeInstruction> instructions)
@@ -57,6 +88,6 @@ namespace NaturalSelection.Compatibility
             Script.LogNS(LogLevel.Message,"Patched ReXuvination");
 
             return matcher.Instructions();
-        }
+        }*/
     }
 }

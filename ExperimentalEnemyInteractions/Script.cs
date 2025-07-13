@@ -251,24 +251,7 @@ public class Script : BaseUnityPlugin
     public static void LogNS(BepInEx.Logging.LogLevel logLevel, string log, object? source = null, bool toggle = true,bool moreDetail = false)
     {
         if (!toggle) return;
-
-        string sourceString = "";
-        if (source != null)
-        {
-            string tempString = "";
-
-            if (source is EnemyAI) tempString = LibraryCalls.DebugStringHead(source as EnemyAI, moreDetail);
-            else if (source is SandSpiderWebTrap)
-            {
-                tempString = "Spider web " + ((SandSpiderWebTrap)source).trapID;
-                if (moreDetail) tempString = tempString + ", owner " + LibraryCalls.DebugStringHead(((SandSpiderWebTrap)source).mainScript);
-            }
-            else if (source is string) tempString = (string)source;
-            else if (source is MonoBehaviour) tempString = ((MonoBehaviour)source).gameObject.name;
-            else tempString = "Unknown source";
-            sourceString = $"({tempString}) ";
-        }
-        Logger.Log(logLevel, $"{sourceString}{log}");
+        Logger.Log(logLevel, $"{LibraryCalls.DebugStringHead(source, !moreDetail)}{log}");
     }
 
 }

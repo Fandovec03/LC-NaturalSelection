@@ -36,7 +36,7 @@ namespace NaturalSelection.EnemyPatches
         static bool debugLogs = Script.Bools["debugBool"];
         static bool debugWebs = Script.Bools["debugSpiderWebs"];
         static Dictionary<string, float> speedModifierDictionary = InitializeGamePatch.speedModifierDictionay;
-        static List<string> spiderWebBlacklist = InitializeGamePatch.spiderWebBlacklistFinal;
+        static List<string> spiderWebBlacklist = InitializeGamePatch.spiderWebBlacklist;
         static float webStrenght = Script.BoundingConfig.webStrength.Value;
 
         static float debugCD = 0.0f;

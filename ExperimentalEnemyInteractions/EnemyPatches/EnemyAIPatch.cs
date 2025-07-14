@@ -7,6 +7,8 @@ using NaturalSelection.Generics;
 using Steamworks.ServerList;
 using BepInEx.Logging;
 using System.Linq;
+using UnityEngine;
+using JetBrains.Annotations;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -22,10 +24,15 @@ namespace NaturalSelection.EnemyPatches
 
     public class EnemyDataBase
     {
+        int CustomBehaviorStateIndex = 0;
         public EnemyAI? closestEnemy;
         public EnemyAI? targetEnemy;
         public CustomEnemySize customEnemySize = CustomEnemySize.Small;
 
+        public void ReactToAttack(EnemyAI owner, EnemyAI attacker, int damage = 0)
+        {
+            Script.LogNS(LogLevel.Info, $"{LibraryCalls.DebugStringHead(attacker)} hit {LibraryCalls.DebugStringHead(attacker)} with {damage} damage");
+        }
     }
 
     class EnemyData : EnemyDataBase
@@ -107,6 +114,11 @@ namespace NaturalSelection.EnemyPatches
             return enemyDataDict[__instance];
         }
 
+        public static void GetEnemyData(object __instance, out EnemyDataBase enemyDataOut)
+        {
+            enemyDataOut = enemyDataDict[__instance];
+        }
+
         public static EnemyData GetEnemyData(EnemyAI __instance, EnemyData enemyData)
         {
             if (!enemyDataDict2.ContainsKey(__instance))
@@ -126,8 +138,13 @@ namespace NaturalSelection.EnemyPatches
             }
             return SandSpiderWebTrapPatch.spiderWebs[__instance];
         }
-    }
 
+        public static void ReactToAttack(EnemyAI instance, Collider other)
+        {
+            GetEnemyData(other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript, out EnemyDataBase enemyData);
+            enemyData.ReactToAttack(instance, other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript,1);
+        }
+    }
     public class ReversePatchAI
     {
         public static Action<EnemyAI> originalUpdate;
@@ -135,7 +152,7 @@ namespace NaturalSelection.EnemyPatches
         static ReversePatchAI()
         {
             var method = AccessTools.Method(typeof(EnemyAI), nameof(EnemyAI.Update));
-            var dm = new DynamicMethod("Base.Update",null, [typeof(EnemyAI)], typeof(EnemyAI));
+            var dm = new DynamicMethod("Base.Update", null, [typeof(EnemyAI)], typeof(EnemyAI));
             var gen = dm.GetILGenerator();
             gen.Emit(OpCodes.Ldarg_0);
             gen.Emit(OpCodes.Call, method);

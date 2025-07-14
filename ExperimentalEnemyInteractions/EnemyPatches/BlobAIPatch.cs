@@ -29,7 +29,7 @@ namespace NaturalSelection.EnemyPatches
 		//static Dictionary<BlobAI, BlobData> slimeList = [];
 		static bool logBlob = Script.Bools["debugHygrodere"];
 		static bool triggerFlag = Script.Bools["debugTriggerFlags"];
-        static List<string> blobBlacklist = InitializeGamePatch.blobBlacklistFinal;
+        static List<string> blobBlacklist = InitializeGamePatch.blobBlacklist;
         static LNetworkEvent BlobEatCorpseEvent(BlobAI instance)
 		{
             string NWID = "NSSlimeEatEvent" + instance.NetworkObjectId;
@@ -244,7 +244,7 @@ namespace NaturalSelection.EnemyPatches
             if (__instance.IsOwner && nwObj.IsSpawned)
             {
                 BlobEatCorpseEvent(__instance).InvokeClients();
-                Script.LogNS(LogLevel.Message, $"consumed dead body {corpse.name}", __instance);
+                Script.LogNS(LogLevel.Message, $"consumed dead body {LibraryCalls.DebugStringHead(corpse)}", __instance);
                 nwObj.Despawn(true);
             }
         }

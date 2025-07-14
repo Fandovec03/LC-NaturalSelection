@@ -30,7 +30,7 @@ namespace NaturalSelection.EnemyPatches
         static bool debugSpider = Script.Bools["debugSpiders"];
         static bool debugSpam = Script.Bools["spammyLogs"];
         static bool debugTriggerFlag = Script.Bools["debugTriggerFlags"];
-        static List<string> spiderBlacklist = InitializeGamePatch.spiderBlacklistFinal;
+        static List<string> spiderBlacklist = InitializeGamePatch.spiderBlacklist;
 
         static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
@@ -456,7 +456,7 @@ namespace NaturalSelection.EnemyPatches
 
             EnemyAI? tempEnemy = tempEnemy = SandSpiderWebTrapPatch.spiderWebs[triggeredTrap].trappedEnemy;
 
-            if (tempEnemy == null || InitializeGamePatch.spiderBlacklistFinal.Contains(tempEnemy.enemyType.enemyName) || tempEnemy.isEnemyDead) { return; }
+            if (tempEnemy == null || InitializeGamePatch.spiderBlacklist.Contains(tempEnemy.enemyType.enemyName) || tempEnemy.isEnemyDead) { return; }
 
             CustomEnemySize customEnemySize = (CustomEnemySize)InitializeGamePatch.customSizeOverrideListDictionary[tempEnemy.enemyType.enemyName];
             SpiderData spiderData = (SpiderData)EnemyAIPatch.GetEnemyData(owner, new SpiderData());

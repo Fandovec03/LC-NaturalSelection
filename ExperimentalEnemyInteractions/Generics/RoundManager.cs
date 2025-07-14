@@ -74,7 +74,7 @@ namespace NaturalSelection.Generics
             if (!NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists.ContainsKey(instance.GetType()))
             {
                 List<EnemyAI> tempList = checkedTypes[instance.GetType()];
-                Script.Logger.Log(LogLevel.Warning,LibraryCalls.DebugStringHead(instance) + "global enemy list for this enemy does not exist! Creating a new one.");
+                Script.Logger.Log(LogLevel.Warning,LibraryCalls.DebugStringHead(instance) + " global enemy list for this enemy does not exist! Creating a new one.");
                 NaturalSelectionLib.NaturalSelectionLib.UpdateListInsideDictionrary(instance.GetType(), ref tempList);
             }
         }

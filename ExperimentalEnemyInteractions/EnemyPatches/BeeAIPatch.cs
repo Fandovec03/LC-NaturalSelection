@@ -25,7 +25,7 @@ namespace NaturalSelection.EnemyPatches
         static bool logBees = Script.Bools["debugRedBees"];
         static bool debugSpam = Script.Bools["spammyLogs"];
         static bool debugTriggers = Script.Bools["debugTriggerFlags"];
-        static List<string> beeBlacklist = InitializeGamePatch.beeBlacklistFinal;
+        static List<string> beeBlacklist = InitializeGamePatch.beeBlacklist;
 
 
         static void Event_OnConfigSettingChanged(string entryKey, bool value)

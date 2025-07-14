@@ -251,7 +251,7 @@ public class Script : BaseUnityPlugin
     public static void LogNS(BepInEx.Logging.LogLevel logLevel, string log, object? source = null, bool toggle = true,bool moreDetail = false)
     {
         if (!toggle) return;
-        Logger.Log(logLevel, $"{LibraryCalls.DebugStringHead(source, !moreDetail)}{log}");
+        Logger.Log(logLevel, $"{LibraryCalls.DebugStringHead(source, !moreDetail)} {log}");
     }
 
 }

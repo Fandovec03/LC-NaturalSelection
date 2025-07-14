@@ -16,28 +16,24 @@ namespace NaturalSelection.Generics
     {
         private static bool finishedLoading = false;
         static List<string> loadedEnemyNamesFromConfig = new List<string>();
+        static List<string> beeBlacklistLoaded = Script.BoundingConfig.beeBlacklist.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        static List<string> blobBlacklistLoaded = Script.BoundingConfig.blobBlacklist.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        static List<string> sandwormBlacklistLoaded = Script.BoundingConfig.sandwormBlacklist.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        static List<string> spiderWebBlacklistLoaded = Script.BoundingConfig.spiderWebBlacklist.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        static List<string> speedModifierLoaded = Script.BoundingConfig.speedModifierList.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        static List<string> spiderBlacklistLoaded = Script.BoundingConfig.spiderBlacklist.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        static List<string> customSizeOverrideListLoaded = Script.BoundingConfig.customSizeOverrideList.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
 
-        static List<string> beeBlacklistList = Script.BoundingConfig.beeBlacklist.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
-        static List<string> blobBlacklistList = Script.BoundingConfig.blobBlacklist.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
-        static List<string> sandwormBlacklistList = Script.BoundingConfig.sandwormBlacklist.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
-        static List<string> spiderWebBlacklistList = Script.BoundingConfig.spiderWebBlacklist.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
-        static List<string> speedModifierList = Script.BoundingConfig.speedModifierList.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
-        static List<string> spiderBlacklistList = Script.BoundingConfig.spiderBlacklist.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
-        static List<string> customSizeOverrideListList = Script.BoundingConfig.customSizeOverrideList.Value.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList();
+        internal static List<string> beeBlacklist = new List<string>();
+        internal static List<string> blobBlacklist = new List<string>();
+        internal static List<string> sandwormBlacklist = new List<string>();
+        internal static List<string> spiderWebBlacklist = new List<string>();
+        internal static List<string> speedModifier = new List<string>();
+        internal static List<string> spiderBlacklist = new List<string>();
+        internal static List<string> customSizeOverrideList = new List<string>();
 
-        static Dictionary<string, bool> beeBlacklistrDictionay = new Dictionary<string, bool>();
-        static Dictionary<string, bool> blobBlacklistDictionay = new Dictionary<string, bool>();
-        static Dictionary<string, bool> sandwormBlacklistDictionay = new Dictionary<string, bool>();
-        static Dictionary<string, bool> spiderWebBlacklistDictionay = new Dictionary<string, bool>();
         public static Dictionary<string, float> speedModifierDictionay = new Dictionary<string, float>();
-        static Dictionary<string, bool> spiderBlacklistDictionay = new Dictionary<string, bool>();
         public static Dictionary<string, int> customSizeOverrideListDictionary = new Dictionary<string, int>();
-
-        public static List<string> beeBlacklistFinal = new List<string>();
-        public static List<string> blobBlacklistFinal = new List<string>();
-        public static List<string> sandwormBlacklistFinal = new List<string>();
-        public static List<string> spiderWebBlacklistFinal = new List<string>();
-        public static List<string> spiderBlacklistFinal = new List<string>();
         public static List<EnemyAI> tryFindLater = new List<EnemyAI>();
 
         [HarmonyPatch(typeof(InitializeGame), nameof(InitializeGame.Start))]
@@ -82,7 +78,7 @@ namespace NaturalSelection.Generics
 
         public static void ReadConfigLists()
         {
-            foreach (var item in speedModifierList)
+            foreach (var item in speedModifierLoaded)
             {
                 try
                 {
@@ -102,112 +98,87 @@ namespace NaturalSelection.Generics
                 }
             }
 
-            foreach (var item in beeBlacklistList)
+            foreach (var item in beeBlacklistLoaded)
             {
                 try
                 {
-                    string itemName = item.Split(":")[0];
-                    bool itemValue = bool.Parse(item.Split(":")[1]);
-                    if (itemValue == true) beeBlacklistFinal.Add(itemName);
-                    beeBlacklistrDictionay.Add(itemName, itemValue);
-                    Script.Logger.Log(LogLevel.Debug,$"Found {itemName}, {itemValue}");
+                    beeBlacklist.Add(item);
+                    Script.Logger.Log(LogLevel.Debug,$"Found {item}");
                 }
                 catch (Exception e)
                 {
-                    Script.Logger.Log(LogLevel.Error,"Failed to add enemy into beeBlacklistrDictionay");
+                    Script.Logger.Log(LogLevel.Error,"Failed to add enemy into beeBlacklist");
                     Script.Logger.Log(LogLevel.Error,item);
-                    Script.Logger.Log(LogLevel.Error,item.Split(":")[0]);
-                    Script.Logger.Log(LogLevel.Error,item.Split(":")[1]);
                     Script.Logger.Log(LogLevel.Error,e);
                     continue;
                 }
             }
 
-            foreach (var item in blobBlacklistList)
+            foreach (var item in blobBlacklistLoaded)
             {
                 try
                 {
-                    string itemName = item.Split(":")[0];
-                    bool itemValue = bool.Parse(item.Split(":")[1]);
-                    if (itemValue == true) blobBlacklistFinal.Add(itemName);
-                    blobBlacklistDictionay.Add(itemName, itemValue);
-                    Script.Logger.Log(LogLevel.Debug,$"Found {itemName}, {itemValue}");
+                    blobBlacklist.Add(item);
+                    Script.Logger.Log(LogLevel.Debug,$"Found {item}");
                 }
                 catch (Exception e)
                 {
-                    Script.Logger.Log(LogLevel.Error,"Failed to add enemy into blobBlacklistDictionay");
+                    Script.Logger.Log(LogLevel.Error,"Failed to add enemy into blobBlacklist");
                     Script.Logger.Log(LogLevel.Error,item);
-                    Script.Logger.Log(LogLevel.Error,item.Split(":")[0]);
-                    Script.Logger.Log(LogLevel.Error,item.Split(":")[1]);
                     Script.Logger.Log(LogLevel.Error,e);
                     continue;
                 }
             }
 
-            foreach (var item in sandwormBlacklistList)
+            foreach (var item in sandwormBlacklistLoaded)
             {
                 try
                 {
-                    string itemName = item.Split(":")[0];
-                    bool itemValue = bool.Parse(item.Split(":")[1]);
-                    if (itemValue == true) sandwormBlacklistFinal.Add(itemName);
-                    sandwormBlacklistDictionay.Add(itemName, itemValue);
-                    Script.Logger.Log(LogLevel.Debug,$"Found {itemName}, {itemValue}");
+                    sandwormBlacklist.Add(item);
+                    Script.Logger.Log(LogLevel.Debug,$"Found {item}");
                 }
                 catch (Exception e)
                 {
-                    Script.Logger.Log(LogLevel.Error,"Failed to add enemy into sandwormBlacklistDictionay");
+                    Script.Logger.Log(LogLevel.Error,"Failed to add enemy into sandwormBlacklist");
                     Script.Logger.Log(LogLevel.Error,item);
-                    Script.Logger.Log(LogLevel.Error,item.Split(":")[0]);
-                    Script.Logger.Log(LogLevel.Error,item.Split(":")[1]);
                     Script.Logger.Log(LogLevel.Error,e);
                     continue;
                 }
             }
 
-            foreach (var item in spiderWebBlacklistList)
+            foreach (var item in spiderWebBlacklistLoaded)
             {
                 try
                 {
-                    string itemName = item.Split(":")[0];
-                    bool itemValue = bool.Parse(item.Split(":")[1]);
-                    if (itemValue == true) spiderWebBlacklistFinal.Add(itemName);
-                    spiderWebBlacklistDictionay.Add(itemName, itemValue);
-                    Script.Logger.Log(LogLevel.Debug,$"Found {itemName}, {itemValue}");
+                    spiderWebBlacklist.Add(item);
+                    Script.Logger.Log(LogLevel.Debug,$"Found {item}");
                 }
                 catch (Exception e)
                 {
-                    Script.Logger.Log(LogLevel.Error,"Failed to add enemy into spiderWebBlacklistDictionay");
+                    Script.Logger.Log(LogLevel.Error,"Failed to add enemy into spiderWebBlacklist");
                     Script.Logger.Log(LogLevel.Error,item);
-                    Script.Logger.Log(LogLevel.Error,item.Split(":")[0]);
-                    Script.Logger.Log(LogLevel.Error,item.Split(":")[1]);
                     Script.Logger.Log(LogLevel.Error,e);
                     continue;
                 }
             }
 
-            foreach (var item in spiderBlacklistList)
+            foreach (var item in spiderBlacklistLoaded)
             {
                 try
                 {
-                    string itemName = item.Split(":")[0];
-                    bool itemValue = bool.Parse(item.Split(":")[1]);
-                    if (itemValue == true) spiderBlacklistFinal.Add(itemName);
-                    spiderBlacklistDictionay.Add(itemName, itemValue);
-                    Script.Logger.Log(LogLevel.Debug,$"Found {itemName}, {itemValue}");
+                    spiderBlacklist.Add(item);
+                    Script.Logger.Log(LogLevel.Debug,$"Found {item}");
                 }
                 catch (Exception e)
                 {
-                    Script.Logger.Log(LogLevel.Error,"Failed to add enemy into spiderBlacklistDictionay");
+                    Script.Logger.Log(LogLevel.Error,"Failed to add enemy into spiderBlacklist");
                     Script.Logger.Log(LogLevel.Error,item);
-                    Script.Logger.Log(LogLevel.Error,item.Split(":")[0]);
-                    Script.Logger.Log(LogLevel.Error,item.Split(":")[1]);
                     Script.Logger.Log(LogLevel.Error,e);
                     continue;
                 }
             }
 
-            foreach (var item in customSizeOverrideListList)
+            foreach (var item in customSizeOverrideListLoaded)
             {
                 try
                 {
@@ -248,7 +219,7 @@ namespace NaturalSelection.Generics
                     continue;
                 }
 
-                if (customSizeOverrideListList.Count < 1)
+                if (customSizeOverrideListLoaded.Count < 1)
                 {
                     switch (item.enemyType.EnemySize)
                     {
@@ -294,36 +265,13 @@ namespace NaturalSelection.Generics
                     Script.Logger.Log(LogLevel.Debug,$"Generating new web speed modifier entry for {itemName}");
                     speedModifierDictionay.Add(itemName, 1);
                 }
-                if (!beeBlacklistrDictionay.Keys.Contains(itemName))
+                if (beeBlacklist.Count <= 0)
                 {
                     Script.Logger.Log(LogLevel.Debug,$"Generating new bee blacklist entry for {itemName}");
-                    bool value = false;
-
-                    if (beeBlacklistrDictionay.Keys.Contains("Earth Leviathan") || beeBlacklistrDictionay.Keys.Contains("Docile Locust Bees"))
+                    if (beeBlacklist.Contains("Earth Leviathan") || beeBlacklist.Contains("Docile Locust Bees"))
                     {
-                        value = true;
+                        beeBlacklist.Add(itemName);
                     }
-                    beeBlacklistrDictionay.Add(itemName, value);
-                }
-                if (!blobBlacklistDictionay.Keys.Contains(itemName))
-                {
-                    Script.Logger.Log(LogLevel.Debug,$"Generating new blob blacklist entry for {itemName}");
-                    blobBlacklistDictionay.Add(itemName, false);
-                }
-                if (!sandwormBlacklistDictionay.Keys.Contains(itemName))
-                {
-                    Script.Logger.Log(LogLevel.Debug,$"Generating new Sandworm blacklist entry for {itemName}");
-                    sandwormBlacklistDictionay.Add(itemName, false);
-                }
-                if (!spiderWebBlacklistDictionay.Keys.Contains(itemName))
-                {
-                    Script.Logger.Log(LogLevel.Debug,$"Generating new spider web blacklist entry for {itemName}");
-                    spiderWebBlacklistDictionay.Add(itemName, false);
-                }
-                if (!spiderBlacklistDictionay.Keys.Contains(itemName))
-                {
-                    Script.Logger.Log(LogLevel.Debug,$"Generating new spider blacklist entry for {itemName}");
-                    spiderBlacklistDictionay.Add(itemName, false);
                 }
                 if (!customSizeOverrideListDictionary.Keys.Contains(itemName))
                 {
@@ -333,31 +281,32 @@ namespace NaturalSelection.Generics
             }
             if (Script.BoundingConfig.debugBool.Value == true)
             {
-                foreach(var item in beeBlacklistFinal)
+                foreach(var item in beeBlacklist)
                 {
-                    Script.Logger.Log(LogLevel.Debug,$"checking final blacklist {nameof(beeBlacklistFinal)} -> {item}");
+                    Script.Logger.Log(LogLevel.Debug,$"checking blacklist {nameof(beeBlacklist)} -> {item}");
                 }
-                foreach (var item in sandwormBlacklistFinal)
+                foreach (var item in sandwormBlacklist)
                 {
-                    Script.Logger.Log(LogLevel.Debug,$"checking final blacklist {nameof(sandwormBlacklistFinal)} -> {item}");
+                    Script.Logger.Log(LogLevel.Debug,$"checking blacklist {nameof(sandwormBlacklist)} -> {item}");
                 }
-                foreach (var item in spiderWebBlacklistFinal)
+                foreach (var item in spiderWebBlacklist)
                 {
-                    Script.Logger.Log(LogLevel.Debug,$"checking final blacklist {nameof(spiderWebBlacklistFinal)} -> {item}");
+                    Script.Logger.Log(LogLevel.Debug,$"checking blacklist {nameof(spiderWebBlacklist)} -> {item}");
                 }
-                foreach (var item in spiderBlacklistFinal)
+                foreach (var item in spiderBlacklist)
                 {
-                    Script.Logger.Log(LogLevel.Debug,$"checking final blacklist {nameof(spiderBlacklistFinal)} -> {item}");
+                    Script.Logger.Log(LogLevel.Debug,$"checking blacklist {nameof(spiderBlacklist)} -> {item}");
                 }
                 foreach (var item in speedModifierDictionay)
                 {
-                    Script.Logger.Log(LogLevel.Debug,$"checking final speed modifier list {nameof(speedModifierDictionay)} -> {item.Key}, {item.Value}");
+                    Script.Logger.Log(LogLevel.Debug,$"checking speed modifier dictionary {nameof(speedModifierDictionay)} -> {item.Key}, {item.Value}");
                 }
             }
         }
 
         public static void WriteToConfigLists()
         {
+            string finalEnemyNamesString = "";
             string finalSpeedModifierString = "";
             string finalBeeBlacklistString = "";
             string finalBlobBlacklistString = "";
@@ -368,6 +317,11 @@ namespace NaturalSelection.Generics
 
             try
             {
+                foreach (var entry in loadedEnemyNamesFromConfig)
+                {
+                    finalEnemyNamesString = $"{finalEnemyNamesString}{entry},";
+                }
+                Script.BoundingConfig.enemyNames.Value = finalEnemyNamesString;
 
                 foreach (var entry in speedModifierDictionay)
                 {
@@ -375,33 +329,33 @@ namespace NaturalSelection.Generics
                 }
                 Script.BoundingConfig.speedModifierList.Value = finalSpeedModifierString;
 
-                foreach (var entry in beeBlacklistrDictionay)
+                foreach (var entry in beeBlacklist)
                 {
-                    finalBeeBlacklistString = $"{finalBeeBlacklistString}{entry.Key}:{entry.Value},";
+                    finalBeeBlacklistString = $"{finalBeeBlacklistString}{entry},";
                 }
                 Script.BoundingConfig.beeBlacklist.Value = finalBeeBlacklistString;
 
-                foreach (var entry in blobBlacklistDictionay)
+                foreach (var entry in blobBlacklist)
                 {
-                    finalBlobBlacklistString = $"{finalBlobBlacklistString}{entry.Key}:{entry.Value},";
+                    finalBlobBlacklistString = $"{finalBlobBlacklistString}{entry},";
                 }
                 Script.BoundingConfig.blobBlacklist.Value = finalBlobBlacklistString;
 
-                foreach (var entry in sandwormBlacklistDictionay)
+                foreach (var entry in sandwormBlacklist)
                 {
-                    finalSandWormBlacklistString = $"{finalSandWormBlacklistString}{entry.Key}:{entry.Value},";
+                    finalSandWormBlacklistString = $"{finalSandWormBlacklistString}{entry},";
                 }
                 Script.BoundingConfig.sandwormBlacklist.Value = finalSandWormBlacklistString;
 
-                foreach (var entry in spiderWebBlacklistDictionay)
+                foreach (var entry in spiderWebBlacklist)
                 {
-                    finalSpiderWebBlacklistString = $"{finalSpiderWebBlacklistString}{entry.Key}:{entry.Value},";
+                    finalSpiderWebBlacklistString = $"{finalSpiderWebBlacklistString}{entry},";
                 }
                 Script.BoundingConfig.spiderWebBlacklist.Value = finalSpiderWebBlacklistString;
 
-                foreach (var entry in spiderBlacklistDictionay)
+                foreach (var entry in spiderBlacklist)
                 {
-                    finalSpiderBlacklistString = $"{finalSpiderBlacklistString}{entry.Key}:{entry.Value},";
+                    finalSpiderBlacklistString = $"{finalSpiderBlacklistString}{entry},";
                 }
                 Script.BoundingConfig.spiderBlacklist.Value = finalSpiderBlacklistString;
 

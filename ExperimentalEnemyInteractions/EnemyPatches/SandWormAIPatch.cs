@@ -138,7 +138,7 @@ namespace NaturalSelection.EnemyPatches
                 {
                     List<EnemyAI> tempList = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
                     LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
-                    SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, SandwormData.closestEnemy, __instance);
+                    SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, SandwormData.closestEnemy, __instance, usePathLenghtAsDistance: true);
                 }
                 SandwormData.refreshCDtime = 0.2f;
             }
@@ -295,7 +295,7 @@ namespace NaturalSelection.EnemyPatches
                         {
                             List<EnemyAI> tempList = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
                             LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
-                            SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, SandwormData.closestEnemy, __instance);
+                            SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, SandwormData.closestEnemy, __instance, usePathLenghtAsDistance: true);
                             __instance.agent.speed = 4f;
                             Script.LogNS(LogLevel.Info,$"DoAIInterval: assigned {SandwormData.closestEnemy} as closestEnemy",debugSandworm);
                             if (SandwormData.closestEnemy != null && Vector3.Distance(__instance.transform.position, SandwormData.closestEnemy.transform.position) < 15f)

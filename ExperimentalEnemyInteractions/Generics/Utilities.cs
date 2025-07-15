@@ -17,4 +17,10 @@ class NSUtilities()
         if (enemy is SandSpiderAI && ((SandSpiderAI)enemy).onWall) return false;
         return true;
     }
+
+    public static bool IsVanilla(object checkInput)
+    {
+        Script.LogNS(LogLevel.Debug, checkInput.GetType().AssemblyQualifiedName, "IsVanillaCheck");
+        return checkInput.GetType().AssemblyQualifiedName == "";
+    }
 }

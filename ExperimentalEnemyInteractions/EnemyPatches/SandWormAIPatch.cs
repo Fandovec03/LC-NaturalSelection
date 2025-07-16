@@ -7,6 +7,7 @@ using UnityEngine;
 using LethalNetworkAPI;
 using System.Linq;
 using LogLevel = BepInEx.Logging.LogLevel;
+using System.Collections;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -70,6 +71,7 @@ namespace NaturalSelection.EnemyPatches
             NetworkMovingTowardsPlayer(__instance).OnValueChanged += ChangeMovingTowardsPlayer;
             NetworkTargetingEntity(__instance).OnValueChanged += ChangeMovingTowardsEntity;
             NetworkSandwormBehaviorState(__instance).OnValueChanged += ChangeNetworkBehaviorState;
+            NaturalSelectionLib.NaturalSelectionLib.ReturnOwnerResultPairDelegate += getClosestEnemyResult;
 
             void ChangeMovingTowardsPlayer(bool oldValue, bool newValue)
             {
@@ -84,6 +86,21 @@ namespace NaturalSelection.EnemyPatches
             void ChangeNetworkBehaviorState(int oldValue, int newValue)
             {
                 if (oldValue != newValue) data.NetworkSandwormBehaviorState = newValue;
+            }
+
+            void getClosestEnemyResult(int id, EnemyAI? closestEnemy)
+            {
+                Script.LogNS(LogLevel.Info, "Received action delegate", __instance);
+                if (__instance == null)
+                {
+                    Script.LogNS(LogLevel.Error, "No longer exists. Unsubscribing.", __instance);
+                    NaturalSelectionLib.NaturalSelectionLib.ReturnOwnerResultPairDelegate -= getClosestEnemyResult;
+                }
+                else if (id == __instance.NetworkBehaviourId)
+                {
+                    Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance);
+                    EnemyAIPatch.enemyDataDict[__instance].closestEnemy = closestEnemy;
+                }
             }
         }
 
@@ -138,7 +155,8 @@ namespace NaturalSelection.EnemyPatches
                 {
                     List<EnemyAI> tempList = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
                     LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
-                    SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, SandwormData.closestEnemy, __instance, usePathLenghtAsDistance: true);
+                    //SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, SandwormData.closestEnemy, __instance, usePathLenghtAsDistance: true);
+                    __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(tempList, SandwormData.closestEnemy, __instance, true, true, false));
                 }
                 SandwormData.refreshCDtime = 0.2f;
             }
@@ -295,7 +313,7 @@ namespace NaturalSelection.EnemyPatches
                         {
                             List<EnemyAI> tempList = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
                             LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
-                            SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, SandwormData.closestEnemy, __instance, usePathLenghtAsDistance: true);
+                            __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(tempList, SandwormData.closestEnemy, __instance, true, true, false)); //LibraryCalls.FindClosestEnemy(ref tempList, SandwormData.closestEnemy, __instance);
                             __instance.agent.speed = 4f;
                             Script.LogNS(LogLevel.Info,$"DoAIInterval: assigned {SandwormData.closestEnemy} as closestEnemy",debugSandworm);
                             if (SandwormData.closestEnemy != null && Vector3.Distance(__instance.transform.position, SandwormData.closestEnemy.transform.position) < 15f)

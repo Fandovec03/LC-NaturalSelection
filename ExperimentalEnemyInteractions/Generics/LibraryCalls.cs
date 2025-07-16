@@ -1,5 +1,9 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using BepInEx.Logging;
+using NaturalSelectionLib;
+using NaturalSelectionLib.Comp;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -9,6 +13,8 @@ public class LibraryCalls
 {
     static bool debugSpam = Script.Bools["spammyLogs"];
     static bool debugLibraryCalls = Script.Bools["debugLibrary"];
+
+    static Dictionary<int, PathFindingHandler> pathFindingHandlers = new Dictionary<int, PathFindingHandler>();
 
     static void Event_OnConfigSettingChanged(string entryKey, bool value)
     {
@@ -44,6 +50,7 @@ public class LibraryCalls
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library findClosestEnemy!");
         return NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemy(ref importEnemyList, importClosestEnemy, instance, useThreatVisibility, usePathLenghtAsDistance, includeTheDead);
     }
+
     public static void FilterEnemyList(ref List<EnemyAI> importEnemyList, List<string>? blacklist, EnemyAI instance, bool filterOutImmortal = true, bool filterTheSameType = true)
     {
         if (debugLibraryCalls) Script.Logger.LogInfo("Called library filterEnemyList!");

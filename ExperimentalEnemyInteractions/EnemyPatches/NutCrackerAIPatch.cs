@@ -51,6 +51,22 @@ namespace NaturalSelection.EnemyPatches
         {
             EnemyAIPatch.GetEnemyData(__instance, new NutcrackerData());
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
+
+            NaturalSelectionLib.NaturalSelectionLib.ReturnOwnerResultPairDelegate += getClosestEnemyResult;
+            void getClosestEnemyResult(int id, EnemyAI? closestEnemy)
+            {
+                //Script.LogNS(LogLevel.Info, "Received action delegate", __instance);
+                if (__instance == null)
+                {
+                    Script.LogNS(LogLevel.Error, "No longer exists. Unsubscribing.", __instance);
+                    NaturalSelectionLib.NaturalSelectionLib.ReturnOwnerResultPairDelegate -= getClosestEnemyResult;
+                }
+                else if (id == __instance.NetworkBehaviourId)
+                {
+                    Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance);
+                    EnemyAIPatch.enemyDataDict[__instance].closestEnemy = closestEnemy;
+                }
+            }
         }
 
         [HarmonyPatch("Update")]
@@ -63,7 +79,7 @@ namespace NaturalSelection.EnemyPatches
             enemyList = LibraryCalls.GetCompleteList(__instance);
             LibraryCalls.GetInsideOrOutsideEnemyList(ref enemyList, __instance);
 
-            data.closestEnemy = LibraryCalls.FindClosestEnemy(ref enemyList, data.closestEnemy, __instance);
+            __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(enemyList, data.closestEnemy, __instance, usePathLengthAsDistance: true));
 
 
             if (__instance.currentBehaviourStateIndex == 1)

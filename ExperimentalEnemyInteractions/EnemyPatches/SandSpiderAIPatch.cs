@@ -46,6 +46,22 @@ namespace NaturalSelection.EnemyPatches
         {
             EnemyAIPatch.GetEnemyData(__instance, new SpiderData());
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
+
+            NaturalSelectionLib.NaturalSelectionLib.ReturnOwnerResultPairDelegate += getClosestEnemyResult;
+            void getClosestEnemyResult(int id, EnemyAI? closestEnemy)
+            {
+                //Script.LogNS(LogLevel.Info, "Received action delegate", __instance);
+                if (__instance == null)
+                {
+                    Script.LogNS(LogLevel.Error, "No longer exists. Unsubscribing.", __instance);
+                    NaturalSelectionLib.NaturalSelectionLib.ReturnOwnerResultPairDelegate -= getClosestEnemyResult;
+                }
+                else if (id == __instance.NetworkBehaviourId)
+                {
+                    Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance);
+                    EnemyAIPatch.enemyDataDict[__instance].closestEnemy = closestEnemy;
+                }
+            }
         }
         [HarmonyPatch("Update")]
         [HarmonyPrefix]
@@ -103,8 +119,8 @@ namespace NaturalSelection.EnemyPatches
                     case 0:
                     {
                         List<EnemyAI> tempList = spiderData.enemiesInLOSDictionary.Keys.ToList();
-                        spiderData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, spiderData.closestEnemy, __instance);
-
+                        //spiderData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, spiderData.closestEnemy, __instance);
+                        __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(tempList, spiderData.closestEnemy, __instance, usePathLengthAsDistance: true));
 
                         if (spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f, __instance.eye) != false && !spiderData.closestEnemy.isEnemyDead)
                         {

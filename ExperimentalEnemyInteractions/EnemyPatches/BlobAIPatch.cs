@@ -59,7 +59,23 @@ namespace NaturalSelection.EnemyPatches
 				blobData.playSound = true;
             }
 
-			Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
+            NaturalSelectionLib.NaturalSelectionLib.ReturnOwnerResultPairDelegate += getClosestEnemyResult;
+            void getClosestEnemyResult(int id, EnemyAI? closestEnemy)
+            {
+                //Script.LogNS(LogLevel.Info, "Received action delegate", __instance);
+                if (__instance == null)
+                {
+                    Script.LogNS(LogLevel.Error, "No longer exists. Unsubscribing.", __instance);
+                    NaturalSelectionLib.NaturalSelectionLib.ReturnOwnerResultPairDelegate -= getClosestEnemyResult;
+                }
+                else if (id == __instance.NetworkBehaviourId)
+                {
+                    Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance);
+                    EnemyAIPatch.enemyDataDict[__instance].closestEnemy = closestEnemy;
+                }
+            }
+
+            Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
 		[HarmonyPatch("DoAIInterval")]
 		[HarmonyPrefix]
@@ -147,7 +163,8 @@ namespace NaturalSelection.EnemyPatches
 			{
 				List<EnemyAI> temp = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
                 LibraryCalls.GetInsideOrOutsideEnemyList(ref temp, __instance);
-				blobData.closestEnemy = LibraryCalls.FindClosestEnemy(ref temp, blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
+                //blobData.closestEnemy = LibraryCalls.FindClosestEnemy(ref temp, blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
+                __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(temp, blobData.closestEnemy, __instance, true, true, Script.BoundingConfig.blobPathfindToCorpses.Value));
             }
 
 			if (blobData.playSound)

@@ -44,7 +44,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static void StartPatch(SandSpiderAI __instance)
         {
-            EnemyAIPatch.GetEnemyData(__instance, new SpiderData());
+            SpiderData data = (SpiderData)EnemyAIPatch.GetEnemyData(__instance, new SpiderData());
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
 
             NaturalSelectionLib.NaturalSelectionLib.ReturnOwnerResultPairDelegate += getClosestEnemyResult;
@@ -59,7 +59,7 @@ namespace NaturalSelection.EnemyPatches
                 else if (id == __instance.NetworkBehaviourId)
                 {
                     Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance);
-                    EnemyAIPatch.enemyDataDict[__instance].closestEnemy = closestEnemy;
+                    data.closestEnemy = closestEnemy;
                 }
             }
         }
@@ -431,7 +431,7 @@ namespace NaturalSelection.EnemyPatches
         public static void OnCustomEnemyCollision(SandSpiderAI __instance, EnemyAI mainscript2)
         {
             if (mainscript2.GetType() == typeof(SandSpiderAI)) return;
-            if (EnemyAIPatch.enemyDataDict.ContainsKey(__instance) && __instance.currentBehaviourStateIndex == 2 && !mainscript2.isEnemyDead && !spiderBlacklist.Contains(mainscript2.enemyType.enemyName))
+            if (EnemyAIPatch.enemyDataDict.ContainsKey(__instance.enemyType.enemyName + __instance.NetworkBehaviourId) && __instance.currentBehaviourStateIndex == 2 && !mainscript2.isEnemyDead && !spiderBlacklist.Contains(mainscript2.enemyType.enemyName))
             {
                 Script.LogNS(LogLevel.Debug,$"timeSinceHittingPlayer: {__instance.timeSinceHittingPlayer}", __instance, debugSpider && debugTriggerFlag);
                 if (__instance.timeSinceHittingPlayer > 1f)
@@ -470,7 +470,9 @@ namespace NaturalSelection.EnemyPatches
         {
             if (!Script.BoundingConfig.enableSpider.Value) return;
 
-            EnemyAI? tempEnemy = tempEnemy = SandSpiderWebTrapPatch.spiderWebs[triggeredTrap].trappedEnemy;
+
+            SpiderWebValues webData = (SpiderWebValues)EnemyAIPatch.GetEnemyData(triggeredTrap, new SpiderWebValues());
+            EnemyAI? tempEnemy = webData.trappedEnemy;
 
             if (tempEnemy == null || InitializeGamePatch.spiderBlacklist.Contains(tempEnemy.enemyType.enemyName) || tempEnemy.isEnemyDead) { return; }
 

@@ -49,7 +49,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void UpdatePatch(NutcrackerEnemyAI __instance)
         {
-            EnemyAIPatch.GetEnemyData(__instance, new NutcrackerData());
+            NutcrackerData data = (NutcrackerData)EnemyAIPatch.GetEnemyData(__instance, new NutcrackerData());
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
 
             NaturalSelectionLib.NaturalSelectionLib.ReturnOwnerResultPairDelegate += getClosestEnemyResult;
@@ -64,7 +64,8 @@ namespace NaturalSelection.EnemyPatches
                 else if (id == __instance.NetworkBehaviourId)
                 {
                     Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance);
-                    EnemyAIPatch.enemyDataDict[__instance].closestEnemy = closestEnemy;
+                    string tempStringID = __instance.enemyType.enemyName + __instance.NetworkBehaviourId;
+                    EnemyAIPatch.enemyDataDict[tempStringID].closestEnemy = closestEnemy;
                 }
             }
         }

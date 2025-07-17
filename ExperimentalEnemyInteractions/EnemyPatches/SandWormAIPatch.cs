@@ -7,7 +7,6 @@ using UnityEngine;
 using LethalNetworkAPI;
 using System.Linq;
 using LogLevel = BepInEx.Logging.LogLevel;
-using System.Collections;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -99,7 +98,7 @@ namespace NaturalSelection.EnemyPatches
                 else if (id == __instance.NetworkBehaviourId)
                 {
                     Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance);
-                    EnemyAIPatch.enemyDataDict[__instance].closestEnemy = closestEnemy;
+                    data.closestEnemy = closestEnemy;
                 }
             }
         }

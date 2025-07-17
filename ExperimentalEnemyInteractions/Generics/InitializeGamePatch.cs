@@ -10,8 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace NaturalSelection.Generics
-{
+namespace NaturalSelection.Generics;
     class InitializeGamePatch
     {
         private static bool finishedLoading = false;
@@ -375,4 +374,3 @@ namespace NaturalSelection.Generics
             }
         }
     }
-}

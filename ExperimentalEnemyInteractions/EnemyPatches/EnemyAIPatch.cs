@@ -12,29 +12,6 @@ using JetBrains.Annotations;
 
 namespace NaturalSelection.EnemyPatches
 {
-    public enum CustomEnemySize
-    {
-        Undefined,
-        Tiny,
-        Small,
-        Medium,
-        Large,
-        Giant
-    }
-
-    public class EnemyDataBase
-    {
-        int CustomBehaviorStateIndex = 0;
-        public EnemyAI? closestEnemy;
-        public EnemyAI? targetEnemy;
-        public CustomEnemySize customEnemySize = CustomEnemySize.Small;
-
-        public void ReactToAttack(EnemyAI owner, EnemyAI attacker, int damage = 0)
-        {
-            Script.LogNS(LogLevel.Info, $"{LibraryCalls.DebugStringHead(attacker)} hit {LibraryCalls.DebugStringHead(attacker)} with {damage} damage");
-        }
-    }
-
     class EnemyData : EnemyDataBase
     {
         internal float originalAgentRadius = 0f;
@@ -47,10 +24,7 @@ namespace NaturalSelection.EnemyPatches
     {
         static bool debugUnspecified = Script.Bools["debugUnspecified"];
         static bool debugTriggerFlags = Script.Bools["debugTriggerFlags"];
-        public static Dictionary<object, EnemyDataBase> enemyDataDict = [];
-        public static Dictionary<EnemyAI, EnemyData> enemyDataDict2 = [];
-        public static Dictionary<SandSpiderWebTrap, SpiderWebValues> enemyDataDict3 = [];
-
+        public static Dictionary<string, EnemyDataBase> enemyDataDict = [];
         static void Event_OnConfigSettingChanged(string entryKey, bool value)
 
         {
@@ -63,7 +37,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void StartPostfix(EnemyAI __instance)
         {
-            EnemyData data = (EnemyData)GetEnemyData(__instance, new EnemyData());
+            EnemyData data = (EnemyData)GetEnemyData(__instance, new EnemyData(), true);
 
             data.originalAgentRadius = __instance.agent.radius;
 
@@ -104,22 +78,32 @@ namespace NaturalSelection.EnemyPatches
             Script.LogNS(BepInEx.Logging.LogLevel.Info, $"registered hit by {playerString} with force of {force}. playHitSFX:{playHitSFX}, hitID:{hitID}.", __instance, debugTriggerFlags);
         }
 
-        public static EnemyDataBase GetEnemyData(object __instance, EnemyDataBase enemyData)
+        public static EnemyDataBase GetEnemyData(object __instance, EnemyDataBase enemyData, bool returnToEnemyAIType = false)
         {
-            if (!enemyDataDict.ContainsKey(__instance))
+            string id = "-1";
+            if (__instance is EnemyAI)
+            {
+                id = ((EnemyAI)__instance).enemyType.enemyName + ((EnemyAI)__instance).NetworkBehaviourId;
+                if (returnToEnemyAIType) id += ".base";
+            }
+            else if (__instance is SandSpiderWebTrap) id = ((SandSpiderWebTrap)__instance).mainScript.enemyType.enemyName + ((SandSpiderWebTrap)__instance).mainScript.NetworkBehaviourId +"SpiderWeb"+ ((SandSpiderWebTrap)__instance).trapID;
+            else if (__instance is string) id = (string)__instance;
+            else return null;
+            
+            if (!enemyDataDict.ContainsKey(id))
             {
                 Script.LogNS(LogLevel.Warning, $"Missing data container for {LibraryCalls.DebugStringHead(__instance)}. Creating new data container...");
-                enemyDataDict.Add(__instance, enemyData);
+                enemyDataDict.Add(id, enemyData);
             }
-            return enemyDataDict[__instance];
+            return enemyDataDict[id];
         }
 
-        public static void GetEnemyData(object __instance, out EnemyDataBase enemyDataOut)
+        public static void GetEnemyData(string __instance, out EnemyDataBase enemyDataOut)
         {
             enemyDataOut = enemyDataDict[__instance];
         }
 
-        public static EnemyData GetEnemyData(EnemyAI __instance, EnemyData enemyData)
+        /*public static EnemyData GetEnemyData(EnemyAI __instance, EnemyData enemyData)
         {
             if (!enemyDataDict2.ContainsKey(__instance))
             {
@@ -127,9 +111,9 @@ namespace NaturalSelection.EnemyPatches
                 enemyDataDict2.Add(__instance, enemyData);
             }
             return enemyDataDict2[__instance];
-        }
+        }*/
 
-        public static SpiderWebValues GetEnemyData(SandSpiderWebTrap __instance, SpiderWebValues enemyData)
+        /*public static SpiderWebValues GetEnemyData(SandSpiderWebTrap __instance, SpiderWebValues enemyData)
         {
             if (!SandSpiderWebTrapPatch.spiderWebs.ContainsKey(__instance))
             {
@@ -137,12 +121,13 @@ namespace NaturalSelection.EnemyPatches
                 SandSpiderWebTrapPatch.spiderWebs.Add(__instance, enemyData);
             }
             return SandSpiderWebTrapPatch.spiderWebs[__instance];
-        }
+        }*/
 
         public static void ReactToAttack(EnemyAI instance, Collider other)
         {
-            GetEnemyData(other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript, out EnemyDataBase enemyData);
-            enemyData.ReactToAttack(instance, other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript,1);
+            string id = other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript.enemyType.enemyName + other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript.NetworkBehaviourId;
+            GetEnemyData(id, out EnemyDataBase enemyData);
+            if (enemyData != null) enemyData.ReactToAttack(instance, other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript,1);
         }
     }
     public class ReversePatchAI

@@ -31,7 +31,7 @@ namespace NaturalSelection.EnemyPatches
             internal List<SandSpiderWebTrap> NumberOfTraps { get; set; } = new List<SandSpiderWebTrap>();
         }
 
-        internal static Dictionary<SandSpiderWebTrap, SpiderWebValues> spiderWebs = new Dictionary<SandSpiderWebTrap, SpiderWebValues>();
+        //internal static Dictionary<SandSpiderWebTrap, SpiderWebValues> spiderWebs = new Dictionary<SandSpiderWebTrap, SpiderWebValues>();
         static Dictionary<EnemyAI, EnemyInfo> enemyData = new Dictionary<EnemyAI, EnemyInfo>();
         static bool debugLogs = Script.Bools["debugBool"];
         static bool debugWebs = Script.Bools["debugSpiderWebs"];
@@ -52,8 +52,6 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void AwakePostfix(SandSpiderWebTrap __instance)
         {
-            EnemyAIPatch.GetEnemyData(__instance, new SpiderWebValues());
-
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
 

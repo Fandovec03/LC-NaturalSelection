@@ -7,6 +7,7 @@ using ReXuvination.src.Patches;
 using SandSpiderWebTrapPatch = NaturalSelection.EnemyPatches.SandSpiderWebTrapPatch;
 using System.Linq;
 using ReXuvination;
+using NaturalSelection.EnemyPatches;
 
 namespace NaturalSelection.Compatibility
 {
@@ -14,12 +15,12 @@ namespace NaturalSelection.Compatibility
     {
         public static bool patchedQuickMenu = false;
 
-        [HarmonyPatch(typeof(SandSpiderWebTrap) ,"Awake")]
-        [HarmonyPostfix]
-        [HarmonyAfter("XuuXiaolan.ReXuvination")]
-        static void AwakePostfix(SandSpiderWebTrap __instance)
+        [HarmonyPatch(typeof(SandSpiderWebTrap) ,"Update")]
+        [HarmonyPrefix]
+        static void UpdatePrefix(SandSpiderWebTrap __instance)
         {
-            if (Script.rexuvinationPresent && !SandSpiderWebTrapPatch.spiderWebs[__instance].patchedCollisionLayer)
+            SpiderWebValues webData = (SpiderWebValues)EnemyAIPatch.GetEnemyData(__instance, new SpiderWebValues());
+            if (Script.rexuvinationPresent && !webData.patchedCollisionLayer)
             {
                 Collider[] colliders = __instance.gameObject.GetComponents<Collider>();
                 int patched = 0;
@@ -35,7 +36,7 @@ namespace NaturalSelection.Compatibility
                 }
                 if (patched > 0)
                 {
-                    SandSpiderWebTrapPatch.spiderWebs[__instance].patchedCollisionLayer = true;
+                    webData.patchedCollisionLayer = true;
                 }
             }
         }

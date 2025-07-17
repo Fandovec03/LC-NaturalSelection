@@ -55,7 +55,7 @@ public class EnemyDataBase
 class NSUtilities()
 {
 
-    public static bool isEnemyReachable(EnemyAI enemy)
+    public static bool IsEnemyReachable(EnemyAI enemy)
     {
         if (enemy is CentipedeAI && ((CentipedeAI)enemy).clingingToCeiling) return false;
         if (enemy is SandWormAI) return false;
@@ -65,9 +65,9 @@ class NSUtilities()
         return true;
     }
 
-    public static bool IsVanilla(object checkInput)
+    public static bool IsVanilla(EnemyAI checkInput)
     {
-        Script.LogNS(LogLevel.Debug, checkInput.GetType().AssemblyQualifiedName, "IsVanillaCheck");
-        return checkInput.GetType().AssemblyQualifiedName == "Assembly-CSharp, 0.0.0.0, .NETStandard, v2.1";
+        Script.LogNS(LogLevel.Debug, $"{checkInput.enemyType.enemyName}>{checkInput.GetType().Assembly.FullName}", "IsVanillaCheck");
+        return checkInput.GetType().Assembly.FullName == "Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null";
     }
 }

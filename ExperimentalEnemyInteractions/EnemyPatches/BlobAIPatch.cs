@@ -71,7 +71,7 @@ namespace NaturalSelection.EnemyPatches
                 else if (id == __instance.NetworkBehaviourId)
                 {
                     Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance);
-                    EnemyAIPatch.enemyDataDict[blobData.enemyID].closestEnemy = closestEnemy;
+                    EnemyAIPatch.GetEnemyData(__instance, new BlobData()).closestEnemy = closestEnemy;
                 }
             }
 

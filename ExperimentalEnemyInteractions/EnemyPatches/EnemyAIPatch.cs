@@ -15,8 +15,6 @@ namespace NaturalSelection.EnemyPatches
     class EnemyData : EnemyDataBase
     {
         internal float originalAgentRadius = 0f;
-        //internal Dictionary<Type, int> targetedByEnemies = new Dictionary<Type, int>();
-        //CustomEnemySize customEnemySize = CustomEnemySize.Small;
     }
 
     [HarmonyPatch(typeof(EnemyAI))]
@@ -75,7 +73,7 @@ namespace NaturalSelection.EnemyPatches
             {
                 playerString = $"{playerWhoHit.playerUsername}(SteamID: {playerWhoHit.playerSteamId}, playerClientID: {playerWhoHit.playerClientId})";
             }
-            Script.LogNS(BepInEx.Logging.LogLevel.Info, $"registered hit by {playerString} with force of {force}. playHitSFX:{playHitSFX}, hitID:{hitID}.", __instance, debugTriggerFlags);
+            Script.LogNS(LogLevel.Info, $"registered hit by {playerString} with force of {force}. playHitSFX:{playHitSFX}, hitID:{hitID}.", __instance, debugTriggerFlags);
         }
 
         public static EnemyDataBase GetEnemyData(object __instance, EnemyDataBase enemyData, bool returnToEnemyAIType = false)
@@ -92,7 +90,7 @@ namespace NaturalSelection.EnemyPatches
             
             if (!enemyDataDict.ContainsKey(id))
             {
-                Script.LogNS(LogLevel.Warning, $"Missing data container for {LibraryCalls.DebugStringHead(__instance)}. Creating new data container...");
+                Script.LogNS(LogLevel.Info, $"Missing data container for {LibraryCalls.DebugStringHead(__instance)}. Creating new data container...");
                 enemyDataDict.Add(id, enemyData);
             }
             return enemyDataDict[id];
@@ -102,27 +100,6 @@ namespace NaturalSelection.EnemyPatches
         {
             enemyDataOut = enemyDataDict[__instance];
         }
-
-        /*public static EnemyData GetEnemyData(EnemyAI __instance, EnemyData enemyData)
-        {
-            if (!enemyDataDict2.ContainsKey(__instance))
-            {
-                Script.LogNS(LogLevel.Warning, $"Missing data container for {LibraryCalls.DebugStringHead(__instance)}. Creating new data container...");
-                enemyDataDict2.Add(__instance, enemyData);
-            }
-            return enemyDataDict2[__instance];
-        }*/
-
-        /*public static SpiderWebValues GetEnemyData(SandSpiderWebTrap __instance, SpiderWebValues enemyData)
-        {
-            if (!SandSpiderWebTrapPatch.spiderWebs.ContainsKey(__instance))
-            {
-                Script.LogNS(LogLevel.Warning, $"Missing data container for {LibraryCalls.DebugStringHead(__instance)}. Creating new data container...");
-                SandSpiderWebTrapPatch.spiderWebs.Add(__instance, enemyData);
-            }
-            return SandSpiderWebTrapPatch.spiderWebs[__instance];
-        }*/
-
         public static void ReactToAttack(EnemyAI instance, Collider other)
         {
             string id = other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript.enemyType.enemyName + other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript.NetworkBehaviourId;

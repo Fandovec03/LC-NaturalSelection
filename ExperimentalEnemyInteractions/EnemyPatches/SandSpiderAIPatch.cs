@@ -119,8 +119,8 @@ namespace NaturalSelection.EnemyPatches
                     case 0:
                     {
                         List<EnemyAI> tempList = spiderData.enemiesInLOSDictionary.Keys.ToList();
-                        //spiderData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, spiderData.closestEnemy, __instance);
-                        __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(tempList, spiderData.closestEnemy, __instance, usePathLengthAsDistance: true));
+                        spiderData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, spiderData.closestEnemy, __instance);
+                        //__instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(tempList, spiderData.closestEnemy, __instance, usePathLengthAsDistance: true));
 
                         if (spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f, __instance.eye) != false && !spiderData.closestEnemy.isEnemyDead)
                         {

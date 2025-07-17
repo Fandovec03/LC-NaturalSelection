@@ -163,8 +163,8 @@ namespace NaturalSelection.EnemyPatches
 			{
 				List<EnemyAI> temp = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
                 LibraryCalls.GetInsideOrOutsideEnemyList(ref temp, __instance);
-                //blobData.closestEnemy = LibraryCalls.FindClosestEnemy(ref temp, blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
-                __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(temp, blobData.closestEnemy, __instance, true, true, Script.BoundingConfig.blobPathfindToCorpses.Value));
+                blobData.closestEnemy = LibraryCalls.FindClosestEnemy(ref temp, blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
+                //__instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(temp, blobData.closestEnemy, __instance, true, true, Script.BoundingConfig.blobPathfindToCorpses.Value));
             }
 
 			if (blobData.playSound)
@@ -174,15 +174,6 @@ namespace NaturalSelection.EnemyPatches
 				blobData.playSound = false;
 			}
         }
-
-        /*public static void CheckDataIntegrityBlob(BlobAI __instance)
-        {
-            if (!slimeList.ContainsKey(__instance))
-            {
-                Script.LogNS(LogLevel.Fatal, $"Critical failule. Failed to get data for {LibraryCalls.DebugStringHead(__instance)}. Attempting to fix...");
-                slimeList.Add(__instance, new BlobData());
-            }
-        }*/
 
 		public static void OnCustomEnemyCollision(BlobAI __instance, EnemyAI mainscript2)
 		{

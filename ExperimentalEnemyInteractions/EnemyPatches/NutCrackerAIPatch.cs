@@ -80,8 +80,8 @@ namespace NaturalSelection.EnemyPatches
             enemyList = LibraryCalls.GetCompleteList(__instance);
             LibraryCalls.GetInsideOrOutsideEnemyList(ref enemyList, __instance);
 
-            __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(enemyList, data.closestEnemy, __instance, usePathLengthAsDistance: true));
-
+            //__instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(enemyList, data.closestEnemy, __instance, usePathLengthAsDistance: true));
+            data.closestEnemy = LibraryCalls.FindClosestEnemy(ref enemyList, data.closestEnemy, __instance);
 
             if (__instance.currentBehaviourStateIndex == 1)
             {

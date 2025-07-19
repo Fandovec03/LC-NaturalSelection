@@ -36,7 +36,8 @@ namespace NaturalSelection.EnemyPatches
         static void StartPostfix(EnemyAI __instance)
         {
             EnemyData data = (EnemyData)GetEnemyData(__instance, new EnemyData(), true);
-
+            data.SetOwner(__instance);
+            data.Subscribe();
             data.originalAgentRadius = __instance.agent.radius;
 
             if (InitializeGamePatch.customSizeOverrideListDictionary.ContainsKey(__instance.enemyType.enemyName))
@@ -49,6 +50,19 @@ namespace NaturalSelection.EnemyPatches
             __instance.agent.radius = __instance.agent.radius * Script.BoundingConfig.agentRadiusModifier.Value;
             Script.LogNS(BepInEx.Logging.LogLevel.Message, $"Modified agent radius. Original: {data.originalAgentRadius}, Modified: {__instance.agent.radius}", toggle: debugUnspecified && debugTriggerFlags);
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
+        }
+
+        [HarmonyPatch("OnDestroy")]
+        [HarmonyPostfix]
+        static void OnDestroyPostfix(EnemyAI __instance)
+        {
+            Script.LogNS(LogLevel.Debug, $"{LibraryCalls.DebugStringHead(__instance)} destroyed. Unsubscribing and stopping coroutines...", __instance);
+            EnemyData data = (EnemyData)GetEnemyData(__instance, new EnemyData(), true);
+            EnemyDataBase dataBase = GetEnemyData(__instance, new EnemyDataBase());
+
+            data.Unsubscribe();
+            dataBase.Unsubscribe();
+            //Script.LogNS(LogLevel.Debug, $"{__instance} destroyed. Unsubscribing and stopping coroutines...", __instance);
         }
 
         static public int ReactToHit(int force = 0, EnemyAI? enemyAI = null, PlayerControllerB? player = null)
@@ -92,18 +106,31 @@ namespace NaturalSelection.EnemyPatches
             {
                 Script.LogNS(LogLevel.Info, $"Missing data container for {LibraryCalls.DebugStringHead(__instance)}. Creating new data container...");
                 enemyDataDict.Add(id, enemyData);
+                enemyDataDict[id].SetOwner(__instance);
             }
             return enemyDataDict[id];
         }
 
-        public static void GetEnemyData(string __instance, out EnemyDataBase enemyDataOut)
+        public static EnemyDataBase? GetEnemyData(object __instance, bool returnToEnemyAIType = false)
         {
-            enemyDataOut = enemyDataDict[__instance];
+            EnemyDataBase? temp;
+            string id = "-1";
+            if (__instance is EnemyAI)
+            {
+                id = ((EnemyAI)__instance).enemyType.enemyName + ((EnemyAI)__instance).NetworkBehaviourId;
+                if (returnToEnemyAIType) id += ".base";
+            }
+            else if (__instance is SandSpiderWebTrap) id = ((SandSpiderWebTrap)__instance).mainScript.enemyType.enemyName + ((SandSpiderWebTrap)__instance).mainScript.NetworkBehaviourId + "SpiderWeb" + ((SandSpiderWebTrap)__instance).trapID;
+            else if (__instance is string) id = (string)__instance;
+            else return null;
+
+            enemyDataDict.TryGetValue(id, out temp);
+            return temp;
         }
         public static void ReactToAttack(EnemyAI instance, Collider other)
         {
             string id = other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript.enemyType.enemyName + other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript.NetworkBehaviourId;
-            GetEnemyData(id, out EnemyDataBase enemyData);
+            EnemyDataBase? enemyData = GetEnemyData(id);
             if (enemyData != null) enemyData.ReactToAttack(instance, other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript,1);
         }
     }

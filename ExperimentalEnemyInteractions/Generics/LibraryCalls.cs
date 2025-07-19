@@ -1,9 +1,10 @@
+using BepInEx.Logging;
+using NaturalSelection.EnemyPatches;
+using NaturalSelectionLib;
+using NaturalSelectionLib.Comp;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using BepInEx.Logging;
-using NaturalSelectionLib;
-using NaturalSelectionLib.Comp;
 using UnityEngine;
 using UnityEngine.AI;
 

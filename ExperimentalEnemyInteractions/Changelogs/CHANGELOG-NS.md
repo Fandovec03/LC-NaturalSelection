@@ -1,5 +1,18 @@
 # _Natural selection_
-¨
+
+# 0.4.8
+- Updated __Blacklists__.
+    - **WARNING:** Blacklists will be reset. Check your config for orphaned entries after loading into game once.
+- Updated ReXuvination compatibility
+- Updated logs
+
+### Internal
+- Replaced majority of loggers with method
+- Rewamped enemy data system
+
+### Library
+- Updated DebugStringHead. Now it accepts any type
+
 # 0.4.7
 - Redone fix for blob opening doors.
 

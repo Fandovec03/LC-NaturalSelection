@@ -50,23 +50,16 @@ namespace NaturalSelection.EnemyPatches
         static void UpdatePatch(NutcrackerEnemyAI __instance)
         {
             NutcrackerData data = (NutcrackerData)EnemyAIPatch.GetEnemyData(__instance, new NutcrackerData());
+            data.SetOwner(__instance);
+            data.Subscribe();
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
 
-            NaturalSelectionLib.NaturalSelectionLib.ReturnOwnerResultPairDelegate += getClosestEnemyResult;
-            void getClosestEnemyResult(int id, EnemyAI? closestEnemy)
+            data.ChangeClosestEnemyAction += getClosestEnemyResult;
+            void getClosestEnemyResult(EnemyAI? closestEnemy)
             {
-                //Script.LogNS(LogLevel.Info, "Received action delegate", __instance);
-                if (__instance == null)
-                {
-                    Script.LogNS(LogLevel.Error, "No longer exists. Unsubscribing.", __instance);
-                    NaturalSelectionLib.NaturalSelectionLib.ReturnOwnerResultPairDelegate -= getClosestEnemyResult;
-                }
-                else if (id == __instance.NetworkBehaviourId)
-                {
-                    Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance);
-                    string tempStringID = __instance.enemyType.enemyName + __instance.NetworkBehaviourId;
-                    EnemyAIPatch.enemyDataDict[tempStringID].closestEnemy = closestEnemy;
-                }
+                Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance);
+                string tempStringID = __instance.enemyType.enemyName + __instance.NetworkBehaviourId;
+                EnemyAIPatch.enemyDataDict[tempStringID].closestEnemy = closestEnemy;
             }
         }
 
@@ -79,9 +72,16 @@ namespace NaturalSelection.EnemyPatches
 
             enemyList = LibraryCalls.GetCompleteList(__instance);
             LibraryCalls.GetInsideOrOutsideEnemyList(ref enemyList, __instance);
-
-            //__instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(enemyList, data.closestEnemy, __instance, usePathLengthAsDistance: true));
-            data.closestEnemy = LibraryCalls.FindClosestEnemy(ref enemyList, data.closestEnemy, __instance);
+            if (Script.BoundingConfig.useExperimentalCoroutines.Value)
+            {
+                if (data.coroutineTimer <= 0f) { __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(data.ChangeClosestEnemyAction, enemyList, data.closestEnemy, __instance)); data.coroutineTimer = 0.2f; }
+                else data.coroutineTimer -= Time.deltaTime;
+            }
+            else
+            {
+                data.closestEnemy = LibraryCalls.FindClosestEnemy(ref enemyList, data.closestEnemy, __instance);
+            }
+            //data.closestEnemy = LibraryCalls.FindClosestEnemy(ref enemyList, data.closestEnemy, __instance);
 
             if (__instance.currentBehaviourStateIndex == 1)
             {

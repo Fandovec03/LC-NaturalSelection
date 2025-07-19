@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using BepInEx.Logging;
+using EasyTextEffects.Editor.MyBoxCopy.Extensions;
 using HarmonyLib;
 using NaturalSelection.EnemyPatches;
+using NaturalSelectionLib.Comp;
 using UnityEngine;
 
 
@@ -20,11 +23,42 @@ public enum CustomEnemySize
 }
 public class EnemyDataBase
 {
+    private object? owner;
     int CustomBehaviorStateIndex = 0;
     public EnemyAI? closestEnemy;
     public EnemyAI? targetEnemy;
     public CustomEnemySize customEnemySize = CustomEnemySize.Small;
     public string enemyID = "";
+    internal Action<EnemyAI?>? ChangeClosestEnemyAction;
+    private bool subscribed;
+    public float coroutineTimer = 0f;
+
+    public void SetOwner(object owner)
+    {
+        if (this.owner == null) this.owner = owner;
+        return;
+    }
+    public void Subscribe()
+    {
+        if (subscribed) return;
+        subscribed = true;
+        ChangeClosestEnemyAction += UpdateClosestEnemy;
+    }
+    public void Unsubscribe()
+    {
+        if (!subscribed) return;
+        ChangeClosestEnemyAction -= UpdateClosestEnemy;
+    }
+    public void UpdateClosestEnemy(EnemyAI? importClosestEnemy)
+    {
+        if (this.owner == null)
+        {
+            Script.LogNS(LogLevel.Warning, "NULL owner! Unsubscribing...", this.owner);
+            Unsubscribe();
+        }
+        this.closestEnemy = importClosestEnemy;
+    }
+
     public void ReactToAttack(EnemyAI owner, EnemyAI attacker, int damage = 0)
     {
         Script.LogNS(LogLevel.Info, $"{LibraryCalls.DebugStringHead(attacker)} hit {LibraryCalls.DebugStringHead(attacker)} with {damage} damage");

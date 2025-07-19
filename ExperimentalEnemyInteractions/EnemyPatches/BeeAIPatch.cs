@@ -43,10 +43,6 @@ class BeeAIPatch
         BeeValues beeData = (BeeValues)EnemyAIPatch.GetEnemyData(__instance, new BeeValues());
 
         Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
-
-
-
-
     }
 
     [HarmonyPatch("Update")]
@@ -304,15 +300,6 @@ class BeeAIPatch
         string NWID = "NSSetGiantOnFire" + forestGiantAI.NetworkObjectId;
         return Networking.NSEnemyNetworkEvent(NWID);
     }
-
-    /*public static void CheckDataIntegrityBees(RedLocustBees __instance)
-    {
-        if (!beeList.ContainsKey(__instance))
-        {
-            Script.LogNS(LogLevel.Fatal, $"Critical failule. Failed to get data for {LibraryCalls.DebugStringHead(__instance)}. Attempting to fix...");
-            beeList.Add(__instance, new BeeValues());
-        }
-    }*/
 
     public static void OnCustomEnemyCollision(RedLocustBees __instance, EnemyAI mainscript2)
     {

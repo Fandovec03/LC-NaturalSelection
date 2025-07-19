@@ -15,6 +15,7 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<float> agentRadiusModifier;
     public readonly ConfigEntry<float> globalListsUpdateInterval;
     public readonly ConfigEntry<string> customSizeOverrideList;
+    public readonly ConfigEntry<bool> useExperimentalCoroutines;
     //enemy bools
     public readonly ConfigEntry<bool> enableSpider;
     public readonly ConfigEntry<bool> enableSlime;
@@ -81,6 +82,7 @@ namespace NaturalSelection.Generics;
         {
             //experimental fixes
             sandwormCollisionOverride = cfg.Bind("Experimental Fixes", "Sandworm collision override", false, "Override vanilla sandworm collisions. May fix lag when sandworm collides with multiple enemies at once. \n \n May be removed in the future.");
+            useExperimentalCoroutines = cfg.Bind("Experimental", "Enable experimental library coroutines", false, "Use experimental coroutines for finding closest enemy. May improve performance. Limited testing.");
 
             //general settings
             stableMode = cfg.Bind("General Settings", "Toggle stable mode", true, "When true, the mod will exlude patches that are WIP or are experimental from loading. Requires restart.");

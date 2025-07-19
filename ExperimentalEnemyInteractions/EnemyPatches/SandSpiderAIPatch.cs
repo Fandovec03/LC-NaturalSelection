@@ -45,22 +45,15 @@ namespace NaturalSelection.EnemyPatches
         static void StartPatch(SandSpiderAI __instance)
         {
             SpiderData data = (SpiderData)EnemyAIPatch.GetEnemyData(__instance, new SpiderData());
+            data.SetOwner(__instance);
+            data.Subscribe();
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
 
-            NaturalSelectionLib.NaturalSelectionLib.ReturnOwnerResultPairDelegate += getClosestEnemyResult;
-            void getClosestEnemyResult(int id, EnemyAI? closestEnemy)
+            data.ChangeClosestEnemyAction += getClosestEnemyResult;
+            void getClosestEnemyResult(EnemyAI? closestEnemy)
             {
-                //Script.LogNS(LogLevel.Info, "Received action delegate", __instance);
-                if (__instance == null)
-                {
-                    Script.LogNS(LogLevel.Error, "No longer exists. Unsubscribing.", __instance);
-                    NaturalSelectionLib.NaturalSelectionLib.ReturnOwnerResultPairDelegate -= getClosestEnemyResult;
-                }
-                else if (id == __instance.NetworkBehaviourId)
-                {
-                    Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance);
-                    data.closestEnemy = closestEnemy;
-                }
+                Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance);
+                data.closestEnemy = closestEnemy;
             }
         }
         [HarmonyPatch("Update")]
@@ -119,20 +112,28 @@ namespace NaturalSelection.EnemyPatches
                     case 0:
                     {
                         List<EnemyAI> tempList = spiderData.enemiesInLOSDictionary.Keys.ToList();
-                        spiderData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, spiderData.closestEnemy, __instance);
-                        //__instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(tempList, spiderData.closestEnemy, __instance, usePathLengthAsDistance: true));
+                        //spiderData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, spiderData.closestEnemy, __instance);
+                        if (Script.BoundingConfig.useExperimentalCoroutines.Value)
+                        {
+                            if (spiderData.coroutineTimer <= 0f) { __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(spiderData.ChangeClosestEnemyAction, tempList, spiderData.closestEnemy, __instance)); spiderData.coroutineTimer = 0.2f; }
+                            else spiderData.coroutineTimer -= Time.deltaTime;
+                        }
+                        else
+                        {
+                            spiderData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, spiderData.closestEnemy, __instance);
+                        }
 
                         if (spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f, __instance.eye) != false && !spiderData.closestEnemy.isEnemyDead)
-                        {
-                            spiderData.targetEnemy = spiderData.closestEnemy;
-                            spiderData.investigateTrap = null;
-                            Script.LogNS(LogLevel.Info,$"Update Postfix: /case0/ Set {spiderData.closestEnemy} as TargetEnemy", __instance, debugSpider);
-                            __instance.SwitchToBehaviourState(2);
-                            Script.LogNS(LogLevel.Debug,$"Update Postfix: /case0/ Set state to {__instance.currentBehaviourStateIndex}", __instance, debugSpider);
-                            __instance.chaseTimer = 12.5f / chaseModifier;
-                            __instance.watchFromDistance = Vector3.Distance(__instance.meshContainer.transform.position, spiderData.closestEnemy.transform.position) > 5f;
-                            break;
-                        }
+                            {
+                                spiderData.targetEnemy = spiderData.closestEnemy;
+                                spiderData.investigateTrap = null;
+                                Script.LogNS(LogLevel.Info, $"Update Postfix: /case0/ Set {spiderData.closestEnemy} as TargetEnemy", __instance, debugSpider);
+                                __instance.SwitchToBehaviourState(2);
+                                Script.LogNS(LogLevel.Debug, $"Update Postfix: /case0/ Set state to {__instance.currentBehaviourStateIndex}", __instance, debugSpider);
+                                __instance.chaseTimer = 12.5f / chaseModifier;
+                                __instance.watchFromDistance = Vector3.Distance(__instance.meshContainer.transform.position, spiderData.closestEnemy.transform.position) > 5f;
+                                break;
+                            }
 
                         if (spiderData.investigateTrap != null)
                         {

@@ -9,6 +9,7 @@ using HarmonyLib;
 using LethalNetworkAPI;
 using LethalNetworkAPI.Utils;
 using NaturalSelection.Generics;
+using NaturalSelectionLib;
 using Steamworks.Data;
 using Unity.Netcode;
 using UnityEngine;
@@ -49,7 +50,8 @@ namespace NaturalSelection.EnemyPatches
 		static void StartPatch(BlobAI __instance)
 		{
             BlobData blobData = (BlobData)EnemyAIPatch.GetEnemyData(__instance, new BlobData());
-
+			blobData.SetOwner(__instance);
+			blobData.Subscribe();
             __instance.enemyType.doorSpeedMultiplier = Script.BoundingConfig.blobAIOpeningDoorsMultiplier.Value;
 
             BlobEatCorpseEvent(__instance).OnClientReceived += EventReceived;
@@ -59,20 +61,12 @@ namespace NaturalSelection.EnemyPatches
 				blobData.playSound = true;
             }
 
-            NaturalSelectionLib.NaturalSelectionLib.ReturnOwnerResultPairDelegate += getClosestEnemyResult;
-            void getClosestEnemyResult(int id, EnemyAI? closestEnemy)
+            blobData.ChangeClosestEnemyAction += getClosestEnemyResult;
+
+            void getClosestEnemyResult(EnemyAI? closestEnemy)
             {
-                //Script.LogNS(LogLevel.Info, "Received action delegate", __instance);
-                if (__instance == null)
-                {
-                    Script.LogNS(LogLevel.Error, "No longer exists. Unsubscribing.", __instance);
-                    NaturalSelectionLib.NaturalSelectionLib.ReturnOwnerResultPairDelegate -= getClosestEnemyResult;
-                }
-                else if (id == __instance.NetworkBehaviourId)
-                {
-                    Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance);
-                    EnemyAIPatch.GetEnemyData(__instance, new BlobData()).closestEnemy = closestEnemy;
-                }
+                Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance);
+                EnemyAIPatch.GetEnemyData(__instance, new BlobData()).closestEnemy = closestEnemy;
             }
 
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
@@ -163,11 +157,19 @@ namespace NaturalSelection.EnemyPatches
 			{
 				List<EnemyAI> temp = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
                 LibraryCalls.GetInsideOrOutsideEnemyList(ref temp, __instance);
-                blobData.closestEnemy = LibraryCalls.FindClosestEnemy(ref temp, blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
-                //__instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(temp, blobData.closestEnemy, __instance, true, true, Script.BoundingConfig.blobPathfindToCorpses.Value));
+				//blobData.closestEnemy = LibraryCalls.FindClosestEnemy(ref temp, blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
+				if (Script.BoundingConfig.useExperimentalCoroutines.Value)
+				{
+					if (blobData.coroutineTimer <= 0f) { __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(blobData.ChangeClosestEnemyAction, temp, blobData.closestEnemy, __instance)); blobData.coroutineTimer = 0.2f; }
+					else blobData.coroutineTimer -= Time.deltaTime;
+				}
+				else
+				{
+					blobData.closestEnemy = LibraryCalls.FindClosestEnemy(ref temp, blobData.closestEnemy, __instance);
+                }
             }
 
-			if (blobData.playSound)
+            if (blobData.playSound)
 			{
                 Script.LogNS(BepInEx.Logging.LogLevel.Message,"Playing sound.", __instance);
                 __instance.creatureVoice.PlayOneShot(__instance.killPlayerSFX);

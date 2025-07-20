@@ -1,5 +1,11 @@
 # Experimental Enemy Interactions
 
+## 0.5.25
+- Added toggle for Library calls
+
+### Library
+- Put loggers behind toggles
+
 ## 0.5.24
 
 - Mixed generating bad data container ids resulting in enemies sharing single data container

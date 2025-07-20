@@ -65,6 +65,7 @@ namespace NaturalSelection.Generics;
     public ConfigEntry<bool> debugGiants;
     public ConfigEntry<bool> debugUnspecified;
     public ConfigEntry<bool> debugLibrary;
+    public ConfigEntry<bool> debugLibraryTrigger;
     public ConfigEntry<bool> debugSpiderWebs;
 
     public Dictionary<string,ConfigEntry<bool>> debugEntries = new Dictionary<string, ConfigEntry<bool>>();
@@ -131,6 +132,7 @@ namespace NaturalSelection.Generics;
             debugTriggerFlags = cfg.Bind("Debug", "Trigger flags", false, "Enables logs with trigger flag."); debugEntries.Add(nameof(debugTriggerFlags), debugTriggerFlags);
             debugUnspecified = cfg.Bind("Debug", "Log unspecified", false, "Enables logs for unspecified. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugUnspecified), debugUnspecified);
             debugLibrary = cfg.Bind("Debug", "Log library", false, "Enables logs for the library. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugLibrary), debugLibrary);
+            debugLibraryTrigger = cfg.Bind("Debug", "Log library trigger", false, "Enables logs for the library calls. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugLibraryTrigger), debugLibraryTrigger);
             debugRedBees = cfg.Bind("Debug", "Log bees", false, "Enables logs for bees. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugRedBees), debugRedBees);
             debugSandworms = cfg.Bind("Debug", "Log sandworms", false, "Enables logs for sandowrms. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugSandworms), debugSandworms);
             debugHygrodere = cfg.Bind("Debug", "Log hydrogere", false, "Enables logs for hydrogere. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugHygrodere), debugHygrodere);

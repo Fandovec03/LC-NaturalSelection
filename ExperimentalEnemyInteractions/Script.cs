@@ -41,6 +41,7 @@ public class Script : BaseUnityPlugin
     private static bool spammyLogs = false;
     private static bool debugNetworking = false;
     private static bool debugLibrary = false;
+    private static bool debugLibraryTrigger = false;
     private static bool debugTriggerFlags = false;
     private static bool debugGiants = false;
     private static bool debugHygrodere = false;
@@ -78,6 +79,7 @@ public class Script : BaseUnityPlugin
         Bools.Add(nameof(debugBool),debugBool);
         Bools.Add(nameof(spammyLogs),spammyLogs);
         Bools.Add(nameof(debugNetworking),debugNetworking);
+        Bools.Add(nameof(debugLibraryTrigger), debugLibraryTrigger);
         Bools.Add(nameof(debugLibrary),debugLibrary);
         Bools.Add(nameof(debugTriggerFlags),debugTriggerFlags);
         Bools.Add(nameof(debugGiants),debugGiants);

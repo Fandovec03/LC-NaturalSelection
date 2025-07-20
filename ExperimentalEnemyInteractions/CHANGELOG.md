@@ -1,5 +1,10 @@
 # Experimental Enemy Interactions
 
+## 0.5.26
+- Added toggle for PathfindingLib coroutines
+    - While on and PathfindingLib present, PathfindingLib will be used in coroutine
+- Added toggle to use Pathfinding to find closest enemy
+
 ## 0.5.25
 - Added toggle for Library calls
 

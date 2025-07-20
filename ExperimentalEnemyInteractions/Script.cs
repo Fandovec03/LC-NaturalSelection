@@ -57,7 +57,9 @@ public class Script : BaseUnityPlugin
     internal static bool rexuvinationPresent = false;
     internal static bool CompatibilityAutoToggle = false;
     internal static bool LobbyCompatibilityPresent = false;
-
+    //experimental
+    internal static bool usePathfindingLib = false;
+    internal static bool usePathToFindClosestEnemy = false;
 
     internal static Dictionary<string,bool> Bools = new Dictionary<string, bool>();
     internal static List<EnemyAI> loadedEnemyList = new List<EnemyAI>();
@@ -91,6 +93,8 @@ public class Script : BaseUnityPlugin
         Bools.Add(nameof(debugSpiderWebs),debugSpiderWebs);
         Bools.Add(nameof(debugUnspecified),debugUnspecified);
         CompatibilityAutoToggle = BoundingConfig.CompatibilityAutoToggle.Value;
+        usePathfindingLib = BoundingConfig.usePathfindinglibCoroutines.Value;
+        usePathToFindClosestEnemy = BoundingConfig.usePathToFindClosestEnemy.Value;
 
         foreach (var entry in BoundingConfig.debugEntries)
         {
@@ -197,7 +201,7 @@ public class Script : BaseUnityPlugin
 
         try
         {
-            NaturalSelectionLib.NaturalSelectionLib.SetLibraryLoggers(Logger, spammyLogs, debugLibrary);
+            NaturalSelectionLib.NaturalSelectionLib.SetLibraryLoggers(Logger, spammyLogs, debugLibrary, usePathfindingLib);
             Logger.LogMessage($"Library successfully setup! Version {NaturalSelectionLib.NaturalSelectionLib.ReturnVersion()}");
         }
         catch

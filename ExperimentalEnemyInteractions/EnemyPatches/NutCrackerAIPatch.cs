@@ -78,7 +78,7 @@ namespace NaturalSelection.EnemyPatches
             }
             else
             {
-                data.closestEnemy = LibraryCalls.FindClosestEnemy(ref enemyList, data.closestEnemy, __instance, usePathLenghtAsDistance: true);
+                data.closestEnemy = LibraryCalls.FindClosestEnemy(ref enemyList, data.closestEnemy, __instance, usePathLenghtAsDistance: Script.usePathToFindClosestEnemy);
             }
             //data.closestEnemy = LibraryCalls.FindClosestEnemy(ref enemyList, data.closestEnemy, __instance);
 

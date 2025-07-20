@@ -1,5 +1,20 @@
 # Experimental Enemy Interactions
 
+## 0.5.24
+
+- Mixed generating bad data container ids resulting in enemies sharing single data container
+- Moved data container base and data container methods into utillities class
+- Enemies when destroyed will destroy their data container aswell
+
+### Library
+- FindClosestEnemyCoroutine will work without Pathfindinglib
+- Added checks to prevent enumerator errors
+- Minor internal changes
+
+### Known issues
+- Mass killing baboon hawks by earth leviathan often results in error spam.
+
+
 ## 0.5.23
 
 ### Data structures

@@ -8,6 +8,7 @@ using SandSpiderWebTrapPatch = NaturalSelection.EnemyPatches.SandSpiderWebTrapPa
 using System.Linq;
 using ReXuvination;
 using NaturalSelection.EnemyPatches;
+using NaturalSelection.Generics;
 
 namespace NaturalSelection.Compatibility
 {
@@ -19,7 +20,7 @@ namespace NaturalSelection.Compatibility
         [HarmonyPrefix]
         static void UpdatePrefix(SandSpiderWebTrap __instance)
         {
-            SpiderWebValues webData = (SpiderWebValues)EnemyAIPatch.GetEnemyData(__instance, new SpiderWebValues());
+            SpiderWebValues webData = (SpiderWebValues)Utilities.GetEnemyData(__instance, new SpiderWebValues());
             if (Script.rexuvinationPresent && !webData.patchedCollisionLayer)
             {
                 Collider[] colliders = __instance.gameObject.GetComponents<Collider>();

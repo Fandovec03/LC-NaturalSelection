@@ -84,9 +84,9 @@ public class LibraryCalls
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library GetEnemiesInLOS!");
         return NaturalSelectionLib.NaturalSelectionLib.GetEnemiesInLOS(instance, width, importRange, proximityAwareness, importRadius, importEyePosition);
     }
-    static public bool GetPathLength(NavMeshAgent agent, Vector3 targetDestination, out float PathLength)
+    static public bool GetPathLength(NavMeshAgent agent, Vector3 targetDestination, out float PathLength, out bool ValidPath)
     {
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library GetPathLength!");
-        return NaturalSelectionLib.NaturalSelectionLib.GetPathLength(agent, targetDestination, out PathLength);
+        return NaturalSelectionLib.NaturalSelectionLib.GetPathLength(agent, targetDestination, out PathLength, out ValidPath);
     }
 }

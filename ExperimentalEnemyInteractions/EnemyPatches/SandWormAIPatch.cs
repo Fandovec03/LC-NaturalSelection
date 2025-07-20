@@ -65,7 +65,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static void SandWormStartPatch(SandWormAI __instance)
         {
-            SandWormAIData data = (SandWormAIData)EnemyAIPatch.GetEnemyData(__instance, new SandWormAIData());
+            SandWormAIData data = (SandWormAIData)Utilities.GetEnemyData(__instance, new SandWormAIData());
             data.SetOwner(__instance);
             data.Subscribe();
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
@@ -95,7 +95,7 @@ namespace NaturalSelection.EnemyPatches
         static bool SandWormPrefixUpdatePatch(SandWormAI __instance)
         {
             if (__instance.isEnemyDead) return true;
-            SandWormAIData SandwormData = (SandWormAIData)EnemyAIPatch.GetEnemyData(__instance, new SandWormAIData());
+            SandWormAIData SandwormData = (SandWormAIData)Utilities.GetEnemyData(__instance, new SandWormAIData());
             Type type = __instance.GetType();
 
             if (__instance.IsOwner)
@@ -141,9 +141,8 @@ namespace NaturalSelection.EnemyPatches
                 {
                     List<EnemyAI> tempList = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
                     LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
-                    SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, SandwormData.closestEnemy, __instance);
-                    if (SandwormData.coroutineTimer <= 0f) { __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(SandwormData.ChangeClosestEnemyAction, tempList, SandwormData.closestEnemy, __instance)); SandwormData.coroutineTimer = 0.2f; }
-                    else SandwormData.coroutineTimer -= Time.deltaTime;
+                    SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, SandwormData.closestEnemy, __instance, usePathLenghtAsDistance: true);
+                    if (SandwormData.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(SandwormData.ChangeClosestEnemyAction, tempList, SandwormData.closestEnemy, __instance, usePathLengthAsDistance: true)); SandwormData.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
                 }
                 SandwormData.refreshCDtime = 0.2f;
             }
@@ -208,7 +207,7 @@ namespace NaturalSelection.EnemyPatches
         static void SandWormPostfixUpdatePatch(SandWormAI __instance)
         {
             if (__instance.isEnemyDead) return;
-            SandWormAIData SandwormData = (SandWormAIData)EnemyAIPatch.GetEnemyData(__instance, new SandWormAIData());
+            SandWormAIData SandwormData = (SandWormAIData)Utilities.GetEnemyData(__instance, new SandWormAIData());
             int targetingEntity = SandwormData.NetworkSandwormBehaviorState;
             bool networkMovingTowardsPlayer = SandwormData.movingTowardsTargetPlayer;
 
@@ -285,7 +284,7 @@ namespace NaturalSelection.EnemyPatches
         static bool SandWormDoAIIntervalPrefix(SandWormAI __instance)
         {
             if (__instance.isEnemyDead) return true;
-            SandWormAIData SandwormData = (SandWormAIData)EnemyAIPatch.GetEnemyData(__instance, new SandWormAIData());
+            SandWormAIData SandwormData = (SandWormAIData)Utilities.GetEnemyData(__instance, new SandWormAIData());
             Type type = __instance.GetType();
             int targetingEntity = SandwormData.NetworkSandwormBehaviorState;
             Script.LogNS(LogLevel.Debug,$"DoAIInterval: checking chaseTimer: {__instance.chaseTimer}", __instance,debugSandworm && debugSpam && triggerFlag);
@@ -302,8 +301,7 @@ namespace NaturalSelection.EnemyPatches
                             LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
                             if (Script.BoundingConfig.useExperimentalCoroutines.Value)
                             {
-                                if (SandwormData.coroutineTimer <= 0f) { __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(SandwormData.ChangeClosestEnemyAction, tempList, SandwormData.closestEnemy, __instance)); SandwormData.coroutineTimer = 0.2f; }
-                                else SandwormData.coroutineTimer -= Time.deltaTime;
+                                if (SandwormData.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(SandwormData.ChangeClosestEnemyAction, tempList, SandwormData.closestEnemy, __instance, usePathLengthAsDistance: true)); SandwormData.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
                             }
                             else SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, SandwormData.closestEnemy, __instance, usePathLenghtAsDistance: true);
                             __instance.agent.speed = 4f;

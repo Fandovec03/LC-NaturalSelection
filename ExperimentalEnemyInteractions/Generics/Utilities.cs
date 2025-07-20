@@ -66,7 +66,7 @@ public class EnemyDataBase
 
     public string GetOrSetId(EnemyAI instance)
     {
-        if (String.IsNullOrEmpty(enemyID)) enemyID = instance.enemyType.enemyName + instance.NetworkBehaviourId;
+        if (String.IsNullOrEmpty(enemyID)) enemyID = instance.enemyType.enemyName + instance.NetworkObjectId;
         return enemyID;
     }
 
@@ -77,18 +77,18 @@ public class EnemyDataBase
     }
     public string GetOrSetId(SandSpiderWebTrap instance)
     {
-        if (String.IsNullOrEmpty(enemyID)) enemyID = instance.mainScript.enemyType.enemyName + instance.mainScript.NetworkBehaviourId + instance.trapID; ;
+        if (String.IsNullOrEmpty(enemyID)) enemyID = instance.mainScript.enemyType.enemyName + instance.mainScript.NetworkObjectId + instance.trapID; ;
         return enemyID;
     }
     public string GetOrSetId(GrabbableObject instance)
     {
-        if (String.IsNullOrEmpty(enemyID)) enemyID = instance.itemProperties.itemName + instance.NetworkBehaviourId;
+        if (String.IsNullOrEmpty(enemyID)) enemyID = instance.itemProperties.itemName + instance.NetworkObjectId;
         return enemyID; 
     }
 }
-class NSUtilities()
+class Utilities
 {
-
+    public static Dictionary<string, EnemyDataBase> enemyDataDict = [];
     public static bool IsEnemyReachable(EnemyAI enemy)
     {
         if (enemy is CentipedeAI && ((CentipedeAI)enemy).clingingToCeiling) return false;
@@ -104,4 +104,47 @@ class NSUtilities()
         Script.LogNS(LogLevel.Debug, $"{checkInput.enemyType.enemyName}>{checkInput.GetType().Assembly.FullName}", "IsVanillaCheck");
         return checkInput.GetType().Assembly.FullName == "Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null";
     }
+
+    public static EnemyDataBase GetEnemyData(object __instance, EnemyDataBase enemyData, bool returnToEnemyAIType = false)
+    {
+        string id = GetDataID(__instance, returnToEnemyAIType);
+        if (id == "-1" || __instance == null) return null;
+
+        if (!enemyDataDict.ContainsKey(id))
+        {
+            Script.LogNS(LogLevel.Info, $"Missing data container for {LibraryCalls.DebugStringHead(__instance)}. Creating new data container...");
+            enemyDataDict.Add(id, enemyData);
+            enemyDataDict[id].SetOwner(__instance);
+            enemyDataDict[id].Subscribe();
+        }
+        return enemyDataDict[id];
+    }
+
+    public static void TryGetEnemyData(object __instance, out EnemyDataBase temp, bool returnToEnemyAIType = false)
+    {
+        string id = GetDataID(__instance, returnToEnemyAIType);
+
+        enemyDataDict.TryGetValue(id, out temp);
+    }
+
+    public static void DeleteData(object instance, bool returnToEnemyAIType = false)
+    {
+        string id = GetDataID(instance, returnToEnemyAIType);
+        if (enemyDataDict.ContainsKey(id)) enemyDataDict.Remove(id);
+    }
+
+    public static string GetDataID(object instance, bool returnToEnemyAIType = false)
+    {
+        string id = "-1";
+        if (instance is EnemyAI)
+        {
+            id = ((EnemyAI)instance).enemyType.enemyName + ((EnemyAI)instance).NetworkObjectId;
+            if (returnToEnemyAIType) id += ".base";
+        }
+        else if (instance is SandSpiderWebTrap) id = ((SandSpiderWebTrap)instance).mainScript.enemyType.enemyName + ((SandSpiderWebTrap)instance).mainScript.NetworkObjectId + "SpiderWeb" + ((SandSpiderWebTrap)instance).trapID;
+        else if (instance is string) id = (string)instance;
+
+        return id;
+    }
+
 }

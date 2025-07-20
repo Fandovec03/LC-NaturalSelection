@@ -10,7 +10,6 @@ namespace NaturalSelection.Generics;
 class RoundManagerPatch
 {
     static float nextUpdate = 0;
-    static float updateTime = 0;
     static Dictionary<Type, List<EnemyAI>> checkedTypes = new Dictionary<Type, List<EnemyAI>>();
     public static float updateListInterval = Script.BoundingConfig.globalListsUpdateInterval.Value;
     static bool logSpam = Script.Bools["spammyLogs"];

@@ -49,7 +49,7 @@ namespace NaturalSelection.EnemyPatches
 		[HarmonyPrefix]
 		static void StartPatch(BlobAI __instance)
 		{
-            BlobData blobData = (BlobData)EnemyAIPatch.GetEnemyData(__instance, new BlobData());
+            BlobData blobData = (BlobData)Utilities.GetEnemyData(__instance, new BlobData());
 			blobData.SetOwner(__instance);
 			blobData.Subscribe();
             __instance.enemyType.doorSpeedMultiplier = Script.BoundingConfig.blobAIOpeningDoorsMultiplier.Value;
@@ -66,7 +66,7 @@ namespace NaturalSelection.EnemyPatches
             void getClosestEnemyResult(EnemyAI? closestEnemy)
             {
                 Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance);
-                EnemyAIPatch.GetEnemyData(__instance, new BlobData()).closestEnemy = closestEnemy;
+                Utilities.GetEnemyData(__instance, new BlobData()).closestEnemy = closestEnemy;
             }
 
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
@@ -76,7 +76,7 @@ namespace NaturalSelection.EnemyPatches
 		static bool DoAIIntervalPrefixPatch(BlobAI __instance)
 		{
             if (__instance.isEnemyDead) return true;
-            BlobData blobData = (BlobData)EnemyAIPatch.GetEnemyData(__instance, new BlobData());
+            BlobData blobData = (BlobData)Utilities.GetEnemyData(__instance, new BlobData());
 
 			if (Script.BoundingConfig.blobPathfind.Value == true)
 			{
@@ -136,7 +136,7 @@ namespace NaturalSelection.EnemyPatches
 		static void BlobUpdatePatch(BlobAI __instance)
 		{
             if (__instance.isEnemyDead) return;
-            BlobData blobData = (BlobData)EnemyAIPatch.GetEnemyData(__instance, new BlobData());
+            BlobData blobData = (BlobData)Utilities.GetEnemyData(__instance, new BlobData());
 			Type type = __instance.GetType();
 
 			foreach(KeyValuePair<EnemyAI, float> enemy in new Dictionary<EnemyAI, float>(blobData.hitRegistry))
@@ -160,12 +160,11 @@ namespace NaturalSelection.EnemyPatches
 				//blobData.closestEnemy = LibraryCalls.FindClosestEnemy(ref temp, blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
 				if (Script.BoundingConfig.useExperimentalCoroutines.Value)
 				{
-					if (blobData.coroutineTimer <= 0f) { __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(blobData.ChangeClosestEnemyAction, temp, blobData.closestEnemy, __instance)); blobData.coroutineTimer = 0.2f; }
-					else blobData.coroutineTimer -= Time.deltaTime;
+					if (blobData.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(blobData.ChangeClosestEnemyAction, temp, blobData.closestEnemy, __instance ,usePathLengthAsDistance: true)); blobData.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
 				}
 				else
 				{
-					blobData.closestEnemy = LibraryCalls.FindClosestEnemy(ref temp, blobData.closestEnemy, __instance);
+					blobData.closestEnemy = LibraryCalls.FindClosestEnemy(ref temp, blobData.closestEnemy, __instance, usePathLenghtAsDistance: true);
                 }
             }
 
@@ -179,7 +178,7 @@ namespace NaturalSelection.EnemyPatches
 
 		public static void OnCustomEnemyCollision(BlobAI __instance, EnemyAI mainscript2)
 		{
-			BlobData blobData = (BlobData)EnemyAIPatch.GetEnemyData(__instance, new BlobData());
+			BlobData blobData = (BlobData)Utilities.GetEnemyData(__instance, new BlobData());
 
 			if (!blobData.hitRegistry.ContainsKey(mainscript2) && !blobBlacklist.Contains(mainscript2.enemyType.enemyName))
 			{

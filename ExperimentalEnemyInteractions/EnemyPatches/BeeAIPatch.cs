@@ -40,7 +40,7 @@ class BeeAIPatch
     [HarmonyPostfix]
     static void StartPatch(RedLocustBees __instance)
     {
-        BeeValues beeData = (BeeValues)EnemyAIPatch.GetEnemyData(__instance, new BeeValues());
+        BeeValues beeData = (BeeValues)Utilities.GetEnemyData(__instance, new BeeValues());
 
         Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
     }
@@ -49,7 +49,7 @@ class BeeAIPatch
     [HarmonyPostfix]
     static void UpdatePatch(RedLocustBees __instance)
     {
-        BeeValues beeData = (BeeValues)EnemyAIPatch.GetEnemyData(__instance, new BeeValues());
+        BeeValues beeData = (BeeValues)Utilities.GetEnemyData(__instance, new BeeValues());
         if (RoundManagerPatch.RequestUpdate(__instance) == true)
         {
             List<EnemyAI> tempList = LibraryCalls.GetCompleteList(__instance);
@@ -70,7 +70,7 @@ class BeeAIPatch
     [HarmonyPrefix]
     static bool DoAIIntervalPrefixPatch(RedLocustBees __instance)
     {
-        BeeValues beeData = (BeeValues)EnemyAIPatch.GetEnemyData(__instance, new BeeValues());
+        BeeValues beeData = (BeeValues)Utilities.GetEnemyData(__instance, new BeeValues());
 
         if (beeData.targetEnemy != null && __instance.movingTowardsTargetPlayer == false && beeData.customBehaviorStateIndex != 0)
     {
@@ -91,7 +91,7 @@ class BeeAIPatch
     static void DoAIIntervalPostfixPatch(RedLocustBees __instance)
     {
         if (__instance.isEnemyDead) return;
-        BeeValues beeData = (BeeValues)EnemyAIPatch.GetEnemyData(__instance, new BeeValues());
+        BeeValues beeData = (BeeValues)Utilities.GetEnemyData(__instance, new BeeValues());
         Type type = __instance.GetType();
 
         List <EnemyAI> tempList = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
@@ -304,8 +304,8 @@ class BeeAIPatch
     public static void OnCustomEnemyCollision(RedLocustBees __instance, EnemyAI mainscript2)
     {
         if (mainscript2.GetType() == typeof(RedLocustBees)) return;
-        BeeValues beeData = (BeeValues)EnemyAIPatch.GetEnemyData(__instance, new BeeValues());
-        if (EnemyAIPatch.enemyDataDict.ContainsKey(beeData.enemyID) && !beeBlacklist.Contains(mainscript2.enemyType.enemyName))
+        BeeValues beeData = (BeeValues)Utilities.GetEnemyData(__instance, new BeeValues());
+        if (Utilities.enemyDataDict.ContainsKey(beeData.enemyID) && !beeBlacklist.Contains(mainscript2.enemyType.enemyName))
         {
             if ((!beeData.hitRegistry.ContainsKey(mainscript2) || beeData.hitRegistry[mainscript2] > 1.7f) && __instance.currentBehaviourStateIndex > 0 && !mainscript2.isEnemyDead || (!beeData.hitRegistry.ContainsKey(mainscript2) || beeData.hitRegistry[mainscript2] > 1.2f) && __instance.currentBehaviourStateIndex == 2 && !mainscript2.isEnemyDead)
             {

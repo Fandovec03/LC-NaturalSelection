@@ -23,7 +23,6 @@ namespace NaturalSelection.EnemyPatches
     [HarmonyPatch(typeof(SandSpiderAI))]
     class SandSpiderAIPatch
     {
-        static float refreshCDtimeSpider = 1f;
         static float chaseModifier = Script.BoundingConfig.chaseAfterEnemiesModifier.Value;
 
         //static Dictionary<SandSpiderAI, SpiderData> spiderList = [];
@@ -44,7 +43,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static void StartPatch(SandSpiderAI __instance)
         {
-            SpiderData data = (SpiderData)EnemyAIPatch.GetEnemyData(__instance, new SpiderData());
+            SpiderData data = (SpiderData)Utilities.GetEnemyData(__instance, new SpiderData());
             data.SetOwner(__instance);
             data.Subscribe();
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
@@ -61,7 +60,7 @@ namespace NaturalSelection.EnemyPatches
         static bool UpdatePrefixPatch(SandSpiderAI __instance)
         {
             if (__instance.isEnemyDead) return true;
-            SpiderData spiderData = (SpiderData)EnemyAIPatch.GetEnemyData(__instance, new SpiderData());
+            SpiderData spiderData = (SpiderData)Utilities.GetEnemyData(__instance, new SpiderData());
             Type type = __instance.GetType();
 
             if (RoundManagerPatch.RequestUpdate(__instance) == true)
@@ -115,12 +114,11 @@ namespace NaturalSelection.EnemyPatches
                         //spiderData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, spiderData.closestEnemy, __instance);
                         if (Script.BoundingConfig.useExperimentalCoroutines.Value)
                         {
-                            if (spiderData.coroutineTimer <= 0f) { __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(spiderData.ChangeClosestEnemyAction, tempList, spiderData.closestEnemy, __instance)); spiderData.coroutineTimer = 0.2f; }
-                            else spiderData.coroutineTimer -= Time.deltaTime;
+                            if (spiderData.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(spiderData.ChangeClosestEnemyAction, tempList, spiderData.closestEnemy, __instance, usePathLengthAsDistance: true)); spiderData.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
                         }
                         else
                         {
-                            spiderData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, spiderData.closestEnemy, __instance);
+                            spiderData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, spiderData.closestEnemy, __instance, usePathLenghtAsDistance: true);
                         }
 
                         if (spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f, __instance.eye) != false && !spiderData.closestEnemy.isEnemyDead)
@@ -272,22 +270,6 @@ namespace NaturalSelection.EnemyPatches
                     }
                 }
 
-                if (refreshCDtimeSpider <= 0)
-                {
-                    if (debugSpider && debugSpam)
-                    {
-                        Script.LogNS(LogLevel.Info,LibraryCalls.DebugStringHead(__instance) + "watchFromDistance: " + __instance.watchFromDistance);
-                        Script.LogNS(LogLevel.Info,LibraryCalls.DebugStringHead(__instance) + "overrideSpiderLookRotation: " + __instance.overrideSpiderLookRotation);
-                        Script.LogNS(LogLevel.Info,LibraryCalls.DebugStringHead(__instance) + "moveTowardsDestination: " + __instance.moveTowardsDestination);
-                        Script.LogNS(LogLevel.Info,LibraryCalls.DebugStringHead(__instance) + "movingTowardsTargetPlayer: " + __instance.movingTowardsTargetPlayer);
-                    }
-                    refreshCDtimeSpider = 0.5f;
-                }
-                else
-                {
-                    refreshCDtimeSpider -= Time.deltaTime;
-                }
-
                 if ((spiderData.targetEnemy != null && __instance.currentBehaviourStateIndex == 2 || spiderData.investigateTrap != null) && !__instance.targetPlayer)
                 {
                     //Script.LogNS(LogLevel.Message,$"Invoking originalUpdate");
@@ -343,7 +325,7 @@ namespace NaturalSelection.EnemyPatches
         static bool DoAIIntervalPrefix(SandSpiderAI __instance)
         {
             if (__instance.isEnemyDead) return true;
-            SpiderData spiderData = (SpiderData)EnemyAIPatch.GetEnemyData(__instance, new SpiderData()); ;
+            SpiderData spiderData = (SpiderData)Utilities.GetEnemyData(__instance, new SpiderData()); ;
             SandSpiderAI Ins = __instance;
 
             if (spiderData.targetEnemy != null && !__instance.targetPlayer && __instance.currentBehaviourStateIndex == 2)
@@ -366,7 +348,7 @@ namespace NaturalSelection.EnemyPatches
         {
             if (__instance.isEnemyDead) return;
             SandSpiderAI Ins = __instance;
-            SpiderData spiderData = (SpiderData)EnemyAIPatch.GetEnemyData(__instance, new SpiderData()); ;
+            SpiderData spiderData = (SpiderData)Utilities.GetEnemyData(__instance, new SpiderData()); ;
             
             switch (__instance.currentBehaviourStateIndex)
             {
@@ -432,7 +414,7 @@ namespace NaturalSelection.EnemyPatches
         public static void OnCustomEnemyCollision(SandSpiderAI __instance, EnemyAI mainscript2)
         {
             if (mainscript2.GetType() == typeof(SandSpiderAI)) return;
-            if (EnemyAIPatch.enemyDataDict.ContainsKey(__instance.enemyType.enemyName + __instance.NetworkBehaviourId) && __instance.currentBehaviourStateIndex == 2 && !mainscript2.isEnemyDead && !spiderBlacklist.Contains(mainscript2.enemyType.enemyName))
+            if (Utilities.enemyDataDict.ContainsKey(__instance.enemyType.enemyName + __instance.NetworkBehaviourId) && __instance.currentBehaviourStateIndex == 2 && !mainscript2.isEnemyDead && !spiderBlacklist.Contains(mainscript2.enemyType.enemyName))
             {
                 Script.LogNS(LogLevel.Debug,$"timeSinceHittingPlayer: {__instance.timeSinceHittingPlayer}", __instance, debugSpider && debugTriggerFlag);
                 if (__instance.timeSinceHittingPlayer > 1f)
@@ -457,7 +439,7 @@ namespace NaturalSelection.EnemyPatches
 
         static void ChaseEnemy(SandSpiderAI ins, EnemyAI target, SandSpiderWebTrap? triggeredWeb = null)
         {
-            SpiderData spiderData = (SpiderData)EnemyAIPatch.GetEnemyData(ins, new SpiderData());
+            SpiderData spiderData = (SpiderData)Utilities.GetEnemyData(ins, new SpiderData());
             if ((ins.currentBehaviourStateIndex != 2 && ins.watchFromDistance) || Vector3.Distance(target.transform.position, ins.homeNode.position) < 25f || Vector3.Distance(ins.meshContainer.position, target.transform.position) < 15f)
             {
                 ins.watchFromDistance = false;
@@ -472,13 +454,13 @@ namespace NaturalSelection.EnemyPatches
             if (!Script.BoundingConfig.enableSpider.Value) return;
 
 
-            SpiderWebValues webData = (SpiderWebValues)EnemyAIPatch.GetEnemyData(triggeredTrap, new SpiderWebValues());
+            SpiderWebValues webData = (SpiderWebValues)Utilities.GetEnemyData(triggeredTrap, new SpiderWebValues());
             EnemyAI? tempEnemy = webData.trappedEnemy;
 
             if (tempEnemy == null || InitializeGamePatch.spiderBlacklist.Contains(tempEnemy.enemyType.enemyName) || tempEnemy.isEnemyDead) { return; }
 
             CustomEnemySize customEnemySize = (CustomEnemySize)InitializeGamePatch.customSizeOverrideListDictionary[tempEnemy.enemyType.enemyName];
-            SpiderData spiderData = (SpiderData)EnemyAIPatch.GetEnemyData(owner, new SpiderData());
+            SpiderData spiderData = (SpiderData)Utilities.GetEnemyData(owner, new SpiderData());
             Script.LogNS(LogLevel.Info,$"Custom enemy size: {customEnemySize}", triggeredTrap, debugSpider);
             if (owner.currentBehaviourStateIndex != 2)
             {

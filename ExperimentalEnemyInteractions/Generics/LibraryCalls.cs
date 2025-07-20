@@ -15,8 +15,6 @@ public class LibraryCalls
     static bool debugSpam = Script.Bools["spammyLogs"];
     static bool debugLibraryCalls = Script.Bools["debugLibrary"];
 
-    static Dictionary<int, PathFindingHandler> pathFindingHandlers = new Dictionary<int, PathFindingHandler>();
-
     static void Event_OnConfigSettingChanged(string entryKey, bool value)
     {
         if (entryKey == "spammyLogs") { debugSpam = value; NaturalSelectionLib.NaturalSelectionLib.SetLibraryLoggers(Script.Logger, value, debugLibraryCalls); }
@@ -83,10 +81,5 @@ public class LibraryCalls
     {
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library GetEnemiesInLOS!");
         return NaturalSelectionLib.NaturalSelectionLib.GetEnemiesInLOS(instance, width, importRange, proximityAwareness, importRadius, importEyePosition);
-    }
-    static public bool GetPathLength(NavMeshAgent agent, Vector3 targetDestination, out float PathLength, out bool ValidPath)
-    {
-        if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library GetPathLength!");
-        return NaturalSelectionLib.NaturalSelectionLib.GetPathLength(agent, targetDestination, out PathLength, out ValidPath);
     }
 }

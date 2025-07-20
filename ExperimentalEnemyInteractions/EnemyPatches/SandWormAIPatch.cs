@@ -127,7 +127,7 @@ namespace NaturalSelection.EnemyPatches
                 {
                     List<EnemyAI> tempList = LibraryCalls.GetCompleteList(__instance, true, 0);
                     Dictionary<EnemyAI, int> tempDict = new Dictionary<EnemyAI, int>();
-                    LibraryCalls.FilterEnemyList(ref tempList, sandwormBlacklist, __instance, true);
+                    LibraryCalls.FilterEnemyList(ref tempList, sandwormBlacklist, __instance, filterOutImmortal: false,filterTheSameType: true);
                     foreach (var enemy in tempList)
                     {
                         tempDict.Add(enemy, InitializeGamePatch.customSizeOverrideListDictionary[enemy.enemyType.enemyName]);

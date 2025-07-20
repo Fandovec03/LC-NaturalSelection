@@ -1,5 +1,9 @@
 # Experimental Enemy Interactions
 
+## 0.5.27
+- Removed junk code
+- Enabled Sandworms targetting immortal enemies
+
 ## 0.5.26
 - Added toggle for PathfindingLib coroutines
     - While on and PathfindingLib present, PathfindingLib will be used in coroutine

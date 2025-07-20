@@ -4,6 +4,9 @@
 - Removed junk code
 - Enabled Sandworms targetting immortal enemies
 
+### Library
+- Rewrote code to use API instead of Jobs
+
 ## 0.5.26
 - Added toggle for PathfindingLib coroutines
     - While on and PathfindingLib present, PathfindingLib will be used in coroutine

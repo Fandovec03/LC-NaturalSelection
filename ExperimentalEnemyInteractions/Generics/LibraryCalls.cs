@@ -1,12 +1,8 @@
 using BepInEx.Logging;
-using NaturalSelection.EnemyPatches;
-using NaturalSelectionLib;
-using NaturalSelectionLib.Comp;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace NaturalSelection.Generics;
 
@@ -81,5 +77,9 @@ public class LibraryCalls
     {
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library GetEnemiesInLOS!");
         return NaturalSelectionLib.NaturalSelectionLib.GetEnemiesInLOS(instance, width, importRange, proximityAwareness, importRadius, importEyePosition);
+    }
+    public static IEnumerator FindClosestEnemyEnumerator(Action<EnemyAI>? ReturnOwnerResult, List<EnemyAI> importEnemyList, EnemyAI? importClosestEnemy, EnemyAI instance, bool useThreatVisibility = true, bool usePathLenghtAsDistance = false, bool includeTheDead = false)
+    {
+        return NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemy(ReturnOwnerResult, importEnemyList, importClosestEnemy, instance, useThreatVisibility, usePathLenghtAsDistance, includeTheDead);
     }
 }

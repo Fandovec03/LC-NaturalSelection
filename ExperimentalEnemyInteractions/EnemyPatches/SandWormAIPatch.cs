@@ -1,10 +1,8 @@
-﻿using BepInEx.Logging;
-using GameNetcodeStuff;
+﻿using GameNetcodeStuff;
 using HarmonyLib;
 using LethalNetworkAPI;
 using NaturalSelection.Generics;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -142,7 +140,7 @@ namespace NaturalSelection.EnemyPatches
                     List<EnemyAI> tempList = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
                     LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
                     SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, SandwormData.closestEnemy, __instance, usePathLenghtAsDistance: Script.usePathToFindClosestEnemy);
-                    if (SandwormData.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(SandwormData.ChangeClosestEnemyAction, tempList, SandwormData.closestEnemy, __instance, usePathLengthAsDistance: true)); SandwormData.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
+                    if (SandwormData.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(LibraryCalls.FindClosestEnemyEnumerator(SandwormData.ChangeClosestEnemyAction, tempList, SandwormData.closestEnemy, __instance, usePathLenghtAsDistance: true)); SandwormData.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
                 }
                 SandwormData.refreshCDtime = 0.2f;
             }
@@ -301,7 +299,7 @@ namespace NaturalSelection.EnemyPatches
                             LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
                             if (Script.BoundingConfig.useExperimentalCoroutines.Value)
                             {
-                                if (SandwormData.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(SandwormData.ChangeClosestEnemyAction, tempList, SandwormData.closestEnemy, __instance, usePathLengthAsDistance: true)); SandwormData.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
+                                if (SandwormData.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(LibraryCalls.FindClosestEnemyEnumerator(SandwormData.ChangeClosestEnemyAction, tempList, SandwormData.closestEnemy, __instance, usePathLenghtAsDistance: true)); SandwormData.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
                             }
                             else SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, SandwormData.closestEnemy, __instance, usePathLenghtAsDistance: Script.usePathToFindClosestEnemy);
                             __instance.agent.speed = 4f;

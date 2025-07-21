@@ -1,5 +1,14 @@
 # Experimental Enemy Interactions
 
+## 0.5.28
+
+- Removed unused code
+- Added enumerator into LibraryCalls class
+- Updated README
+
+### Library
+- Rewrote PathfindingLib implementation (Thanks Zaggy!)
+
 ## 0.5.27
 - Removed junk code
 - Enabled Sandworms targetting immortal enemies

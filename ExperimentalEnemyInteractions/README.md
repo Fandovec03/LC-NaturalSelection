@@ -58,6 +58,17 @@ Many mechanics, behaviors an settings can be toggled and tweaked with config wit
 - Forest Keepers have a chance to extinguish and survive being set on fire although severely weakened.
 - Forest Keeper's corpse last longer on fire.
 
+### Compatible mods
+
+- **Enhanced Monsters/SellbodiesFixed**
+    - Added support for blob and future enemies to interact with corpses
+- **LobbyCompatibility**
+- **ReXuvination**
+- **PathfindingLib**
+    - Used in library
+- **StarlanceAIFix**
+    - Indirect compatibility
+
 ### Unfinished and WIP:
 
 ## TODO:
@@ -76,3 +87,4 @@ Many mechanics, behaviors an settings can be toggled and tweaked with config wit
 - DiFFoZ: Finding the problem causing bees to turn invisible
 - Quain808: Bug reports
 - Lunxara: Playtesting and bug reports
+- Zaggy1024: Help debuging and correctly integrating PathfindingLib into library

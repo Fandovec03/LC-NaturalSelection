@@ -160,7 +160,7 @@ namespace NaturalSelection.EnemyPatches
 				//blobData.closestEnemy = LibraryCalls.FindClosestEnemy(ref temp, blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
 				if (Script.BoundingConfig.useExperimentalCoroutines.Value)
 				{
-					if (blobData.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(blobData.ChangeClosestEnemyAction, temp, blobData.closestEnemy, __instance ,usePathLengthAsDistance: Script.usePathToFindClosestEnemy)); blobData.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
+					if (blobData.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(LibraryCalls.FindClosestEnemyEnumerator(blobData.ChangeClosestEnemyAction, temp, blobData.closestEnemy, __instance ,usePathLenghtAsDistance: Script.usePathToFindClosestEnemy)); blobData.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
 				}
 				else
 				{

@@ -4,12 +4,8 @@ using System.Reflection.Emit;
 using GameNetcodeStuff;
 using HarmonyLib;
 using NaturalSelection.Generics;
-using Steamworks.ServerList;
 using BepInEx.Logging;
-using System.Linq;
 using UnityEngine;
-using JetBrains.Annotations;
-
 namespace NaturalSelection.EnemyPatches
 {
     class EnemyData : EnemyDataBase

@@ -74,7 +74,7 @@ namespace NaturalSelection.EnemyPatches
             LibraryCalls.GetInsideOrOutsideEnemyList(ref enemyList, __instance);
             if (Script.BoundingConfig.useExperimentalCoroutines.Value)
             {
-                if (data.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(data.ChangeClosestEnemyAction, enemyList, data.closestEnemy, __instance, usePathLengthAsDistance: true)); data.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
+                if (data.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(LibraryCalls.FindClosestEnemyEnumerator(data.ChangeClosestEnemyAction, enemyList, data.closestEnemy, __instance, usePathLenghtAsDistance: true)); data.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
             }
             else
             {

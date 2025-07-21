@@ -1,9 +1,6 @@
 using HarmonyLib;
-using System.Collections.Generic;
 using UnityEngine;
 using LethalNetworkAPI;
-using Unity.Burst.CompilerServices;
-using LethalNetworkAPI.Utils;
 using NaturalSelection.Generics;
 using BepInEx.Logging;
 

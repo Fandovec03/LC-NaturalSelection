@@ -2,7 +2,6 @@ using BepInEx.Logging;
 using HarmonyLib;
 using NaturalSelection.Compatibility;
 using NaturalSelection.Generics;
-using System;
 using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches

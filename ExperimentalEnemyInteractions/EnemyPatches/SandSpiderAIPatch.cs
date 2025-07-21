@@ -4,7 +4,6 @@ using UnityEngine;
 using System.Linq;
 using NaturalSelection.Generics;
 using System;
-using LethalNetworkAPI;
 using BepInEx.Logging;
 
 namespace NaturalSelection.EnemyPatches
@@ -114,7 +113,7 @@ namespace NaturalSelection.EnemyPatches
                         //spiderData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, spiderData.closestEnemy, __instance);
                         if (Script.BoundingConfig.useExperimentalCoroutines.Value)
                         {
-                            if (spiderData.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemyCoroutine(spiderData.ChangeClosestEnemyAction, tempList, spiderData.closestEnemy, __instance, usePathLengthAsDistance: true)); spiderData.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
+                            if (spiderData.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(LibraryCalls.FindClosestEnemyEnumerator(spiderData.ChangeClosestEnemyAction, tempList, spiderData.closestEnemy, __instance, usePathLenghtAsDistance: true)); spiderData.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
                         }
                         else
                         {

@@ -1,13 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using BepInEx.Logging;
-using EasyTextEffects.Editor.MyBoxCopy.Extensions;
-using HarmonyLib;
-using NaturalSelection.EnemyPatches;
-using NaturalSelectionLib.Comp;
-using UnityEngine;
 
 
 namespace NaturalSelection.Generics;

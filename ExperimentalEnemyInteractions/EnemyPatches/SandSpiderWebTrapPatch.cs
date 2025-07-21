@@ -1,11 +1,7 @@
 ﻿using HarmonyLib;
-using LethalNetworkAPI;
 ﻿using BepInEx.Logging;
 using NaturalSelection.Generics;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches

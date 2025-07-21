@@ -1,9 +1,5 @@
-using BepInEx;
 using BepInEx.Logging;
-using EasyTextEffects.Editor.MyBoxCopy.Extensions;
 using HarmonyLib;
-using Mono.Cecil;
-using NaturalSelection;
 using System;
 using System.Collections.Generic;
 using System.Linq;

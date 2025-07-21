@@ -1,9 +1,6 @@
 using HarmonyLib;
-using System.Collections.Generic;
 using UnityEngine;
 using LethalNetworkAPI;
-using Unity.Burst.CompilerServices;
-using LethalNetworkAPI.Utils;
 using NaturalSelection.Generics;
 using BepInEx.Logging;
 
@@ -54,7 +51,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void startPostfix(ForestGiantAI __instance)
         {
-            GiantData data = (GiantData)EnemyAIPatch.GetEnemyData(__instance, new GiantData());
+            GiantData data = (GiantData)Utilities.GetEnemyData(__instance, new GiantData());
             NetworkSetGiantOnFire(__instance).OnServerReceived += UpdateSetGiantOnFireServer;
             //NetworkSetGiantOnFire(__instance).OnClientReceived += UpdateSetGiantOnFire;
 
@@ -94,7 +91,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void KillEnemyPatchPostfix(ForestGiantAI __instance)
         {
-            GiantData giantDaata = (GiantData)EnemyAIPatch.GetEnemyData(__instance, new GiantData());
+            GiantData giantDaata = (GiantData)Utilities.GetEnemyData(__instance, new GiantData());
             if (giantDaata.extinguished != 1 && __instance.currentBehaviourStateIndex == 2)
             {
                 __instance.burningParticlesContainer.SetActive(true);
@@ -106,7 +103,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static bool UpdatePrefix(ForestGiantAI __instance)
         {
-            GiantData giantData = (GiantData)EnemyAIPatch.GetEnemyData(__instance, new GiantData());
+            GiantData giantData = (GiantData)Utilities.GetEnemyData(__instance, new GiantData());
 
             if (__instance.currentBehaviourStateIndex == 2 && Time.realtimeSinceStartup - __instance.timeAtStartOfBurning > 9.5f && __instance.enemyHP > 20 && giantData.extinguished == 0  && !__instance.isEnemyDead && __instance.IsOwner)
             {
@@ -137,7 +134,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void UpdatePostfix(ForestGiantAI __instance)
         {
-            GiantData giantData = (GiantData)EnemyAIPatch.GetEnemyData(__instance, new GiantData());
+            GiantData giantData = (GiantData)Utilities.GetEnemyData(__instance, new GiantData());
             if (__instance.IsOwner) giantData.CachedNetworkOwnerPostfixResult = Time.realtimeSinceStartup - __instance.timeAtStartOfBurning;
 
             if (__instance.isEnemyDead && __instance.currentBehaviourStateIndex == 2 && giantData.CachedNetworkOwnerPostfixResult < 20f)

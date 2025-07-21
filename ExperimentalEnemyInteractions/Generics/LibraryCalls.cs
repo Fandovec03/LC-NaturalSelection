@@ -1,7 +1,8 @@
-using System.Collections.Generic;
 using BepInEx.Logging;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.AI;
 
 namespace NaturalSelection.Generics;
 
@@ -13,7 +14,7 @@ public class LibraryCalls
     static void Event_OnConfigSettingChanged(string entryKey, bool value)
     {
         if (entryKey == "spammyLogs") { debugSpam = value; NaturalSelectionLib.NaturalSelectionLib.SetLibraryLoggers(Script.Logger, value, debugLibraryCalls); }
-        if (entryKey == "debugLibrary") { debugLibraryCalls = value; NaturalSelectionLib.NaturalSelectionLib.SetLibraryLoggers(Script.Logger, debugSpam, value); }
+        if (entryKey == "debugLibraryTrigger") { debugLibraryCalls = value; NaturalSelectionLib.NaturalSelectionLib.SetLibraryLoggers(Script.Logger, debugSpam, value); }
 
         //Script.Logger.Log(LogLevel.Message,$"LibraryCalls received event. debugTriggerFlag = {debugTriggerFlag}, debugSpam = {debugSpam}");
     }
@@ -44,6 +45,7 @@ public class LibraryCalls
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library findClosestEnemy!");
         return NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemy(ref importEnemyList, importClosestEnemy, instance, useThreatVisibility, usePathLenghtAsDistance, includeTheDead);
     }
+
     public static void FilterEnemyList(ref List<EnemyAI> importEnemyList, List<string>? blacklist, EnemyAI instance, bool filterOutImmortal = true, bool filterTheSameType = true)
     {
         if (debugLibraryCalls) Script.Logger.LogInfo("Called library filterEnemyList!");
@@ -76,9 +78,8 @@ public class LibraryCalls
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library GetEnemiesInLOS!");
         return NaturalSelectionLib.NaturalSelectionLib.GetEnemiesInLOS(instance, width, importRange, proximityAwareness, importRadius, importEyePosition);
     }
-    static public bool GetPathLength(NavMeshAgent agent, Vector3 targetDestination, out float PathLength)
+    public static IEnumerator FindClosestEnemyEnumerator(Action<EnemyAI>? ReturnOwnerResult, List<EnemyAI> importEnemyList, EnemyAI? importClosestEnemy, EnemyAI instance, bool useThreatVisibility = true, bool usePathLenghtAsDistance = false, bool includeTheDead = false)
     {
-        if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library GetPathLength!");
-        return NaturalSelectionLib.NaturalSelectionLib.GetPathLength(agent, targetDestination, out PathLength);
+        return NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemy(ReturnOwnerResult, importEnemyList, importClosestEnemy, instance, useThreatVisibility, usePathLenghtAsDistance, includeTheDead);
     }
 }

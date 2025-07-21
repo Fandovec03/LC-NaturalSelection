@@ -4,42 +4,13 @@ using System.Reflection.Emit;
 using GameNetcodeStuff;
 using HarmonyLib;
 using NaturalSelection.Generics;
-using Steamworks.ServerList;
 using BepInEx.Logging;
-using System.Linq;
 using UnityEngine;
-using JetBrains.Annotations;
-
 namespace NaturalSelection.EnemyPatches
 {
-    public enum CustomEnemySize
-    {
-        Undefined,
-        Tiny,
-        Small,
-        Medium,
-        Large,
-        Giant
-    }
-
-    public class EnemyDataBase
-    {
-        int CustomBehaviorStateIndex = 0;
-        public EnemyAI? closestEnemy;
-        public EnemyAI? targetEnemy;
-        public CustomEnemySize customEnemySize = CustomEnemySize.Small;
-
-        public void ReactToAttack(EnemyAI owner, EnemyAI attacker, int damage = 0)
-        {
-            Script.LogNS(LogLevel.Info, $"{LibraryCalls.DebugStringHead(attacker)} hit {LibraryCalls.DebugStringHead(attacker)} with {damage} damage");
-        }
-    }
-
     class EnemyData : EnemyDataBase
     {
         internal float originalAgentRadius = 0f;
-        //internal Dictionary<Type, int> targetedByEnemies = new Dictionary<Type, int>();
-        //CustomEnemySize customEnemySize = CustomEnemySize.Small;
     }
 
     [HarmonyPatch(typeof(EnemyAI))]
@@ -47,10 +18,7 @@ namespace NaturalSelection.EnemyPatches
     {
         static bool debugUnspecified = Script.Bools["debugUnspecified"];
         static bool debugTriggerFlags = Script.Bools["debugTriggerFlags"];
-        public static Dictionary<object, EnemyDataBase> enemyDataDict = [];
-        public static Dictionary<EnemyAI, EnemyData> enemyDataDict2 = [];
-        public static Dictionary<SandSpiderWebTrap, SpiderWebValues> enemyDataDict3 = [];
-
+        public static Dictionary<string, EnemyDataBase> enemyDataDict = [];
         static void Event_OnConfigSettingChanged(string entryKey, bool value)
 
         {
@@ -63,8 +31,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void StartPostfix(EnemyAI __instance)
         {
-            EnemyData data = (EnemyData)GetEnemyData(__instance, new EnemyData());
-
+            EnemyData data = (EnemyData)Utilities.GetEnemyData(__instance, new EnemyData(), true);
             data.originalAgentRadius = __instance.agent.radius;
 
             if (InitializeGamePatch.customSizeOverrideListDictionary.ContainsKey(__instance.enemyType.enemyName))
@@ -77,6 +44,28 @@ namespace NaturalSelection.EnemyPatches
             __instance.agent.radius = __instance.agent.radius * Script.BoundingConfig.agentRadiusModifier.Value;
             Script.LogNS(BepInEx.Logging.LogLevel.Message, $"Modified agent radius. Original: {data.originalAgentRadius}, Modified: {__instance.agent.radius}", toggle: debugUnspecified && debugTriggerFlags);
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
+        }
+
+        [HarmonyPatch("OnDestroy")]
+        [HarmonyPostfix]
+        static void OnDestroyPostfix(EnemyAI __instance)
+        {
+            Script.LogNS(LogLevel.Debug, $"{LibraryCalls.DebugStringHead(__instance)} destroyed. Unsubscribing and destroying data containers...", __instance);
+            EnemyDataBase? data;
+            Utilities.TryGetEnemyData(__instance,out data);
+            EnemyDataBase? dataBase;
+            Utilities.TryGetEnemyData(__instance, out dataBase, true);
+            if (dataBase != null)
+            {
+                dataBase.Unsubscribe();
+                Utilities.DeleteData(Utilities.GetDataID(__instance, true));
+            }
+            if (data != null)
+            {
+                data.Unsubscribe();
+                Utilities.DeleteData(Utilities.GetDataID(__instance));
+            }
+            //Script.LogNS(LogLevel.Debug, $"{__instance} destroyed. Unsubscribing and stopping coroutines...", __instance);
         }
 
         static public int ReactToHit(int force = 0, EnemyAI? enemyAI = null, PlayerControllerB? player = null)
@@ -101,48 +90,15 @@ namespace NaturalSelection.EnemyPatches
             {
                 playerString = $"{playerWhoHit.playerUsername}(SteamID: {playerWhoHit.playerSteamId}, playerClientID: {playerWhoHit.playerClientId})";
             }
-            Script.LogNS(BepInEx.Logging.LogLevel.Info, $"registered hit by {playerString} with force of {force}. playHitSFX:{playHitSFX}, hitID:{hitID}.", __instance, debugTriggerFlags);
-        }
-
-        public static EnemyDataBase GetEnemyData(object __instance, EnemyDataBase enemyData)
-        {
-            if (!enemyDataDict.ContainsKey(__instance))
-            {
-                Script.LogNS(LogLevel.Warning, $"Missing data container for {LibraryCalls.DebugStringHead(__instance)}. Creating new data container...");
-                enemyDataDict.Add(__instance, enemyData);
-            }
-            return enemyDataDict[__instance];
-        }
-
-        public static void GetEnemyData(object __instance, out EnemyDataBase enemyDataOut)
-        {
-            enemyDataOut = enemyDataDict[__instance];
-        }
-
-        public static EnemyData GetEnemyData(EnemyAI __instance, EnemyData enemyData)
-        {
-            if (!enemyDataDict2.ContainsKey(__instance))
-            {
-                Script.LogNS(LogLevel.Warning, $"Missing data container for {LibraryCalls.DebugStringHead(__instance)}. Creating new data container...");
-                enemyDataDict2.Add(__instance, enemyData);
-            }
-            return enemyDataDict2[__instance];
-        }
-
-        public static SpiderWebValues GetEnemyData(SandSpiderWebTrap __instance, SpiderWebValues enemyData)
-        {
-            if (!SandSpiderWebTrapPatch.spiderWebs.ContainsKey(__instance))
-            {
-                Script.LogNS(LogLevel.Warning, $"Missing data container for {LibraryCalls.DebugStringHead(__instance)}. Creating new data container...");
-                SandSpiderWebTrapPatch.spiderWebs.Add(__instance, enemyData);
-            }
-            return SandSpiderWebTrapPatch.spiderWebs[__instance];
+            Script.LogNS(LogLevel.Info, $"registered hit by {playerString} with force of {force}. playHitSFX:{playHitSFX}, hitID:{hitID}.", __instance, debugTriggerFlags);
         }
 
         public static void ReactToAttack(EnemyAI instance, Collider other)
         {
-            GetEnemyData(other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript, out EnemyDataBase enemyData);
-            enemyData.ReactToAttack(instance, other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript,1);
+            string id = other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript.enemyType.enemyName + other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript.NetworkObjectId;
+            EnemyDataBase? enemyData;
+            Utilities.TryGetEnemyData(id, out enemyData);
+            if (enemyData != null) enemyData.ReactToAttack(instance, other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript,1);
         }
     }
     public class ReversePatchAI

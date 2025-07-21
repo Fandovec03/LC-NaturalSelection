@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using LethalNetworkAPI;
 using HarmonyLib;
 using BepInEx.Logging;
@@ -71,8 +70,8 @@ namespace NaturalSelection.Generics
             Networking.ClearSubscribtionsInDictionary();
             NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists.Clear();
             EnemyAIPatch.enemyDataDict.Clear();
-            EnemyAIPatch.enemyDataDict2.Clear();
-            SandSpiderWebTrapPatch.spiderWebs.Clear();
+            //EnemyAIPatch.enemyDataDict2.Clear();
+            //SandSpiderWebTrapPatch.spiderWebs.Clear();
         }
 
         [HarmonyPatch(typeof(RoundManager), "ResetEnemyVariables")]
@@ -83,8 +82,8 @@ namespace NaturalSelection.Generics
             Networking.ClearSubscribtionsInDictionary();
             NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists.Clear();
             EnemyAIPatch.enemyDataDict.Clear();
-            EnemyAIPatch.enemyDataDict2.Clear();
-            SandSpiderWebTrapPatch.spiderWebs.Clear();
+            //EnemyAIPatch.enemyDataDict2.Clear();
+            //SandSpiderWebTrapPatch.spiderWebs.Clear();
         }
     }
 }

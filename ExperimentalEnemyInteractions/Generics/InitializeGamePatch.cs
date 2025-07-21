@@ -1,17 +1,11 @@
-using BepInEx;
 using BepInEx.Logging;
-using EasyTextEffects.Editor.MyBoxCopy.Extensions;
 using HarmonyLib;
-using Mono.Cecil;
-using NaturalSelection;
-using NaturalSelection.EnemyPatches;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace NaturalSelection.Generics
-{
+namespace NaturalSelection.Generics;
     class InitializeGamePatch
     {
         private static bool finishedLoading = false;
@@ -375,4 +369,3 @@ namespace NaturalSelection.Generics
             }
         }
     }
-}

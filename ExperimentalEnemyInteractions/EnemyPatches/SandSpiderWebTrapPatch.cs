@@ -1,11 +1,7 @@
 ﻿using HarmonyLib;
-using LethalNetworkAPI;
 ﻿using BepInEx.Logging;
 using NaturalSelection.Generics;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches
@@ -31,7 +27,7 @@ namespace NaturalSelection.EnemyPatches
             internal List<SandSpiderWebTrap> NumberOfTraps { get; set; } = new List<SandSpiderWebTrap>();
         }
 
-        internal static Dictionary<SandSpiderWebTrap, SpiderWebValues> spiderWebs = new Dictionary<SandSpiderWebTrap, SpiderWebValues>();
+        //internal static Dictionary<SandSpiderWebTrap, SpiderWebValues> spiderWebs = new Dictionary<SandSpiderWebTrap, SpiderWebValues>();
         static Dictionary<EnemyAI, EnemyInfo> enemyData = new Dictionary<EnemyAI, EnemyInfo>();
         static bool debugLogs = Script.Bools["debugBool"];
         static bool debugWebs = Script.Bools["debugSpiderWebs"];
@@ -52,8 +48,6 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void AwakePostfix(SandSpiderWebTrap __instance)
         {
-            EnemyAIPatch.GetEnemyData(__instance, new SpiderWebValues());
-
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
 
@@ -62,7 +56,7 @@ namespace NaturalSelection.EnemyPatches
         static void OnTriggerStayPatch(Collider other, SandSpiderWebTrap __instance)
         {
             //CheckDataIntegrityWeb(__instance);
-            SpiderWebValues webData = (SpiderWebValues)EnemyAIPatch.GetEnemyData(__instance, new SpiderWebValues());
+            SpiderWebValues webData = (SpiderWebValues)Utilities.GetEnemyData(__instance, new SpiderWebValues());
             EnemyAICollisionDetect? trippedEnemyCollision = other.GetComponent<EnemyAICollisionDetect>();
             EnemyAI? trippedEnemy = null;
             if (trippedEnemyCollision != null && trippedEnemyCollision.mainScript != __instance.mainScript) trippedEnemy = trippedEnemyCollision.mainScript;
@@ -132,7 +126,7 @@ namespace NaturalSelection.EnemyPatches
         static bool UpdatePrefix(SandSpiderWebTrap __instance, out bool __state)
         {
             //CheckDataIntegrityWeb(__instance);
-            SpiderWebValues webData = (SpiderWebValues)EnemyAIPatch.GetEnemyData(__instance, new SpiderWebValues());
+            SpiderWebValues webData = (SpiderWebValues)Utilities.GetEnemyData(__instance, new SpiderWebValues());
 
             if (__instance.currentTrappedPlayer != null)
             {
@@ -153,7 +147,7 @@ namespace NaturalSelection.EnemyPatches
         static void UpdatePostfix(SandSpiderWebTrap __instance, bool __state)
         {
             //CheckDataIntegrityWeb(__instance);
-            SpiderWebValues webData = (SpiderWebValues)EnemyAIPatch.GetEnemyData(__instance, new SpiderWebValues());
+            SpiderWebValues webData = (SpiderWebValues)Utilities.GetEnemyData(__instance, new SpiderWebValues());
             if (!__state)
             {
                 return;
@@ -191,7 +185,7 @@ namespace NaturalSelection.EnemyPatches
         static void OnTriggerExitPatch(Collider other, SandSpiderWebTrap __instance)
         {
             //CheckDataIntegrityWeb(__instance);
-            SpiderWebValues webData = (SpiderWebValues)EnemyAIPatch.GetEnemyData(__instance, new SpiderWebValues());
+            SpiderWebValues webData = (SpiderWebValues)Utilities.GetEnemyData(__instance, new SpiderWebValues());
             EnemyAICollisionDetect? trippedEnemyCollision = other.GetComponent<EnemyAICollisionDetect>();
             EnemyAI? trippedEnemy = null;
             if (trippedEnemyCollision != null && trippedEnemyCollision.mainScript != __instance.mainScript && !trippedEnemyCollision.mainScript.isEnemyDead) trippedEnemy = trippedEnemyCollision.mainScript;

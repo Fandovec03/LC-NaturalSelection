@@ -9,8 +9,6 @@ using BepInEx.Configuration;
 using System.Text;
 using BepInEx.Bootstrap;
 using NaturalSelection.Compatibility;
-using System.Reflection;
-using UnityEngine;
 //using NetcodePatcher;
 
 namespace NaturalSelection;
@@ -41,6 +39,7 @@ public class Script : BaseUnityPlugin
     private static bool spammyLogs = false;
     private static bool debugNetworking = false;
     private static bool debugLibrary = false;
+    private static bool debugLibraryTrigger = false;
     private static bool debugTriggerFlags = false;
     private static bool debugGiants = false;
     private static bool debugHygrodere = false;
@@ -56,7 +55,9 @@ public class Script : BaseUnityPlugin
     internal static bool rexuvinationPresent = false;
     internal static bool CompatibilityAutoToggle = false;
     internal static bool LobbyCompatibilityPresent = false;
-
+    //experimental
+    internal static bool usePathfindingLib = false;
+    internal static bool usePathToFindClosestEnemy = false;
 
     internal static Dictionary<string,bool> Bools = new Dictionary<string, bool>();
     internal static List<EnemyAI> loadedEnemyList = new List<EnemyAI>();
@@ -78,6 +79,7 @@ public class Script : BaseUnityPlugin
         Bools.Add(nameof(debugBool),debugBool);
         Bools.Add(nameof(spammyLogs),spammyLogs);
         Bools.Add(nameof(debugNetworking),debugNetworking);
+        Bools.Add(nameof(debugLibraryTrigger), debugLibraryTrigger);
         Bools.Add(nameof(debugLibrary),debugLibrary);
         Bools.Add(nameof(debugTriggerFlags),debugTriggerFlags);
         Bools.Add(nameof(debugGiants),debugGiants);
@@ -89,6 +91,8 @@ public class Script : BaseUnityPlugin
         Bools.Add(nameof(debugSpiderWebs),debugSpiderWebs);
         Bools.Add(nameof(debugUnspecified),debugUnspecified);
         CompatibilityAutoToggle = BoundingConfig.CompatibilityAutoToggle.Value;
+        usePathfindingLib = BoundingConfig.usePathfindinglibCoroutines.Value;
+        usePathToFindClosestEnemy = BoundingConfig.usePathToFindClosestEnemy.Value;
 
         foreach (var entry in BoundingConfig.debugEntries)
         {
@@ -195,7 +199,7 @@ public class Script : BaseUnityPlugin
 
         try
         {
-            NaturalSelectionLib.NaturalSelectionLib.SetLibraryLoggers(Logger, spammyLogs, debugLibrary);
+            NaturalSelectionLib.NaturalSelectionLib.SetLibraryLoggers(Logger, spammyLogs, debugLibrary, usePathfindingLib);
             Logger.LogMessage($"Library successfully setup! Version {NaturalSelectionLib.NaturalSelectionLib.ReturnVersion()}");
         }
         catch

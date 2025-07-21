@@ -6,6 +6,10 @@ using System.Reflection;
 namespace NaturalSelection.Generics;
     class MyModConfig
     {
+    //experimental
+    public readonly ConfigEntry<bool> useExperimentalCoroutines;
+    public readonly ConfigEntry<bool> usePathfindinglibCoroutines;
+    public readonly ConfigEntry<bool> usePathToFindClosestEnemy;
     //experimental fixes
     public readonly ConfigEntry<bool> sandwormCollisionOverride;
     public readonly ConfigEntry<float> blobAIOpeningDoorsMultiplier;
@@ -64,6 +68,7 @@ namespace NaturalSelection.Generics;
     public ConfigEntry<bool> debugGiants;
     public ConfigEntry<bool> debugUnspecified;
     public ConfigEntry<bool> debugLibrary;
+    public ConfigEntry<bool> debugLibraryTrigger;
     public ConfigEntry<bool> debugSpiderWebs;
 
     public Dictionary<string,ConfigEntry<bool>> debugEntries = new Dictionary<string, ConfigEntry<bool>>();
@@ -81,7 +86,9 @@ namespace NaturalSelection.Generics;
         {
             //experimental fixes
             sandwormCollisionOverride = cfg.Bind("Experimental Fixes", "Sandworm collision override", false, "Override vanilla sandworm collisions. May fix lag when sandworm collides with multiple enemies at once. \n \n May be removed in the future.");
-
+            useExperimentalCoroutines = cfg.Bind("Experimental", "Enable experimental library coroutines", false, "Use experimental coroutines for finding closest enemy. May improve performance.");
+            usePathfindinglibCoroutines = cfg.Bind("Experimental", "Enable pathfindinglib coroutines", false, "Use experimental pathfindinglib coroutines.");
+            usePathToFindClosestEnemy = cfg.Bind("Experimental", "Use paths to find closest enemy", false, "Enemies will use pathfinding to find closest enemy. May be performance heavy.");
             //general settings
             stableMode = cfg.Bind("General Settings", "Toggle stable mode", true, "When true, the mod will exlude patches that are WIP or are experimental from loading. Requires restart.");
             IgnoreImmortalEnemies = cfg.Bind("General Settings", "Ignore Immortal Enemies", false, "All immortal enemies will be ignored by majority of entities.");
@@ -129,6 +136,7 @@ namespace NaturalSelection.Generics;
             debugTriggerFlags = cfg.Bind("Debug", "Trigger flags", false, "Enables logs with trigger flag."); debugEntries.Add(nameof(debugTriggerFlags), debugTriggerFlags);
             debugUnspecified = cfg.Bind("Debug", "Log unspecified", false, "Enables logs for unspecified. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugUnspecified), debugUnspecified);
             debugLibrary = cfg.Bind("Debug", "Log library", false, "Enables logs for the library. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugLibrary), debugLibrary);
+            debugLibraryTrigger = cfg.Bind("Debug", "Log library trigger", false, "Enables logs for the library calls. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugLibraryTrigger), debugLibraryTrigger);
             debugRedBees = cfg.Bind("Debug", "Log bees", false, "Enables logs for bees. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugRedBees), debugRedBees);
             debugSandworms = cfg.Bind("Debug", "Log sandworms", false, "Enables logs for sandowrms. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugSandworms), debugSandworms);
             debugHygrodere = cfg.Bind("Debug", "Log hydrogere", false, "Enables logs for hydrogere. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugHygrodere), debugHygrodere);

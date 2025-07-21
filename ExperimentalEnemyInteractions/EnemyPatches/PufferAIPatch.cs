@@ -34,7 +34,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void StartPostfix(PufferAI __instance)
         {
-            EnemyAIPatch.GetEnemyData(__instance, new PufferData());
+            Utilities.GetEnemyData(__instance, new PufferData());
         }
 
         [HarmonyPatch("DoAIInterval")]
@@ -42,7 +42,7 @@ namespace NaturalSelection.EnemyPatches
         static bool PrefixAIInterval(PufferAI __instance)
         {
             if (__instance.isEnemyDead) return true;
-            PufferData pufferData = (PufferData)EnemyAIPatch.GetEnemyData(__instance, new PufferData());
+            PufferData pufferData = (PufferData)Utilities.GetEnemyData(__instance, new PufferData());
 
             if (__instance.currentBehaviourStateIndex == 2 && pufferData.targetEnemy != null && (Vector3.Distance(__instance.closestSeenPlayer.transform.position, __instance.transform.position) < Vector3.Distance(pufferData.targetEnemy.transform.position, __instance.transform.position)))
             {
@@ -61,7 +61,7 @@ namespace NaturalSelection.EnemyPatches
         static void PostfixAIInterval(PufferAI __instance)
         {
             if (__instance.isEnemyDead) return;
-            PufferData pufferData = (PufferData)EnemyAIPatch.GetEnemyData(__instance, new PufferData());
+            PufferData pufferData = (PufferData)Utilities.GetEnemyData(__instance, new PufferData());
 
             if (__instance.currentBehaviourStateIndex == 2 && pufferData.targetEnemy != null && (Vector3.Distance(__instance.closestSeenPlayer.transform.position, __instance.transform.position) < Vector3.Distance(pufferData.targetEnemy.transform.position, __instance.transform.position)))
             {
@@ -75,7 +75,7 @@ namespace NaturalSelection.EnemyPatches
 
         public static void CustomOnHit(int force, EnemyAI enemyWhoHit, bool playHitSFX, PufferAI instance)
         {
-                PufferData pufferData = (PufferData)EnemyAIPatch.GetEnemyData(instance, new PufferData());
+                PufferData pufferData = (PufferData)Utilities.GetEnemyData(instance, new PufferData());
                 instance.creatureAnimator.SetBool("alerted", true);
                 instance.enemyHP -= force;
                 Script.Logger.Log(LogLevel.Debug,"SpodeLizard CustomHit Triggered");
@@ -90,7 +90,7 @@ namespace NaturalSelection.EnemyPatches
         public static void HitEnemyTest(int force, EnemyAI enemyWhoHit, bool playHitSFX, PufferAI instance)
         {
             int reactionINT = EnemyAIPatch.ReactToHit(force);
-            PufferData data = (PufferData)EnemyAIPatch.GetEnemyData(instance, new PufferData());
+            PufferData data = (PufferData)Utilities.GetEnemyData(instance, new PufferData());
 
             if (enemyWhoHit is SandSpiderAI)
             {

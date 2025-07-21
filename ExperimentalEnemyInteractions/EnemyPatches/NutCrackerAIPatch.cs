@@ -49,8 +49,18 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void UpdatePatch(NutcrackerEnemyAI __instance)
         {
-            EnemyAIPatch.GetEnemyData(__instance, new NutcrackerData());
+            NutcrackerData data = (NutcrackerData)Utilities.GetEnemyData(__instance, new NutcrackerData());
+            data.SetOwner(__instance);
+            data.Subscribe();
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
+
+            data.ChangeClosestEnemyAction += getClosestEnemyResult;
+            void getClosestEnemyResult(EnemyAI? closestEnemy)
+            {
+                Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance);
+                string tempStringID = __instance.enemyType.enemyName + __instance.NetworkBehaviourId;
+                Utilities.enemyDataDict[tempStringID].closestEnemy = closestEnemy;
+            }
         }
 
         [HarmonyPatch("Update")]
@@ -58,13 +68,19 @@ namespace NaturalSelection.EnemyPatches
         static void NutcrackerUpdatePostfix(NutcrackerEnemyAI __instance)
         {
             if (__instance.isEnemyDead) return;
-            NutcrackerData data = (NutcrackerData)EnemyAIPatch.GetEnemyData(__instance, new NutcrackerData()); ;
+            NutcrackerData data = (NutcrackerData)Utilities.GetEnemyData(__instance, new NutcrackerData()); ;
 
             enemyList = LibraryCalls.GetCompleteList(__instance);
             LibraryCalls.GetInsideOrOutsideEnemyList(ref enemyList, __instance);
-
-            data.closestEnemy = LibraryCalls.FindClosestEnemy(ref enemyList, data.closestEnemy, __instance);
-
+            if (Script.BoundingConfig.useExperimentalCoroutines.Value)
+            {
+                if (data.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(LibraryCalls.FindClosestEnemyEnumerator(data.ChangeClosestEnemyAction, enemyList, data.closestEnemy, __instance, usePathLenghtAsDistance: true)); data.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
+            }
+            else
+            {
+                data.closestEnemy = LibraryCalls.FindClosestEnemy(ref enemyList, data.closestEnemy, __instance, usePathLenghtAsDistance: Script.usePathToFindClosestEnemy);
+            }
+            //data.closestEnemy = LibraryCalls.FindClosestEnemy(ref enemyList, data.closestEnemy, __instance);
 
             if (__instance.currentBehaviourStateIndex == 1)
             {
@@ -135,7 +151,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void DoAIIntervalPatch(NutcrackerEnemyAI __instance)
         {
-            NutcrackerData data = (NutcrackerData)EnemyAIPatch.GetEnemyData(__instance, new NutcrackerData());
+            NutcrackerData data = (NutcrackerData)Utilities.GetEnemyData(__instance, new NutcrackerData());
 
             if (__instance.currentBehaviourStateIndex == 2)
             {

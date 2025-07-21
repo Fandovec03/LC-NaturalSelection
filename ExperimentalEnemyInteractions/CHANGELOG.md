@@ -1,5 +1,11 @@
 # Experimental Enemy Interactions
 
+## 0.5.29
+
+### Library
+- Privatized globalEnemyLists
+- added methods for managing globalEnemyLists
+
 ## 0.5.28
 
 - Removed unused code

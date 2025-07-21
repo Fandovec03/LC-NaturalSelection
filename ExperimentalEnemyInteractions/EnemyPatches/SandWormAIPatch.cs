@@ -137,7 +137,7 @@ namespace NaturalSelection.EnemyPatches
                 }
                 if (__instance.IsOwner)
                 {
-                    List<EnemyAI> tempList = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
+                    List<EnemyAI> tempList = NaturalSelectionLib.NaturalSelectionLib.GetEnemyList(type);
                     LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
                     SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, SandwormData.closestEnemy, __instance, usePathLenghtAsDistance: Script.usePathToFindClosestEnemy);
                     if (SandwormData.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(LibraryCalls.FindClosestEnemyEnumerator(SandwormData.ChangeClosestEnemyAction, tempList, SandwormData.closestEnemy, __instance, usePathLenghtAsDistance: true)); SandwormData.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
@@ -295,7 +295,7 @@ namespace NaturalSelection.EnemyPatches
                     {
                         if (!__instance.emerged && !__instance.inEmergingState)
                         {
-                            List<EnemyAI> tempList = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
+                            List<EnemyAI> tempList = NaturalSelectionLib.NaturalSelectionLib.GetEnemyList(type);
                             LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
                             if (Script.BoundingConfig.useExperimentalCoroutines.Value)
                             {

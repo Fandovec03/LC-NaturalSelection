@@ -78,7 +78,7 @@ namespace NaturalSelection.EnemyPatches
             }
             if (__instance.IsOwner)
             {
-                List<EnemyAI> temoList = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
+                List<EnemyAI> temoList = NaturalSelectionLib.NaturalSelectionLib.GetEnemyList(type);
                 spiderData.enemiesInLOSDictionary = new Dictionary<EnemyAI, float>(LibraryCalls.GetEnemiesInLOS(__instance, ref temoList, 80f, 15, 2f));
             }
 

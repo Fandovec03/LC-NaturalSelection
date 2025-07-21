@@ -155,7 +155,7 @@ namespace NaturalSelection.EnemyPatches
 			}
 			if (__instance.IsOwner)
 			{
-				List<EnemyAI> temp = NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists[type];
+				List<EnemyAI> temp = NaturalSelectionLib.NaturalSelectionLib.GetEnemyList(type);
                 LibraryCalls.GetInsideOrOutsideEnemyList(ref temp, __instance);
 				//blobData.closestEnemy = LibraryCalls.FindClosestEnemy(ref temp, blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
 				if (Script.BoundingConfig.useExperimentalCoroutines.Value)

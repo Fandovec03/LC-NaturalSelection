@@ -57,6 +57,7 @@ namespace NaturalSelection.Generics;
     public readonly ConfigEntry<string> spiderBlacklist;
     //debug
     public ConfigEntry<bool> debugBool;
+    public ConfigEntry<bool> debugKillSwitch;
     public ConfigEntry<bool> spammyLogs;
     public ConfigEntry<bool> debugTriggerFlags;
     public ConfigEntry<bool> debugNetworking;
@@ -131,6 +132,7 @@ namespace NaturalSelection.Generics;
             spiderBlacklist = cfg.Bind("Blacklists", "Spider blacklist", "", "Any enemy with set value to true will be ignored by spider. \n \n [The Character ',' acts as a separator between each entry.]");
             //debug
             debugBool = cfg.Bind("Debug", "Debug mode", false, "Enables debug mode for more debug logs. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugBool), debugBool);
+            debugKillSwitch = cfg.Bind("Debug", "Debug killswitch", false, "Kills all debug logs"); debugEntries.Add(nameof(debugKillSwitch), debugKillSwitch);
             spammyLogs = cfg.Bind("Debug", "Spammy logs", false, "Enables spammy logs for extra logs. Can be changed at runtime via config mods."); debugEntries.Add(nameof(spammyLogs), spammyLogs);
             debugNetworking = cfg.Bind("Debug", "Debug networking", false, "Enables debug logs for networking. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugNetworking), debugNetworking);
             debugTriggerFlags = cfg.Bind("Debug", "Trigger flags", false, "Enables logs with trigger flag."); debugEntries.Add(nameof(debugTriggerFlags), debugTriggerFlags);

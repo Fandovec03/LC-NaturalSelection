@@ -137,7 +137,7 @@ namespace NaturalSelection.EnemyPatches
                 }
                 if (__instance.IsOwner)
                 {
-                    List<EnemyAI> tempList = NaturalSelectionLib.NaturalSelectionLib.GetEnemyList(type);
+                    List<EnemyAI> tempList = LibraryCalls.GetEnemyList(type);
                     LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
                     SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, SandwormData.closestEnemy, __instance, usePathLenghtAsDistance: Script.usePathToFindClosestEnemy);
                     if (SandwormData.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(LibraryCalls.FindClosestEnemyEnumerator(SandwormData.ChangeClosestEnemyAction, tempList, SandwormData.closestEnemy, __instance, usePathLenghtAsDistance: true)); SandwormData.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
@@ -295,7 +295,7 @@ namespace NaturalSelection.EnemyPatches
                     {
                         if (!__instance.emerged && !__instance.inEmergingState)
                         {
-                            List<EnemyAI> tempList = NaturalSelectionLib.NaturalSelectionLib.GetEnemyList(type);
+                            List<EnemyAI> tempList = LibraryCalls.GetEnemyList(type);
                             LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
                             if (Script.BoundingConfig.useExperimentalCoroutines.Value)
                             {
@@ -303,7 +303,7 @@ namespace NaturalSelection.EnemyPatches
                             }
                             else SandwormData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, SandwormData.closestEnemy, __instance, usePathLenghtAsDistance: Script.usePathToFindClosestEnemy);
                             __instance.agent.speed = 4f;
-                            Script.LogNS(LogLevel.Info,$"DoAIInterval: assigned {SandwormData.closestEnemy} as closestEnemy",debugSandworm);
+                            Script.LogNS(LogLevel.Info,$"DoAIInterval: assigned {SandwormData.closestEnemy} as closestEnemy",debugSandworm, debugSpam && debugSandworm);
                             if (SandwormData.closestEnemy != null && Vector3.Distance(__instance.transform.position, SandwormData.closestEnemy.transform.position) < 15f)
                             {
                                 Script.LogNS(LogLevel.Info,$"closestEnemy is {LibraryCalls.DebugStringHead(SandwormData.closestEnemy)}, isEnemyDead: {SandwormData.closestEnemy.isEnemyDead} /1/", __instance,debugSandworm && triggerFlag);

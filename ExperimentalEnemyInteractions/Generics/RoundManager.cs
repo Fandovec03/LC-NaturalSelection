@@ -70,11 +70,11 @@ class RoundManagerPatch
         }
         if (!NaturalSelectionLib.NaturalSelectionLib.EnemyListContainsKey(instance.GetType()))
         {
+            Script.LogNS(LogLevel.Warning, LibraryCalls.DebugStringHead(instance) + " global enemy list for this enemy does not exist! Creating a new one.");
             NaturalSelectionLib.NaturalSelectionLib.CreateEnemyList(instance.GetType(), checkedTypes[instance.GetType()]);
         }
         else
         {
-            Script.Logger.Log(LogLevel.Warning, LibraryCalls.DebugStringHead(instance) + " global enemy list for this enemy does not exist! Creating a new one.");
             NaturalSelectionLib.NaturalSelectionLib.UpdateEnemyList(instance.GetType(), checkedTypes[instance.GetType()]);
         }
     }

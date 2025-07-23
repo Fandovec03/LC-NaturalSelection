@@ -94,7 +94,7 @@ class BeeAIPatch
         BeeValues beeData = (BeeValues)Utilities.GetEnemyData(__instance, new BeeValues());
         Type type = __instance.GetType();
 
-        List <EnemyAI> tempList = NaturalSelectionLib.NaturalSelectionLib.GetEnemyList(type);
+        List <EnemyAI> tempList = LibraryCalls.GetEnemyList(type);
         LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
 
         Dictionary<EnemyAI, float> enemiesInLOS = new Dictionary<EnemyAI, float>(LibraryCalls.GetEnemiesInLOS(__instance,ref tempList, 360f, 16, 1));

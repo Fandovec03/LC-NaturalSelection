@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using BepInEx.Logging;
+using UnityEngine;
 
 
 namespace NaturalSelection.Generics;
@@ -79,16 +81,41 @@ public class EnemyDataBase
         return enemyID; 
     }
 }
-class Utilities
+public class Utilities
 {
     public static Dictionary<string, EnemyDataBase> enemyDataDict = [];
-    public static bool IsEnemyReachable(EnemyAI enemy)
+    public delegate bool IsEnemyReachableDelegate(EnemyAI enemy);
+    public static bool IsEnemyReachable(EnemyAI enemy, IsEnemyReachableDelegate? outputDelegate = null)
     {
         if (enemy is CentipedeAI && ((CentipedeAI)enemy).clingingToCeiling) return false;
         if (enemy is SandWormAI) return false;
-        if (enemy is DoublewingAI && ((DoublewingAI)enemy)) return false;
+        if (enemy is DoublewingAI && ((DoublewingAI)enemy).flyLayerWeight > 0) return false;
         if (enemy is RadMechAI && ((RadMechAI)enemy).inFlyingMode) return false;
         if (enemy is SandSpiderAI && ((SandSpiderAI)enemy).onWall) return false;
+        //if (enemy is )
+        if (outputDelegate != null)
+        {
+            return outputDelegate.Invoke(enemy);
+        }
+        return true;
+    }
+
+    public static bool IsEnemyVisible(EnemyAI enemy, Transform? checkFrom = null, IsEnemyReachableDelegate? outputDelegate = null)
+    {
+        if (enemy is DressGirlAI) return false;
+        if (enemy is ClaySurgeonAI)
+        {
+            if (checkFrom != null)
+            {
+                return UnityEngine.Vector3.Distance(enemy.transform.position, checkFrom.position) < 10f;
+            }
+            return false;
+        }
+        //if (enemy is )
+        if (outputDelegate != null)
+        {
+            return outputDelegate.Invoke(enemy);
+        }
         return true;
     }
 

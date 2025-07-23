@@ -36,6 +36,7 @@ public class Script : BaseUnityPlugin
     private static bool isPrerelease = false;
 
     private static bool debugBool = false;
+    private static bool debugKillSwitch = false;
     private static bool spammyLogs = false;
     private static bool debugNetworking = false;
     private static bool debugLibrary = false;
@@ -68,6 +69,8 @@ public class Script : BaseUnityPlugin
         entryKey.SettingChanged += (obj, args) => { boolParam = entryKey.Value; Logger.LogMessage($"Updating with entry.Value {entryKey.Value}. Result: {boolParam}"); OnConfigSettingChanged?.Invoke(entry, entryKey.Value); };
     }
 
+    private static bool debugKillSwitchScript = false;
+
     private void Awake()
     {
         Logger = base.Logger;
@@ -77,6 +80,7 @@ public class Script : BaseUnityPlugin
         stableToggle = BoundingConfig.stableMode.Value;
 
         Bools.Add(nameof(debugBool),debugBool);
+        Bools.Add(nameof(debugKillSwitch), debugKillSwitch);
         Bools.Add(nameof(spammyLogs),spammyLogs);
         Bools.Add(nameof(debugNetworking),debugNetworking);
         Bools.Add(nameof(debugLibraryTrigger), debugLibraryTrigger);
@@ -118,6 +122,8 @@ public class Script : BaseUnityPlugin
 
         version.Append(chars);
         Logger.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{version} has loaded!");
+
+        Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
     }
 
     internal static void Patch()
@@ -255,7 +261,13 @@ public class Script : BaseUnityPlugin
     public static void LogNS(BepInEx.Logging.LogLevel logLevel, string log, object? source = null, bool toggle = true,bool moreDetail = false)
     {
         if (!toggle) return;
+        if (debugKillSwitchScript) return;
         Logger.Log(logLevel, $"{LibraryCalls.DebugStringHead(source, !moreDetail)} {log}");
     }
 
+    static void Event_OnConfigSettingChanged(string entryKey, bool value)
+    {
+        if (entryKey == "debugKillSwitch") debugKillSwitchScript = value;
+        //Script.LogNS(LogLevel.Message,$"Curcuit received event. logBees = {logBees}, debugSpam = {debugSpam}, debugTriggers = {debugTriggers}");
+    }
 }

@@ -40,10 +40,10 @@ public class LibraryCalls
         NaturalSelectionLib.NaturalSelectionLib.GetInsideOrOutsideEnemyList(ref importEnemyList, instance);
     }
 
-    public static EnemyAI? FindClosestEnemy(ref List<EnemyAI> importEnemyList, EnemyAI? importClosestEnemy, EnemyAI instance, bool useThreatVisibility = true, bool usePathLenghtAsDistance = false, bool includeTheDead = false)
+    public static EnemyAI? FindClosestEnemy(ref List<EnemyAI> importEnemyList, EnemyAI? importClosestEnemy, EnemyAI instance,int maxIterations = 6, bool useThreatVisibility = true, bool usePathLenghtAsDistance = false, bool includeTheDead = false)
     {
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library findClosestEnemy!");
-        return NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemy(ref importEnemyList, importClosestEnemy, instance, useThreatVisibility, usePathLenghtAsDistance, includeTheDead);
+        return NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemy(ref importEnemyList, importClosestEnemy, instance, maxIterations, useThreatVisibility, usePathLenghtAsDistance, includeTheDead);
     }
 
     public static void FilterEnemyList(ref List<EnemyAI> importEnemyList, List<string>? blacklist, EnemyAI instance, bool filterOutImmortal = true, bool filterTheSameType = true)
@@ -78,8 +78,13 @@ public class LibraryCalls
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library GetEnemiesInLOS!");
         return NaturalSelectionLib.NaturalSelectionLib.GetEnemiesInLOS(instance, width, importRange, proximityAwareness, importRadius, importEyePosition);
     }
-    public static IEnumerator FindClosestEnemyEnumerator(Action<EnemyAI>? ReturnOwnerResult, List<EnemyAI> importEnemyList, EnemyAI? importClosestEnemy, EnemyAI instance, bool useThreatVisibility = true, bool usePathLenghtAsDistance = false, bool includeTheDead = false)
+    public static IEnumerator FindClosestEnemyEnumerator(Action<EnemyAI>? ReturnOwnerResult, List<EnemyAI> importEnemyList, EnemyAI? importClosestEnemy, EnemyAI instance,int maxIterations = 6, bool useThreatVisibility = true, bool usePathLenghtAsDistance = false, bool includeTheDead = false)
     {
-        return NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemy(ReturnOwnerResult, importEnemyList, importClosestEnemy, instance, useThreatVisibility, usePathLenghtAsDistance, includeTheDead);
+        return NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemy(ReturnOwnerResult, importEnemyList, importClosestEnemy, instance, maxIterations, useThreatVisibility, usePathLenghtAsDistance, includeTheDead);
+    }
+
+    static public List<EnemyAI> GetEnemyList(Type type)
+    {
+        return NaturalSelectionLib.NaturalSelectionLib.GetEnemyList(type);
     }
 }

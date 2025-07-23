@@ -1,7 +1,11 @@
 # Experimental Enemy Interactions
 
 ## 0.5.30
-- 
+- Fixed some logs
+- Added killswitch for logs
+
+## Library
+- Updated GetClosestEnemy to first order list by distance and iterate over it to find set amount of times
 
 ## 0.5.29
 

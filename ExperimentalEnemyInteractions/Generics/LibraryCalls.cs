@@ -13,8 +13,8 @@ public class LibraryCalls
 
     static void Event_OnConfigSettingChanged(string entryKey, bool value)
     {
-        if (entryKey == "spammyLogs") { debugSpam = value; NaturalSelectionLib.NaturalSelectionLib.SetLibraryLoggers(Script.Logger, value, debugLibraryCalls); }
-        if (entryKey == "debugLibraryTrigger") { debugLibraryCalls = value; NaturalSelectionLib.NaturalSelectionLib.SetLibraryLoggers(Script.Logger, debugSpam, value); }
+        if (entryKey == "spammyLogs") { debugSpam = value; NaturalSelectionLib.Library.SetLibraryLoggers(Script.Logger, value, debugLibraryCalls); }
+        if (entryKey == "debugLibraryTrigger") { debugLibraryCalls = value; NaturalSelectionLib.Library.SetLibraryLoggers(Script.Logger, debugSpam, value); }
 
         //Script.Logger.Log(LogLevel.Message,$"LibraryCalls received event. debugTriggerFlag = {debugTriggerFlag}, debugSpam = {debugSpam}");
     }
@@ -26,65 +26,65 @@ public class LibraryCalls
     public static string DebugStringHead(object? source, bool shortFormat = true)
     {
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library DebugStringHead!");
-        return NaturalSelectionLib.NaturalSelectionLib.DebugStringHead(source, shortFormat);
+        return NaturalSelectionLib.LibraryMethods.DebugStringHead(source, shortFormat);
     }
     public static List<EnemyAI> GetCompleteList(EnemyAI instance, bool FilterThemselves = true, int includeOrReturnThedDead = 0)
     {
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library GetCompleteList!");
-        return NaturalSelectionLib.NaturalSelectionLib.GetCompleteList(instance, FilterThemselves, includeOrReturnThedDead);
+        return NaturalSelectionLib.LibraryMethods.GetCompleteList(instance, FilterThemselves, includeOrReturnThedDead);
     }
 
     public static void GetInsideOrOutsideEnemyList(ref List<EnemyAI> importEnemyList, EnemyAI instance)
     {
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library GetInsideOrOutsideEnemyList!");
-        NaturalSelectionLib.NaturalSelectionLib.GetInsideOrOutsideEnemyList(ref importEnemyList, instance);
+        NaturalSelectionLib.LibraryMethods.GetInsideOrOutsideEnemyList(ref importEnemyList, instance);
     }
 
     public static EnemyAI? FindClosestEnemy(ref List<EnemyAI> importEnemyList, EnemyAI? importClosestEnemy, EnemyAI instance,int maxIterations = 6, bool useThreatVisibility = true, bool usePathLenghtAsDistance = false, bool includeTheDead = false)
     {
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library findClosestEnemy!");
-        return NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemy(ref importEnemyList, importClosestEnemy, instance, maxIterations, useThreatVisibility, usePathLenghtAsDistance, includeTheDead);
+        return NaturalSelectionLib.LibraryMethods.FindClosestEnemy(ref importEnemyList, importClosestEnemy, instance, maxIterations, useThreatVisibility, usePathLenghtAsDistance, includeTheDead);
     }
 
     public static void FilterEnemyList(ref List<EnemyAI> importEnemyList, List<string>? blacklist, EnemyAI instance, bool filterOutImmortal = true, bool filterTheSameType = true)
     {
         if (debugLibraryCalls) Script.Logger.LogInfo("Called library filterEnemyList!");
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library filterEnemyList!");
-        NaturalSelectionLib.NaturalSelectionLib.FilterEnemyList(ref importEnemyList, blacklist, instance, filterOutImmortal, filterTheSameType);
+        NaturalSelectionLib.LibraryMethods.FilterEnemyList(ref importEnemyList, blacklist, instance, filterOutImmortal, filterTheSameType);
     }
 
     public static void FilterEnemySizes(ref Dictionary<EnemyAI, int> importEnemySizeDict, int[] enemySizes, EnemyAI instance, bool inverseToggle = false)
     {
         if (debugLibraryCalls) Script.Logger.LogInfo("Called library FilterEnemySizes!");
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library FilterEnemySizes!");
-        NaturalSelectionLib.NaturalSelectionLib.FilterEnemySizes(ref importEnemySizeDict, enemySizes, instance, inverseToggle);
+        NaturalSelectionLib.LibraryMethods.FilterEnemySizes(ref importEnemySizeDict, enemySizes, instance, inverseToggle);
     }
 
     public static void FilterEnemySizes(ref List<EnemyAI> importEnemySizeDict, EnemySize[] enemySizes, EnemyAI instance, bool inverseToggle = false)
     {
         if (debugLibraryCalls) Script.Logger.LogInfo("Called library FilterEnemySizes!");
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library FilterEnemySizes!");
-        NaturalSelectionLib.NaturalSelectionLib.FilterEnemySizes(ref importEnemySizeDict, enemySizes, instance, inverseToggle);
+        NaturalSelectionLib.LibraryMethods.FilterEnemySizes(ref importEnemySizeDict, enemySizes, instance, inverseToggle);
     }
 
     static public Dictionary<EnemyAI, float> GetEnemiesInLOS(EnemyAI instance, ref List<EnemyAI> importEnemyList, float width = 45f, int importRange = 0, float proximityAwareness = -1, float importRadius = 0f, Vector3? importEyePosition = null)
     {
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library GetEnemiesInLOS!");
-        return NaturalSelectionLib.NaturalSelectionLib.GetEnemiesInLOS(instance, ref importEnemyList, width, importRange, proximityAwareness, importRadius, importEyePosition);
+        return NaturalSelectionLib.LibraryMethods.GetEnemiesInLOS(instance, ref importEnemyList, width, importRange, proximityAwareness, importRadius, importEyePosition);
     }
 
     static public Dictionary<EnemyAI, float> GetEnemiesInLOS(EnemyAI instance, float width = 45f, int importRange = 0, float proximityAwareness = -1, float importRadius = 0f, Vector3? importEyePosition = null)
     {
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library GetEnemiesInLOS!");
-        return NaturalSelectionLib.NaturalSelectionLib.GetEnemiesInLOS(instance, width, importRange, proximityAwareness, importRadius, importEyePosition);
+        return NaturalSelectionLib.LibraryMethods.GetEnemiesInLOS(instance, width, importRange, proximityAwareness, importRadius, importEyePosition);
     }
-    public static IEnumerator FindClosestEnemyEnumerator(Action<EnemyAI>? ReturnOwnerResult, List<EnemyAI> importEnemyList, EnemyAI? importClosestEnemy, EnemyAI instance,int maxIterations = 6, bool useThreatVisibility = true, bool usePathLenghtAsDistance = false, bool includeTheDead = false)
+    public static IEnumerator FindClosestEnemyEnumerator(Action<EnemyAI?>? ReturnOwnerResult, List<EnemyAI> importEnemyList, EnemyAI? importClosestEnemy, EnemyAI instance,int maxIterations = 6, bool useThreatVisibility = true, bool usePathLenghtAsDistance = false, bool includeTheDead = false)
     {
-        return NaturalSelectionLib.NaturalSelectionLib.FindClosestEnemy(ReturnOwnerResult, importEnemyList, importClosestEnemy, instance, maxIterations, useThreatVisibility, usePathLenghtAsDistance, includeTheDead);
+        return NaturalSelectionLib.LibraryMethods.FindClosestEnemy(ReturnOwnerResult, importEnemyList, importClosestEnemy, instance, maxIterations, useThreatVisibility, usePathLenghtAsDistance, includeTheDead);
     }
 
     static public List<EnemyAI> GetEnemyList(Type type)
     {
-        return NaturalSelectionLib.NaturalSelectionLib.GetEnemyList(type);
+        return NaturalSelectionLib.Library.GetEnemyList(type);
     }
 }

@@ -39,7 +39,7 @@ class RoundManagerPatch
         {
             foreach (Type type in checkedTypes.Keys.ToList())
             {
-                NaturalSelectionLib.NaturalSelectionLib.UpdateEnemyList(type, checkedTypes[type]);
+                NaturalSelectionLib.Library.UpdateEnemyList(type, checkedTypes[type]);
             }
             checkedTypes.Clear();
             nextUpdate = Time.realtimeSinceStartup + updateListInterval;
@@ -68,14 +68,14 @@ class RoundManagerPatch
         {
             checkedTypes[instance.GetType()] = list;
         }
-        if (!NaturalSelectionLib.NaturalSelectionLib.EnemyListContainsKey(instance.GetType()))
+        if (!NaturalSelectionLib.Library.EnemyListContainsKey(instance.GetType()))
         {
             Script.LogNS(LogLevel.Warning, LibraryCalls.DebugStringHead(instance) + " global enemy list for this enemy does not exist! Creating a new one.");
-            NaturalSelectionLib.NaturalSelectionLib.CreateEnemyList(instance.GetType(), checkedTypes[instance.GetType()]);
+            NaturalSelectionLib.Library.CreateEnemyList(instance.GetType(), checkedTypes[instance.GetType()]);
         }
         else
         {
-            NaturalSelectionLib.NaturalSelectionLib.UpdateEnemyList(instance.GetType(), checkedTypes[instance.GetType()]);
+            NaturalSelectionLib.Library.UpdateEnemyList(instance.GetType(), checkedTypes[instance.GetType()]);
         }
     }
 }

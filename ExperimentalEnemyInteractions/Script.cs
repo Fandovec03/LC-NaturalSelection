@@ -57,8 +57,9 @@ public class Script : BaseUnityPlugin
     internal static bool CompatibilityAutoToggle = false;
     internal static bool LobbyCompatibilityPresent = false;
     //experimental
-    internal static bool usePathfindingLib = false;
+    //Beta
     internal static bool usePathToFindClosestEnemy = false;
+    internal static bool useCoroutines= false;
 
     internal static Dictionary<string,bool> Bools = new Dictionary<string, bool>();
     internal static List<EnemyAI> loadedEnemyList = new List<EnemyAI>();
@@ -95,12 +96,12 @@ public class Script : BaseUnityPlugin
         Bools.Add(nameof(debugSpiderWebs),debugSpiderWebs);
         Bools.Add(nameof(debugUnspecified),debugUnspecified);
         CompatibilityAutoToggle = BoundingConfig.CompatibilityAutoToggle.Value;
-        usePathfindingLib = BoundingConfig.usePathfindinglibCoroutines.Value;
         usePathToFindClosestEnemy = BoundingConfig.usePathToFindClosestEnemy.Value;
-
+        useCoroutines = BoundingConfig.useCoroutines.Value;
+        
         foreach (var entry in BoundingConfig.debugEntries)
         {
-            if(Bools.ContainsKey(entry.Key))
+            if (Bools.ContainsKey(entry.Key))
             {
                 Bools[entry.Key] = entry.Value.Value;
                 SubscribeDebugConfigBools(entry.Value, Bools[entry.Key], entry.Key);
@@ -205,8 +206,8 @@ public class Script : BaseUnityPlugin
 
         try
         {
-            NaturalSelectionLib.NaturalSelectionLib.SetLibraryLoggers(Logger, spammyLogs, debugLibrary, usePathfindingLib);
-            Logger.LogMessage($"Library successfully setup! Version {NaturalSelectionLib.NaturalSelectionLib.ReturnVersion()}");
+            NaturalSelectionLib.Library.SetLibraryLoggers(Logger, spammyLogs, debugLibrary, usePathToFindClosestEnemy);
+            Logger.LogMessage($"Library successfully setup! Version {NaturalSelectionLib.Library.ReturnVersion()}");
         }
         catch
         {
@@ -246,6 +247,9 @@ public class Script : BaseUnityPlugin
         {
         Logger.LogInfo("Stable mode on. Excluded unstable and WIP patches from loading.");
         }
+
+
+
         Logger.LogInfo("Finished patching " + MyPluginInfo.PLUGIN_NAME + " !");
     }
 

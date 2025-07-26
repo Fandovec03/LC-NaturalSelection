@@ -7,8 +7,7 @@ namespace NaturalSelection.Generics;
     class MyModConfig
     {
     //experimental
-    public readonly ConfigEntry<bool> useExperimentalCoroutines;
-    public readonly ConfigEntry<bool> usePathfindinglibCoroutines;
+    public readonly ConfigEntry<bool> useCoroutines;
     public readonly ConfigEntry<bool> usePathToFindClosestEnemy;
     //experimental fixes
     public readonly ConfigEntry<bool> sandwormCollisionOverride;
@@ -87,9 +86,9 @@ namespace NaturalSelection.Generics;
         {
             //experimental fixes
             sandwormCollisionOverride = cfg.Bind("Experimental Fixes", "Sandworm collision override", false, "Override vanilla sandworm collisions. May fix lag when sandworm collides with multiple enemies at once. \n \n May be removed in the future.");
-            useExperimentalCoroutines = cfg.Bind("Experimental", "Enable experimental library coroutines", false, "Use experimental coroutines for finding closest enemy. May improve performance.");
-            usePathfindinglibCoroutines = cfg.Bind("Experimental", "Enable pathfindinglib coroutines", false, "Use experimental pathfindinglib coroutines.");
-            usePathToFindClosestEnemy = cfg.Bind("Experimental", "Use paths to find closest enemy", false, "Enemies will use pathfinding to find closest enemy. May be performance heavy.");
+            //Beta
+            useCoroutines = cfg.Bind("Beta", "Enable experimental library coroutines", false, "Use coroutines to closest enemy. Might improve performance slightly.");
+            usePathToFindClosestEnemy = cfg.Bind("Beta", "Use pathfinding to find closest enemy", false, "Enemies will use pathfinding to find closest enemy. Uses PathfindingLib if present. \n \n [Might cause performance drops without PathfindingLib]");
             //general settings
             stableMode = cfg.Bind("General Settings", "Toggle stable mode", true, "When true, the mod will exlude patches that are WIP or are experimental from loading. Requires restart.");
             IgnoreImmortalEnemies = cfg.Bind("General Settings", "Ignore Immortal Enemies", false, "All immortal enemies will be ignored by majority of entities.");

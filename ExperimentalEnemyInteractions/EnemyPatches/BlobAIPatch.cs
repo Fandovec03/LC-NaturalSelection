@@ -1,16 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using BepInEx.Logging;
-using GameNetcodeStuff;
 using HarmonyLib;
 using LethalNetworkAPI;
-using LethalNetworkAPI.Utils;
 using NaturalSelection.Generics;
-using NaturalSelectionLib;
-using Steamworks.Data;
 using Unity.Netcode;
 using UnityEngine;
 using LogLevel = BepInEx.Logging.LogLevel;
@@ -155,10 +147,10 @@ namespace NaturalSelection.EnemyPatches
 			}
 			if (__instance.IsOwner)
 			{
-				List<EnemyAI> temp = NaturalSelectionLib.NaturalSelectionLib.GetEnemyList(type);
+				List<EnemyAI> temp = LibraryCalls.GetEnemyList(type);
                 LibraryCalls.GetInsideOrOutsideEnemyList(ref temp, __instance);
 				//blobData.closestEnemy = LibraryCalls.FindClosestEnemy(ref temp, blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
-				if (Script.BoundingConfig.useExperimentalCoroutines.Value)
+				if (Script.useCoroutines)
 				{
 					if (blobData.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(LibraryCalls.FindClosestEnemyEnumerator(blobData.ChangeClosestEnemyAction, temp, blobData.closestEnemy, __instance ,usePathLenghtAsDistance: Script.usePathToFindClosestEnemy)); blobData.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
 				}

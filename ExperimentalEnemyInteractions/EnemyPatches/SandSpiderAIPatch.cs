@@ -111,7 +111,7 @@ namespace NaturalSelection.EnemyPatches
                     {
                         List<EnemyAI> tempList = spiderData.enemiesInLOSDictionary.Keys.ToList();
                         //spiderData.closestEnemy = LibraryCalls.FindClosestEnemy(ref tempList, spiderData.closestEnemy, __instance);
-                        if (Script.BoundingConfig.useExperimentalCoroutines.Value)
+                        if (Script.useCoroutines)
                         {
                             if (spiderData.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(LibraryCalls.FindClosestEnemyEnumerator(spiderData.ChangeClosestEnemyAction, tempList, spiderData.closestEnemy, __instance, usePathLenghtAsDistance: true)); spiderData.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
                         }

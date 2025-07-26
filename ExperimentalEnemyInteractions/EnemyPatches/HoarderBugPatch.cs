@@ -6,10 +6,8 @@ using UnityEngine;
 
 namespace NaturalSelection.EnemyPatches
 {
-    class HoarderBugValues()
+    class HoarderBugValues : EnemyDataBase
     {
-        internal EnemyAI? targetEnemy = null;
-        internal EnemyAI? closestEnemy = null;
         internal bool alertedByEnemy = false;
         internal List<EnemyAI> enemies = new List<EnemyAI>();
         internal List<EnemyAI> enemiesInLOS = new List<EnemyAI>();
@@ -20,7 +18,7 @@ namespace NaturalSelection.EnemyPatches
     [HarmonyPatch(typeof(HoarderBugAI))]
     class HoarderBugPatch()
     {
-        static Dictionary<HoarderBugAI, HoarderBugValues> hoarderBugList = [];
+        //static Dictionary<HoarderBugAI, HoarderBugValues> hoarderBugList = [];
         static bool triggerFlag = Script.Bools["debugTriggerFlags"];
 
         static void Event_OnConfigSettingChanged(string entryKey, bool value)
@@ -53,12 +51,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPrefix]
         static void StartPatch(HoarderBugAI __instance)
         {
-            if (!hoarderBugList.ContainsKey(__instance))
-            {
-                Script.Logger.Log(LogLevel.Info, $"Creating data container for {LibraryCalls.DebugStringHead(__instance)}");
-                hoarderBugList.Add(__instance, new HoarderBugValues());
-            }
-
+            Utilities.GetEnemyData(__instance, new HoarderBugValues());
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
         
@@ -67,8 +60,7 @@ namespace NaturalSelection.EnemyPatches
         static void UpdatePostfix(HoarderBugAI __instance)
         {
             if (__instance.isEnemyDead) return;
-            CheckDataIntegrityHoarder(__instance);
-            HoarderBugValues Bugvalues = hoarderBugList[__instance];
+            HoarderBugValues Bugvalues = (HoarderBugValues)Utilities.GetEnemyData(__instance, new HoarderBugValues());
 
             if (Bugvalues.updateLog <= 0)
             {
@@ -123,14 +115,5 @@ namespace NaturalSelection.EnemyPatches
             }      
         }
         */
-
-        public static void CheckDataIntegrityHoarder(HoarderBugAI __instance)
-        {
-            if (!hoarderBugList.ContainsKey(__instance))
-            {
-                Script.Logger.Log(LogLevel.Fatal, $"Critical failule. Failed to get data for {LibraryCalls.DebugStringHead(__instance)}. Attempting to fix...");
-                hoarderBugList.Add(__instance, new HoarderBugValues());
-            }
-        }
     }
 }

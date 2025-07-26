@@ -1,5 +1,98 @@
 # Experimental Enemy Interactions
 
+## 0.5.30
+- Fixed some logs
+- Added killswitch for logs
+
+## Library
+- Updated GetClosestEnemy to first order list by distance and iterate over it to find set amount of times
+
+## 0.5.29
+
+### Library
+- Privatized globalEnemyLists
+- added methods for managing globalEnemyLists
+
+## 0.5.28
+
+- Removed unused code
+- Added enumerator into LibraryCalls class
+- Updated README
+
+### Library
+- Rewrote PathfindingLib implementation (Thanks Zaggy!)
+
+## 0.5.27
+- Removed junk code
+- Enabled Sandworms targetting immortal enemies
+
+### Library
+- Rewrote code to use API instead of Jobs
+
+## 0.5.26
+- Added toggle for PathfindingLib coroutines
+    - While on and PathfindingLib present, PathfindingLib will be used in coroutine
+- Added toggle to use Pathfinding to find closest enemy
+
+## 0.5.25
+- Added toggle for Library calls
+
+### Library
+- Put loggers behind toggles
+
+## 0.5.24
+
+- Mixed generating bad data container ids resulting in enemies sharing single data container
+- Moved data container base and data container methods into utillities class
+- Enemies when destroyed will destroy their data container aswell
+
+### Library
+- FindClosestEnemyCoroutine will work without Pathfindinglib
+- Added checks to prevent enumerator errors
+- Minor internal changes
+
+### Known issues
+- Mass killing baboon hawks by earth leviathan often results in error spam.
+
+
+## 0.5.23
+
+### Data structures
+- Reworked dictionary to use objects of any type as a key
+	- Fixes issues getting data structures by spider webs and EnemyAIPatch
+	- Merged data structure dictionaries into single dictionary
+
+### Added experimental library and toggle
+- Enemies will use a coroutine for finding closest enemy instead of a method
+	- May result in better performance but that was not tested
+
+## 0.5.22
+- Updated __Blacklists__.
+    - **WARNING:** Blacklists will be reset. Check your config for orphaned entries after loading into game once.
+
+## 0.5.21
+- Updated ReXuvination compatibility
+- Updated logs
+
+### Internal
+- Replaced majority of loggers with method
+- Rewamped enemy data system
+
+### Library
+- Updated DebugStringHead. Now it accepts any type
+
+## 0.5.20
+- Redone fix for blob opening doors.
+
+## 0.5.19
+- Redone blob door fix.
+
+## 0.5.18
+- Optimized and Delobotomized Earth Leviathan
+
+## 0.5.17
+- Updated to NaturalSelection 0.4.4
+
 ## 0.5.16
 - Updated to Natural Selection 0.4.3
 

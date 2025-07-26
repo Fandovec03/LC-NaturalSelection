@@ -23,7 +23,7 @@ namespace NaturalSelection.Compatibility
         private void Start()
         {
             instance = gameObject;
-            Script.Logger.Log(LogLevel.Message, $"Triggered start of dead body {instance.gameObject.name}");
+            Script.LogNS(LogLevel.Message, $"Triggered start of dead body {instance.gameObject.name}");
 
             if (!RoundManagerPatch.deadEnemiesList.Contains(instance))
             {
@@ -33,7 +33,7 @@ namespace NaturalSelection.Compatibility
 
         private void OnDestroy()
         {
-            Script.Logger.Log(LogLevel.Message, $"Removing DeadBodyTrackerScript {instance.gameObject.name} from list");
+            Script.LogNS(LogLevel.Message, $"Removing DeadBodyTrackerScript {instance.gameObject.name} from list");
             RoundManagerPatch.deadEnemiesList.Remove(instance);
         }
     }
@@ -46,16 +46,16 @@ namespace NaturalSelection.Compatibility
         static void EM_EnemyScrapStartPatch(EnemyScrap __instance)
         {
 
-            Script.Logger.LogWarning("Fired compatibility for EnhancedMonsters");
+            Script.LogNS(LogLevel.Warning,"Fired compatibility for EnhancedMonsters");
             
             if (!__instance.gameObject.GetComponentInChildren<DeadBodyTrackerScript>())
             {
                 __instance.gameObject.AddComponent<DeadBodyTrackerScript>();
-                Script.Logger.LogMessage($"Successfully added script to {__instance.enemyType.enemyName} | EnhancedMonstersTraceScript");
+                Script.LogNS(LogLevel.Message,$"Successfully added script to {__instance.enemyType.enemyName} | EnhancedMonstersTraceScript");
             }
             else
             {
-                Script.Logger.Log(LogLevel.Warning, $"There is already compoment in {__instance.enemyType.enemyName}");
+                Script.LogNS(LogLevel.Warning, $"There is already compoment in {__instance.enemyType.enemyName}");
             }
         }
     }
@@ -72,7 +72,7 @@ namespace NaturalSelection.Compatibility
 
                 item.spawnPrefab.gameObject.AddComponent<DeadBodyTrackerScript>();
 
-                Script.Logger.Log(LogLevel.Message, $"Added DeadBodyTrackerScript to {pair.Value} at {pair.Key}");
+                Script.LogNS(LogLevel.Message, $"Added DeadBodyTrackerScript to {pair.Value} at {pair.Key}", item);
 
             }
         }

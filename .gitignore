@@ -370,3 +370,10 @@ ExperimentalEnemyInteractions/TEMP/EnhancedMonsters.dll
 ExperimentalEnemyInteractions/TEMP/SellBodies.dll
 ExperimentalEnemyInteractions/TEMP/ReXuvination.dll
 ExperimentalEnemyInteractions/TEMP/StarlancerAI.dll
+/ExperimentalEnemyInteractions/ExperimentalEnemyInteractions-EEI/DLLs
+*.zip
+/ExperimentalEnemyInteractions/Dependencies
+*.dll
+*.dll
+/ExperimentalEnemyInteractions/Dependencies
+*.dll

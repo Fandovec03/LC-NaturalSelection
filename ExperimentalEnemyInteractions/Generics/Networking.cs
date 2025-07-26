@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using LethalNetworkAPI;
 using HarmonyLib;
 using BepInEx.Logging;
+using NaturalSelection.EnemyPatches;
 
 namespace NaturalSelection.Generics
 {
@@ -38,6 +38,7 @@ namespace NaturalSelection.Generics
         {
             foreach (KeyValuePair<string, Type> pair in NetworkingDictionary)
             {
+
                 if(pair.Value == typeof(LNetworkEvent))
                 {
                     if (logNetworking) Script.Logger.Log(LogLevel.Debug,$"Clearing subscriptions of event {pair.Key}");
@@ -65,18 +66,24 @@ namespace NaturalSelection.Generics
         [HarmonyPostfix]
         static void ResetGameValuesToDefaultPatch()
         {
-            Script.Logger.Log(LogLevel.Info,"/Networking-ResetGameValuesToDefault/ Clearing all subscribtions and globalEnemyLists.");
+            Script.Logger.Log(LogLevel.Info,"/ResetGameValuesToDefault/ Clearing all subscribtions, globalEnemyLists and data dictionaries.");
             Networking.ClearSubscribtionsInDictionary();
-            NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists.Clear();
+            NaturalSelectionLib.Library.ClearAllEnemyLists();
+            EnemyAIPatch.enemyDataDict.Clear();
+            //EnemyAIPatch.enemyDataDict2.Clear();
+            //SandSpiderWebTrapPatch.spiderWebs.Clear();
         }
 
         [HarmonyPatch(typeof(RoundManager), "ResetEnemyVariables")]
         [HarmonyPostfix]
         static void ResetEnemyVariablesPatch()
         {
-            Script.Logger.Log(LogLevel.Info,"/Networking-ResetEnemyVariables/ Clearing all subscribtions and globalEnemyLists.");
+            Script.Logger.Log(LogLevel.Info, "/ResetEnemyVariables/ Clearing all subscribtions, globalEnemyLists and data dictionaries.");
             Networking.ClearSubscribtionsInDictionary();
-            NaturalSelectionLib.NaturalSelectionLib.globalEnemyLists.Clear();
+            NaturalSelectionLib.Library.ClearAllEnemyLists();
+            EnemyAIPatch.enemyDataDict.Clear();
+            //EnemyAIPatch.enemyDataDict2.Clear();
+            //SandSpiderWebTrapPatch.spiderWebs.Clear();
         }
     }
 }

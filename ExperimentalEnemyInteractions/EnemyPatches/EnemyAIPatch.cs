@@ -4,23 +4,13 @@ using System.Reflection.Emit;
 using GameNetcodeStuff;
 using HarmonyLib;
 using NaturalSelection.Generics;
-
+using BepInEx.Logging;
+using UnityEngine;
 namespace NaturalSelection.EnemyPatches
 {
-    public enum CustomEnemySize
-    {
-        Undefined,
-        Tiny,
-        Small,
-        Medium,
-        Large,
-        Giant
-    }
-    class EnemyData()
+    class EnemyData : EnemyDataBase
     {
         internal float originalAgentRadius = 0f;
-        internal Dictionary<Type, int> targetedByEnemies = new Dictionary<Type, int>();
-        public CustomEnemySize customEnemySize = CustomEnemySize.Small;
     }
 
     [HarmonyPatch(typeof(EnemyAI))]
@@ -28,26 +18,20 @@ namespace NaturalSelection.EnemyPatches
     {
         static bool debugUnspecified = Script.Bools["debugUnspecified"];
         static bool debugTriggerFlags = Script.Bools["debugTriggerFlags"];
-        internal static Dictionary<EnemyAI, EnemyData> enemyData = [];
-
+        public static Dictionary<string, EnemyDataBase> enemyDataDict = [];
         static void Event_OnConfigSettingChanged(string entryKey, bool value)
 
         {
             if (entryKey == "debugUnspecified") debugUnspecified = value;
             if (entryKey == "debugTriggerFlags") debugTriggerFlags = value;
-            //Script.Logger.Log(LogLevel.Message,$"EnemyAI received event. debugUnspecified = {debugUnspecified}, debugTriggerFlags = {debugTriggerFlags}");
+            //Script.LogNS(LogLevel.Message,$"EnemyAI received event. debugUnspecified = {debugUnspecified}, debugTriggerFlags = {debugTriggerFlags}");
         }
 
         [HarmonyPatch("Start")]
         [HarmonyPostfix]
         static void StartPostfix(EnemyAI __instance)
         {
-            if (!enemyData.ContainsKey(__instance))
-            {
-                Script.Logger.Log(BepInEx.Logging.LogLevel.Info, $"Creating data container for {LibraryCalls.DebugStringHead(__instance)}");
-                enemyData.Add(__instance, new EnemyData());
-            }
-            EnemyData data = enemyData[__instance];
+            EnemyData data = (EnemyData)Utilities.GetEnemyData(__instance, new EnemyData(), true);
             data.originalAgentRadius = __instance.agent.radius;
 
             if (InitializeGamePatch.customSizeOverrideListDictionary.ContainsKey(__instance.enemyType.enemyName))
@@ -55,11 +39,33 @@ namespace NaturalSelection.EnemyPatches
                 data.customEnemySize = (CustomEnemySize)InitializeGamePatch.customSizeOverrideListDictionary[__instance.enemyType.enemyName];
             }
 
-            Script.Logger.Log(BepInEx.Logging.LogLevel.Debug, $"Final size: {data.customEnemySize}");
+            Script.LogNS(BepInEx.Logging.LogLevel.Debug, $"Final size: {data.customEnemySize}", __instance);
 
             __instance.agent.radius = __instance.agent.radius * Script.BoundingConfig.agentRadiusModifier.Value;
-            if (debugUnspecified && debugTriggerFlags) Script.Logger.Log(BepInEx.Logging.LogLevel.Message,$"Modified agent radius. Original: {enemyData[__instance].originalAgentRadius}, Modified: {__instance.agent.radius}");
+            Script.LogNS(BepInEx.Logging.LogLevel.Message, $"Modified agent radius. Original: {data.originalAgentRadius}, Modified: {__instance.agent.radius}", toggle: debugUnspecified && debugTriggerFlags);
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
+        }
+
+        [HarmonyPatch("OnDestroy")]
+        [HarmonyPostfix]
+        static void OnDestroyPostfix(EnemyAI __instance)
+        {
+            Script.LogNS(LogLevel.Debug, $"{LibraryCalls.DebugStringHead(__instance)} destroyed. Unsubscribing and destroying data containers...", __instance);
+            EnemyDataBase? data;
+            Utilities.TryGetEnemyData(__instance,out data);
+            EnemyDataBase? dataBase;
+            Utilities.TryGetEnemyData(__instance, out dataBase, true);
+            if (dataBase != null)
+            {
+                dataBase.Unsubscribe();
+                Utilities.DeleteData(Utilities.GetDataID(__instance, true));
+            }
+            if (data != null)
+            {
+                data.Unsubscribe();
+                Utilities.DeleteData(Utilities.GetDataID(__instance));
+            }
+            //Script.LogNS(LogLevel.Debug, $"{__instance} destroyed. Unsubscribing and stopping coroutines...", __instance);
         }
 
         static public int ReactToHit(int force = 0, EnemyAI? enemyAI = null, PlayerControllerB? player = null)
@@ -84,10 +90,17 @@ namespace NaturalSelection.EnemyPatches
             {
                 playerString = $"{playerWhoHit.playerUsername}(SteamID: {playerWhoHit.playerSteamId}, playerClientID: {playerWhoHit.playerClientId})";
             }
-            if (debugTriggerFlags) Script.Logger.Log(BepInEx.Logging.LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} registered hit by {playerString} with force of {force}. playHitSFX:{playHitSFX}, hitID:{hitID}.");
+            Script.LogNS(LogLevel.Info, $"registered hit by {playerString} with force of {force}. playHitSFX:{playHitSFX}, hitID:{hitID}.", __instance, debugTriggerFlags);
+        }
+
+        public static void ReactToAttack(EnemyAI instance, Collider other)
+        {
+            string id = other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript.enemyType.enemyName + other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript.NetworkObjectId;
+            EnemyDataBase? enemyData;
+            Utilities.TryGetEnemyData(id, out enemyData);
+            if (enemyData != null) enemyData.ReactToAttack(instance, other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript,1);
         }
     }
-
     public class ReversePatchAI
     {
         public static Action<EnemyAI> originalUpdate;
@@ -95,7 +108,7 @@ namespace NaturalSelection.EnemyPatches
         static ReversePatchAI()
         {
             var method = AccessTools.Method(typeof(EnemyAI), nameof(EnemyAI.Update));
-            var dm = new DynamicMethod("Base.Update",null, [typeof(EnemyAI)], typeof(EnemyAI));
+            var dm = new DynamicMethod("Base.Update", null, [typeof(EnemyAI)], typeof(EnemyAI));
             var gen = dm.GetILGenerator();
             gen.Emit(OpCodes.Ldarg_0);
             gen.Emit(OpCodes.Call, method);

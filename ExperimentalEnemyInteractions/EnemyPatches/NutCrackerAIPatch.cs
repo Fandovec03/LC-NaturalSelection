@@ -4,40 +4,27 @@ using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 using NaturalSelection.Generics;
 using BepInEx.Logging;
+using System.Linq;
 
 namespace NaturalSelection.EnemyPatches
 {
-    class NutcrackerData()
+    class NutcrackerData : EnemyDataBase
     {
-        internal EnemyAI? closestEnemy = null;
-        internal EnemyAI? targetEnemy = null;
         internal bool SeeMovingEnemy = false;
         internal Vector3 lastSeenEnemyPosition = UnityEngine.Vector3.zero;
         internal float TimeSinceSeeingMonster = 0f;
         internal float TimeSinceHittingMonster = 0f;
+        internal Dictionary<EnemyAI, float> enemiesInLOS = new Dictionary<EnemyAI, float>();
+        internal List<EnemyAI> movingEnemies = new List<EnemyAI>();
     }
 
     [HarmonyPatch(typeof(NutcrackerEnemyAI))]
     class NutcrackerAIPatch
     {
-        static List<EnemyAI> enemyList = new List<EnemyAI>();
-        static Dictionary<NutcrackerEnemyAI, NutcrackerData> NutcrackerData = [];
+        //static Dictionary<NutcrackerEnemyAI, NutcrackerData> NutcrackerData = [];
         static bool debugSpam = Script.Bools["spammyLogs"];
         static bool debugNutcrackers = Script.Bools["debugNutcrackers"];
         static bool debugTriggerFlags = Script.Bools["debugTriggerFlags"];
-
-        static public bool CheckLOSForMonsters(Vector3 monsterPosition, NutcrackerEnemyAI __instance, float width = 45f, int range = 60, int proximityAwareness = 60)
-        {
-            if (Vector3.Distance(monsterPosition, __instance.eye.position) < (float)range && !Physics.Linecast(__instance.eye.position, monsterPosition, StartOfRound.Instance.collidersAndRoomMaskAndDefault))
-            {
-                Vector3 to = monsterPosition - __instance.eye.position;
-                if (Vector3.Angle(__instance.eye.forward, to) < width || (proximityAwareness != -1 && UnityEngine.Vector3.Distance(__instance.eye.position, monsterPosition) < (float)proximityAwareness))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
 
         static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
@@ -51,12 +38,18 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void UpdatePatch(NutcrackerEnemyAI __instance)
         {
-            if (!NutcrackerData.ContainsKey(__instance))
-            {
-                Script.Logger.Log(LogLevel.Info, $"Creating data container for {LibraryCalls.DebugStringHead(__instance)}");
-                NutcrackerData.Add(__instance, new NutcrackerData());
-            }
+            NutcrackerData data = (NutcrackerData)Utilities.GetEnemyData(__instance, new NutcrackerData());
+            data.SetOwner(__instance);
+            data.Subscribe();
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
+
+            data.ChangeClosestEnemyAction += getClosestEnemyResult;
+            void getClosestEnemyResult(EnemyAI? closestEnemy)
+            {
+                Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance);
+                string tempStringID = __instance.enemyType.enemyName + __instance.NetworkBehaviourId;
+                Utilities.enemyDataDict[tempStringID].closestEnemy = closestEnemy;
+            }
         }
 
         [HarmonyPatch("Update")]
@@ -64,27 +57,33 @@ namespace NaturalSelection.EnemyPatches
         static void NutcrackerUpdatePostfix(NutcrackerEnemyAI __instance)
         {
             if (__instance.isEnemyDead) return;
-            CheckDataIntegrityNutcracker(__instance);
-            NutcrackerData data = NutcrackerData[__instance];
+            NutcrackerData data = (NutcrackerData)Utilities.GetEnemyData(__instance, new NutcrackerData());
 
-            enemyList = LibraryCalls.GetCompleteList(__instance);
+            data.enemiesInLOS = new Dictionary<EnemyAI, float>(LibraryCalls.GetEnemiesInLOS(__instance, 360, 30).Where(x => x.Key.agent.velocity.normalized.magnitude > 0));
+            List<EnemyAI> enemyList = data.enemiesInLOS.Keys.ToList();
             LibraryCalls.GetInsideOrOutsideEnemyList(ref enemyList, __instance);
+            //data.movingEnemies = enemyList;
 
-            data.closestEnemy = LibraryCalls.FindClosestEnemy(ref enemyList, data.closestEnemy, __instance);
-
+            if (Script.useCoroutines)
+            {
+                if (data.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(LibraryCalls.FindClosestEnemyEnumerator(data.ChangeClosestEnemyAction, enemyList, data.closestEnemy, __instance, usePathLenghtAsDistance: true)); data.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
+            }
+            else
+            {
+                data.closestEnemy = LibraryCalls.FindClosestEnemy(ref enemyList, data.closestEnemy, __instance, usePathLenghtAsDistance: Script.usePathToFindClosestEnemy);
+            }
+            //data.closestEnemy = LibraryCalls.FindClosestEnemy(ref enemyList, data.closestEnemy, __instance);
 
             if (__instance.currentBehaviourStateIndex == 1)
             {
-                if (data.closestEnemy != null)
+                if (__instance.isInspecting && enemyList.Count > 0)
                 {
-                    if (__instance.isInspecting && CheckLOSForMonsters(data.closestEnemy.transform.position, __instance, 70f, 60, 1) && data.closestEnemy.agent.velocity.magnitude > 0)
-                    {
-                        __instance.isInspecting = false;
-                        data.SeeMovingEnemy = true;
-                        __instance.lastSeenPlayerPos = data.closestEnemy.transform.position;
-                    }
-                    return;
+                    __instance.isInspecting = false;
+                    data.SeeMovingEnemy = true;
+                    data.targetEnemy = data.closestEnemy;
+                    if (data.targetEnemy != null) __instance.lastSeenPlayerPos = data.targetEnemy.transform.position;
                 }
+                return;
             }
             if (__instance.currentBehaviourStateIndex == 2)
             {
@@ -92,14 +91,18 @@ namespace NaturalSelection.EnemyPatches
                 {
                     __instance.StopInspection();
                 }
+                if (data.closestEnemy != null) data.targetEnemy = data.closestEnemy;
+                if (data.targetEnemy != null) __instance.lastSeenPlayerPos = data.targetEnemy.transform.position;
+
                 __instance.SwitchToBehaviourState(2);
+
                 if (__instance.lostPlayerInChase)
                 {
                     __instance.targetTorsoDegrees = 0;
                 }
                 else
                 {
-                    __instance.SetTargetDegreesToPosition(data.lastSeenEnemyPosition);
+                    __instance.SetTargetDegreesToPosition(data.lastSeenEnemyPosition - __instance.transform.position);
                 }
                 if (data.targetEnemy != null)
                 {
@@ -119,7 +122,7 @@ namespace NaturalSelection.EnemyPatches
                         {
                             __instance.timeSinceFiringGun = 0f;
                             __instance.agent.speed = 0f;
-                            __instance.AimGunServerRpc(__instance.transform.position);
+                            __instance.AimGunServerRpc(__instance.transform.position - __instance.transform.position);
                         }
                         if (__instance.lostPlayerInChase)
                         {
@@ -127,6 +130,7 @@ namespace NaturalSelection.EnemyPatches
                         }
                         data.TimeSinceSeeingMonster = 0f;
                         data.lastSeenEnemyPosition = data.targetEnemy.transform.position;
+                        data.targetEnemy = null;
                     }
                     else if (data.targetEnemy.agent.velocity.magnitude > 0)
                     {
@@ -142,8 +146,7 @@ namespace NaturalSelection.EnemyPatches
         [HarmonyPostfix]
         static void DoAIIntervalPatch(NutcrackerEnemyAI __instance)
         {
-            CheckDataIntegrityNutcracker(__instance);
-            NutcrackerData data = NutcrackerData[__instance];
+            NutcrackerData data = (NutcrackerData)Utilities.GetEnemyData(__instance, new NutcrackerData());
 
             if (__instance.currentBehaviourStateIndex == 2)
             {
@@ -164,17 +167,9 @@ namespace NaturalSelection.EnemyPatches
                     if (data.TimeSinceSeeingMonster > 12f && __instance.timeSinceSeeingTarget > 12f)
                     {
                         __instance.SwitchToBehaviourState(1);
+                        data.targetEnemy = null;
                     }
                 }
-            }
-        }
-
-        public static void CheckDataIntegrityNutcracker(NutcrackerEnemyAI __instance)
-        {
-            if (!NutcrackerData.ContainsKey(__instance))
-            {
-                Script.Logger.Log(LogLevel.Fatal, $"Critical failule. Failed to get data for {LibraryCalls.DebugStringHead(__instance)}. Attempting to fix...");
-                NutcrackerData.Add(__instance, new NutcrackerData());
             }
         }
     }

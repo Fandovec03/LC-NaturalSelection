@@ -1,5 +1,60 @@
 # _Natural selection_
 
+# 0.4.9
+
+### Reworked data containers
+- All data containers are stored in single dictionary
+- Fixed EnemyAI and Spiderweb issues getting their containers
+- Enemies will destroy their data containers when destroyed
+
+
+### Library
+- Added option to use Pathfinding to find and determine the closest enemy
+- Added PathfindingLib support
+	- Highly recommended when using pathfinding to find closest enemy
+	- **Coroutines are required to be turned on**
+- Global enemy lists are now accessed with methods instead of directly
+
+
+### Other changes
+- Reorganized and cleaned up code
+- Added killswitch for logs
+	- Stops all logs from logging
+- **Added coroutines**
+	- Enemies will asynchronously find the closest enemy
+
+### Fixes
+- Fixed sandworms not targetting immortal enemies
+- Some small fixed I forgot
+
+
+# 0.4.8
+- Updated __Blacklists__.
+    - **WARNING:** Blacklists will be reset. Check your config for orphaned entries after loading into game once.
+- Updated ReXuvination compatibility
+- Updated logs
+
+### Internal
+- Replaced majority of loggers with method
+- Rewamped enemy data system
+
+### Library
+- Updated DebugStringHead. Now it accepts any type
+
+# 0.4.7
+- Redone fix for blob opening doors.
+
+# 0.4.6
+- Redone ReXuvination patch for enemy colliders
+	- Modified enemy collider optimization with transpiller. Enemies will always collide with eachother.
+- Modified debug logs
+
+# 0.4.5
+- Optimized and Delobotomized Earth Leviathan
+
+# 0.4.4
+- Fixed ReXuvination patch not working sometimes. Now patch prevents ReXuvination from patching enemy colliders.
+
 # 0.4.3
 - Fixed some supported mods not registering when not specified with BepInDependency attribute
 

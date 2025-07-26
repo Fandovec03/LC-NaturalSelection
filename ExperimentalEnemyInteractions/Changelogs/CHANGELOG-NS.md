@@ -1,5 +1,32 @@
 # _Natural selection_
 
+# 0.4.8
+- Updated __Blacklists__.
+    - **WARNING:** Blacklists will be reset. Check your config for orphaned entries after loading into game once.
+- Updated ReXuvination compatibility
+- Updated logs
+
+### Internal
+- Replaced majority of loggers with method
+- Rewamped enemy data system
+
+### Library
+- Updated DebugStringHead. Now it accepts any type
+
+# 0.4.7
+- Redone fix for blob opening doors.
+
+# 0.4.6
+- Redone ReXuvination patch for enemy colliders
+	- Modified enemy collider optimization with transpiller. Enemies will always collide with eachother.
+- Modified debug logs
+
+# 0.4.5
+- Optimized and Delobotomized Earth Leviathan
+
+# 0.4.4
+- Fixed ReXuvination patch not working sometimes. Now patch prevents ReXuvination from patching enemy colliders.
+
 # 0.4.3
 - Fixed some supported mods not registering when not specified with BepInDependency attribute
 

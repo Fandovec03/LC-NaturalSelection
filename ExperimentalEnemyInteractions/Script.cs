@@ -9,6 +9,7 @@ using BepInEx.Configuration;
 using System.Text;
 using BepInEx.Bootstrap;
 using NaturalSelection.Compatibility;
+using UnityEngine;
 //using NetcodePatcher;
 
 namespace NaturalSelection;
@@ -265,8 +266,13 @@ public class Script : BaseUnityPlugin
     public static void LogNS(BepInEx.Logging.LogLevel logLevel, string log, object? source = null, bool toggle = true,bool moreDetail = false)
     {
         if (!toggle) return;
-        if (debugKillSwitchScript) return;
-        Logger.Log(logLevel, $"{LibraryCalls.DebugStringHead(source, !moreDetail)} {log}");
+        if (source != null && (source.GetType() != typeof(EnemyAI) || source.GetType() != typeof(SandSpiderWebTrap) || source.GetType() != typeof(GrabbableObject) || source.GetType() != typeof(string)))
+        {
+            Logger.LogError($"! Unsupported type {source.GetType()} found in LogNS! Turning on Killswitch!");
+            Script.OnConfigSettingChanged?.Invoke("debugKillSwitch", true);
+            return;
+        }
+        if (!debugKillSwitchScript) Logger.Log(logLevel, $"{LibraryCalls.DebugStringHead(source, !moreDetail)} {log}");
     }
 
     static void Event_OnConfigSettingChanged(string entryKey, bool value)

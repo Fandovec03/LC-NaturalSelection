@@ -50,7 +50,7 @@ namespace NaturalSelection.EnemyPatches
             data.ChangeClosestEnemyAction += getClosestEnemyResult;
             void getClosestEnemyResult(EnemyAI? closestEnemy)
             {
-                Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance);
+                Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance, debugSpam && debugSpider);
                 data.closestEnemy = closestEnemy;
             }
         }

@@ -1,5 +1,9 @@
 # _Natural selection_
 
+# 0.4.10
+- Fixed logs
+- Added a check to turn killswitch on if an unsupported type is passed as a source
+
 # 0.4.9
 
 ### Reworked data containers

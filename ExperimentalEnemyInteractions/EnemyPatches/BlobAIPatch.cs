@@ -22,6 +22,7 @@ namespace NaturalSelection.EnemyPatches
 		//static Dictionary<BlobAI, BlobData> slimeList = [];
 		static bool logBlob = Script.Bools["debugHygrodere"];
 		static bool triggerFlag = Script.Bools["debugTriggerFlags"];
+        static bool spammyLogs = Script.Bools["spammyLogs"];
         static List<string> blobBlacklist = InitializeGamePatch.blobBlacklist;
         static LNetworkEvent BlobEatCorpseEvent(BlobAI instance)
 		{
@@ -32,7 +33,9 @@ namespace NaturalSelection.EnemyPatches
         static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
             if (entryKey == "debugHygrodere") logBlob = value;
+            if (entryKey == "spammyLogs") spammyLogs = value;
             if (entryKey == "debugTriggerFlags") triggerFlag = value;
+
 			//Script.LogNSMessage($"Hygrodere received event. logBlob = {logBlob}, triggerFlag = {triggerFlag}");
         }
 
@@ -57,7 +60,7 @@ namespace NaturalSelection.EnemyPatches
 
             void getClosestEnemyResult(EnemyAI? closestEnemy)
             {
-                Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance);
+                Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance, logBlob && spammyLogs);
                 Utilities.GetEnemyData(__instance, new BlobData()).closestEnemy = closestEnemy;
             }
 

@@ -5,7 +5,7 @@
 		<AssemblyName>fandovec03.NaturalSelection</AssemblyName>
 		<Product>NaturalSelection</Product>
 		<!-- Change to whatever version you're currently on. -->
-		<Version>0.4.10</Version>
+		<Version>0.4.11</Version>
 	</PropertyGroup>
 
 	<!-- Project Properties -->
@@ -41,8 +41,11 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Remove="Deprecated\**" />
+		<Compile Remove="Experimental\**" />
 		<EmbeddedResource Remove="Deprecated\**" />
+		<EmbeddedResource Remove="Experimental\**" />
 		<None Remove="Deprecated\**" />
+		<None Remove="Experimental\**" />
 	</ItemGroup>
 
 	<!-- Primary Package References -->
@@ -67,7 +70,6 @@
 
 	<ItemGroup>
 		<Folder Include="DLLs\" />
-		<Folder Include="Experimental\" />
 	</ItemGroup>
 
 	<ItemGroup>

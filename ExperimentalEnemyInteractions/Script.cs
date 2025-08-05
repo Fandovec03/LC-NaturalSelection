@@ -10,6 +10,7 @@ using System.Text;
 using BepInEx.Bootstrap;
 using NaturalSelection.Compatibility;
 using UnityEngine;
+using System.Linq;
 //using NetcodePatcher;
 
 namespace NaturalSelection;
@@ -65,6 +66,8 @@ public class Script : BaseUnityPlugin
     internal static Dictionary<string,bool> Bools = new Dictionary<string, bool>();
     internal static List<EnemyAI> loadedEnemyList = new List<EnemyAI>();
     public static Action<string, bool>? OnConfigSettingChanged;
+
+    static object[] loggerBlacklist = [];
 
     static void SubscribeDebugConfigBools(ConfigEntry<bool> entryKey,bool boolParam, string entry)
     {
@@ -266,13 +269,20 @@ public class Script : BaseUnityPlugin
     public static void LogNS(BepInEx.Logging.LogLevel logLevel, string log, object? source = null, bool toggle = true,bool moreDetail = false)
     {
         if (!toggle) return;
-        if (source != null && (source.GetType() != typeof(EnemyAI) || source.GetType() != typeof(SandSpiderWebTrap) || source.GetType() != typeof(GrabbableObject) || source.GetType() != typeof(string)))
+        if (loggerBlacklist.Contains(source)) return;
+        if (debugKillSwitchScript) return;
+        if (source != null && (source is not EnemyAI && source is not SandSpiderWebTrap && source is not GrabbableObject && source is not Item &&source is not string))
         {
-            Logger.LogError($"! Unsupported type {source.GetType()} found in LogNS! Turning on Killswitch!");
-            Script.OnConfigSettingChanged?.Invoke("debugKillSwitch", true);
-            return;
+            Logger.LogError($"! Unsupported type {source.GetType()} found in LogNS! Blacklisting source: {source}");
+            //Script.OnConfigSettingChanged?.Invoke("debugKillSwitch", true);
+            loggerBlacklist.AddItem(source);
         }
-        if (!debugKillSwitchScript) Logger.Log(logLevel, $"{LibraryCalls.DebugStringHead(source, !moreDetail)} {log}");
+        Logger.Log(logLevel, $"{LibraryCalls.DebugStringHead(source, !moreDetail)} {log}");
+    }
+
+    public static void ClearLogBlacklist()
+    {
+        Array.Clear(loggerBlacklist, 0, loggerBlacklist.Length);
     }
 
     static void Event_OnConfigSettingChanged(string entryKey, bool value)

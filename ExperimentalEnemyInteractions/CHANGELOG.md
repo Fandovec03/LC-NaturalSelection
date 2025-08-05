@@ -1,5 +1,13 @@
 # _Natural selection_
 
+# 0.4.12
+- Whitelisted Item types in logNS method
+
+# 0.4.11
+- Fixed loggers falsely triggering unsupported type message
+- Instead of triggering kill switch on meeting an unsupported type, it adds the source to a blacklist and ignores logs.
+	- Blacklist is cleared after user leaves moon or disconnects fropm the game
+
 # 0.4.10
 - Fixed logs
 - Added a check to turn killswitch on if an unsupported type is passed as a source

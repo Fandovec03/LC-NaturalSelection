@@ -1,5 +1,42 @@
 # _Natural selection_
 
+# 0.4.11
+- Fixed loggers falsely triggering unsupported type message
+- Instead of triggering kill switch on meeting an unsupported type, it adds the source to a blacklist and ignores logs.
+	- Blacklist is cleared after user leaves moon or disconnects fropm the game
+
+# 0.4.10
+- Fixed logs
+- Added a check to turn killswitch on if an unsupported type is passed as a source
+
+# 0.4.9
+
+### Reworked data containers
+- All data containers are stored in single dictionary
+- Fixed EnemyAI and Spiderweb issues getting their containers
+- Enemies will destroy their data containers when destroyed
+
+
+### Library
+- Added option to use Pathfinding to find and determine the closest enemy
+- Added PathfindingLib support
+	- Highly recommended when using pathfinding to find closest enemy
+	- **Coroutines are required to be turned on**
+- Global enemy lists are now accessed with methods instead of directly
+
+
+### Other changes
+- Reorganized and cleaned up code
+- Added killswitch for logs
+	- Stops all logs from logging
+- **Added coroutines**
+	- Enemies will asynchronously find the closest enemy
+
+### Fixes
+- Fixed sandworms not targetting immortal enemies
+- Some small fixed I forgot
+
+
 # 0.4.8
 - Updated __Blacklists__.
     - **WARNING:** Blacklists will be reset. Check your config for orphaned entries after loading into game once.

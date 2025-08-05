@@ -1,6 +1,6 @@
 {
   "name": "Natural_selection",
-  "version_number": "0.4.10",
+  "version_number": "0.4.12",
   "website_url": "https://github.com/Fandovec03/LC-NaturalSelection",
   "description": "Rewamps the ecosystem an enemies to feel more alive and interactable. Enemies will fight each other and hunt to survive.",
   "dependencies": [

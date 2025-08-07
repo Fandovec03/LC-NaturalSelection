@@ -140,11 +140,11 @@ public class Utilities
         return enemyDataDict[id];
     }
 
-    public static void TryGetEnemyData(object __instance, out EnemyDataBase temp, bool returnToEnemyAIType = false)
+    public static void TryGetEnemyData(object __instance, out EnemyDataBase? temp, bool returnToEnemyAIType = false)
     {
         string id = GetDataID(__instance, returnToEnemyAIType);
-
-        enemyDataDict.TryGetValue(id, out temp);
+        temp = null;
+        if (id != "-1") enemyDataDict.TryGetValue(id, out temp);
     }
 
     public static void DeleteData(object instance, bool returnToEnemyAIType = false)
@@ -156,6 +156,7 @@ public class Utilities
     public static string GetDataID(object instance, bool returnToEnemyAIType = false)
     {
         string id = "-1";
+        if (instance == null) return id;
         if (instance is EnemyAI)
         {
             id = ((EnemyAI)instance).enemyType.enemyName + ((EnemyAI)instance).NetworkObjectId;

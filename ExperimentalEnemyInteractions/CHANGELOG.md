@@ -1,5 +1,8 @@
 # _Natural selection_
 
+# 0.4.13
+- Attempted to fix possible NRE getting enemy data (99% sure it's fixed I just didn't test it)
+
 # 0.4.12
 - Whitelisted Item types in logNS method
 

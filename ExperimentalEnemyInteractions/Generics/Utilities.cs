@@ -157,14 +157,16 @@ public class Utilities
     {
         string id = "-1";
         if (instance == null) return id;
-        if (instance is EnemyAI)
+        else
         {
-            id = ((EnemyAI)instance).enemyType.enemyName + ((EnemyAI)instance).NetworkObjectId;
-            if (returnToEnemyAIType) id += ".base";
+            if (instance is EnemyAI)
+            {
+                id = ((EnemyAI)instance).enemyType.enemyName + ((EnemyAI)instance).NetworkObjectId;
+                if (returnToEnemyAIType) id += ".base";
+            }
+            else if (instance is SandSpiderWebTrap && ((SandSpiderWebTrap)instance).mainScript != null) id = ((SandSpiderWebTrap)instance).mainScript.enemyType.enemyName + ((SandSpiderWebTrap)instance).mainScript.NetworkObjectId + "SpiderWeb" + ((SandSpiderWebTrap)instance).trapID;
+            else if (instance is string) id = (string)instance;
         }
-        else if (instance is SandSpiderWebTrap) id = ((SandSpiderWebTrap)instance).mainScript.enemyType.enemyName + ((SandSpiderWebTrap)instance).mainScript.NetworkObjectId + "SpiderWeb" + ((SandSpiderWebTrap)instance).trapID;
-        else if (instance is string) id = (string)instance;
-
         return id;
     }
 

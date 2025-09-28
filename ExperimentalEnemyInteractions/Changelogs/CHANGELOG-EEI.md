@@ -1,5 +1,11 @@
 # Experimental Enemy Interactions
 
+# 0.5.31
+
+- Fixed spider webs slowing down enemies that haven't finished vent animation, resulting in deformities
+- Fixed Bees and Spiders not being able to damage enemies
+- Added try/catch block so the body will destroy properly in case of failure
+
 ## 0.5.30
 - Fixed some logs
 - Added killswitch for logs

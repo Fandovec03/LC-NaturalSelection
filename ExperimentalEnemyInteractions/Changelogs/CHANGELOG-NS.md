@@ -1,5 +1,11 @@
 # _Natural selection_
 
+# 0.4.13
+- Attempted to fix possible NRE getting enemy data (99% sure it's fixed I just didn't test it)
+
+# 0.4.12
+- Whitelisted Item types in logNS method
+
 # 0.4.11
 - Fixed loggers falsely triggering unsupported type message
 - Instead of triggering kill switch on meeting an unsupported type, it adds the source to a blacklist and ignores logs.

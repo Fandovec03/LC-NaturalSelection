@@ -60,7 +60,7 @@ namespace NaturalSelection.EnemyPatches
             EnemyAICollisionDetect? trippedEnemyCollision = other.GetComponent<EnemyAICollisionDetect>();
             EnemyAI? trippedEnemy = null;
             if (trippedEnemyCollision != null && trippedEnemyCollision.mainScript != __instance.mainScript) trippedEnemy = trippedEnemyCollision.mainScript;
-            if (trippedEnemy == __instance.mainScript || trippedEnemy != null && trippedEnemy.isEnemyDead) return;
+            if (trippedEnemy == __instance.mainScript || trippedEnemy == null || trippedEnemy.isEnemyDead || !trippedEnemy.ventAnimationFinished) return;
 
             if (trippedEnemy != null && !spiderWebBlacklist.Contains(trippedEnemy.enemyType.enemyName))
             {

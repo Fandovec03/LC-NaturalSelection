@@ -1,6 +1,6 @@
 # Experimental Enemy Interactions
 
-# 0.5.31
+## 0.5.31
 
 - Fixed spider webs slowing down enemies that haven't finished vent animation, resulting in deformities
 - Fixed Bees and Spiders not being able to damage enemies

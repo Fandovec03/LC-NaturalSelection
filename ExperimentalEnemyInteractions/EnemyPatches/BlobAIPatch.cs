@@ -177,15 +177,17 @@ namespace NaturalSelection.EnemyPatches
 
 			if (!blobData.hitRegistry.ContainsKey(mainscript2) && !blobBlacklist.Contains(mainscript2.enemyType.enemyName))
 			{
-				if (mainscript2.isEnemyDead && IsEnemyImmortal.EnemyIsImmortal(mainscript2) == false && Vector3.Distance(__instance.transform.position, mainscript2.transform.position) <= 2.8f && Script.BoundingConfig.blobConsumesCorpses.Value)
+				if (mainscript2.isEnemyDead && IsEnemyImmortal.EnemyIsImmortal(mainscript2) == false && Vector3.Distance(__instance.transform.position, mainscript2.transform.position) <= 2.8f && Script.BoundingConfig.blobConsumesCorpses.Value && mainscript2.IsOwner)
 				{
 					if (__instance.IsOwner && mainscript2.thisNetworkObject.IsSpawned)
 					{
 						BlobEatCorpseEvent(__instance).InvokeClients();
 						Script.LogNS(LogLevel.Message, $"consumed dead body of {mainscript2.enemyType.enemyName}", __instance);
-						mainscript2.thisNetworkObject.Despawn(true);
-					}
-					return;
+						if (mainscript2.IsServer) mainscript2.KillEnemy(true);
+						else mainscript2.KillEnemyServerRpc(true);
+                        mainscript2.thisNetworkObject.Despawn(true);
+                    }
+                    return;
 				}
 				if (!mainscript2.isEnemyDead)
 				{

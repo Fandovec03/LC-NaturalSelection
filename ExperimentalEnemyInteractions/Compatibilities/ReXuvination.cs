@@ -21,7 +21,7 @@ namespace NaturalSelection.Compatibility
         static void UpdatePrefix(SandSpiderWebTrap __instance)
         {
             SpiderWebValues webData = (SpiderWebValues)Utilities.GetEnemyData(__instance, new SpiderWebValues());
-            if (Script.rexuvinationPresent && !webData.patchedCollisionLayer)
+            if (Script.rexuvinationPresent && webData != null && !webData.patchedCollisionLayer)
             {
                 Collider[] colliders = __instance.gameObject.GetComponents<Collider>();
                 int patched = 0;

@@ -305,7 +305,7 @@ class BeeAIPatch
     {
         if (mainscript2.GetType() == typeof(RedLocustBees)) return;
         BeeValues beeData = (BeeValues)Utilities.GetEnemyData(__instance, new BeeValues());
-        if (Utilities.enemyDataDict.ContainsKey(beeData.enemyID) && !beeBlacklist.Contains(mainscript2.enemyType.enemyName))
+        if (/*Utilities.enemyDataDict.ContainsKey(beeData.enemyID) &&*/ !beeBlacklist.Contains(mainscript2.enemyType.enemyName))
         {
             if ((!beeData.hitRegistry.ContainsKey(mainscript2) || beeData.hitRegistry[mainscript2] > 1.7f) && __instance.currentBehaviourStateIndex > 0 && !mainscript2.isEnemyDead || (!beeData.hitRegistry.ContainsKey(mainscript2) || beeData.hitRegistry[mainscript2] > 1.2f) && __instance.currentBehaviourStateIndex == 2 && !mainscript2.isEnemyDead)
             {

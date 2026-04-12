@@ -60,11 +60,11 @@ namespace NaturalSelection.EnemyPatches
             EnemyAICollisionDetect? trippedEnemyCollision = other.GetComponent<EnemyAICollisionDetect>();
             EnemyAI? trippedEnemy = null;
             if (trippedEnemyCollision != null && trippedEnemyCollision.mainScript != __instance.mainScript) trippedEnemy = trippedEnemyCollision.mainScript;
-            if (trippedEnemy == __instance.mainScript || trippedEnemy != null && trippedEnemy.isEnemyDead) return;
+            if (trippedEnemy == __instance.mainScript || trippedEnemy == null || trippedEnemy.isEnemyDead || !trippedEnemy.ventAnimationFinished) return;
 
             if (trippedEnemy != null && !spiderWebBlacklist.Contains(trippedEnemy.enemyType.enemyName))
             {
-                webData.trappedEnemy = trippedEnemy;
+                if (webData != null) webData.trappedEnemy = trippedEnemy;
                 float SpeedModifier = 1f;
 
 
@@ -81,7 +81,7 @@ namespace NaturalSelection.EnemyPatches
                 if (!enemyData[trippedEnemy].NumberOfTraps.Contains(__instance))
                 {
                     enemyData[trippedEnemy].NumberOfTraps.Add(__instance);
-                    SandSpiderAIPatch.AlertSpider(__instance.mainScript, __instance);
+                    if (__instance.mainScript != null) SandSpiderAIPatch.AlertSpider(__instance.mainScript, __instance);
                     if (debugLogs) Script.LogNS(LogLevel.Info,$"Added instance to NumberOfWebTraps {enemyData[trippedEnemy].NumberOfTraps.Count}", __instance);
                 }
 
@@ -133,10 +133,12 @@ namespace NaturalSelection.EnemyPatches
                 __state = false;
                 return true;
             }
-            else if (webData.trappedEnemy != null)
-            {
-                __state = true;
-                return false;
+            else if (webData != null) {
+                if (webData.trappedEnemy != null)
+                {
+                    __state = true;
+                    return false;
+                }
             }
             __state = false;
             return true;

@@ -70,6 +70,7 @@ namespace NaturalSelection.Generics
             Networking.ClearSubscribtionsInDictionary();
             NaturalSelectionLib.Library.ClearAllEnemyLists();
             EnemyAIPatch.enemyDataDict.Clear();
+            Script.ClearLogBlacklist();
             //EnemyAIPatch.enemyDataDict2.Clear();
             //SandSpiderWebTrapPatch.spiderWebs.Clear();
         }
@@ -82,6 +83,7 @@ namespace NaturalSelection.Generics
             Networking.ClearSubscribtionsInDictionary();
             NaturalSelectionLib.Library.ClearAllEnemyLists();
             EnemyAIPatch.enemyDataDict.Clear();
+            Script.ClearLogBlacklist();
             //EnemyAIPatch.enemyDataDict2.Clear();
             //SandSpiderWebTrapPatch.spiderWebs.Clear();
         }

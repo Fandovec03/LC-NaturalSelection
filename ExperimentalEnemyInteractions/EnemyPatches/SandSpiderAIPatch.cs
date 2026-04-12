@@ -50,7 +50,7 @@ namespace NaturalSelection.EnemyPatches
             data.ChangeClosestEnemyAction += getClosestEnemyResult;
             void getClosestEnemyResult(EnemyAI? closestEnemy)
             {
-                Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance);
+                Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance, debugSpam && debugSpider);
                 data.closestEnemy = closestEnemy;
             }
         }
@@ -413,7 +413,7 @@ namespace NaturalSelection.EnemyPatches
         public static void OnCustomEnemyCollision(SandSpiderAI __instance, EnemyAI mainscript2)
         {
             if (mainscript2.GetType() == typeof(SandSpiderAI)) return;
-            if (Utilities.enemyDataDict.ContainsKey(__instance.enemyType.enemyName + __instance.NetworkBehaviourId) && __instance.currentBehaviourStateIndex == 2 && !mainscript2.isEnemyDead && !spiderBlacklist.Contains(mainscript2.enemyType.enemyName))
+            if (/*Utilities.enemyDataDict.ContainsKey(__instance.enemyType.enemyName + __instance.NetworkBehaviourId) &&*/ __instance.currentBehaviourStateIndex == 2 && !mainscript2.isEnemyDead && !spiderBlacklist.Contains(mainscript2.enemyType.enemyName))
             {
                 Script.LogNS(LogLevel.Debug,$"timeSinceHittingPlayer: {__instance.timeSinceHittingPlayer}", __instance, debugSpider && debugTriggerFlag);
                 if (__instance.timeSinceHittingPlayer > 1f)

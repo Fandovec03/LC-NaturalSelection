@@ -46,7 +46,7 @@ namespace NaturalSelection.EnemyPatches
             data.ChangeClosestEnemyAction += getClosestEnemyResult;
             void getClosestEnemyResult(EnemyAI? closestEnemy)
             {
-                Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance);
+                Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance, debugSpam && debugNutcrackers);
                 string tempStringID = __instance.enemyType.enemyName + __instance.NetworkBehaviourId;
                 Utilities.enemyDataDict[tempStringID].closestEnemy = closestEnemy;
             }

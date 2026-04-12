@@ -1,5 +1,48 @@
 # _Natural selection_
 
+# 0.4.19
+- Recompiled for V81+
+
+# 0.4.18
+- F### slimes not eating corpses! I am just gonna delete the network objects myself. Idc anymore if it's gonna causes NREs.
+
+# 0.4.17
+- Added a null ckeck in ReXuvination compatibility script
+	- its been barely 5 minute since last patch lol
+
+
+# 0.4.16
+- Hopefully fixed slimes not actually eating corpses due to client/server shenanigans
+
+# 0.4.15
+- Fixed NREs caused by spider webs in several cases
+- Changed how Slimes delete enemy bodies
+	- Previously it directly deleted the network object itself. Changed to invoke server-side kill with destroy parameter to hopefully avoid unintended behavior
+- Updated descriptions in config file to be more detailed
+
+### Removed Herobrine and updated localization files
+- Yes I've been inactive for some time and this mod has been stagnant. I'll keep updating the mod as needed to keep it running.
+
+# 0.4.14
+- Fixed spider webs slowing down enemies that haven't finished vent animation, resulting in deformities
+- Fixed Bees and Spiders not being able to damage enemies
+- Added try/catch block so the body will destroy properly in case of failure
+
+# 0.4.13
+- Attempted to fix possible NRE getting enemy data (99% sure it's fixed I just didn't test it)
+
+# 0.4.12
+- Whitelisted Item types in logNS method
+
+# 0.4.11
+- Fixed loggers falsely triggering unsupported type message
+- Instead of triggering kill switch on meeting an unsupported type, it adds the source to a blacklist and ignores logs.
+	- Blacklist is cleared after user leaves moon or disconnects fropm the game
+
+# 0.4.10
+- Fixed logs
+- Added a check to turn killswitch on if an unsupported type is passed as a source
+
 # 0.4.9
 
 ### Reworked data containers

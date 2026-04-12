@@ -140,11 +140,11 @@ public class Utilities
         return enemyDataDict[id];
     }
 
-    public static void TryGetEnemyData(object __instance, out EnemyDataBase temp, bool returnToEnemyAIType = false)
+    public static void TryGetEnemyData(object __instance, out EnemyDataBase? temp, bool returnToEnemyAIType = false)
     {
         string id = GetDataID(__instance, returnToEnemyAIType);
-
-        enemyDataDict.TryGetValue(id, out temp);
+        temp = null;
+        if (id != "-1") enemyDataDict.TryGetValue(id, out temp);
     }
 
     public static void DeleteData(object instance, bool returnToEnemyAIType = false)
@@ -156,14 +156,17 @@ public class Utilities
     public static string GetDataID(object instance, bool returnToEnemyAIType = false)
     {
         string id = "-1";
-        if (instance is EnemyAI)
+        if (instance == null) return id;
+        else
         {
-            id = ((EnemyAI)instance).enemyType.enemyName + ((EnemyAI)instance).NetworkObjectId;
-            if (returnToEnemyAIType) id += ".base";
+            if (instance is EnemyAI)
+            {
+                id = ((EnemyAI)instance).enemyType.enemyName + ((EnemyAI)instance).NetworkObjectId;
+                if (returnToEnemyAIType) id += ".base";
+            }
+            else if (instance is SandSpiderWebTrap && ((SandSpiderWebTrap)instance).mainScript != null) id = ((SandSpiderWebTrap)instance).mainScript.enemyType.enemyName + ((SandSpiderWebTrap)instance).mainScript.NetworkObjectId + "SpiderWeb" + ((SandSpiderWebTrap)instance).trapID;
+            else if (instance is string) id = (string)instance;
         }
-        else if (instance is SandSpiderWebTrap) id = ((SandSpiderWebTrap)instance).mainScript.enemyType.enemyName + ((SandSpiderWebTrap)instance).mainScript.NetworkObjectId + "SpiderWeb" + ((SandSpiderWebTrap)instance).trapID;
-        else if (instance is string) id = (string)instance;
-
         return id;
     }
 

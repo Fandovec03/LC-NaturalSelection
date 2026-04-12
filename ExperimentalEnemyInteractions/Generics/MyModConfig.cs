@@ -90,38 +90,38 @@ namespace NaturalSelection.Generics;
             useCoroutines = cfg.Bind("Beta", "Enable experimental library coroutines", false, "Use coroutines to closest enemy. Might improve performance slightly.");
             usePathToFindClosestEnemy = cfg.Bind("Beta", "Use pathfinding to find closest enemy", false, "Enemies will use pathfinding to find closest enemy. Uses PathfindingLib if present. \n \n [Might cause performance drops without PathfindingLib]");
             //general settings
-            stableMode = cfg.Bind("General Settings", "Toggle stable mode", true, "When true, the mod will exlude patches that are WIP or are experimental from loading. Requires restart.");
+            stableMode = cfg.Bind("General Settings", "Toggle stable mode", true, "When true, the mod will exlude patches that are WIP or experimental from loading. Requires restart.");
             IgnoreImmortalEnemies = cfg.Bind("General Settings", "Ignore Immortal Enemies", false, "All immortal enemies will be ignored by majority of entities.");
             agentRadiusModifier = cfg.Bind("General Settings", "Agent radius modifier", 0.50f, "Modifies agent radius of entities for more reliable collisions.");
-            globalListsUpdateInterval = cfg.Bind("General Settings", "Global lists update interval", 1f, "Set a period how often are global lists updated. Default is one second.");
-            customSizeOverrideList = cfg.Bind("DEV", "Custom size override list", "", "Set what size the enemy is considered as. Generates automatically.");
+            globalListsUpdateInterval = cfg.Bind("General Settings", "Global lists update interval", 1f, "Set an interval how often are internal global enemy lists updated. Default is one second.");
+            customSizeOverrideList = cfg.Bind("DEV", "Custom size override list", "", "Set what size the enemy is considered as by the mod. Generates automatically empty.");
 
             //enable entities
-            enableSpider = cfg.Bind("Entity settings", "Enable spider", true, "Enable changes to apply to to spider and modify it's behavior.");
-            enableSlime = cfg.Bind("Entity settings", "Enable slime", true, "Enable changes to apply to to slime and modify it's behavior.");
-            enableLeviathan = cfg.Bind("Entity settings", "Enable leviathan", true, "Enable changes to apply to to leviathan and modify it's behavior.");
-            enableSporeLizard = cfg.Bind("DEV", "Enable SporeLizard", false, "Enable changes to apply to to spore lizard. \n\n Early build. DEV ONLY");
-            enableRedBees = cfg.Bind("Entity settings", "Enable Red bees (Circuit bees)", true, "Enable changes to apply to red bees and modify it's behavior.");
-            enableNutcracker = cfg.Bind("DEV", "Enable Nutcracker", false, "Enable changes to nutcracker to apply to and modify its behavior. \n\n Early build. DEV ONLY");
-            enableGiant = cfg.Bind("Entity settings", "Enable Giant", true, "Enable changes to apply to to forest giant.");
-            enableHoardingBug = cfg.Bind("DEV", "Enable Hoarding bug", false, "Enable changes to apply to to hoarding bug");
-            enableSpiderWebs = cfg.Bind("Entity settings", "Enable Spider Webs", true, "Enables changes to apply to to spider webs. Webs will stick to and slow down enemies.");
+            enableSpider = cfg.Bind("Entity settings", "Enable spider", true, "Apply changes to spider and modify it's behavior.");
+            enableSlime = cfg.Bind("Entity settings", "Enable slime", true, "Apply changes to slime and modify it's behavior.");
+            enableLeviathan = cfg.Bind("Entity settings", "Enable leviathan", true, "Apply changes to to leviathan and modify it's behavior.");
+            enableSporeLizard = cfg.Bind("DEV", "Enable SporeLizard", false, "Apply changes to spore lizard. \n\n Early build. DEV ONLY");
+            enableRedBees = cfg.Bind("Entity settings", "Enable Red bees (Circuit bees)", true, "Apply changes to red bees and modify it's behavior.");
+            enableNutcracker = cfg.Bind("DEV", "Enable Nutcracker", false, "Apply changes to apply to and modify its behavior. \n\n Early build. DEV ONLY");
+            enableGiant = cfg.Bind("Entity settings", "Enable Giant", true, "Apply changes to to forest giant.");
+            enableHoardingBug = cfg.Bind("DEV", "Enable Hoarding bug", false, "Apply changes to hoarding bug");
+            enableSpiderWebs = cfg.Bind("Entity settings", "Enable Spider Webs", true, "Apply changes to spider webs. Webs will stick to and slow enemies down.");
             //entity settings
             //Giant
-            giantExtinguishChance = cfg.Bind("Entity settings | Giant", "Extinguish chance", 33, new ConfigDescription("Chance of giants extinguishing themselves in percent.", new AcceptableValueRange<int>(0, 100)));
-            beesSetGiantsOnFireMinChance = cfg.Bind("Entity settings | Giant", "Ignite giants min chace", 1.5f, new ConfigDescription("The minimum chance bees will set giant on fire on hit in percent. Applies to calm bees.", new AcceptableValueRange<float>(0f, 100f)));
-            beesSetGiantsOnFireMaxChance = cfg.Bind("Entity settings | Giant", "Ignite giants max chace", 8f, new ConfigDescription("The minimum chance bees will set giant on fire on hit in percent. Applies to angry bees.", new AcceptableValueRange<float>(0f, 100f)));
+            giantExtinguishChance = cfg.Bind("Entity settings | Giant", "Extinguish chance", 33, new ConfigDescription("Chance of giants extinguishing themselves. Values are percent.", new AcceptableValueRange<int>(0, 100)));
+            beesSetGiantsOnFireMinChance = cfg.Bind("Entity settings | Giant", "Ignite giants min chace", 1.5f, new ConfigDescription("Default chance bees will set giant on fire.", new AcceptableValueRange<float>(0f, 100f)));
+            beesSetGiantsOnFireMaxChance = cfg.Bind("Entity settings | Giant", "Ignite giants max chace", 8f, new ConfigDescription("Chance bees will set giant on fire when bees are enraged.", new AcceptableValueRange<float>(0f, 100f)));
             //Hygrodere
             blobConsumesCorpses = cfg.Bind("Entity settings | Hygrodere", "Consume corpses", true, "Hygrodere consume dead enemy corpses.");
             blobPathfindToCorpses = cfg.Bind("Entity settings | Hygrodere", "Pathfind to corpses", true, "Hygrodere move towards corpses to consume.");
-            blobPathfind = cfg.Bind("Entity settings | Hygrodere", "Pathfind", true, "Pathfind to other entities.");
-            blobAIOpeningDoorsMultiplier = cfg.Bind("Entity settings | Hygrodere", "Open door multiplier", 0.7f, "Open door speed multiplier. Default value is vanilla.");
+            blobPathfind = cfg.Bind("Entity settings | Hygrodere", "Pathfind", true, "Hygrodere will move towards other organisms to consume.");
+            blobAIOpeningDoorsMultiplier = cfg.Bind("Entity settings | Hygrodere", "Open door multiplier", 0.7f, "Multiplier opening doors speed. Default value is vanilla.");
             //Sandworm
-            sandwormDoNotEatPlayersInsideLeavingShip = cfg.Bind("Entity settings | Sandworm", "Do not eat players inside leaving ship", false, "Worms do not eat players inside ship leaving moon.");
+            sandwormDoNotEatPlayersInsideLeavingShip = cfg.Bind("Entity settings | Sandworm", "Do not eat players inside leaving ship", false, "Worms do not eat players inside ship when leaving the moon.");
             //Spider/Spider Web
-            chaseAfterEnemiesModifier = cfg.Bind("Entity settings | Spider/Spider Web", "Chase after enemies modifier", 3f, "Modifies chase timer for chasing enemies. When chasing another enemy, hunter's chase timer is divided by set number.");
-            speedModifierList = cfg.Bind("Entity settings | Spider/Spider Web", "Web speed modifiers", "", "Modifies final speed of enemy caught in web. \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:Speed ] \n This config generates automatically.");
-            webStrength = cfg.Bind("Entity settings | Spider/Spider Web", "Spider Web Strenght", 1.3f, "Strength of spider webs. Stronger spider web slows enemies more.");
+            chaseAfterEnemiesModifier = cfg.Bind("Entity settings | Spider/Spider Web", "Enemy chase timer modifier", 3f, "Set the chase timer for enemies from player chase timer by dividing it with set number. \n Formula: [Player chase timer : set number = Enemy chase timer]");
+            speedModifierList = cfg.Bind("Entity settings | Spider/Spider Web", "Web speed modifiers", "", "Modify the final speed for enemy when stuck in spider webs. \n Formula: [Enemy speed when touching spider web : ((1 + number of web enemy is stuck in) * web strength) * set number] \n \n [The ',' acts as a separator between each entry. Entry format: EnemyName:Speed ] \n This config generates automatically.");
+            webStrength = cfg.Bind("Entity settings | Spider/Spider Web", "Spider Web Strenght", 1.3f, "Strength of spider web slow downs. Stronger spider webs slow enemies more. \n Formula: [Enemy speed when touching spider web : ((1 + number of web enemy is stuck in) * set number ) * web speed modifier]");
             //blacklists
             enemyNames = cfg.Bind("Blacklists", "Enemy names", "", "List of enemy names. \n This config generates automatically.");
             beeBlacklist = cfg.Bind("Blacklists", "Bees Blacklist", "", "Any enemy with set value to true will be ignored by circuit bees. \n \n [The Character ',' acts as a separator between each entry.]");

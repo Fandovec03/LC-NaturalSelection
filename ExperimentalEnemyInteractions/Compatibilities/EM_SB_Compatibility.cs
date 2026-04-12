@@ -7,6 +7,7 @@ using CleaningCompany;
 using LogLevel = BepInEx.Logging.LogLevel;
 using NaturalSelection.Generics;
 using NaturalSelection.EnemyPatches;
+using System;
 
 namespace NaturalSelection.Compatibility
 {
@@ -33,8 +34,17 @@ namespace NaturalSelection.Compatibility
 
         private void OnDestroy()
         {
-            Script.LogNS(LogLevel.Message, $"Removing DeadBodyTrackerScript {instance.gameObject.name} from list");
-            RoundManagerPatch.deadEnemiesList.Remove(instance);
+            try
+            {
+                Script.LogNS(LogLevel.Message, $"Removing DeadBodyTrackerScript {instance.gameObject.name} from list");
+                RoundManagerPatch.deadEnemiesList.Remove(instance);
+            }
+            catch (Exception e)
+            {
+                Script.Logger.Log(LogLevel.Error, e);
+                string stringName = instance != null ? instance.gameObject.name : "(failed to get name for this instance)";
+                Script.LogNS(LogLevel.Error, $"Something went wrong while Removing DeadBodyTrackerScript {stringName} from list");
+            }
         }
     }
 

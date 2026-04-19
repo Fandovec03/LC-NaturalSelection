@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using EnhancedMonsters.Monobehaviours;
 using HarmonyLib;
 using UnityEngine;
+using BepInEx;
 using CleaningCompany;
 using LogLevel = BepInEx.Logging.LogLevel;
 using NaturalSelection.Generics;
 using NaturalSelection.EnemyPatches;
 using System;
+using SellBodies;
+using System.IO;
+using System.Reflection;
 
 namespace NaturalSelection.Compatibility
 {
@@ -75,14 +79,15 @@ namespace NaturalSelection.Compatibility
         public static void AddTracerScriptToPrefabs()
         {
             Script.Logger.LogWarning("Fired compatibility for SellBodiesFixed");
+            string sellbodiesAssetDir = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(SellBodies.Plugin)).Location), "sellbodies");
+            AssetBundle sellbodiesBundle = SellBodies.Plugin.instance.bundle;
 
-            foreach (KeyValuePair<string, string> pair in Plugin.instance.pathToName)
+
+            foreach (var item in sellbodiesBundle.LoadAllAssets<Item>())
             {
-                Item item = Plugin.instance.bundle.LoadAsset<Item>(pair.Key);
-
                 item.spawnPrefab.gameObject.AddComponent<DeadBodyTrackerScript>();
 
-                Script.LogNS(LogLevel.Message, $"Added DeadBodyTrackerScript to {pair.Value} at {pair.Key}", item);
+                Script.LogNS(LogLevel.Message, $"Added DeadBodyTrackerScript to {item.name}");
 
             }
         }

@@ -377,3 +377,4 @@ ExperimentalEnemyInteractions/TEMP/StarlancerAI.dll
 *.dll
 /ExperimentalEnemyInteractions/Dependencies
 *.dll
+/ExperimentalEnemyInteractions/TestScripts

@@ -160,6 +160,16 @@ namespace NaturalSelection.EnemyPatches
                 case 0:
                     if (__instance.inEmergingState || __instance.emerged)
                     {
+                        try
+                        {
+                            ReversePatchAIUpdate.originalUpdate.Invoke(__instance);
+                            //Script.LogNS(LogLevel.Message,"Succesfully invoked originalUpdate");
+                        }
+                        catch (Exception e)
+                        {
+                            Script.LogNS(LogLevel.Error, "failed invoking originalUpdate.", __instance);
+                            Script.LogNS(LogLevel.Error, e.ToString());
+                        }
                         return false;
                     }
                     break;
@@ -185,7 +195,7 @@ namespace NaturalSelection.EnemyPatches
                         //Script.LogNS(LogLevel.Message,$"Invoking originalUpdate");
                         try
                         {
-                            ReversePatchAI.originalUpdate.Invoke(__instance);
+                            ReversePatchAIUpdate.originalUpdate.Invoke(__instance);
                             //Script.LogNS(LogLevel.Message,"Succesfully invoked originalUpdate");
                         }
                         catch (Exception e)

@@ -67,10 +67,10 @@ namespace NaturalSelection.EnemyPatches
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
 		[HarmonyPatch("DoAIInterval")]
-		[HarmonyPrefix]
-		static bool DoAIIntervalPrefixPatch(BlobAI __instance)
+		[HarmonyPostfix]
+		static void DoAIIntervalPrefixPatch(BlobAI __instance)
 		{
-            if (__instance.isEnemyDead) return true;
+            //if (__instance.isEnemyDead) return;
             BlobData blobData = (BlobData)Utilities.GetEnemyData(__instance, new BlobData());
 
 			if (Script.BoundingConfig.blobPathfind.Value == true)
@@ -94,6 +94,11 @@ namespace NaturalSelection.EnemyPatches
 					closestDeadBody != null && Vector3.Distance(closestDeadBody.transform.position, __instance.transform.position) < Vector3.Distance(__instance.GetClosestPlayer().transform.position, __instance.transform.position)) ||
 					__instance.GetClosestPlayer() == null)
 				{
+					if (__instance.searchForPlayers.inProgress)
+					{
+						__instance.StopSearch(__instance.searchForPlayers);
+						__instance.movingTowardsTargetPlayer = false;
+					}
 					if (__instance.moveTowardsDestination)
 					{
 						__instance.agent.SetDestination(__instance.destination);
@@ -120,10 +125,9 @@ namespace NaturalSelection.EnemyPatches
 					{
                         __instance.SetDestinationToPosition(closestDeadBody.transform.position, true);
                     }
-					return false;
+					//return false;
 				}
 			}
-			return true;
 		}
 
         [HarmonyPatch("Update")]

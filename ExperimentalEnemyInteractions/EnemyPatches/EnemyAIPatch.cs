@@ -101,11 +101,11 @@ namespace NaturalSelection.EnemyPatches
             if (enemyData != null) enemyData.ReactToAttack(instance, other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript,1);
         }
     }
-    public class ReversePatchAI
+    public class ReversePatchAIUpdate
     {
-        public static Action<EnemyAI> originalUpdate;
+        internal static Action<EnemyAI> originalUpdate;
 
-        static ReversePatchAI()
+        static ReversePatchAIUpdate()
         {
             var method = AccessTools.Method(typeof(EnemyAI), nameof(EnemyAI.Update));
             var dm = new DynamicMethod("Base.Update", null, [typeof(EnemyAI)], typeof(EnemyAI));
@@ -115,6 +115,22 @@ namespace NaturalSelection.EnemyPatches
             gen.Emit(OpCodes.Ret);
 
             originalUpdate = (Action<EnemyAI>)dm.CreateDelegate(typeof(Action<EnemyAI>));
+        }
+    }
+
+    public class ReversePatchAIDoAIInterval
+    {
+        internal static Action<EnemyAI> originalDoAIInterval;
+        static ReversePatchAIDoAIInterval()
+        {
+            var method = AccessTools.Method(typeof(EnemyAI), nameof(EnemyAI.DoAIInterval));
+            var dm = new DynamicMethod("Base.DoAIInterval", null, [typeof(EnemyAI)], typeof(EnemyAI));
+            var gen = dm.GetILGenerator();
+            gen.Emit(OpCodes.Ldarg_0);
+            gen.Emit(OpCodes.Call, method);
+            gen.Emit(OpCodes.Ret);
+
+            originalDoAIInterval = (Action<EnemyAI>)dm.CreateDelegate(typeof(Action<EnemyAI>));
         }
     }
 }

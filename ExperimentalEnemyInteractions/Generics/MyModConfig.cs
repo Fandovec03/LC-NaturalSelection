@@ -57,6 +57,7 @@ namespace NaturalSelection.Generics;
     //debug
     public ConfigEntry<bool> debugBool;
     public ConfigEntry<bool> debugKillSwitch;
+    
     public ConfigEntry<bool> spammyLogs;
     public ConfigEntry<bool> debugTriggerFlags;
     public ConfigEntry<bool> debugNetworking;
@@ -70,7 +71,12 @@ namespace NaturalSelection.Generics;
     public ConfigEntry<bool> debugLibrary;
     public ConfigEntry<bool> debugLibraryTrigger;
     public ConfigEntry<bool> debugSpiderWebs;
-
+    
+    /*
+    public ConfigEntry<bool> debugEnemyEvents;
+    public ConfigEntry<bool> debugEnemyEventsDetail;
+    public ConfigEntry<bool> debugEnemyEventsAll;
+    */
     public Dictionary<string,ConfigEntry<bool>> debugEntries = new Dictionary<string, ConfigEntry<bool>>();
     public Dictionary<string, ConfigEntry<bool>> CompatibilityEntries = new Dictionary<string, ConfigEntry<bool>>();
     //Compatibility overrides
@@ -132,6 +138,7 @@ namespace NaturalSelection.Generics;
             //debug
             debugBool = cfg.Bind("Debug", "Debug mode", false, "Enables debug mode for more debug logs. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugBool), debugBool);
             debugKillSwitch = cfg.Bind("Debug", "Debug killswitch", false, "Kills all debug logs"); debugEntries.Add(nameof(debugKillSwitch), debugKillSwitch);
+            
             spammyLogs = cfg.Bind("Debug", "Spammy logs", false, "Enables spammy logs for extra logs. Can be changed at runtime via config mods."); debugEntries.Add(nameof(spammyLogs), spammyLogs);
             debugNetworking = cfg.Bind("Debug", "Debug networking", false, "Enables debug logs for networking. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugNetworking), debugNetworking);
             debugTriggerFlags = cfg.Bind("Debug", "Trigger flags", false, "Enables logs with trigger flag."); debugEntries.Add(nameof(debugTriggerFlags), debugTriggerFlags);
@@ -145,6 +152,12 @@ namespace NaturalSelection.Generics;
             debugSpiders = cfg.Bind("Debug", "Log spiders", false, "Enables logs for spiders. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugSpiders), debugSpiders);
             debugGiants = cfg.Bind("Debug", "Log giants", false, "Enables logs for giants. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugGiants), debugGiants);
             debugSpiderWebs = cfg.Bind("Debug", "Log spider webs", false, "Enables logs for spider webs. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugSpiderWebs), debugSpiderWebs);
+            
+            /*
+            debugEnemyEvents = cfg.Bind("Debug", "Spammy logs1", false, "Enables spammy logs for extra logs. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugEnemyEvents), debugEnemyEvents);
+            debugEnemyEventsDetail = cfg.Bind("Debug", "Spammy logs2", false, "Enables spammy logs for extra logs. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugEnemyEventsDetail), debugEnemyEventsDetail);
+            debugEnemyEventsAll = cfg.Bind("Debug", "Spammy logs3", false, "Enables spammy logs for extra logs. Can be changed at runtime via config mods."); debugEntries.Add(nameof(debugEnemyEventsAll), debugEnemyEventsAll);
+            */
 
             //Compatibility overrides
             CompatibilityAutoToggle = cfg.Bind("Compatibility toggles", "Auto load compatibilities", true, "Automatically load compatibilites for detected mods");

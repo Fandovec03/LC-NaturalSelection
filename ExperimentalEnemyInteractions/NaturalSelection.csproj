@@ -38,6 +38,7 @@
         viewing Private Information in stack traces.
         -->
 		<PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=./</PathMap>
+		<NuGetAuditMode>direct</NuGetAuditMode>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Remove="Deprecated\**" />
@@ -55,9 +56,7 @@
 		<PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" PrivateAssets="all" />
 		<PackageReference Include="LethalCompany.GameLibs.Steam" Version="*-*" PrivateAssets="all" />
 		<PackageReference Include="UnityEngine.Modules" Version="2022.3.62" IncludeAssets="compile" PrivateAssets="all" />
-		<PackageReference Include="Xilophor.LethalNetworkAPI" Version="3.3.2" PrivateAssets="all" />
-		<PackageReference Include="TeamBMX.LobbyCompatibility" Version="1.5.1" />
-
+		<PackageReference Include="Xilophor.LethalNetworkAPI" Version="3.3.3" PrivateAssets="all" />
 		<PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.3">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
@@ -74,7 +73,7 @@
 
 	<ItemGroup>
 		<Reference Include="EnhancedMonsters" Publicize="True">
-			<HintPath>Dependencies\EnhancedMonsters.dll</HintPath>
+			<HintPath>.\Dependencies\EnhancedMonsters.dll</HintPath>
 		</Reference>
 		<Reference Include="fandovec03.NaturalSelectionLib">
 			<HintPath>Dependencies\fandovec03.NaturalSelectionLib.dll</HintPath>

@@ -5,6 +5,8 @@ using System.Linq;
 using NaturalSelection.Generics;
 using System;
 using BepInEx.Logging;
+using Dissonance;
+using LogLevel = BepInEx.Logging.LogLevel;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -43,6 +45,14 @@ namespace NaturalSelection.EnemyPatches
         static void StartPatch(SandSpiderAI __instance)
         {
             SpiderData data = (SpiderData)Utilities.GetEnemyData(__instance, new SpiderData());
+
+            EnemyBehaviourState dummyState = new EnemyBehaviourState();
+            dummyState.name = "NaturalSelectionDummyState";
+            EnemyBehaviourState[] behaviorStates = new EnemyBehaviourState[4];
+            __instance.enemyBehaviourStates.CopyTo(behaviorStates, 0);
+            behaviorStates[3] = dummyState;
+            __instance.enemyBehaviourStates = behaviorStates;
+
             data.SetOwner(__instance);
             data.Subscribe();
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
@@ -54,11 +64,12 @@ namespace NaturalSelection.EnemyPatches
                 data.closestEnemy = closestEnemy;
             }
         }
+
         [HarmonyPatch("Update")]
         [HarmonyPrefix]
-        static bool UpdatePrefixPatch(SandSpiderAI __instance)
+        static void UpdatePrefixPatch(SandSpiderAI __instance)
         {
-            if (__instance.isEnemyDead) return true;
+            //if (__instance.isEnemyDead) return true;
             SpiderData spiderData = (SpiderData)Utilities.GetEnemyData(__instance, new SpiderData());
             Type type = __instance.GetType();
 
@@ -86,7 +97,7 @@ namespace NaturalSelection.EnemyPatches
             {
                 foreach (KeyValuePair<EnemyAI, float> enemy in spiderData.enemiesInLOSDictionary)
                 {
-                    if (enemy.Key is CentipedeAI && enemy.Key.currentBehaviourStateIndex == 1)
+                    if (enemy.Key is CentipedeAI && enemy.Key.currentBehaviourStateIndex == 3)
                     {
                         continue;
                     }
@@ -125,7 +136,7 @@ namespace NaturalSelection.EnemyPatches
                                 spiderData.targetEnemy = spiderData.closestEnemy;
                                 spiderData.investigateTrap = null;
                                 Script.LogNS(LogLevel.Info, $"Update Postfix: /case0/ Set {spiderData.closestEnemy} as TargetEnemy", __instance, debugSpider);
-                                __instance.SwitchToBehaviourState(2);
+                                __instance.SwitchToBehaviourState(3);
                                 Script.LogNS(LogLevel.Debug, $"Update Postfix: /case0/ Set state to {__instance.currentBehaviourStateIndex}", __instance, debugSpider);
                                 __instance.chaseTimer = 12.5f / chaseModifier;
                                 __instance.watchFromDistance = Vector3.Distance(__instance.meshContainer.transform.position, spiderData.closestEnemy.transform.position) > 5f;
@@ -168,11 +179,14 @@ namespace NaturalSelection.EnemyPatches
                         }
                         break;
                     }
-                case 2:
+                case 3:
                     {
                         if (spiderData.investigateTrap != null) spiderData.investigateTrap = null;
-                        if (__instance.targetPlayer != null) break;
-
+                        if (__instance.targetPlayer != null)
+                        {
+                            __instance.SwitchToBehaviourState(2);
+                            break;
+                        }
                         if (spiderData.targetEnemy != spiderData.closestEnemy && spiderData.closestEnemy != null && __instance.CheckLineOfSightForPosition(spiderData.closestEnemy.transform.position, 80f, 15, 2f, __instance.eye))
                         {
                             float num1 = 0f;
@@ -194,6 +208,7 @@ namespace NaturalSelection.EnemyPatches
                         {
                             Script.LogNS(LogLevel.Debug,$"Update Postfix: /case2-0/ Stopping chasing: {spiderData.targetEnemy}", __instance, debugSpider);
                             spiderData.targetEnemy = null;
+                            __instance.overrideSpiderLookRotation = false;
                             __instance.StopChasing();
                             break;
                         }
@@ -225,6 +240,7 @@ namespace NaturalSelection.EnemyPatches
                             {
                                 Script.LogNS(LogLevel.Debug,$"Update Postfix: /case2-1/ Stopping chasing: {spiderData.targetEnemy}", __instance, debugSpider);
                                 spiderData.targetEnemy = null;
+                                __instance.overrideSpiderLookRotation = false;
                                 __instance.StopChasing();
                             }
                             else if (Vector3.Distance(spiderData.targetEnemy.transform.position, __instance.meshContainer.position) < 5f || __instance.stunNormalizedTimer > 0f)
@@ -253,6 +269,7 @@ namespace NaturalSelection.EnemyPatches
                                 }
                             }
                             spiderData.targetEnemy = null;
+                            __instance.overrideSpiderLookRotation = false;
                             __instance.StopChasing();
                         }
                         else if (Vector3.Distance(spiderData.targetEnemy.transform.position, __instance.homeNode.position) > 15f && Vector3.Distance(spiderData.targetEnemy.transform.position, __instance.meshContainer.position) > 8f)
@@ -269,12 +286,12 @@ namespace NaturalSelection.EnemyPatches
                     }
                 }
 
-                if ((spiderData.targetEnemy != null && __instance.currentBehaviourStateIndex == 2 || spiderData.investigateTrap != null) && !__instance.targetPlayer)
+                if ((spiderData.targetEnemy != null && __instance.currentBehaviourStateIndex == 4 || spiderData.investigateTrap != null) && !__instance.targetPlayer)
                 {
                     //Script.LogNS(LogLevel.Message,$"Invoking originalUpdate");
                     try
                     {
-                        ReversePatchAI.originalUpdate.Invoke(__instance);
+                        ReversePatchAIUpdate.originalUpdate.Invoke(__instance);
                         //Script.LogNS(LogLevel.Message,"Succesfully invoked originalUpdate");
                     }
                     catch (Exception e)
@@ -304,7 +321,7 @@ namespace NaturalSelection.EnemyPatches
                             __instance.overrideSpiderLookRotation = false;
                             __instance.waitOnWallTimer = 11f;
                             break;
-                        case 2:
+                        case 3:
                             __instance.setDestinationToHomeBase = false;
                             __instance.reachedWallPosition = false;
                             __instance.lookingForWallPosition = false;
@@ -313,33 +330,38 @@ namespace NaturalSelection.EnemyPatches
                     }
                     __instance.SyncMeshContainerPositionToClients();
                     __instance.CalculateMeshMovement();
-                    return false;
+                    //return false;
                 }
             }
-            return true;
+            //return true;
         }
 
         [HarmonyPatch("DoAIInterval")]
         [HarmonyPrefix]
-        static bool DoAIIntervalPrefix(SandSpiderAI __instance)
+        static void DoAIIntervalPrefix(SandSpiderAI __instance)
         {
-            if (__instance.isEnemyDead) return true;
+            //if (__instance.isEnemyDead) return true;
             SpiderData spiderData = (SpiderData)Utilities.GetEnemyData(__instance, new SpiderData()); ;
             SandSpiderAI Ins = __instance;
 
-            if (spiderData.targetEnemy != null && !__instance.targetPlayer && __instance.currentBehaviourStateIndex == 2)
+            if (spiderData.targetEnemy != null && !__instance.targetPlayer && __instance.currentBehaviourStateIndex == 3)
             {
-                if (__instance.moveTowardsDestination)
-                {
-                    __instance.agent.SetDestination(__instance.destination);
-                }
-                __instance.SyncPositionToClients();
-
                 Script.LogNS(LogLevel.Debug,$"DoAIInterval Prefix: false", __instance, debugSpider && debugSpam);
-                return false;
+                try
+                {
+                    ReversePatchAIDoAIInterval.originalDoAIInterval.Invoke(__instance);
+                    //Script.LogNS(LogLevel.Message,"Succesfully invoked originalUpdate");
+                }
+                catch (Exception e)
+                {
+                    Script.LogNS(LogLevel.Error, "failed invoking originalDoAIInterval.", __instance);
+                    Script.LogNS(LogLevel.Error, e.ToString());
+                }
+                //return false;
             }
             Script.LogNS(LogLevel.Debug,$"DoAIInterval Prefix: true", __instance, debugSpider && debugSpam);
-            return true;
+            //return true;
+
         }
         [HarmonyPatch("DoAIInterval")]
         [HarmonyPostfix]
@@ -389,14 +411,16 @@ namespace NaturalSelection.EnemyPatches
                     }
                     Ins.overrideSpiderLookRotation = false;
                     break;
-                case 2:
+                case 3:
                     {
                         if (spiderData.targetEnemy != null)
                         {
+                            __instance.overrideSpiderLookRotation = false;
                             if (spiderData.targetEnemy.isEnemyDead)
                             {
                                 Script.LogNS(LogLevel.Debug,$"DoAIInterval Postfix: /case2/ Stopping chasing: {spiderData.targetEnemy}", __instance, debugSpider);
                                 spiderData.targetEnemy = null;
+                                __instance.overrideSpiderLookRotation = false;
                                 Ins.StopChasing();
                                 break;
                             }
@@ -439,12 +463,13 @@ namespace NaturalSelection.EnemyPatches
         static void ChaseEnemy(SandSpiderAI ins, EnemyAI target, SandSpiderWebTrap? triggeredWeb = null)
         {
             SpiderData spiderData = (SpiderData)Utilities.GetEnemyData(ins, new SpiderData());
-            if ((ins.currentBehaviourStateIndex != 2 && ins.watchFromDistance) || Vector3.Distance(target.transform.position, ins.homeNode.position) < 25f || Vector3.Distance(ins.meshContainer.position, target.transform.position) < 15f)
+            if ((ins.currentBehaviourStateIndex != 3 && ins.watchFromDistance) || Vector3.Distance(target.transform.position, ins.homeNode.position) < 25f || Vector3.Distance(ins.meshContainer.position, target.transform.position) < 15f)
             {
                 ins.watchFromDistance = false;
+                ins.overrideSpiderLookRotation = false;
                 spiderData.targetEnemy = target;
                 ins.chaseTimer = 12.5f / chaseModifier;
-                ins.SwitchToBehaviourState(2);
+                ins.SwitchToBehaviourState(3);
             }
         }
 
@@ -461,7 +486,7 @@ namespace NaturalSelection.EnemyPatches
             CustomEnemySize customEnemySize = (CustomEnemySize)InitializeGamePatch.customSizeOverrideListDictionary[tempEnemy.enemyType.enemyName];
             SpiderData spiderData = (SpiderData)Utilities.GetEnemyData(owner, new SpiderData());
             Script.LogNS(LogLevel.Info,$"Custom enemy size: {customEnemySize}", triggeredTrap, debugSpider);
-            if (owner.currentBehaviourStateIndex != 2)
+            if (owner.currentBehaviourStateIndex != 3)
             {
                 if (!tempEnemy.enemyType.canDie)
                 {
@@ -471,7 +496,7 @@ namespace NaturalSelection.EnemyPatches
                 if (spiderData.investigateTrap != null)
                 {
                     spiderData.targetEnemy = tempEnemy;
-                    owner.SwitchToBehaviourState(2);
+                    owner.SwitchToBehaviourState(3);
                     spiderData.investigateTrap = null;
                     spiderData.investigateTrapTimer = 0;
                     if (debugSpider || debugTriggerFlag) Script.LogNS(LogLevel.Info,$"alerted its owner {LibraryCalls.DebugStringHead(owner)}", triggeredTrap);

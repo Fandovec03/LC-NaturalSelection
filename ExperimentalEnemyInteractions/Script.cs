@@ -23,7 +23,6 @@ namespace NaturalSelection;
 [BepInDependency("com.velddev.enhancedmonsters", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("Entity378.sellbodies", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("XuuXiaolan.ReXuvination", BepInDependency.DependencyFlags.SoftDependency)]
-[BepInDependency("BMX.LobbyCompatibility", BepInDependency.DependencyFlags.SoftDependency)]
 
 public class Script : BaseUnityPlugin
 {
@@ -147,35 +146,26 @@ public class Script : BaseUnityPlugin
             switch (item.Key)
             {
                 case "com.velddev.enhancedmonsters":
-                    {
-                        enhancedMonstersPresent = true;
-                        comment = "Found Enhanced Monsters";
-                        break;
-                    }
+                {
+                    enhancedMonstersPresent = true;
+                    comment = "Found Enhanced Monsters";
+                    break;
+                }
                 case "Entity378.sellbodies":
-                    {
-                        sellBodiesPresent = true;
-                        comment = "Found SellbodiesFixed";
-                        break;
-                    }
+                {
+                    sellBodiesPresent = true;
+                    comment = "Found SellbodiesFixed";
+                    break;
+                }
                 case "XuuXiaolan.ReXuvination":
-                    {
-                        rexuvinationPresent = true;
-                        comment = "Found ReXuvination";
-                        break;
-                    }
-                case "BMX.LobbyCompatibility":
-                    {
-                        LobbyCompatibilityPresent = true;
-                        comment = "Found LobbyCompatibility";
-                        break;
-                    }
+                {
+                    rexuvinationPresent = true;
+                    comment = "Found ReXuvination";
+                    break;
+                }
             }
             if (comment != "") Logger.LogInfo($"{comment}. Automatically loading compatibility.");
         }
-
-        try { LobbyCompCompatibility.RegisterLobbyComp(MyPluginInfo.PLUGIN_GUID, Version.Parse(MyPluginInfo.PLUGIN_VERSION)); }
-        catch { }
 
         foreach (var item in BoundingConfig.CompatibilityEntries)
         {

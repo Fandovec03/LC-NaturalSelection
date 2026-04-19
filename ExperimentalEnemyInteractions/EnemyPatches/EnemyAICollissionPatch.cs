@@ -88,11 +88,9 @@ namespace NaturalSelection.EnemyPatches
     {
         [HarmonyPatch(nameof(EnemyAICollisionDetect.OnTriggerStay))]
         [HarmonyPrefix]
-        static bool OnTriggerStayPrefix(Collider other, EnemyAICollisionDetect __instance)
+        static void OnTriggerStayPrefix(Collider other, EnemyAICollisionDetect __instance)
         {
-
-
-            if (other == null) { Script.Logger.Log(LogLevel.Error,$"{LibraryCalls.DebugStringHead(__instance.mainScript)} Collider is null! Using original function..."); return true; }
+            if (other == null) { Script.Logger.Log(LogLevel.Error,$"{LibraryCalls.DebugStringHead(__instance.mainScript)} Collider is null! Using original function..."); return; }
             EnemyAICollisionDetect? compoment2 = other.gameObject.GetComponent<EnemyAICollisionDetect>();
 
             if (__instance != null)
@@ -108,7 +106,7 @@ namespace NaturalSelection.EnemyPatches
                 if (other.CompareTag("Player") && __instance.mainScript.isEnemyDead == false)
                 {
                     OnCollideWithUniversal.Collide("Player", null, null);
-                    return true;
+                    return;
                 }
                 if (compoment2 != null)
                 {
@@ -123,11 +121,10 @@ namespace NaturalSelection.EnemyPatches
                     if (other.CompareTag("Enemy") && hitEnemy != null && hitEnemy != __instance.mainScript && !IsEnemyImmortal.EnemyIsImmortal(hitEnemy) && !__instance.mainScript.isEnemyDead)
                     {
                         OnCollideWithUniversal.Collide("Enemy", __instance.mainScript, hitEnemy);
-                        return true;
+                        return;
                     }
                 }
             }
-            return true;
         }
     }
     public class IsEnemyImmortal

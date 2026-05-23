@@ -147,6 +147,14 @@ public class Utilities
         if (id != "-1") enemyDataDict.TryGetValue(id, out temp);
     }
 
+    public static EnemyDataBase? TryGetEnemyData(object __instance, bool returnToEnemyAIType = false)
+    {
+        string id = GetDataID(__instance, returnToEnemyAIType);
+        EnemyDataBase? temp = null;
+        if (id != "-1") enemyDataDict.TryGetValue(id, out temp);
+        return temp;
+    }
+
     public static void DeleteData(object instance, bool returnToEnemyAIType = false)
     {
         string id = GetDataID(instance, returnToEnemyAIType);

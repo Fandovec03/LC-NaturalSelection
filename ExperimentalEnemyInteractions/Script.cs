@@ -23,7 +23,7 @@ namespace NaturalSelection;
 [BepInDependency("com.velddev.enhancedmonsters", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("Entity378.sellbodies", BepInDependency.DependencyFlags.SoftDependency)]
 [BepInDependency("XuuXiaolan.ReXuvination", BepInDependency.DependencyFlags.SoftDependency)]
-
+[BepInDependency("giosuel.Imperium", BepInDependency.DependencyFlags.SoftDependency)]
 public class Script : BaseUnityPlugin
 {
     public static Script Instance { get; private set; } = null!;
@@ -56,7 +56,7 @@ public class Script : BaseUnityPlugin
     internal static bool sellBodiesPresent = false;
     internal static bool rexuvinationPresent = false;
     internal static bool CompatibilityAutoToggle = false;
-    internal static bool LobbyCompatibilityPresent = false;
+    internal static bool ImperiumPresent = false;
     //experimental
     //Beta
     internal static bool usePathToFindClosestEnemy = false;
@@ -161,6 +161,12 @@ public class Script : BaseUnityPlugin
                 {
                     rexuvinationPresent = true;
                     comment = "Found ReXuvination";
+                    break;
+                }
+                case "giosuel.Imperium":
+                {
+                    ImperiumPresent = true;
+                    comment = "Found Imperium";
                     break;
                 }
             }

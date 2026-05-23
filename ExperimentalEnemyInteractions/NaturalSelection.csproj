@@ -78,6 +78,9 @@
 		<Reference Include="fandovec03.NaturalSelectionLib">
 			<HintPath>Dependencies\fandovec03.NaturalSelectionLib.dll</HintPath>
 		</Reference>
+		<Reference Include="giosuel.Imperium">
+		  <HintPath>Dependencies\giosuel.Imperium.dll</HintPath>
+		</Reference>
 		<Reference Include="ReXuvination" Publicize="True">
 			<HintPath>Dependencies\ReXuvination.dll</HintPath>
 		</Reference>

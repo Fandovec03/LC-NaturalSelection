@@ -1,12 +1,13 @@
-﻿using HarmonyLib;
+﻿using BepInEx.Logging;
+using GameNetcodeStuff;
+using HarmonyLib;
 using LethalNetworkAPI;
 using NaturalSelection.Generics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using UnityEngine;
-using BepInEx.Logging;
-using GameNetcodeStuff;
 
 namespace NaturalSelection.EnemyPatches;
 
@@ -17,8 +18,11 @@ class BeeValues : EnemyDataBase
     internal Dictionary<EnemyAI, float> hitRegistry = new Dictionary<EnemyAI, float>();
     internal float LostLOSOfEnemy = 0f;
     internal float delayTimer = 0.2f;
-    internal PlayerControllerB? priorityPlayerTarget;
-    internal EnemyAI? priorityEnemyTarget;
+    internal PlayerControllerB? priorityPlayerTarget = null;
+    internal PlayerControllerB? closestPlayer = null;
+    internal EnemyAI? priorityEnemyTarget = null;
+    internal Dictionary<EnemyAI, float> enemiesInLOS = new Dictionary<EnemyAI, float>();
+    //internal bool movingTowardsTargetEnemy = false;
 }
 
 [HarmonyPatch(typeof(RedLocustBees))]
@@ -29,6 +33,24 @@ class BeeAIPatch
     static bool debugSpam = Script.Bools["spammyLogs"];
     static bool debugTriggers = Script.Bools["debugTriggerFlags"];
     static List<string> beeBlacklist = InitializeGamePatch.beeBlacklist;
+
+    internal static void ReadIL(IEnumerable<CodeInstruction> instructionsImport)
+    {
+        List<CodeInstruction> instructions = instructionsImport.ToList();
+
+        for (int i = 0; i < instructions.ToList().Count; i++)
+        {
+            try
+            {
+                Script.Logger.LogInfo($"{i}|| " + instructions[i]);
+            }
+            catch
+            {
+                Script.Logger.LogError("Failed to read instructions");
+            }
+        }
+        Script.Logger.LogWarning("Finished reading IL");
+    }
 
 
     static void Event_OnConfigSettingChanged(string entryKey, bool value)
@@ -160,160 +182,198 @@ class BeeAIPatch
         }
     }
 
-    [HarmonyPatch("ChaseWithPriorities")]
+    /*[HarmonyPatch("ChaseWithPriorities")]
     [HarmonyPostfix]
     static void ChaseWithPrioritiesPostfix(RedLocustBees __instance, PlayerControllerB __result)
     {
         BeeValues beeData = (BeeValues)Utilities.GetEnemyData(__instance, new BeeValues());
         beeData.priorityPlayerTarget = __result;
-    }
-
-    [HarmonyPatch("DoAIInterval")]
+    }*/
+    
+    /*[HarmonyPatch("DoAIInterval")]
     [HarmonyPrefix]
-    static void DoAIIntervalPrefixPatch(RedLocustBees __instance, out int __state)
+    static void DoAIIntervalPrefixPatch(RedLocustBees __instance)
     {
+        if (__instance.isEnemyDead) return;
+        BeeValues beeData = (BeeValues)Utilities.GetEnemyData(__instance, new BeeValues());
+        Type type = __instance.GetType();
+        List<EnemyAI> tempList = LibraryCalls.GetEnemyList(type);
+        LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
+
+        beeData.enemiesInLOS = new Dictionary<EnemyAI, float>(LibraryCalls.GetEnemiesInLOS(__instance, ref tempList, 360f, 16, 1));
+
+        if (beeData.enemiesInLOS.Count > 0)
+        {
+            beeData.targetEnemy = beeData.enemiesInLOS.Keys.First();
+            Script.LogNS(LogLevel.Info, $"{LibraryCalls.DebugStringHead(__instance)} case0: Checked LOS for enemies. Enemy found: {LibraryCalls.DebugStringHead(beeData.targetEnemy)}", __instance, logBees);
+        }
+        //if (__instance.movingTowardsTargetPlayer) beeData.movingTowardsTargetEnemy = false;
+    }*/
+
+    /*[HarmonyPatch("DoAIInterval")]
+    [HarmonyPostfix]
+    static void DoAIIntervalPostfixPatch2(RedLocustBees __instance)
+    {
+        if (__instance.isEnemyDead) return;
         BeeValues beeData = (BeeValues)Utilities.GetEnemyData(__instance, new BeeValues());
 
-        if (beeData.targetEnemy != null && __instance.movingTowardsTargetPlayer == false && __instance.currentBehaviourStateIndex > 2)
-        {
-        //Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: Prefix triggered false", __instance,logBees && debugSpam && debugTriggers);
-        //__instance.SwitchToBehaviourState(3);
-        //return false;
-        }
-        __state = __instance.currentBehaviourStateIndex;
-    //Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} DoAIInterval: Prefix triggered true", __instance,logBees && debugSpam && debugTriggers);
-    //return true;
-    }
-
+        //if (!__instance.movingTowardsTargetPlayer && beeData.targetEnemy != null) __instance.SetDestinationToPosition(beeData.targetEnemy.transform.position, true);
+    }*/
+        
     [HarmonyPatch("DoAIInterval")]
-    [HarmonyPostfix]
-    static void DoAIIntervalPostfixPatch(RedLocustBees __instance, int __state)
+    [HarmonyPrefix]
+
+    static void DoAIIntervalPostfixPatch(RedLocustBees __instance)
     {
         //if (__instance.isEnemyDead) return;
         BeeValues beeData = (BeeValues)Utilities.GetEnemyData(__instance, new BeeValues());
         Type type = __instance.GetType();
-        int previoisBehaviorStateIndex = __state;
         List <EnemyAI> tempList = LibraryCalls.GetEnemyList(type);
         LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
+        beeData.enemiesInLOS  = new Dictionary<EnemyAI, float>(LibraryCalls.GetEnemiesInLOS(__instance,ref tempList, 360f, 16, 1));
+        if (beeData.enemiesInLOS.Count > 0)
+        {
+            beeData.targetEnemy = beeData.enemiesInLOS.Keys.First();
+            Script.LogNS(LogLevel.Info, $"{LibraryCalls.DebugStringHead(__instance)} case0: Checked LOS for enemies. Enemy found: {LibraryCalls.DebugStringHead(beeData.targetEnemy)}", __instance, logBees);
+        }
+        else
+        {
+            beeData.targetEnemy = null;
+        }
+        beeData.closestPlayer = __instance.CheckLineOfSightForPlayer(360, 16, 1);
 
-        Dictionary<EnemyAI, float> enemiesInLOS = new Dictionary<EnemyAI, float>(LibraryCalls.GetEnemiesInLOS(__instance,ref tempList, 360f, 16, 1));
 
         switch (__instance.currentBehaviourStateIndex)
         {
-        case 0:
+            case 0:
             {
-                if (enemiesInLOS.Count > 0)
+                if (beeData.targetEnemy != null && Vector3.Distance(beeData.targetEnemy.transform.position, __instance.hive.transform.position) < __instance.defenseDistance)
                 {
-                    beeData.targetEnemy = enemiesInLOS.Keys.First();
-                    Script.LogNS(LogLevel.Info, $"{LibraryCalls.DebugStringHead(__instance)} case0: Checked LOS for enemies. Enemy found: {LibraryCalls.DebugStringHead(beeData.targetEnemy)}", __instance, logBees);
-                }
-
-                if (__instance.wasInChase)
-                {
-                    __instance.wasInChase = false;
-                }
-                if (Vector3.Distance(__instance.transform.position, __instance.lastKnownHivePosition) > 2f)
-                {
-                    __instance.SetDestinationToPosition(__instance.lastKnownHivePosition, true);
-                }
-                if (__instance.IsHiveMissing() || __instance.hive.parentObject != null)
-                {
-                    __instance.SwitchToBehaviourState(2);
-                    //beeData.customBehaviorStateIndex = 2;
-                    Script.LogNS(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} case0: HIVE IS MISSING! CustomBehaviorStateIndex changed: {0}", __instance, logBees);
-                    break;
-                }
-                if (beeData.targetEnemy != null && Vector3.Distance(beeData.targetEnemy.transform.position, __instance.hive.transform.position) < (float)__instance.defenseDistance /*&& Vector3.Distance(__instance.targetPlayer.transform.position, __instance.hive.transform.position) < Vector3.Distance(LOSenemy.transform.position, __instance.hive.transform.position)*/)
-                {
-                    __instance.SetDestinationToPosition(beeData.targetEnemy.transform.position, true);
-                    Script.LogNS(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} case0: Moving towards {beeData.targetEnemy}", __instance, logBees);
-
-                    //beeData.customBehaviorStateIndex = 3;
-
-                    if (__instance.targetPlayer == null ||  Vector3.Distance(__instance.transform.position, beeData.targetEnemy.transform.position) < Vector3.Distance(__instance.transform.transform.position, __instance.targetPlayer.transform.position))
+                    if (beeData.closestPlayer == null || Vector3.Distance(__instance.transform.position, beeData.targetEnemy.transform.position) < Vector3.Distance(__instance.transform.position, beeData.closestPlayer.transform.position))
                     {
+                        __instance.targetPlayer = null;
+                        __instance.movingTowardsTargetPlayer = false;
+                        __instance.SetDestinationToPosition(beeData.targetEnemy.transform.position, true);
                         __instance.SwitchToBehaviourState(3);
                     }
                     beeData.LostLOSOfEnemy = 0f;
-                    Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case0: CustomBehaviorStateIndex changed: {0}", __instance, logBees);
+                    Script.LogNS(LogLevel.Debug, $"{LibraryCalls.DebugStringHead(__instance)} case0: CustomBehaviorStateIndex changed: {0}", __instance, logBees);
                 }
                 break;
             }
-        case 3:
+            case 1:
             {
-                if (__instance.targetPlayer != null && __instance.movingTowardsTargetPlayer)
+                if (beeData.targetEnemy != null && Vector3.Distance(beeData.targetEnemy.transform.position, __instance.hive.transform.position) < __instance.defenseDistance)
                 {
-                    __instance.SwitchToBehaviourState(1);
-                    break;
+                    if (beeData.closestPlayer == null || Vector3.Distance(__instance.transform.position, beeData.targetEnemy.transform.position) < Vector3.Distance(__instance.transform.position, beeData.closestPlayer.transform.position))
+                    {
+                        __instance.targetPlayer = null;
+                        __instance.movingTowardsTargetPlayer = false;
+                        __instance.SetDestinationToPosition(beeData.targetEnemy.transform.position, true);
+                        __instance.SwitchToBehaviourState(3);
+                    }
                 }
-                if (beeData.targetEnemy == null || beeData.targetEnemy.isEnemyDead || Vector3.Distance(beeData.targetEnemy.transform.position, __instance.hive.transform.position) > (float)__instance.defenseDistance + 5f)
+                break;
+            }
+            case 2:
+            {
+                beeData.priorityEnemyTarget = ChaseEnemyWithPriorities(ref beeData.enemiesInLOS, __instance);
+                beeData.priorityPlayerTarget = __instance.ChaseWithPriorities();
+
+                if (beeData.priorityEnemyTarget != null && beeData.targetEnemy != beeData.priorityEnemyTarget && (beeData.priorityPlayerTarget == null || Vector3.Distance(beeData.priorityEnemyTarget.transform.position, __instance.hive.transform.position) < Vector3.Distance(beeData.priorityPlayerTarget.transform.position, __instance.hive.transform.position)))
+                {
+                        __instance.targetPlayer = null;
+                        __instance.movingTowardsTargetPlayer = false;
+                        __instance.SwitchToBehaviourState(4);
+                }
+                break;
+            }
+            case 3:
+            {
+                if (beeData.targetEnemy == null || beeData.targetEnemy.isEnemyDead || Vector3.Distance(beeData.targetEnemy.transform.position, __instance.hive.transform.position) > __instance.defenseDistance + 5f)
                 {
                     beeData.targetEnemy = null;
-                    __instance.wasInChase = false;
-                    if (__instance.IsHiveMissing() || __instance.hive.parentObject != null)
+                    if (beeData.closestPlayer != null && __instance.PlayerIsTargetable(beeData.closestPlayer) && beeData.closestPlayer.isUnderwater && Vector3.Distance(beeData.closestPlayer.transform.position, __instance.hive.transform.position) < __instance.defenseDistance + 5f)
                     {
-                        //beeData.customBehaviorStateIndex = 2;
-                        __instance.SwitchToBehaviourState(4);
-                        Script.LogNS(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} case1: HIVE IS MISSING! CustomBehaviorStateIndex changed: {0}", __instance, logBees);
+                        __instance.SetMovingTowardsTargetPlayer(beeData.closestPlayer);
+                        __instance.SwitchToBehaviourState(1);
+                        __instance.SwitchOwnershipOfBeesToClient(beeData.closestPlayer);
+                        break;
+                    }
+                    __instance.wasInChase = false;
+                    if (__instance.IsHiveMissing())
+                    {
+                        beeData.targetEnemy = null;
+                        __instance.SwitchToBehaviourState(2);
+                        Script.LogNS(LogLevel.Info, $"{LibraryCalls.DebugStringHead(__instance)} case1: HIVE IS MISSING! CustomBehaviorStateIndex changed: {0}", __instance, logBees);
                     }
                     else
                     {
-                        //beeData.customBehaviorStateIndex = 0;
+                        beeData.targetEnemy = null;
                         __instance.SwitchToBehaviourState(0);
-                        Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case1: CustomBehaviorStateIndex changed: {0}", __instance, logBees);
+                        Script.LogNS(LogLevel.Debug, $"{LibraryCalls.DebugStringHead(__instance)} case1: CustomBehaviorStateIndex changed: {0}", __instance, logBees);
                     }
                     break;
                 }
-                else if (__instance.hive.parentObject != null)
+                else if (__instance.hive.isHeldByEnemy)
                 {
-                    //beeData.customBehaviorStateIndex = 4;
+                    __instance.targetPlayer = null;
+                    __instance.movingTowardsTargetPlayer = false;
                     __instance.SwitchToBehaviourState(4);
                     break;
                 }
-
+                else if (beeData.closestPlayer != null && beeData.closestPlayer.currentlyHeldObjectServer == __instance.hive)
+                {
+                    beeData.targetEnemy = null;
+                    __instance.SetMovingTowardsTargetPlayer(beeData.closestPlayer);
+                    __instance.SwitchToBehaviourState(2);
+                    __instance.SwitchOwnershipOfBeesToClient(beeData.closestPlayer);
+                    //beeData.movingTowardsTargetEnemy = false;
+                    break;
+                }
                 __instance.SetDestinationToPosition(beeData.targetEnemy.transform.position, true);
                 break;
             }
-        case 4:
+            case 4:
             {
-                if (__instance.targetPlayer != null || __instance.movingTowardsTargetPlayer)
-                {
-                    Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: target player found or moving towards target player", __instance,logBees && debugSpam);
-                    __instance.SwitchToBehaviourState(2);
-                   break;
-                }
-
-                if (__instance.IsHivePlacedAndInLOS() && !__instance.hive.parentObject)
+                if (__instance.IsHivePlacedAndInLOS())
                 {
                     if (__instance.wasInChase)
                     {
                         __instance.wasInChase = false;
                     }
                     __instance.lastKnownHivePosition = __instance.hive.transform.position + Vector3.up * 0.5f;
-
                     Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: IsHivePlacedAndInLOS triggered", __instance, logBees);
                     EnemyAI? enemyAI2 = null;
-                    Collider[] collisionArray = Physics.OverlapSphere(__instance.hive.transform.position, __instance.defenseDistance, StartOfRound.Instance.collidersAndRoomMaskAndDefault, QueryTriggerInteraction.Collide);
+                    PlayerControllerB? playerControllerB2 = null;
+                    Collider[] collisionArray = Physics.OverlapSphere(__instance.hive.transform.position, __instance.defenseDistance, StartOfRound.Instance.playersMask + LayerMask.GetMask("Enemies"), QueryTriggerInteraction.Collide);
 
                     if (collisionArray != null && collisionArray.Length > 0)
                     {
                         for (int i = 0; i < collisionArray.Length; i++)
                         {
-                            EnemyAI enemy = collisionArray[i].gameObject.GetComponent<EnemyAI>();
-
-                            if (enemy != null && enemy != __instance)
+                            EnemyAICollisionDetect enemyCollisionDettect = collisionArray[i].gameObject.GetComponent<EnemyAICollisionDetect>();
+                            if (playerControllerB2 == null) playerControllerB2 = collisionArray[i].gameObject.GetComponent<PlayerControllerB>();
+                            if (enemyCollisionDettect != null)
                             {
-                                enemyAI2 = enemy;
-                                Script.LogNS(LogLevel.Info, $"{LibraryCalls.DebugStringHead(__instance)} case2: CollisionArray triggered. Enemy found: {LibraryCalls.DebugStringHead(beeData.priorityEnemyTarget)}", __instance ,logBees);
-                                break;
+                                EnemyAI enemy = enemyCollisionDettect.mainScript;
+                                if (enemy != null && enemyAI2 == null)
+                                {
+                                    enemyAI2 = enemy;
+                                    Script.LogNS(LogLevel.Info, $"{LibraryCalls.DebugStringHead(__instance)} case2: CollisionArray triggered. Enemy found: {LibraryCalls.DebugStringHead(enemyAI2)}", __instance, logBees);
+                                }
                             }
+                            if (enemyAI2 != null && playerControllerB2 != null) break;
                         }
                     }
-                    if (enemyAI2 != null && Vector3.Distance(enemyAI2.transform.position, __instance.hive.transform.position) < (float)__instance.defenseDistance)
+                    if (enemyAI2 != null && Vector3.Distance(enemyAI2.transform.position, __instance.hive.transform.position) < (float)__instance.defenseDistance &&
+                            (playerControllerB2 == null || Vector3.Distance(enemyAI2.transform.position, __instance.hive.transform.position) < Vector3.Distance(playerControllerB2.transform.position, __instance.hive.transform.position)))
                     {
+                        __instance.targetPlayer = null;
                         __instance.SetDestinationToPosition(enemyAI2.transform.position, true);
                         Script.LogNS(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} case2: Moving towards: {enemyAI2}", __instance,logBees);
-                        //beeData.customBehaviorStateIndex = 3;
+                        //beeData.customBehaviorStateIndex = 1;
+                        __instance.movingTowardsTargetPlayer = false;
                         __instance.SwitchToBehaviourState(3);
                         __instance.syncedLastKnownHivePosition = false;
                         __instance.SyncLastKnownHivePositionServerRpc(__instance.lastKnownHivePosition);
@@ -322,41 +382,46 @@ class BeeAIPatch
                     }
                     else
                     {
-                        //beeData.customBehaviorStateIndex = 0;
-                        __instance.SwitchToBehaviourState(0);
-                        Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: CustomBehaviorStateIndex changed: {0}", __instance,logBees);
-                    }
+                        beeData.targetEnemy = null;
+                        if (playerControllerB2 == null) __instance.SwitchToBehaviourState(0);
+                        else
+                        {
+                                __instance.SwitchToBehaviourState(2);
+                        }
+                        Script.LogNS(LogLevel.Debug, $"{LibraryCalls.DebugStringHead(__instance)} case2: CustomBehaviorStateIndex changed: {0}", __instance, logBees);
+                    }//
                     break;
                 }
 
                 bool flag = false;
-                beeData.priorityEnemyTarget = ChaseEnemyWithPriorities(ref enemiesInLOS, __instance);
-
+                beeData.priorityEnemyTarget = ChaseEnemyWithPriorities(ref beeData.enemiesInLOS, __instance);
+                beeData.priorityPlayerTarget = __instance.ChaseWithPriorities();
                 Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: {beeData.priorityEnemyTarget} is closest to hive.", __instance,logBees);
 
-                if (beeData.priorityEnemyTarget != null && beeData.targetEnemy != beeData.priorityEnemyTarget)
+                if (beeData.priorityEnemyTarget != null && beeData.targetEnemy != beeData.priorityEnemyTarget && (beeData.priorityPlayerTarget == null || Vector3.Distance(beeData.priorityEnemyTarget.transform.position, __instance.hive.transform.position) < Vector3.Distance(beeData.priorityPlayerTarget.transform.position, __instance.hive.transform.position)))
                 {
                     flag = true;
                     __instance.wasInChase = false;
                     beeData.targetEnemy = beeData.priorityEnemyTarget;
+                    __instance.movingTowardsTargetPlayer = false;
                     __instance.SetDestinationToPosition(beeData.targetEnemy.transform.position, true);
                     __instance.StopSearch(__instance.searchForHive);
                     __instance.syncedLastKnownHivePosition = false;
                     beeData.LostLOSOfEnemy = 0f;
                     __instance.SyncLastKnownHivePositionServerRpc(__instance.lastKnownHivePosition);
                     Script.LogNS(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} case2: Targeting {beeData.priorityEnemyTarget}. Synced hive position", __instance,logBees);
-                    break;
                 }
-                if (beeData.targetEnemy != null)
+                if (beeData.targetEnemy != null && (beeData.priorityPlayerTarget == null || Vector3.Distance(beeData.targetEnemy.transform.position, __instance.hive.transform.position) < Vector3.Distance(beeData.priorityPlayerTarget.transform.position, __instance.hive.transform.position)))
                 {
                     __instance.agent.acceleration = 16f;
-                    if (!flag && enemiesInLOS.Count == 0)
+                    if (!flag && beeData.enemiesInLOS.Count == 0)
                     {
                         Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: lost LOS of {beeData.targetEnemy}, started timer.", __instance,logBees && debugSpam);
                         beeData.LostLOSOfEnemy += __instance.AIIntervalTime;
                         if (beeData.LostLOSOfEnemy >= 4.5f)
                         {
                             beeData.targetEnemy = null;
+                            beeData.priorityEnemyTarget = null;
                             beeData.LostLOSOfEnemy = 0f;
                             Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: lost LOS of {beeData.targetEnemy}, Stopped and reset timer.", __instance,logBees);
                         }
@@ -365,6 +430,7 @@ class BeeAIPatch
                     {
                         __instance.wasInChase = true;
                         beeData.lastKnownEnemyPosition = beeData.targetEnemy.transform.position;
+                        __instance.movingTowardsTargetPlayer = false;
                         __instance.SetDestinationToPosition(beeData.lastKnownEnemyPosition, true);
                         beeData.LostLOSOfEnemy = 0f;
                         Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: lost {beeData.targetEnemy}", __instance,logBees);
@@ -372,27 +438,35 @@ class BeeAIPatch
                     }
                     break;
                 }
-                __instance.agent.acceleration = 13f;
-                if (!__instance.searchForHive.inProgress)
+                if (beeData.priorityPlayerTarget == null)
                 {
-                    Script.LogNS(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} case2: set new search for hive", __instance,logBees);
-                    if (__instance.wasInChase)
+                    __instance.agent.acceleration = 13f;
+                    if (!__instance.searchForHive.inProgress)
                     {
-                        __instance.StartSearch(beeData.lastKnownEnemyPosition, __instance.searchForHive);
-                        Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: Started search for hive.", __instance,logBees);
+                        Script.LogNS(LogLevel.Info, $"{LibraryCalls.DebugStringHead(__instance)} case2: set new search for hive", __instance, logBees);
+                        if (__instance.wasInChase)
+                        {
+                            __instance.StartSearch(beeData.lastKnownEnemyPosition, __instance.searchForHive);
+                            Script.LogNS(LogLevel.Debug, $"{LibraryCalls.DebugStringHead(__instance)} case2: Started search for hive.", __instance, logBees);
+                        }
+                        else
+                        {
+                            __instance.StartSearch(__instance.transform.position, __instance.searchForHive);
+                            Script.LogNS(LogLevel.Debug, $"{LibraryCalls.DebugStringHead(__instance)} case2: Started search for hive.", __instance, logBees);
+                        }
                     }
-                    else
-                    {
-                        __instance.StartSearch(__instance.transform.position, __instance.searchForHive);
-                        Script.LogNS(LogLevel.Debug,$"{LibraryCalls.DebugStringHead(__instance)} case2: Started search for hive.", __instance,logBees);
-                    }
+                }
+                else
+                {
+                    beeData.targetEnemy = null;
+                    __instance.SwitchToBehaviourState(2);
                 }
                 break;
             }
         }
     }
-
-    static LNetworkVariable<float> NSSetOnFireChance(RedLocustBees instance)
+        
+        static LNetworkVariable<float> NSSetOnFireChance(RedLocustBees instance)
     {
         string NWID = "NSSetOnFireChance" + instance.NetworkObjectId;
         return Networking.NSEnemyNetworkVariable<float>(NWID);
@@ -467,6 +541,10 @@ class BeeAIPatch
             {
                 continue;
             }
+            if (enemyAI.Key.isEnemyDead)
+            {
+                continue;
+            }
             threatCompoment = enemyAI.Key.GetComponent<IVisibleThreat>();
 
             if (threatCompoment != null)
@@ -501,8 +579,7 @@ class BeeAIPatch
                 }
             }
         }
-        if (!returnEnemy) returnEnemy = enemyDictionary.Keys.First();
         if (debugTriggers) Script.LogNS(LogLevel.Info, $"ChaseEnemiesWithPriorities: Returning {LibraryCalls.DebugStringHead(returnEnemy)} |returnEnemy|", instance);
-        return returnEnemy;
+        return null;
     }
 }

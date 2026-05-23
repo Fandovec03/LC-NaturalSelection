@@ -46,23 +46,20 @@ public class LibraryCalls
         return NaturalSelectionLib.LibraryMethods.FindClosestEnemy(ref importEnemyList, importClosestEnemy, instance, maxIterations, useThreatVisibility, usePathLenghtAsDistance, includeTheDead);
     }
 
-    public static void FilterEnemyList(ref List<EnemyAI> importEnemyList, List<string>? blacklist, EnemyAI instance, bool filterOutImmortal = true, bool filterTheSameType = true)
+    public static void FilterEnemyList(ref List<EnemyAI> importEnemyList, List<string>? blacklist, EnemyAI instance, bool filterOutImmortal = true, bool filterTheSameType = true, bool filterOutTheDead = true)
     {
-        if (debugLibraryCalls) Script.Logger.LogInfo("Called library filterEnemyList!");
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library filterEnemyList!");
-        NaturalSelectionLib.LibraryMethods.FilterEnemyList(ref importEnemyList, blacklist, instance, filterOutImmortal, filterTheSameType);
+        NaturalSelectionLib.LibraryMethods.FilterEnemyList(ref importEnemyList, blacklist, instance, filterOutImmortal, filterTheSameType, filterOutTheDead);
     }
 
     public static void FilterEnemySizes(ref Dictionary<EnemyAI, int> importEnemySizeDict, int[] enemySizes, EnemyAI instance, bool inverseToggle = false)
     {
-        if (debugLibraryCalls) Script.Logger.LogInfo("Called library FilterEnemySizes!");
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library FilterEnemySizes!");
         NaturalSelectionLib.LibraryMethods.FilterEnemySizes(ref importEnemySizeDict, enemySizes, instance, inverseToggle);
     }
 
     public static void FilterEnemySizes(ref List<EnemyAI> importEnemySizeDict, EnemySize[] enemySizes, EnemyAI instance, bool inverseToggle = false)
     {
-        if (debugLibraryCalls) Script.Logger.LogInfo("Called library FilterEnemySizes!");
         if (debugLibraryCalls) Script.Logger.Log(LogLevel.Info, "Called library FilterEnemySizes!");
         NaturalSelectionLib.LibraryMethods.FilterEnemySizes(ref importEnemySizeDict, enemySizes, instance, inverseToggle);
     }

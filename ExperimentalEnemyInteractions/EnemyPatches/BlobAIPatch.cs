@@ -149,7 +149,7 @@ namespace NaturalSelection.EnemyPatches
 			if (RoundManagerPatch.RequestUpdate(__instance) == true)
 			{
 				List<EnemyAI> tempList = LibraryCalls.GetCompleteList(__instance, true, 1);
-                LibraryCalls.FilterEnemyList(ref tempList, blobBlacklist, __instance, true);
+                LibraryCalls.FilterEnemyList(ref tempList, blobBlacklist, __instance, true, filterOutTheDead: false);
                 RoundManagerPatch.ScheduleGlobalListUpdate(__instance, ref tempList);
 			}
 			if (__instance.IsOwner)
@@ -159,11 +159,11 @@ namespace NaturalSelection.EnemyPatches
 				//blobData.closestEnemy = LibraryCalls.FindClosestEnemy(ref temp, blobData.closestEnemy, __instance, Script.BoundingConfig.blobPathfindToCorpses.Value);
 				if (Script.useCoroutines)
 				{
-					if (blobData.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(LibraryCalls.FindClosestEnemyEnumerator(blobData.ChangeClosestEnemyAction, temp, blobData.closestEnemy, __instance ,usePathLenghtAsDistance: Script.usePathToFindClosestEnemy)); blobData.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
+					if (blobData.coroutineTimer < Time.realtimeSinceStartup) { __instance.StartCoroutine(LibraryCalls.FindClosestEnemyEnumerator(blobData.ChangeClosestEnemyAction, temp, blobData.closestEnemy, __instance ,usePathLenghtAsDistance: Script.usePathToFindClosestEnemy, includeTheDead: Script.BoundingConfig.blobPathfindToCorpses.Value)); blobData.coroutineTimer = Time.realtimeSinceStartup + 0.2f; }
 				}
 				else
 				{
-					blobData.closestEnemy = LibraryCalls.FindClosestEnemy(ref temp, blobData.closestEnemy, __instance, usePathLenghtAsDistance: Script.usePathToFindClosestEnemy);
+					blobData.closestEnemy = LibraryCalls.FindClosestEnemy(ref temp, blobData.closestEnemy, __instance, usePathLenghtAsDistance: Script.usePathToFindClosestEnemy, includeTheDead: Script.BoundingConfig.blobPathfindToCorpses.Value);
                 }
             }
 

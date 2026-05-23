@@ -33,7 +33,10 @@ namespace NaturalSelection.EnemyPatches
         {
             EnemyData data = (EnemyData)Utilities.GetEnemyData(__instance, new EnemyData(), true);
             data.originalAgentRadius = __instance.agent.radius;
-
+            if (Script.ImperiumPresent)
+            {
+                Compatibility.ImperiumCompat.registerEnemyVisualization();
+            }
             if (InitializeGamePatch.customSizeOverrideListDictionary.ContainsKey(__instance.enemyType.enemyName))
             {
                 data.customEnemySize = (CustomEnemySize)InitializeGamePatch.customSizeOverrideListDictionary[__instance.enemyType.enemyName];

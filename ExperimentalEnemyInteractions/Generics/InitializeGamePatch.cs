@@ -1,8 +1,10 @@
 using BepInEx.Logging;
 using HarmonyLib;
+using NaturalSelection.Networking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace NaturalSelection.Generics;
@@ -35,6 +37,8 @@ namespace NaturalSelection.Generics;
         public static void InitializeGameStartPatch()
         {
             Script.loadedEnemyList = Resources.FindObjectsOfTypeAll<EnemyAI>().ToList();
+
+
             if (!finishedLoading)
             {
                 Script.Logger.Log(LogLevel.Message,$"Reading/Checking/Writing entries for enemies.");
@@ -366,6 +370,14 @@ namespace NaturalSelection.Generics;
             {
                 Script.Logger.Log(LogLevel.Error,"Failed to generate configucations.");
                 Script.Logger.Log(LogLevel.Error,e);
+            }
+        }
+
+        public static void AddNetworkingScriptsToPrefabs()
+        {
+            foreach (var enemy in Script.loadedEnemyList)
+            {
+                if (enemy is SandSpiderAI) enemy.enemyType.enemyPrefab.gameObject.AddComponent<Networking_New>();
             }
         }
     }

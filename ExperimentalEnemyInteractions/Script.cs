@@ -11,6 +11,9 @@ using BepInEx.Bootstrap;
 using NaturalSelection.Compatibility;
 using UnityEngine;
 using System.Linq;
+using System.IO;
+using System.Reflection;
+using Unity.Netcode;
 //using NetcodePatcher;
 
 namespace NaturalSelection;
@@ -30,6 +33,8 @@ public class Script : BaseUnityPlugin
 
     public new static ManualLogSource Logger = null!;
     internal static Harmony? Harmony { get; set; }
+
+    //public static GameObject? networkPrefab;
 
     internal static MyModConfig BoundingConfig { get; set; } = null!;
     internal static bool stableToggle;
@@ -75,10 +80,36 @@ public class Script : BaseUnityPlugin
 
     private static bool debugKillSwitchScript = false;
 
+    private static void NetworkPatcher()
+    {
+        try
+        {
+            var types = Assembly.GetExecutingAssembly().GetTypes();
+            foreach (var type in types)
+            {
+                var methods = type.GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
+                foreach (var method in methods)
+                {
+                    var attributes = method.GetCustomAttributes(typeof(RuntimeInitializeOnLoadMethodAttribute), false);
+                    if (attributes.Length > 0)
+                    {
+                        method.Invoke(null, null);
+                    }
+                }
+            }
+        }
+        catch { }
+    }
     private void Awake()
     {
         Logger = base.Logger;
         Instance = this;
+        //string assetBundleLoc = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        //networkPrefab = AssetBundle.LoadFromFile(Path.Combine(assetBundleLoc, "natselectbundle")).LoadAsset<GameObject>("Assets/NaturalSelection/NaturalSelNetworkPrefab.prefab");
+        //networkPrefab.gameObject.AddComponent<Generics.Networking_New>();
+
+
+        NetworkPatcher();
 
         BoundingConfig = new MyModConfig(base.Config);
         stableToggle = BoundingConfig.stableMode.Value;
@@ -129,7 +160,6 @@ public class Script : BaseUnityPlugin
 
         Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
     }
-
     internal static void Patch()
     {
         Harmony ??= new Harmony(MyPluginInfo.PLUGIN_GUID);
@@ -200,7 +230,7 @@ public class Script : BaseUnityPlugin
 
         Harmony.PatchAll(typeof(AICollisionDetectPatch));
         Harmony.PatchAll(typeof(EnemyAIPatch));
-        Harmony.PatchAll(typeof(Networking));
+        Harmony.PatchAll(typeof(Generics.Networking));
         Harmony.PatchAll(typeof(NetworkingMethods));
         Harmony.PatchAll(typeof(InitializeGamePatch));
 
@@ -229,8 +259,6 @@ public class Script : BaseUnityPlugin
 
         if (!stableToggle)
         {
-        //if (BoundingConfig.enableSpider.Value)Harmony.PatchAll(typeof(SandSpiderAIPatch));
-
         if (isExperimental)
         {
             if (BoundingConfig.enableNutcracker.Value) Harmony.PatchAll(typeof(NutcrackerAIPatch));

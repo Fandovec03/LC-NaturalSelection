@@ -36,8 +36,8 @@ namespace NaturalSelection.Compatibility
             try
             {
                 Visualization.InsightsFor<EnemyAI>()
-                .RegisterInsight("T. Enemy", entity => getTargetEnemy(entity))
-                .RegisterInsight("C.t Enemy", entity => getClosestEnemy(entity));
+                .RegisterInsight("T Enemy", entity => getTargetEnemy(entity))
+                .RegisterInsight("C Enemy", entity => getClosestEnemy(entity));
             }
             catch
             {

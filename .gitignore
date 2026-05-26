@@ -378,3 +378,4 @@ ExperimentalEnemyInteractions/TEMP/StarlancerAI.dll
 /ExperimentalEnemyInteractions/Dependencies
 *.dll
 /ExperimentalEnemyInteractions/TestScripts
+/ExperimentalEnemyInteractions/UnityNetcodePatcher

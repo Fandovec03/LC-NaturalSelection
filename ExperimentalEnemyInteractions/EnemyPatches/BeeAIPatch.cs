@@ -230,7 +230,7 @@ class BeeAIPatch
         Type type = __instance.GetType();
         List <EnemyAI> tempList = LibraryCalls.GetEnemyList(type);
         LibraryCalls.GetInsideOrOutsideEnemyList(ref tempList, __instance);
-        beeData.enemiesInLOS  = new Dictionary<EnemyAI, float>(LibraryCalls.GetEnemiesInLOS(__instance,ref tempList, 360f, 16, 1));
+        beeData.enemiesInLOS  = new Dictionary<EnemyAI, float>(LibraryCalls.GetEnemiesInLOS(__instance,ref tempList, 360f, 16, 1, importEyePosition: __instance.eye.position + (Vector3.up * 0.5f)));
         if (beeData.enemiesInLOS.Count > 0)
         {
             beeData.targetEnemy = beeData.enemiesInLOS.Keys.First();
@@ -277,10 +277,9 @@ class BeeAIPatch
             }
             case 2:
             {
-                beeData.priorityEnemyTarget = ChaseEnemyWithPriorities(ref beeData.enemiesInLOS, __instance);
                 beeData.priorityPlayerTarget = __instance.ChaseWithPriorities();
 
-                if (beeData.priorityEnemyTarget != null && beeData.targetEnemy != beeData.priorityEnemyTarget && (beeData.priorityPlayerTarget == null || Vector3.Distance(beeData.priorityEnemyTarget.transform.position, __instance.hive.transform.position) < Vector3.Distance(beeData.priorityPlayerTarget.transform.position, __instance.hive.transform.position)))
+                if (beeData.targetEnemy != null && (beeData.priorityPlayerTarget == null || Vector3.Distance(beeData.targetEnemy.transform.position, __instance.hive.transform.position) < Vector3.Distance(beeData.priorityPlayerTarget.transform.position, __instance.hive.transform.position)))
                 {
                         __instance.targetPlayer = null;
                         __instance.movingTowardsTargetPlayer = false;
@@ -469,18 +468,18 @@ class BeeAIPatch
         static LNetworkVariable<float> NSSetOnFireChance(RedLocustBees instance)
     {
         string NWID = "NSSetOnFireChance" + instance.NetworkObjectId;
-        return Networking.NSEnemyNetworkVariable<float>(NWID);
+        return Generics.Networking.NSEnemyNetworkVariable<float>(NWID);
     }
     static LNetworkVariable<float> NSSetOnFireMaxChance(RedLocustBees instance)
     {
         string NWID = "NSSetOnFireMaxChance" + instance.NetworkObjectId;
-        return Networking.NSEnemyNetworkVariable<float>(NWID);
+        return Generics.Networking.NSEnemyNetworkVariable<float>(NWID);
     }
 
     static LNetworkEvent NetworkSetGiantOnFire(ForestGiantAI forestGiantAI)
     {
         string NWID = "NSSetGiantOnFire" + forestGiantAI.NetworkObjectId;
-        return Networking.NSEnemyNetworkEvent(NWID);
+        return Generics.Networking.NSEnemyNetworkEvent(NWID);
     }
 
     public static void OnCustomEnemyCollision(RedLocustBees __instance, EnemyAI mainscript2)
@@ -580,6 +579,6 @@ class BeeAIPatch
             }
         }
         if (debugTriggers) Script.LogNS(LogLevel.Info, $"ChaseEnemiesWithPriorities: Returning {LibraryCalls.DebugStringHead(returnEnemy)} |returnEnemy|", instance);
-        return null;
+        return returnEnemy;
     }
 }

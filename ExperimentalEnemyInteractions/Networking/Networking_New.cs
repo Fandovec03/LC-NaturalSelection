@@ -1,28 +1,17 @@
-﻿using NaturalSelection.EnemyPatches;
+﻿using BepInEx.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using Unity;
 using Unity.Netcode;
 using UnityEngine;
+using LogLevel = BepInEx.Logging.LogLevel;
 
-namespace NaturalSelection.Generics
+namespace NaturalSelection.Networking
 {
-    internal class Networking_New : NetworkBehaviour
-    {
+    public class Networking_New : NetworkBehaviour
+    {  
         /*
-        public static Networking_New instance;
-
-        public Networking_New()
-        {
-            if (instance != null)
-            {
-                this.OnDestroy();
-                return;
-            }
-            instance = this;
-        }
-
         [ServerRpc(RequireOwnership = true)]
         public void SandWormBehaviorStateServerRPC(NetworkBehaviour behaviour, int value)
         {
@@ -64,9 +53,30 @@ namespace NaturalSelection.Generics
             Script.Logger.LogDebug($"ClientRPC MovingTowardsEnemy = {value}");
             SandWormAIPatch.ClientMovingTowardsEnemy(behaviour, value);
         }
-
-        public static Dictionary<string, Type> NetworkingDictionary = new Dictionary<string, Type>();
-        static bool logNetworking = Script.Bools["debugNetworking"];
         */
+
+        [ServerRpc]
+        public void TestServerRPC(NetworkObjectReference noRef, string ID)
+        {
+            Script.LogNS(LogLevel.Message,"Natural selection Triggered ServerRPC");
+            TestClientRPC(noRef, ID);
+        }
+
+        [ClientRpc]
+        public void TestClientRPC(NetworkObjectReference noRef, string ID)
+        {
+            Script.LogNS(LogLevel.Message, "Natural selection Triggered ClientRPC");
+            noRef.TryGet(out NetworkObject NetworkObj);
+
+            if (NetworkObj != null)
+            {
+                Script.LogNS(LogLevel.Message, $"Got Referenced Network object: ID {NetworkObj.NetworkObjectId}");
+            }
+            Script.LogNS(LogLevel.Message, $"Got passed ID {ID}");
+        }
+
+        //public static Dictionary<string, Type> NetworkingDictionary = new Dictionary<string, Type>();
+        //static bool logNetworking = Script.Bools["debugNetworking"];
+        
     }
 }

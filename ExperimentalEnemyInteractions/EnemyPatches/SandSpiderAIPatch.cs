@@ -7,6 +7,8 @@ using System;
 using BepInEx.Logging;
 using Dissonance;
 using LogLevel = BepInEx.Logging.LogLevel;
+using Unity.Netcode;
+using NaturalSelection.Networking;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -19,7 +21,34 @@ namespace NaturalSelection.EnemyPatches
         internal SandSpiderWebTrap? investigateTrap;
         internal bool investigated = false;
         internal float investigateTrapTimer = 0f;
+        internal SandSpiderAIPatchNetworkHelper spiderNetworkHelper = null;
+        internal GameObject? networkPrefab = null;
     }
+
+    internal class SandSpiderAIPatchNetworkHelper : NetworkBehaviour
+    {
+        [ServerRpc]
+        public void TestSpiderServerRPC(NetworkObjectReference noRef, string ID)
+        {
+            Script.LogNS(LogLevel.Message, "Triggered ServerRPC");
+            TestSpiderClientRPC(noRef, ID);
+        }
+
+        [ClientRpc]
+        public void TestSpiderClientRPC(NetworkObjectReference noRef, string ID)
+        {
+            Script.LogNS(LogLevel.Message, "Triggered ClientRPC");
+            noRef.TryGet(out NetworkObject NetworkObj);
+
+            if (NetworkObj != null)
+            {
+                Script.LogNS(LogLevel.Message, $"Got Referenced Network object: ID {NetworkObj.NetworkObjectId}");
+            }
+            Script.LogNS(LogLevel.Message, $"Got passed ID {ID}");
+        }
+    }
+
+
 
     [HarmonyPatch(typeof(SandSpiderAI))]
     class SandSpiderAIPatch
@@ -45,7 +74,7 @@ namespace NaturalSelection.EnemyPatches
         static void StartPatch(SandSpiderAI __instance)
         {
             SpiderData data = (SpiderData)Utilities.GetEnemyData(__instance, new SpiderData());
-
+            data.spiderNetworkHelper = __instance.gameObject.AddComponent<SandSpiderAIPatchNetworkHelper>();
             EnemyBehaviourState dummyState = new EnemyBehaviourState();
             dummyState.name = "NaturalSelectionDummyState";
             EnemyBehaviourState[] behaviorStates = new EnemyBehaviourState[4];
@@ -63,6 +92,19 @@ namespace NaturalSelection.EnemyPatches
                 Script.LogNS(LogLevel.Info, $"Set {closestEnemy} as closestEnemy", __instance, debugSpam && debugSpider);
                 data.closestEnemy = closestEnemy;
             }
+
+
+            try
+            {
+                NetworkObjectReference objectRef = new NetworkObjectReference(__instance.NetworkObject);
+                if (__instance.IsServer || __instance.IsOwner)
+                {
+                    __instance.gameObject.GetComponent<Networking_New>().TestServerRPC(objectRef, __instance.NetworkObjectId.ToString());
+                }
+                Script.Logger.LogInfo("1");
+                
+            }
+            catch (Exception e) { Script.Logger.LogError(e); }
         }
 
         [HarmonyPatch("Update")]

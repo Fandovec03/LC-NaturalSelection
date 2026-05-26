@@ -27,7 +27,7 @@ namespace NaturalSelection.EnemyPatches
         static LNetworkEvent BlobEatCorpseEvent(BlobAI instance)
 		{
             string NWID = "NSSlimeEatEvent" + instance.NetworkObjectId;
-            return Networking.NSEnemyNetworkEvent(NWID);
+            return Generics.Networking.NSEnemyNetworkEvent(NWID);
         }
 
         static void Event_OnConfigSettingChanged(string entryKey, bool value)

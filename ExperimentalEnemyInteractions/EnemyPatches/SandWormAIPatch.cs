@@ -1,6 +1,6 @@
 ﻿using GameNetcodeStuff;
 using HarmonyLib;
-using LethalNetworkAPI;
+//using LethalNetworkAPI;
 using NaturalSelection.Generics;
 using System;
 using System.Collections.Generic;

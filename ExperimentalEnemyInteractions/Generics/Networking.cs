@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using LethalNetworkAPI;
+//using LethalNetworkAPI;
 using HarmonyLib;
 using BepInEx.Logging;
 using NaturalSelection.EnemyPatches;
 
 namespace NaturalSelection.Generics
 {
-    public class Networking
+    /*public class Networking
     {
         public static Dictionary<string, Type> NetworkingDictionary = new Dictionary<string, Type>();
         static bool logNetworking = Script.Bools["debugNetworking"];
@@ -87,5 +87,5 @@ namespace NaturalSelection.Generics
             //EnemyAIPatch.enemyDataDict2.Clear();
             //SandSpiderWebTrapPatch.spiderWebs.Clear();
         }
-    }
+    }*/
 }

@@ -1,8 +1,9 @@
 using HarmonyLib;
 using UnityEngine;
-using LethalNetworkAPI;
+//using LethalNetworkAPI;
 using NaturalSelection.Generics;
 using BepInEx.Logging;
+using NaturalSelection.Networking;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -22,7 +23,7 @@ namespace NaturalSelection.EnemyPatches
         //static Dictionary<ForestGiantAI, GiantData> giantDictionary = [];
         static bool logGiant = Script.Bools["debugGiants"];
         static bool debugSpam = Script.Bools["spammyLogs"];
-        static LNetworkEvent NetworkSetGiantOnFire(ForestGiantAI forestGiantAI)
+        /*static LNetworkEvent NetworkSetGiantOnFire(ForestGiantAI forestGiantAI)
         {
             string NWID = "NSSetGiantOnFire" + forestGiantAI.NetworkObjectId;
             return Networking.NSEnemyNetworkEvent(NWID);
@@ -38,7 +39,7 @@ namespace NaturalSelection.EnemyPatches
         {
             string NWID = "NSOwnerrealtimeSinceStartup" + forestGiantAI.NetworkObjectId;
             return Networking.NSEnemyNetworkVariable<float>(NWID);
-        }
+        }*/
 
         static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
@@ -52,10 +53,14 @@ namespace NaturalSelection.EnemyPatches
         static void startPostfix(ForestGiantAI __instance)
         {
             GiantData data = (GiantData)Utilities.GetEnemyData(__instance, new GiantData());
-            NetworkSetGiantOnFire(__instance).OnServerReceived += UpdateSetGiantOnFireServer;
+            data.networkScript = __instance.GetComponent<INaturalSelectNetworking>();
+            //
+            //NetworkSetGiantOnFire(__instance).OnServerReceived += UpdateSetGiantOnFireServer;
+            ((ForestGiantNetworking)data.networkScript).setGiantOnFire = UpdateSetGiantOnFireServer;
+
             //NetworkSetGiantOnFire(__instance).OnClientReceived += UpdateSetGiantOnFire;
 
-            void UpdateSetGiantOnFireServer(ulong client)
+            void UpdateSetGiantOnFireServer()
             {
                 //NetworkSetGiantOnFire(__instance).InvokeClients();
                 if (__instance.IsOwner)
@@ -66,8 +71,8 @@ namespace NaturalSelection.EnemyPatches
                 }
             }
 
-            NetworkExtinguish(__instance).OnClientReceived += ExtuinguishGiant;
-
+            //NetworkExtinguish(__instance).OnClientReceived += ExtuinguishGiant;
+            ((ForestGiantNetworking)data.networkScript).extinguishFire = ExtuinguishGiant;
             void ExtuinguishGiant()
             {
                 __instance.SwitchToBehaviourState(0);
@@ -77,12 +82,13 @@ namespace NaturalSelection.EnemyPatches
                 data.extinguished = 1;
             }
 
+            /*
             NetworkOwnerPostfixResult(__instance).OnValueChanged += OwnerPostfixResult;
 
             void OwnerPostfixResult(float oldValue, float newValue)
             {
                 if (oldValue != newValue) { data.CachedNetworkOwnerPostfixResult = newValue; }
-            }
+            }*/
             
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
         }
@@ -159,7 +165,7 @@ namespace NaturalSelection.EnemyPatches
                 Script.LogNS(LogLevel.Fatal, $"Critical failule. Failed to get data for {LibraryCalls.DebugStringHead(__instance)}. Attempting to fix...");
                 giantDictionary.Add(__instance, new GiantData());
             }
-        }*/
+        }
         /*
         public static void RollToExtinguish(ForestGiantAI __instance)
         {

@@ -1,7 +1,7 @@
 ﻿using BepInEx.Logging;
 using GameNetcodeStuff;
 using HarmonyLib;
-using LethalNetworkAPI;
+//using LethalNetworkAPI;
 using NaturalSelection.Generics;
 using System;
 using System.Collections.Generic;
@@ -22,6 +22,7 @@ class BeeValues : EnemyDataBase
     internal PlayerControllerB? closestPlayer = null;
     internal EnemyAI? priorityEnemyTarget = null;
     internal Dictionary<EnemyAI, float> enemiesInLOS = new Dictionary<EnemyAI, float>();
+
     //internal bool movingTowardsTargetEnemy = false;
 }
 
@@ -465,7 +466,7 @@ class BeeAIPatch
         }
     }
         
-        static LNetworkVariable<float> NSSetOnFireChance(RedLocustBees instance)
+    /*static LNetworkVariable<float> NSSetOnFireChance(RedLocustBees instance)
     {
         string NWID = "NSSetOnFireChance" + instance.NetworkObjectId;
         return Generics.Networking.NSEnemyNetworkVariable<float>(NWID);
@@ -481,7 +482,7 @@ class BeeAIPatch
         string NWID = "NSSetGiantOnFire" + forestGiantAI.NetworkObjectId;
         return Generics.Networking.NSEnemyNetworkEvent(NWID);
     }
-
+    */
     public static void OnCustomEnemyCollision(RedLocustBees __instance, EnemyAI mainscript2)
     {
         if (mainscript2.GetType() == typeof(RedLocustBees)) return;

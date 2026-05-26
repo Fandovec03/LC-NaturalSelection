@@ -7,11 +7,14 @@ using Unity.Netcode;
 
 namespace NaturalSelection.Networking
 {
-    public class SlimeNetworking : NetworkBehaviour
+    public class SlimeNetworking : NetworkBehaviour, INaturalSelectNetworking
     {
-        BlobAI parentEnemy;
+        BlobAI parentEnemy = null;
         BlobData data = null;
-
+        EnemyAI INaturalSelectNetworking.OwningEnemy()
+        {
+            return parentEnemy;
+        }
         public SlimeNetworking()
         {
             parentEnemy = this.GetComponent<BlobAI>();

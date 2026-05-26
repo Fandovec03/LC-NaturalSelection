@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using BepInEx.Logging;
+using NaturalSelection.Networking;
 using UnityEngine;
 
 
@@ -27,6 +28,7 @@ public class EnemyDataBase
     internal Action<EnemyAI?>? ChangeClosestEnemyAction;
     private bool subscribed;
     public float coroutineTimer = 0f;
+    public INaturalSelectNetworking? networkScript;
 
     public void SetOwner(object owner)
     {

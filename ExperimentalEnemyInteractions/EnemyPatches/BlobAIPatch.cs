@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using HarmonyLib;
-using LethalNetworkAPI;
+//using LethalNetworkAPI;
 using NaturalSelection.Generics;
 using Unity.Netcode;
 using UnityEngine;
@@ -24,11 +24,6 @@ namespace NaturalSelection.EnemyPatches
 		static bool triggerFlag = Script.Bools["debugTriggerFlags"];
         static bool spammyLogs = Script.Bools["spammyLogs"];
         static List<string> blobBlacklist = InitializeGamePatch.blobBlacklist;
-        static LNetworkEvent BlobEatCorpseEvent(BlobAI instance)
-		{
-            string NWID = "NSSlimeEatEvent" + instance.NetworkObjectId;
-            return Generics.Networking.NSEnemyNetworkEvent(NWID);
-        }
 
         static void Event_OnConfigSettingChanged(string entryKey, bool value)
         {
@@ -49,12 +44,12 @@ namespace NaturalSelection.EnemyPatches
 			blobData.Subscribe();
             __instance.enemyType.doorSpeedMultiplier = Script.BoundingConfig.blobAIOpeningDoorsMultiplier.Value;
 
-            BlobEatCorpseEvent(__instance).OnClientReceived += EventReceived;
+            //BlobEatCorpseEvent(__instance).OnClientReceived += EventReceived;
 
-            void EventReceived()
+            /*void EventReceived()
             {
 				blobData.playSound = true;
-            }
+            }*/
 
             blobData.ChangeClosestEnemyAction += getClosestEnemyResult;
 
@@ -185,7 +180,7 @@ namespace NaturalSelection.EnemyPatches
 				{
 					if (__instance.IsOwner && mainscript2.thisNetworkObject.IsSpawned)
 					{
-						BlobEatCorpseEvent(__instance).InvokeClients();
+						//BlobEatCorpseEvent(__instance).InvokeClients();
 						Script.LogNS(LogLevel.Message, $"consumed dead body of {mainscript2.enemyType.enemyName}", __instance);
 						if (mainscript2.IsServer) mainscript2.KillEnemy(true);
 						else mainscript2.KillEnemyServerRpc(true);
@@ -253,7 +248,7 @@ namespace NaturalSelection.EnemyPatches
 			NetworkObject nwObj = corpse.GetComponent<NetworkObject>();
             if (__instance.IsOwner && nwObj.IsSpawned)
             {
-                BlobEatCorpseEvent(__instance).InvokeClients();
+                //BlobEatCorpseEvent(__instance).InvokeClients();
                 Script.LogNS(LogLevel.Message, $"consumed dead body {LibraryCalls.DebugStringHead(corpse)}", __instance);
                 nwObj.Despawn(true);
             }

@@ -230,8 +230,8 @@ public class Script : BaseUnityPlugin
 
         Harmony.PatchAll(typeof(AICollisionDetectPatch));
         Harmony.PatchAll(typeof(EnemyAIPatch));
-        Harmony.PatchAll(typeof(Generics.Networking));
-        Harmony.PatchAll(typeof(NetworkingMethods));
+        //Harmony.PatchAll(typeof(Generics.Networking));
+        //Harmony.PatchAll(typeof(NetworkingMethods));
         Harmony.PatchAll(typeof(InitializeGamePatch));
 
         try

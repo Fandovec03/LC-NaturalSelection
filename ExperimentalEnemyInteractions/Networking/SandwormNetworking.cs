@@ -7,7 +7,7 @@ using Unity.Netcode;
 
 namespace NaturalSelection.Networking
 {
-    internal class BeesNetworking : NetworkBehaviour, INaturalSelectNetworking
+    internal class SandwormNetworking : NetworkBehaviour, INaturalSelectNetworking
     {
         RedLocustBees parentEnemy = null;
         BeeValues data = null;
@@ -16,13 +16,10 @@ namespace NaturalSelection.Networking
             return parentEnemy;
         }
 
-        public BeesNetworking()
+        public SandwormNetworking()
         {
             parentEnemy = this.GetComponent<RedLocustBees>();
             data = (BeeValues)Utilities.GetEnemyData(parentEnemy, new BlobData());
         }
-
-        public NetworkVariable<float> minChance = new NetworkVariable<float>(0);
-        public NetworkVariable<float> MaxChance = new NetworkVariable<float>(0);
     }
 }

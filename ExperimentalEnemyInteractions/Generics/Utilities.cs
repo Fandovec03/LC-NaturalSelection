@@ -180,4 +180,24 @@ public class Utilities
         return id;
     }
 
+    public static EnemyBehaviourState[] InsertExtraStates(EnemyBehaviourState[] originalBehaviorStatesArray, int targetLength)
+    {
+        EnemyBehaviourState[] finalStatesArray = new EnemyBehaviourState[targetLength];
+        originalBehaviorStatesArray.CopyTo(finalStatesArray, 0);
+        EnemyBehaviourState dummyState = new EnemyBehaviourState();
+        dummyState.name = "NaturalSelectionDummyState";
+
+        for (int i = 0; i < finalStatesArray.Length; i++)
+        {
+            if (i < originalBehaviorStatesArray.Length)
+            {
+                continue;
+            }
+            finalStatesArray[i] = dummyState;
+        }
+
+        return finalStatesArray;
+    }
+
+
 }

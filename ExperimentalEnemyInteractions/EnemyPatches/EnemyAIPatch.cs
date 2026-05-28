@@ -104,7 +104,7 @@ namespace NaturalSelection.EnemyPatches
             if (enemyData != null) enemyData.ReactToAttack(instance, other.gameObject.GetComponent<EnemyAICollisionDetect>().mainScript,1);
         }
     }
-    public class ReversePatchAIUpdate
+   /* public class ReversePatchAIUpdate
     {
         internal static Action<EnemyAI> originalUpdate;
 
@@ -135,5 +135,5 @@ namespace NaturalSelection.EnemyPatches
 
             originalDoAIInterval = (Action<EnemyAI>)dm.CreateDelegate(typeof(Action<EnemyAI>));
         }
-    }
+    }*/
 }

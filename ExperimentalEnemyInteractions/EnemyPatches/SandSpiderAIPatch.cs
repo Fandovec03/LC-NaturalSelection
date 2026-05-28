@@ -327,12 +327,12 @@ namespace NaturalSelection.EnemyPatches
                     }
                 }
 
-                if ((spiderData.targetEnemy != null && __instance.currentBehaviourStateIndex == 4 || spiderData.investigateTrap != null) && !__instance.targetPlayer)
+                /*if ((spiderData.targetEnemy != null && __instance.currentBehaviourStateIndex == 4 || spiderData.investigateTrap != null) && !__instance.targetPlayer)
                 {
-                    //Script.LogNS(LogLevel.Message,$"Invoking originalUpdate");
+                    Script.LogNS(LogLevel.Message,$"Invoking originalUpdate");
                     try
                     {
-                        ReversePatchAIUpdate.originalUpdate.Invoke(__instance);
+                        //ReversePatchAIUpdate.originalUpdate.Invoke(__instance);
                         //Script.LogNS(LogLevel.Message,"Succesfully invoked originalUpdate");
                     }
                     catch (Exception e)
@@ -352,39 +352,43 @@ namespace NaturalSelection.EnemyPatches
                     }
                     __instance.timeSinceHittingPlayer += Time.deltaTime;
 
-
-                    switch (__instance.currentBehaviourStateIndex)
+                
+                switch (__instance.currentBehaviourStateIndex)
+                {
+                    case 0:
                     {
-                        case 0:
-                            __instance.setDestinationToHomeBase = false;
-                            __instance.lookingForWallPosition = false;
-                            __instance.movingTowardsTargetPlayer = false;
-                            __instance.overrideSpiderLookRotation = false;
-                            __instance.waitOnWallTimer = 11f;
-                            break;
-                        case 3:
-                            __instance.setDestinationToHomeBase = false;
-                            __instance.reachedWallPosition = false;
-                            __instance.lookingForWallPosition = false;
-                            __instance.waitOnWallTimer = 11f;
-                            break;
+                        __instance.setDestinationToHomeBase = false;
+                        __instance.lookingForWallPosition = false;
+                        __instance.movingTowardsTargetPlayer = false;
+                        __instance.overrideSpiderLookRotation = false;
+                        __instance.waitOnWallTimer = 11f;
+                        break;
                     }
-                    __instance.SyncMeshContainerPositionToClients();
-                    __instance.CalculateMeshMovement();
-                    //return false;
+                    case 3:
+                    {
+                        __instance.setDestinationToHomeBase = false;
+                        __instance.reachedWallPosition = false;
+                        __instance.lookingForWallPosition = false;
+                        __instance.waitOnWallTimer = 11f;
+                        break;
+                    }
                 }
+                __instance.SyncMeshContainerPositionToClients();
+                __instance.CalculateMeshMovement();
+                    //return false;
+                }*/
             }
             //return true;
         }
 
-        [HarmonyPatch("DoAIInterval")]
+        /*[HarmonyPatch("DoAIInterval")]
         [HarmonyPrefix]
         static void DoAIIntervalPrefix(SandSpiderAI __instance)
         {
             //if (__instance.isEnemyDead) return true;
             SpiderData spiderData = (SpiderData)Utilities.GetEnemyData(__instance, new SpiderData()); ;
             SandSpiderAI Ins = __instance;
-
+            
             if (spiderData.targetEnemy != null && !__instance.targetPlayer && __instance.currentBehaviourStateIndex == 3)
             {
                 Script.LogNS(LogLevel.Debug,$"DoAIInterval Prefix: false", __instance, debugSpider && debugSpam);
@@ -403,7 +407,7 @@ namespace NaturalSelection.EnemyPatches
             Script.LogNS(LogLevel.Debug,$"DoAIInterval Prefix: true", __instance, debugSpider && debugSpam);
             //return true;
 
-        }
+        }*/
         [HarmonyPatch("DoAIInterval")]
         [HarmonyPostfix]
         static void DoAIIntervalPostfix(SandSpiderAI __instance)

@@ -36,25 +36,6 @@ class BeeAIPatch
     static bool debugTriggers = Script.Bools["debugTriggerFlags"];
     static List<string> beeBlacklist = InitializeGamePatch.beeBlacklist;
 
-    internal static void ReadIL(IEnumerable<CodeInstruction> instructionsImport)
-    {
-        List<CodeInstruction> instructions = instructionsImport.ToList();
-
-        for (int i = 0; i < instructions.ToList().Count; i++)
-        {
-            try
-            {
-                Script.Logger.LogInfo($"{i}|| " + instructions[i]);
-            }
-            catch
-            {
-                Script.Logger.LogError("Failed to read instructions");
-            }
-        }
-        Script.Logger.LogWarning("Finished reading IL");
-    }
-
-
     static void Event_OnConfigSettingChanged(string entryKey, bool value)
     {
         if (entryKey == "debugRedBees") logBees = value;
@@ -69,14 +50,17 @@ class BeeAIPatch
     {
         BeeValues beeData = (BeeValues)Utilities.GetEnemyData(__instance, new BeeValues());
 
-        EnemyBehaviourState dummyState = new EnemyBehaviourState();
+        /*EnemyBehaviourState dummyState = new EnemyBehaviourState();
         dummyState.name = "NaturalSelectionDummyState";
-        EnemyBehaviourState[] behaviorStates = new EnemyBehaviourState[5];
+        EnemyBehaviourState[] behaviorStates = new EnemyBehaviourState[__instance.enemyBehaviourStates.Count() + 2];
+        Script.Logger.LogInfo($"1:{behaviorStates.Length}");
         __instance.enemyBehaviourStates.CopyTo(behaviorStates, 0);
         behaviorStates[3] = dummyState;
         behaviorStates[4] = dummyState;
-        __instance.enemyBehaviourStates = behaviorStates;
-
+        */
+        Script.Logger.LogInfo($"1:{__instance.enemyBehaviourStates.Length}");
+        __instance.enemyBehaviourStates = Utilities.InsertExtraStates(__instance.enemyBehaviourStates,5);
+        Script.Logger.LogInfo($"2:{__instance.enemyBehaviourStates.Length}");
 
         Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
     }

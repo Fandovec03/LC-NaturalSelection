@@ -162,7 +162,7 @@ namespace NaturalSelection.EnemyPatches
                     {
                         try
                         {
-                            ReversePatchAIUpdate.originalUpdate.Invoke(__instance);
+                            //ReversePatchAIUpdate.originalUpdate.Invoke(__instance);
                             //Script.LogNS(LogLevel.Message,"Succesfully invoked originalUpdate");
                         }
                         catch (Exception e)
@@ -195,7 +195,7 @@ namespace NaturalSelection.EnemyPatches
                         //Script.LogNS(LogLevel.Message,$"Invoking originalUpdate");
                         try
                         {
-                            ReversePatchAIUpdate.originalUpdate.Invoke(__instance);
+                            //ReversePatchAIUpdate.originalUpdate.Invoke(__instance);
                             //Script.LogNS(LogLevel.Message,"Succesfully invoked originalUpdate");
                         }
                         catch (Exception e)

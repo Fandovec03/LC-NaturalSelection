@@ -11,4 +11,5 @@ namespace NaturalSelection.Networking;
 public interface INaturalSelectNetworking
 {
     EnemyAI OwningEnemy();
+    public delegate void NaturalNetworkDelegate();
 }

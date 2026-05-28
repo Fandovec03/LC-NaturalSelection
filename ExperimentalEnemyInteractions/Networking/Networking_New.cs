@@ -9,8 +9,19 @@ using LogLevel = BepInEx.Logging.LogLevel;
 
 namespace NaturalSelection.Networking
 {
-    public class Networking_New : NetworkBehaviour
-    {  
+    public class Networking_New : NetworkBehaviour, INaturalSelectNetworking
+    {
+        public delegate void NetworkDelegate(NetworkObjectReference netRef, string ID);
+
+        public NetworkDelegate? testDelegate;
+
+        EnemyAI INaturalSelectNetworking.OwningEnemy()
+        {
+            return this.GetComponent<EnemyAI>();
+        }
+
+        public INaturalSelectNetworking.NaturalNetworkDelegate? testInterfaceDelegate;
+
         /*
         [ServerRpc(RequireOwnership = true)]
         public void SandWormBehaviorStateServerRPC(NetworkBehaviour behaviour, int value)
@@ -73,6 +84,10 @@ namespace NaturalSelection.Networking
                 Script.LogNS(LogLevel.Message, $"Got Referenced Network object: ID {NetworkObj.NetworkObjectId}");
             }
             Script.LogNS(LogLevel.Message, $"Got passed ID {ID}");
+
+            this.testDelegate?.Invoke(noRef, ID);
+            this.testInterfaceDelegate?.Invoke();
+
         }
 
         //public static Dictionary<string, Type> NetworkingDictionary = new Dictionary<string, Type>();

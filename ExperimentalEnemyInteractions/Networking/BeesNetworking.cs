@@ -22,7 +22,7 @@ namespace NaturalSelection.Networking
             data = (BeeValues)Utilities.GetEnemyData(parentEnemy, new BlobData());
         }
 
-        public NetworkVariable<float> minChance = new NetworkVariable<float>(0);
+        public NetworkVariable<float> setFireChance = new NetworkVariable<float>(0);
         public NetworkVariable<float> MaxChance = new NetworkVariable<float>(0);
     }
 }

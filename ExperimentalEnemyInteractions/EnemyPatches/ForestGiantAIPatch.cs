@@ -117,7 +117,8 @@ namespace NaturalSelection.EnemyPatches
 
                 if (randomNumber <= Script.BoundingConfig.giantExtinguishChance.Value)
                 {
-                    NetworkExtinguish(__instance).InvokeClients();
+                    //NetworkExtinguish(__instance).InvokeClients();
+                    ((ForestGiantNetworking)giantData.networkScript).ExtinguishFireServerRpc();
                     Script.LogNS(LogLevel.Info,$"successfully extinguished itself. Skipping Update. Rolled {randomNumber}", __instance);
                 }
                 else

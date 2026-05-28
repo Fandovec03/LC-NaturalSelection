@@ -18,7 +18,7 @@ namespace NaturalSelection.EnemyPatches
         internal bool movingTowardsTargetPlayer = false;
         internal bool MovingTowardsTargetEntity = false;
         internal int NetworkSandwormBehaviorState = 0;
-        internal int CacheNetworkSandwormBehaviorState = 0;
+        //internal int CacheNetworkSandwormBehaviorState = 0;
         internal bool CacheMovingTowardsTargetEntity = false;
     }
 
@@ -29,23 +29,23 @@ namespace NaturalSelection.EnemyPatches
         static bool debugSpam = Script.Bools["spammyLogs"];
         static bool triggerFlag = Script.Bools["debugTriggerFlags"];
         static List<string> sandwormBlacklist = InitializeGamePatch.sandwormBlacklist;
-        static LNetworkVariable<int> NetworkSandwormBehaviorState(SandWormAI instance)
+        /*static LNetworkVariable<int> NetworkSandwormBehaviorState(SandWormAI instance)
         {
             string NWID = "NSSandwormBehaviorState" + instance.NetworkObjectId;
             return Networking.NSEnemyNetworkVariable<int>(NWID);
-        }
+        }*/
 
-        static LNetworkVariable<bool> NetworkTargetingEntity(SandWormAI instance)
+        /*static LNetworkVariable<bool> NetworkTargetingEntity(SandWormAI instance)
         {
             string NWID = "NSSandwormTargetingEntity" + instance.NetworkObjectId;
             return Networking.NSEnemyNetworkVariable<bool>(NWID);
-        }
+        }*/
 
-        static LNetworkVariable<bool> NetworkMovingTowardsPlayer(SandWormAI instance)
+        /*static LNetworkVariable<bool> NetworkMovingTowardsPlayer(SandWormAI instance)
         {
             string NWID = "NSSandwormMovingTowardsPlayer" + instance.NetworkObjectId;
             return Networking.NSEnemyNetworkVariable<bool>(NWID);
-        }
+        }*/
 
         ////////////////////////////////////////////
 
@@ -68,9 +68,9 @@ namespace NaturalSelection.EnemyPatches
             data.Subscribe();
             Script.OnConfigSettingChanged += Event_OnConfigSettingChanged;
 
-            NetworkMovingTowardsPlayer(__instance).OnValueChanged += ChangeMovingTowardsPlayer;
+            /*NetworkMovingTowardsPlayer(__instance).OnValueChanged += ChangeMovingTowardsPlayer;
             NetworkTargetingEntity(__instance).OnValueChanged += ChangeMovingTowardsEntity;
-            NetworkSandwormBehaviorState(__instance).OnValueChanged += ChangeNetworkBehaviorState;
+            NetworkSandwormBehaviorState(__instance).OnValueChanged += ChangeNetworkBehaviorState;*/
 
             void ChangeMovingTowardsPlayer(bool oldValue, bool newValue)
             {
@@ -96,7 +96,7 @@ namespace NaturalSelection.EnemyPatches
             SandWormAIData SandwormData = (SandWormAIData)Utilities.GetEnemyData(__instance, new SandWormAIData());
             Type type = __instance.GetType();
 
-            if (__instance.IsOwner)
+            /*if (__instance.IsOwner)
             {
                 if (__instance.movingTowardsTargetPlayer != SandwormData.movingTowardsTargetPlayer)
                 {
@@ -115,7 +115,7 @@ namespace NaturalSelection.EnemyPatches
                     SandwormData.CacheMovingTowardsTargetEntity = SandwormData.MovingTowardsTargetEntity;
                     NetworkTargetingEntity(__instance).Value = SandwormData.MovingTowardsTargetEntity;
                 }
-            }
+            }*/
 
 
 

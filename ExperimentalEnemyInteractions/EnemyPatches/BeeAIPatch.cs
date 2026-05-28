@@ -3,6 +3,7 @@ using GameNetcodeStuff;
 using HarmonyLib;
 //using LethalNetworkAPI;
 using NaturalSelection.Generics;
+using NaturalSelection.Networking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -500,28 +501,32 @@ class BeeAIPatch
                 {
                     if (__instance.IsOwner)
                     {
-                        NSSetOnFireChance(__instance).Value = UnityEngine.Random.Range(0f, 100f);
+                        //NSSetOnFireChance(__instance).Value = UnityEngine.Random.Range(0f, 100f);
+                        ((BeesNetworking)beeData.networkScript).setFireChance.Value = UnityEngine.Random.Range(0f, 100f);
 
                         if (__instance.currentBehaviourStateIndex != 2)
                         {
-                            NSSetOnFireMaxChance(__instance).Value = Script.BoundingConfig.beesSetGiantsOnFireMinChance.Value;
+                            //NSSetOnFireMaxChance(__instance).Value = Script.BoundingConfig.beesSetGiantsOnFireMinChance.Value;
+                            ((BeesNetworking)beeData.networkScript).MaxChance.Value = Script.BoundingConfig.beesSetGiantsOnFireMinChance.Value;
                         }
                         else
                         {
-                            NSSetOnFireMaxChance(__instance).Value = Script.BoundingConfig.beesSetGiantsOnFireMaxChance.Value;
+                            //NSSetOnFireMaxChance(__instance).Value = Script.BoundingConfig.beesSetGiantsOnFireMaxChance.Value;
+                            ((BeesNetworking)beeData.networkScript).MaxChance.Value = Script.BoundingConfig.beesSetGiantsOnFireMaxChance.Value;
                         }
-                        Script.LogNS(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} OnCustomEnemyCollision: Giant hit. Chance to set on fire: {NSSetOnFireMaxChance(__instance).Value} , rolled {NSSetOnFireChance(__instance)}", __instance);;
+                        Script.LogNS(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} OnCustomEnemyCollision: Giant hit. Chance to set on fire: {((BeesNetworking)beeData.networkScript).MaxChance.Value} , rolled {((BeesNetworking)beeData.networkScript).setFireChance.Value}", __instance);;
                     }
                     else
                     {
                         Script.LogNS(LogLevel.Message,"Client not elligible to determine chance to set giant on fire", __instance,logBees);
                     }
-                    if (NSSetOnFireChance(__instance).Value <= NSSetOnFireMaxChance(__instance).Value && __instance.IsOwner)
+                    if (((BeesNetworking)beeData.networkScript).setFireChance.Value <= ((BeesNetworking)beeData.networkScript).MaxChance.Value && __instance.IsOwner)
                     {
-                        Script.LogNS(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} OnCustomEnemyCollision: SET GIANT ON FIRE! Random number: {NSSetOnFireChance(__instance).Value}", __instance);
+                        Script.LogNS(LogLevel.Info,$"{LibraryCalls.DebugStringHead(__instance)} OnCustomEnemyCollision: SET GIANT ON FIRE! Random number: {((BeesNetworking)beeData.networkScript).setFireChance.Value}", __instance);
                         ForestGiantAI giant = (ForestGiantAI)mainscript2;
 
-                        NetworkSetGiantOnFire(giant).InvokeServer();
+                        //NetworkSetGiantOnFire(giant).InvokeServer();
+                        giant.GetComponent<ForestGiantNetworking>().SetGiantOnFireServerRpc();
                     }
                 }
             }

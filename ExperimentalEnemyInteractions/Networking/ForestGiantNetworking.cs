@@ -12,9 +12,8 @@ namespace NaturalSelection.Networking
         RedLocustBees parentEnemy = null;
         GiantData data = null;
 
-        public delegate void GiantNetworkDelegate();
-        public GiantNetworkDelegate? setGiantOnFire;
-        public GiantNetworkDelegate? extinguishFire;
+        public INaturalSelectNetworking.NaturalNetworkDelegate? setGiantOnFire;
+        public INaturalSelectNetworking.NaturalNetworkDelegate? extinguishFire;
 
         EnemyAI INaturalSelectNetworking.OwningEnemy()
         {
@@ -37,6 +36,18 @@ namespace NaturalSelection.Networking
         public void SetGiantOnFireClientRpc()
         {
             setGiantOnFire?.Invoke();
+        }
+
+        [ServerRpc]
+        public void ExtinguishFireServerRpc()
+        {
+            ExtinguishFireClientRpc();
+        }
+
+        [ClientRpc]
+        public void ExtinguishFireClientRpc()
+        {
+            extinguishFire?.Invoke();
         }
     }
 }

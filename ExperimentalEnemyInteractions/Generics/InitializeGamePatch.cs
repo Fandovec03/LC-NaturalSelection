@@ -48,7 +48,8 @@ namespace NaturalSelection.Generics;
             }
 
             LibraryCalls.SubscribeToConfigChanges();
-            Networking.SubscribeToConfigChanges();
+        AddNetworkingScriptsToPrefabs();
+            //Generics.Networking.SubscribeToConfigChanges();
 
             finishedLoading = true;
         }

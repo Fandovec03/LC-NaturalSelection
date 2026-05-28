@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
-using HarmonyLib;
-using UnityEngine;
-using System.Linq;
-using NaturalSelection.Generics;
-using System;
-using BepInEx.Logging;
+﻿using BepInEx.Logging;
 using Dissonance;
-using LogLevel = BepInEx.Logging.LogLevel;
-using Unity.Netcode;
+using HarmonyLib;
+using NaturalSelection.Generics;
 using NaturalSelection.Networking;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Unity.Netcode;
+using UnityEngine;
+using static Unity.Audio.Handle;
+using LogLevel = BepInEx.Logging.LogLevel;
 
 namespace NaturalSelection.EnemyPatches
 {
@@ -21,30 +22,26 @@ namespace NaturalSelection.EnemyPatches
         internal SandSpiderWebTrap? investigateTrap;
         internal bool investigated = false;
         internal float investigateTrapTimer = 0f;
-        internal SandSpiderAIPatchNetworkHelper spiderNetworkHelper = null;
         internal GameObject? networkPrefab = null;
     }
 
-    internal class SandSpiderAIPatchNetworkHelper : NetworkBehaviour
+    static class SandSpiderAIPatchNetworkHelper
     {
-        [ServerRpc]
-        public void TestSpiderServerRPC(NetworkObjectReference noRef, string ID)
+        public static void ReceiveNetworkDelegate(NetworkObjectReference networkObjRef, string ID)
         {
-            Script.LogNS(LogLevel.Message, "Triggered ServerRPC");
-            TestSpiderClientRPC(noRef, ID);
-        }
-
-        [ClientRpc]
-        public void TestSpiderClientRPC(NetworkObjectReference noRef, string ID)
-        {
-            Script.LogNS(LogLevel.Message, "Triggered ClientRPC");
-            noRef.TryGet(out NetworkObject NetworkObj);
+            Script.LogNS(LogLevel.Message, "Natural selection ClientRPC delegate");
+            networkObjRef.TryGet(out NetworkObject NetworkObj);
 
             if (NetworkObj != null)
             {
                 Script.LogNS(LogLevel.Message, $"Got Referenced Network object: ID {NetworkObj.NetworkObjectId}");
             }
             Script.LogNS(LogLevel.Message, $"Got passed ID {ID}");
+        }
+
+        public static void TestDelegate()
+        {
+            Script.LogNS(LogLevel.Message, "Triggered test Interface delegate");
         }
     }
 
@@ -74,7 +71,6 @@ namespace NaturalSelection.EnemyPatches
         static void StartPatch(SandSpiderAI __instance)
         {
             SpiderData data = (SpiderData)Utilities.GetEnemyData(__instance, new SpiderData());
-            data.spiderNetworkHelper = __instance.gameObject.AddComponent<SandSpiderAIPatchNetworkHelper>();
             EnemyBehaviourState dummyState = new EnemyBehaviourState();
             dummyState.name = "NaturalSelectionDummyState";
             EnemyBehaviourState[] behaviorStates = new EnemyBehaviourState[4];
@@ -105,6 +101,9 @@ namespace NaturalSelection.EnemyPatches
                 
             }
             catch (Exception e) { Script.Logger.LogError(e); }
+
+            __instance.gameObject.GetComponent<Networking_New>().testDelegate = SandSpiderAIPatchNetworkHelper.ReceiveNetworkDelegate;
+            __instance.gameObject.GetComponent<Networking_New>().testInterfaceDelegate = SandSpiderAIPatchNetworkHelper.TestDelegate;
         }
 
         [HarmonyPatch("Update")]
@@ -412,7 +411,13 @@ namespace NaturalSelection.EnemyPatches
             if (__instance.isEnemyDead) return;
             SandSpiderAI Ins = __instance;
             SpiderData spiderData = (SpiderData)Utilities.GetEnemyData(__instance, new SpiderData()); ;
-            
+
+            if (__instance.IsServer || __instance.IsOwner)
+            {
+                NetworkObjectReference objectRef = new NetworkObjectReference(__instance.NetworkObject);
+                __instance.gameObject.GetComponent<Networking_New>().TestServerRPC(objectRef, __instance.NetworkObjectId.ToString());
+            }
+
             switch (__instance.currentBehaviourStateIndex)
             {
                 case 0:
